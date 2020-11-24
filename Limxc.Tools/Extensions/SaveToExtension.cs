@@ -1,0 +1,38 @@
+﻿using Limxc.Tools.Utils;
+using Newtonsoft.Json;
+using System;
+using System.IO;
+
+namespace Limxc.Tools.Extensions
+{
+    public static class SaveToExtension
+    {
+        public static void SaveTo(this string msg, string path, string ext = ".txt")
+        {
+            try
+            {
+                path = Path.Combine(EnvPath.BaseDirectory, "Outputs", path, ext);
+
+                var folder = Path.GetDirectoryName(path);
+                if (!Directory.Exists(folder))
+                    Directory.CreateDirectory(folder);
+                File.AppendAllText(path, msg.Trim() + Environment.NewLine);
+            }
+            catch { }
+        }
+
+        public static void SaveTo<T>(this T obj, string ext = ".json")
+        {
+            try
+            {
+                var path = Path.Combine(EnvPath.BaseDirectory, "Outputs", $"{nameof(T)}-{DateTime.Now:yyyyMMddHHmmss}", ext);
+                var folder = Path.GetDirectoryName(path);
+                if (!Directory.Exists(folder))
+                    Directory.CreateDirectory(folder);
+
+                File.AppendAllText(path, JsonConvert.SerializeObject(obj) + Environment.NewLine);
+            }
+            catch { }
+        }
+    }
+}
