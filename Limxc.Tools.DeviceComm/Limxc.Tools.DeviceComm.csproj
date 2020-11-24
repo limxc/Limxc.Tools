@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net472;net48</TargetFrameworks>
+    <Description>Device communication library, and usercontrols for testing.</Description>
   </PropertyGroup>
 
   <ItemGroup>
