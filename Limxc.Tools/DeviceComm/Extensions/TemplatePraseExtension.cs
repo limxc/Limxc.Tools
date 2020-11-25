@@ -7,7 +7,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
     public static class TemplatePraseExtension
     {
         /// <summary>
-        /// 计算指令长度,$n
+        /// 计算指令长度,$n 0-9位
         /// </summary>
         /// <param name="cmd"></param>
         public static int TemplateLength(this string cmd, char sep = '$')
