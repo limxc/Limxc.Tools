@@ -11,7 +11,7 @@ namespace Limxc.Tools.Extensions
         {
             try
             {
-                path = Path.Combine(EnvPath.BaseDirectory, "Outputs", path, ext);
+                path = Path.Combine(EnvPath.OutputDir, path, ext);
 
                 var folder = Path.GetDirectoryName(path);
                 if (!Directory.Exists(folder))
@@ -25,7 +25,7 @@ namespace Limxc.Tools.Extensions
         {
             try
             {
-                var path = Path.Combine(EnvPath.BaseDirectory, "Outputs", $"{nameof(T)}-{DateTime.Now:yyyyMMddHHmmss}", ext);
+                var path = Path.Combine(EnvPath.OutputDir, $"{nameof(T)}-{DateTime.Now:yyyyMMddHHmmss}", ext);
                 var folder = Path.GetDirectoryName(path);
                 if (!Directory.Exists(folder))
                     Directory.CreateDirectory(folder);

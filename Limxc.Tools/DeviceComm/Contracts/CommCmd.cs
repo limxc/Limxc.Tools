@@ -12,14 +12,14 @@ namespace Limxc.Tools.DeviceComm.Contracts
         /// <summary>
         /// 初始化指令模板,占位符 $n n=1-9位 length=n*2
         /// </summary>
-        /// <param name="command"></param>
+        /// <param name="cmdCemplate"></param>
         /// <param name="respTemplate"></param>
         /// <param name="cmdDesc"></param>
         /// <param name="respDesc"></param>
-        public CommCmd(string command, string respTemplate, string cmdDesc = "", string respDesc = "")
+        public CommCmd(string cmdCemplate, string respTemplate, string cmdDesc = "", string respDesc = "")
         {
             Desc = cmdDesc;
-            Template = command.Replace(" ", "").ToUpper();
+            Template = cmdCemplate.Replace(" ", "").ToUpper();
 
             //校验
             if (Template.Length <= 0 || Template.Length % 2 != 0) throw new Exception($"指令格式错误{Template}");
@@ -88,7 +88,7 @@ namespace Limxc.Tools.DeviceComm.Contracts
         {
             return $"Command:[ 描述:{Desc} 指令:{Template.HexStrFormat()}]"
                 + Environment.NewLine
-                + Response.ToString();
+                + Response?.ToString();
         }
     }
 }

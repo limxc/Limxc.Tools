@@ -107,7 +107,7 @@ namespace Limxc.Tools.DeviceComm.Contracts
 
         public override string ToString()
         {
-            return $"Resp:[ 描述:{Desc} 响应:{Template} 响应值:{Value.HexStrFormat()} ]";
+            return $"Resp:[ 描述:{Desc} 响应:{Template} 响应值:{Value?.HexStrFormat()} ]";
         }
     }
 }

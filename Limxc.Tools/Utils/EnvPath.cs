@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 
 namespace Limxc.Tools.Utils
 {
     public static class EnvPath
     {
+        public static string OutputDir => Path.Combine(BaseDirectory, "Outputs");
+        public static string ReportDir => Path.Combine(BaseDirectory, "Reports");
+        public static string ResDir => Path.Combine(BaseDirectory, "Resources");
+
         public static string BaseDirectory
         {
             get

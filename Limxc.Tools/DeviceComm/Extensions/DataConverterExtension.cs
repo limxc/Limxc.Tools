@@ -28,7 +28,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
         /// <param name="length">2(普通) or 4(高低)</param>
         /// <returns></returns>
         public static string ToHexStr(this int value, int length = 2)
-        { 
+        {
             string result = Convert.ToString(value, 16).Trim();//十进制数字转十六进制字符串
 
             result = result.PadLeft(length, '0');
@@ -76,7 +76,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
         /// <param name="byteLength">2/4</param>
         /// <returns></returns>
         public static byte[] ToBytes(this int value)
-        { 
+        {
             var bytes = BitConverter.GetBytes(value);
             if (BitConverter.IsLittleEndian)
                 Array.Reverse(bytes);
@@ -191,6 +191,9 @@ namespace Limxc.Tools.DeviceComm.Extensions
         /// <returns></returns>
         public static string HexStrFormat(this string hexStr)
         {
+            if (string.IsNullOrWhiteSpace(hexStr))
+                return string.Empty;
+
             hexStr = hexStr.ToUpper().Replace(" ", "");
 
             if (hexStr.Length % 2 == 1)
