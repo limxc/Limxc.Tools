@@ -54,22 +54,22 @@ namespace Limxc.Tools.DeviceComm.Contracts
         /// 无返回值 返回new List<string>();
         /// </summary>
         /// <returns></returns>
-        public List<string> GetStrValues() => GetStrValues(Value);
+        public List<string> GetStrValues(bool checkPattern = true) => GetStrValues(Value, checkPattern);
 
         /// <summary>
         /// 无返回值 返回new List<string>();
         /// </summary>
         /// <returns></returns>
-        public List<string> GetStrValues(string resp)
+        public List<string> GetStrValues(string resp, bool checkPattern = true)
         {
             if (string.IsNullOrWhiteSpace(Template))
                 return new List<string>();
 
             resp = resp.Replace(" ", "");
 
-            //校验
+            //校验长度
             if (Length != resp.Length)
-                throw new Exception($"返回值与响应模板不匹配! Template:[{Template}] Value:{resp}");
+                throw new FormatException($"返回值与响应模板不匹配! Template:[{Template}] Value:{resp}");
 
             var values = new List<string>();
 
@@ -88,6 +88,11 @@ namespace Limxc.Tools.DeviceComm.Contracts
                     skipLen += len > 1 ? len - 1 : 0;
                     values.Add(tfv);
                 }
+                else if(checkPattern)//校验每一位固定数值
+                {
+                    if (!resp.Skip((i + skipLen) * 2).Take(2).SequenceEqual(tmplateArray[i]))
+                        throw new FormatException($"返回值与响应模板不匹配! Template:[{Template}] Value:{resp}");
+                }
             }
 
             return values;
@@ -97,13 +102,13 @@ namespace Limxc.Tools.DeviceComm.Contracts
         /// 无返回值 返回new List<int>();
         /// </summary>
         /// <returns></returns>
-        public List<int> GetIntValues() => GetIntValues(Value);
+        public List<int> GetIntValues(bool checkPattern = true) => GetIntValues(Value, checkPattern);
 
         /// <summary>
         /// 无返回值 返回new List<int>();
         /// </summary>
         /// <returns></returns>
-        public List<int> GetIntValues(string resp) => GetStrValues(resp).Select(p => p.ToInt()).ToList();
+        public List<int> GetIntValues(string resp, bool checkPattern = true) => GetStrValues(resp, checkPattern).Select(p => p.ToInt()).ToList();
 
         public override string ToString()
         {

@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using System;
 using System.Diagnostics;
 using Xunit;
 
@@ -27,6 +28,10 @@ namespace Limxc.Tools.DeviceComm.Contracts.Tests
             cmd.Response.Value = cmd.ToCommand(intParams);
             cmd.Response.GetIntValues().Should().BeEquivalentTo(intParams);
             cmd.Response.GetStrValues().Should().BeEquivalentTo(new string[] { "0B", "00DE", "00014D" });
+
+            var cmd2 = new CommCmd("AA0A$10B$20C$3BB", "AA0A$10B$20C$3BD");
+            Assert.Throws(typeof(FormatException), () => cmd2.Response.GetStrValues(cmd2.ToCommand(intParams)));
+            cmd2.Response.GetStrValues(cmd2.ToCommand(intParams), false).Should().BeEquivalentTo(new string[] { "0B", "00DE", "00014D" });
         }
     }
 }
