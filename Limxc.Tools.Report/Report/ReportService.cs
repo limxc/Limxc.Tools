@@ -1,5 +1,5 @@
-﻿using Limxc.Tools.Utils;
-using FastReport;
+﻿using Limxc.Tools.Abstractions;
+using Limxc.Tools.Utils;
 using System;
 using System.Collections;
 using System.IO;
@@ -7,18 +7,11 @@ using System.Threading.Tasks;
 
 namespace Limxc.Tools.Report
 {
-    public enum ReportOptionMode
+    public class ReportService : IReportService
     {
-        Design,
-        Show,
-        Print
-    }
+        private string _reportFolder() => EnvPath.ReportDir;
 
-    public class ReportService  
-    {
-        private string _reportFolder() => Path.Combine(EnvPath.BaseDirectory, "Reports");
-
-        private string _defReportPath() => Path.Combine(EnvPath.BaseDirectory, "Reports", "Default.frx");
+        private string _defReportPath() => Path.Combine(EnvPath.ReportDir, "Default.frx");
 
         /// <summary>
         /// 打印报告单,并保存pdf及png
@@ -51,7 +44,6 @@ namespace Limxc.Tools.Report
             if (!File.Exists(frxPath))
             {
                 File.Copy(_defReportPath(), frxPath);
-
             }
 
             #endregion File

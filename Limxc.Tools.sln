@@ -22,7 +22,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Src", "Src", "{7F1779AD-20F
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{8F3EC7F7-6D4C-41F2-822D-2F6DD0FC2892}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Limxc.Tools.DeviceComm", "Limxc.Tools.DeviceComm\Limxc.Tools.DeviceComm.csproj", "{4B147F67-CB13-434E-A06C-8648EBBEC4D3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Limxc.Tools.DeviceComm", "Limxc.Tools.DeviceComm\Limxc.Tools.DeviceComm.csproj", "{4B147F67-CB13-434E-A06C-8648EBBEC4D3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,10 +1,11 @@
-﻿using SharpConfig;
+﻿using Limxc.Tools.Abstractions;
+using SharpConfig;
 using System;
 using System.IO;
 
 namespace Limxc.Tools.Core.Utils
 {
-    public class ConfigHelper
+    public class FileConfigService : IConfigService
     {
         private string FilePath(string fileName)
         {
