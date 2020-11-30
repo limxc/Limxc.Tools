@@ -25,7 +25,7 @@
         /// <param name="cmdDesc"></param>
         public CPCmdTaskManager(string command, int timeout, int retryCount = 0, string cmdDesc = "") : this(command, "", timeout, 0, cmdDesc, "")
         { }
-         
+
         /// <summary>
         /// 读取超时(毫秒):读取完整数据所需时间,每条指令不同
         /// </summary>

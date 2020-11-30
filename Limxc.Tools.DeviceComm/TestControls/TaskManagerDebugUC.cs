@@ -1,9 +1,7 @@
-﻿
-using Limxc.Tools.DeviceComm.Entities;
+﻿using Limxc.Tools.DeviceComm.Entities;
 using Limxc.Tools.DeviceComm.TaskManager;
 using Limxc.Tools.DeviceComm.Utils;
 using System;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace Limxc.Tools.DeviceComm.TestControls
@@ -81,7 +79,7 @@ namespace Limxc.Tools.DeviceComm.TestControls
             };
 
             Func<CPResp, JobState> RespHandler = (rst) =>
-           {  
+           {
                return JobState.完成;
            };
 
@@ -99,7 +97,7 @@ namespace Limxc.Tools.DeviceComm.TestControls
             sch.AddButch((jd) =>
             {
                 jd.UseExecHandler(ExecHandler).UseCallback(RespHandler);
-            } 
+            }
             //, jd1
             //, jd2
             //, jd3

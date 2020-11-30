@@ -1,49 +1,76 @@
 ﻿using DynamicData;
+using GodSharp.SerialPort;
 using Limxc.Tools.DeviceComm.Entities;
 using Limxc.Tools.DeviceComm.Extensions;
-using Limxc.Tools.DeviceComm.Utils;
 using Limxc.Tools.Extensions;
 using System;
 using System.Reactive.Concurrency;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using static Limxc.Tools.DeviceComm.Utils.SerialPortLibHelper;
 
 namespace Limxc.Tools.DeviceComm.Protocol
 {
-    public class SerialPortProtocol : IProtocol
+    public class SerialPortProtocol_GodSharp : IProtocol
     {
-        private SerialPortLibHelper _sp;
+        private GodSerialPort _sp;
 
         private SourceList<CPContext> _msg;
 
-        public SerialPortProtocol()
+        //private CompositeDisposable _disposables;
+
+        public SerialPortProtocol_GodSharp()
         {
             _msg = new SourceList<CPContext>();
 
-            _sp = new SerialPortLibHelper();
+            //_disposables = new CompositeDisposable();
 
-            IsConnected = Observable.FromEvent<ConnectionStatusChangedEventHandler, ConnectionStatusChangedEventArgs>
-                    (
-                        h => _sp.ConnectionStatusChanged += h,
-                        h => _sp.ConnectionStatusChanged -= h
-                    )
-                .Select(p => p.Connected)
-                .StartWith(false)
-                .DistinctUntilChanged()
-                .Retry()
-                .Publish()
-                .RefCount();
+            //IsConnected = Observable.Empty<bool>();
+            //Received = Observable.Empty<string>();
+            //History = Observable.Empty<CPContext>();
 
-            Received = Observable.FromEvent<MessageReceivedEventHandler, MessageReceivedEventArgs>
-                    (
-                        h => _sp.MessageReceived += h,
-                        h => _sp.MessageReceived -= h
-                    )
-                .Select(p => p.Data.ToHexStr())
-                .Retry()
-                .Publish()
-                .RefCount();
+            //Observable
+            //    .Interval(TimeSpan.FromSeconds(0.5), TaskPoolScheduler.Default)
+            //    .Where(_ => _sp != null)
+            //    .DistinctUntilChanged()
+            //    .FirstAsync()
+            //    .Subscribe(__ =>
+            //    {
+            //        CreateObs();
+            //    }
+            //    ).DisposeWith(_disposables);
+
+            _sp = new GodSerialPort(" ", 9600, 0);
+
+            CreateObs();
+        }
+
+        private void CreateObs()
+        {
+            IsConnected = Observable.Defer(() =>
+            {
+                return Observable
+                        .Interval(TimeSpan.FromSeconds(0.5), TaskPoolScheduler.Default)
+                        .Select(_ => _sp.IsOpen)
+                        .StartWith(false)
+                        .DistinctUntilChanged()
+                        .Retry()
+                        .Publish()
+                        .RefCount();
+            });
+
+            Received = Observable.Defer(() =>
+            {
+                return Observable
+                        .Create<string>(x =>
+                        {
+                            _sp.OnData = (gs, data) => x.OnNext(data.ToHexStr());
+                            return Disposable.Empty;
+                        })
+                        .Retry()
+                        .Publish()
+                        .RefCount();
+            });
 
             History = _msg
                 .Connect()
@@ -72,17 +99,18 @@ namespace Limxc.Tools.DeviceComm.Protocol
                 .AsObservable();
         }
 
-        public IObservable<bool> IsConnected { get; }
-        public IObservable<string> Received { get; }
-        public IObservable<CPContext> History { get; }
+        public IObservable<bool> IsConnected { get; private set; }
+        public IObservable<string> Received { get; private set; }
+        public IObservable<CPContext> History { get; private set; }
 
         public void Dispose()
         {
-            _msg.Dispose();
+            _msg?.Dispose();
 
-            _sp.Disconnect();
+            _sp?.Close();
             _sp = null;
-            //_logger = null;
+
+            //_disposables?.Dispose();
         }
 
         public Task<bool> Send(CPContext cmd)
@@ -91,7 +119,8 @@ namespace Limxc.Tools.DeviceComm.Protocol
             try
             {
                 var cmdStr = cmd.ToCommand();
-                state = _sp.SendMessage(cmdStr.ToByte());
+                state = _sp.WriteAsciiString(cmdStr) > 0;
+
                 if (state)
                 {
                     cmd.SendTime = DateTime.Now;
@@ -109,9 +138,12 @@ namespace Limxc.Tools.DeviceComm.Protocol
             bool state = false;
             try
             {
-                _sp.SetPort(portName, baudRate);
-                _sp.Connect();
-                state = true;
+                Disconnect();
+
+                _sp.PortName = portName;
+                _sp.BaudRate = baudRate;
+
+                state = _sp.Open();
             }
             catch (Exception e)
             {
@@ -124,8 +156,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
             bool state = false;
             try
             {
-                _sp.Disconnect();
-                state = true;
+                state = _sp.Close();
             }
             catch (Exception e)
             {

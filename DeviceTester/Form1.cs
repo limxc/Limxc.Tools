@@ -1,6 +1,7 @@
 ﻿using Limxc.Tools.DeviceComm.Entities;
 using Limxc.Tools.DeviceComm.Protocol;
 using System;
+using System.Reactive.Linq;
 using System.Windows.Forms;
 
 namespace DeviceTester
@@ -12,16 +13,17 @@ namespace DeviceTester
             InitializeComponent();
         }
 
-        private SerialPortProtocol spp;
+        private SerialPortProtocol_GodSharp spp;
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            spp = new SerialPortProtocol();
+            spp = new SerialPortProtocol_GodSharp();
             spp.History.Subscribe(p => Log($"--- history : {p.ToString()}"));
             spp.IsConnected.Subscribe(p => Log($"--- connected : {p.ToString()}"));
             spp.Received.Subscribe(p => Log($"--- received : {p.ToString()}"));
 
-            spp.Start("COM12", 9600);
+            spp.Connect("COM12", 9600);
+
         }
 
         private void Log(string msg)

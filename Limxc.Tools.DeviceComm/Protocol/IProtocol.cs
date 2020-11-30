@@ -6,15 +6,14 @@ namespace Limxc.Tools.DeviceComm.Protocol
 {
     public interface IProtocol : IDisposable
     {
-        IObservable<CPContext> History { get; }
-
         IObservable<bool> IsConnected { get; }
         IObservable<string> Received { get; }
+        IObservable<CPContext> History { get; }
 
         Task<bool> Send(CPContext cmd);
 
-        Task<bool> Start(string portName, int baudRate);
+        Task<bool> Connect(string portName, int baudRate);
 
-        Task<bool> Stop();
+        Task<bool> Disconnect();
     }
 }

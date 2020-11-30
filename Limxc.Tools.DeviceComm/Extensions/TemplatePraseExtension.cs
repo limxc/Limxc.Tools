@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace Limxc.Tools.DeviceComm.Extensions
 {
@@ -34,7 +33,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
         }
 
         public static bool IsMatch(this string template, string resp, char sep = '$')
-        { 
+        {
             if (string.IsNullOrWhiteSpace(template))
                 return string.IsNullOrWhiteSpace(resp);
 
@@ -43,7 +42,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
 
             template = template.Replace(" ", "");
             resp = resp.Replace(" ", "");
-             
+
             var regexStr = string.Empty;
 
             foreach (var item in template.ToStrArray(2))

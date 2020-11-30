@@ -1,5 +1,4 @@
-﻿
-using Limxc.Tools.DeviceComm.Entities;
+﻿using Limxc.Tools.DeviceComm.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -115,7 +114,7 @@ namespace Limxc.Tools.DeviceComm.TaskManager
         {
             get
             {
-                return ExecHandler != null && Command.RetryCount > ExecedCount-1 && State != JobState.完成;
+                return ExecHandler != null && Command.RetryCount > ExecedCount - 1 && State != JobState.完成;
             }
         }
 
