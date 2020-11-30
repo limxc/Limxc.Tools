@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Limxc.Tools.DeviceComm\Limxc.Tools.DeviceComm.csproj" />
     <ProjectReference Include="..\Limxc.Tools\Limxc.Tools.csproj" />
   </ItemGroup>
  

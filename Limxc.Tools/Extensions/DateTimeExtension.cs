@@ -39,5 +39,12 @@ namespace Limxc.Tools.Extensions
         {
             return $"{dateTime:yyyyMMddHHmmssffff}".Substring(0, msLength + 14);
         }
+
+        public static DateTimeOffset ToDateTimeOffset(this DateTime dateTime)
+        {
+            return dateTime.ToUniversalTime() <= DateTimeOffset.MinValue.UtcDateTime
+                       ? DateTimeOffset.MinValue
+                       : new DateTimeOffset(dateTime);
+        }
     }
 }

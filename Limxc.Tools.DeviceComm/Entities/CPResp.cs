@@ -3,12 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Limxc.Tools.DeviceComm.Contracts
+namespace Limxc.Tools.DeviceComm.Entities
 {
     /// <summary>
     /// 自定义版返回值
     /// </summary>
-    public class CommResp
+    public class CPResp
     {
         #region 初始化
 
@@ -17,13 +17,10 @@ namespace Limxc.Tools.DeviceComm.Contracts
         /// </summary>
         /// <param name="template"></param>
         /// <param name="desc"></param>
-        public CommResp(string template = "", string desc = "")
+        public CPResp(string template = "", string desc = "")
         {
             Template = template.Replace(" ", "").ToUpper();
             Desc = desc;
-
-            if (string.IsNullOrWhiteSpace(Template))
-                IsReceived = true;
         }
 
         /// <summary>
@@ -35,11 +32,6 @@ namespace Limxc.Tools.DeviceComm.Contracts
         /// 响应模板,占位符 $n n=1-9位 length=n*2
         /// </summary>
         public string Template { get; }
-
-        /// <summary>
-        /// 标明是否已处理返回值
-        /// </summary>
-        public bool IsReceived { get; set; }
 
         /// <summary>
         /// 原始响应值
@@ -62,36 +54,27 @@ namespace Limxc.Tools.DeviceComm.Contracts
         /// <returns></returns>
         public List<string> GetStrValues(string resp, bool checkPattern = true)
         {
+            var values = new List<string>();
+
             if (string.IsNullOrWhiteSpace(Template))
-                return new List<string>();
+                return values;
 
             resp = resp.Replace(" ", "");
 
-            //校验长度
-            if (Length != resp.Length)
+            if (checkPattern && !Template.IsMatch(resp))
                 throw new FormatException($"返回值与响应模板不匹配! Template:[{Template}] Value:{resp}");
 
-            var values = new List<string>();
-
-            //根据模板获取返回值列表
-            var tmplateArray = Template.ToStrArray(2);
-
+            var arr = Template.ToCharArray();
             int skipLen = 0;
-            //解析数据
-            for (int i = 0; i < tmplateArray.Count(); i++)
+
+            for (int i = 0; i < arr.Length; i++)
             {
-                if (tmplateArray[i].StartsWith("$"))
+                if (arr[i] == '$' && i < arr.Length - 1)
                 {
-                    //取值位数
-                    var len = Convert.ToInt32(tmplateArray[i].Skip(1).FirstOrDefault().ToString());
-                    var tfv = string.Join("", resp.Skip((i + skipLen) * 2).Take(len * 2));
+                    var len = arr[i + 1].ToString().ToInt();
+                    var tfv = new string(resp.Skip(i + skipLen * 2).Take(len * 2).ToArray());
                     skipLen += len > 1 ? len - 1 : 0;
                     values.Add(tfv);
-                }
-                else if(checkPattern)//校验每一位固定数值
-                {
-                    if (!resp.Skip((i + skipLen) * 2).Take(2).SequenceEqual(tmplateArray[i]))
-                        throw new FormatException($"返回值与响应模板不匹配! Template:[{Template}] Value:{resp}");
                 }
             }
 

@@ -1,5 +1,5 @@
 ﻿
-using Limxc.Tools.DeviceComm.Contracts;
+using Limxc.Tools.DeviceComm.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +23,7 @@ namespace Limxc.Tools.DeviceComm.TaskManager
         /// <param name="execInterval">执行间隔</param>
         /// <param name="isCrucialPoint">是否为关键点,中断后续操作</param>
         /// <param name="repeatExecCount">重复执行次数,将自动加入待执行队列.默认0,只执行一次,不重复.</param> <
-        public JobDetail(CPCmd command, bool isCrucialPoint = false, int repeatExecCount = 0, int execInterval = 0)
+        public JobDetail(CPCmdTaskManager command, bool isCrucialPoint = false, int repeatExecCount = 0, int execInterval = 0)
         {
             Id = Guid.NewGuid();
             IsCrucialPoint = isCrucialPoint;
@@ -35,17 +35,17 @@ namespace Limxc.Tools.DeviceComm.TaskManager
         /// <summary>
         /// 指令
         /// </summary>
-        public CPCmd Command { get; private set; }
+        public CPCmdTaskManager Command { get; private set; }
 
         /// <summary>
         /// 命令执行处理器
         /// </summary>
-        public Func<CPCmd, string> ExecHandler { get; private set; }
+        public Func<CPCmdTaskManager, string> ExecHandler { get; private set; }
 
         /// <summary>
         /// 命令执行结果处理器
         /// </summary>
-        public Func<CommResp, JobState> CallbackHandler { get; private set; }
+        public Func<CPResp, JobState> CallbackHandler { get; private set; }
 
         /// <summary>
         /// 任务执行事件列表
@@ -150,7 +150,7 @@ namespace Limxc.Tools.DeviceComm.TaskManager
         /// </param>
         /// <returns>
         /// </returns>
-        public JobDetail UseExecHandler(Func<CPCmd, string> handler, bool overWrite = false)
+        public JobDetail UseExecHandler(Func<CPCmdTaskManager, string> handler, bool overWrite = false)
         {
             if (overWrite || ExecHandler == null)
                 ExecHandler = handler;
@@ -160,7 +160,7 @@ namespace Limxc.Tools.DeviceComm.TaskManager
         /// <summary> 对原始结果处理并返回执行状态 </summary> <param name="handler">处理原始通信结果<see
         /// cref="CPResp.Value">,格式化</param> <param name="overWrite">是否覆盖</param>
         /// <returns></returns>
-        public JobDetail UseCallback(Func<CommResp, JobState> handler, bool overWrite = false)
+        public JobDetail UseCallback(Func<CPResp, JobState> handler, bool overWrite = false)
         {
             if (overWrite || CallbackHandler == null)
                 CallbackHandler = handler;

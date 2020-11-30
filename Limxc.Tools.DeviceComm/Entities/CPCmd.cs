@@ -2,12 +2,12 @@
 using System;
 using System.Linq;
 
-namespace Limxc.Tools.DeviceComm.Contracts
+namespace Limxc.Tools.DeviceComm.Entities
 {
     /// <summary>
     /// 自定义版指令
     /// </summary>
-    public class CommCmd
+    public class CPCmd
     {
         /// <summary>
         /// 初始化指令模板,占位符 $n n=1-9位 length=n*2
@@ -16,7 +16,7 @@ namespace Limxc.Tools.DeviceComm.Contracts
         /// <param name="respTemplate"></param>
         /// <param name="cmdDesc"></param>
         /// <param name="respDesc"></param>
-        public CommCmd(string cmdCemplate, string respTemplate, string cmdDesc = "", string respDesc = "")
+        public CPCmd(string cmdCemplate, string respTemplate, string cmdDesc = "", string respDesc = "")
         {
             Desc = cmdDesc;
             Template = cmdCemplate.Replace(" ", "").ToUpper();
@@ -24,13 +24,13 @@ namespace Limxc.Tools.DeviceComm.Contracts
             //校验
             if (Template.Length <= 0 || Template.Length % 2 != 0) throw new Exception($"指令格式错误{Template}");
 
-            Response = new CommResp(respTemplate, respDesc);
+            Response = new CPResp(respTemplate, respDesc);
         }
 
         /// <summary>
         /// 返回值
         /// </summary>
-        public CommResp Response { get; }
+        public CPResp Response { get; }
 
         /// <summary>
         /// 命令描述
