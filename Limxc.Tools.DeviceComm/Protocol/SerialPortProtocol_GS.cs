@@ -47,13 +47,14 @@ namespace Limxc.Tools.DeviceComm.Protocol
                             });
                             return Disposable.Empty;
                         });
-            }).Debug("receive")
+            })
+            //.Debug("receive")
             .Retry()
             .Publish()
             .RefCount();
 
             History = _msg
-                .Debug("send")
+                //.Debug("send")
                 .SelectMany(p =>
                 {
                     if (p.TimeOut == 0 || string.IsNullOrWhiteSpace(p.Response.Template) || p.SendTime == null)
@@ -76,7 +77,8 @@ namespace Limxc.Tools.DeviceComm.Protocol
                                  return p;
                              })
                              .DefaultIfEmpty(p)
-                             .Debug("merge");
+                             //.Debug("merge")
+                             ;
                 })
                 .SubscribeOn(TaskPoolScheduler.Default)
                 .AsObservable();
@@ -104,7 +106,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
         {
             bool state = false;
             try
-            {
+            { 
                 var cmdStr = cmd.ToCommand();
                 state = _sp.WriteHexString(cmdStr) > 0;
 

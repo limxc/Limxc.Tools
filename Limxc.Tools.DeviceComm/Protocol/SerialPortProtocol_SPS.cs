@@ -42,10 +42,11 @@ namespace Limxc.Tools.DeviceComm.Protocol
                 .Retry()
                 .Publish()
                 .RefCount()
-                .Debug("receive");
+                //.Debug("receive")
+                ;
 
             History = _msg
-                .Debug("send")
+                //.Debug("send")
                 .SelectMany(p =>
                 {
                     if (p.TimeOut == 0 || string.IsNullOrWhiteSpace(p.Response.Template) || p.SendTime == null)
@@ -68,7 +69,8 @@ namespace Limxc.Tools.DeviceComm.Protocol
                                  return p;
                              })
                              .DefaultIfEmpty(p)
-                             .Debug("merge");
+                             //.Debug("merge")
+                             ;
                 })
                 .SubscribeOn(TaskPoolScheduler.Default)
                 .AsObservable();
@@ -89,7 +91,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
         }
 
         /// <summary>
-        /// "使用SerialPortStream: 响应延时建议>256ms"
+        /// 使用SerialPortStream: 响应延时建议>256ms
         /// </summary>
         /// <param name="cmd"></param>
         /// <returns></returns>
