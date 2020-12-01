@@ -15,14 +15,14 @@ namespace DeviceTester
             InitializeComponent();
         }
 
-        private IProtocol sp;
+        private ISerialPortProtocol sp;
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            sp = new SerialPortProtocol_SPS();
-            sp = new SerialPortProtocol();
+            sp = new SerialPortProtocol_SPS(SerialPort.GetPortNames()[0], 9600);
+            sp = new SerialPortProtocol(SerialPort.GetPortNames()[0], 9600);
 
-            sp.IsConnected
+            sp.ConnectionState
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(p => Log($"--- connected : {p.ToString()}"));
             sp.Received
@@ -32,7 +32,7 @@ namespace DeviceTester
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(p => Log($"--- history : {p.ToString()}"));
 
-            sp.Connect(SerialPort.GetPortNames()[0], 9600);
+            sp.Connect();
         }
 
         private void Log(string msg)
@@ -42,7 +42,7 @@ namespace DeviceTester
 
         private void button1_Click(object sender, EventArgs ea)
         {
-            var cmd = new CPContext("AA01021a0304BB", "AA0102$10304BB", Convert.ToInt32(textBox1.Text));
+            var cmd = new CPContext("AA01021a0304BB", "AA0102$10304BB") {  TimeOut = Convert.ToInt32(textBox1.Text) };
             sp.Send(cmd);
 
             //string result;
@@ -61,7 +61,7 @@ namespace DeviceTester
 
         private void button2_Click(object sender, EventArgs e)
         {
-            sp.Connect("COM12", 9600);
+            sp.Connect();
         }
 
         private void button3_Click(object sender, EventArgs e)

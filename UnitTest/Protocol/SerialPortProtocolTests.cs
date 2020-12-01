@@ -25,17 +25,17 @@ namespace Limxc.Tools.DeviceComm.Protocol.Tests
                 return;
 
             Debug.WriteLine($"****** {nameof(SerialPortProtocol_GS)} Test  ******");
-            IProtocol sp = new SerialPortProtocol_GS();
+            var sp = new SerialPortProtocol_GS(SerialPort.GetPortNames()[0], 9600);
 
             var rst = new List<string>();
 
-            await sp.Connect(SerialPort.GetPortNames()[0], 9600);
+            await sp.Connect();
 
             Observable.Merge
                 (
-                    sp.History.Select(p => $"{DateTime.Now:mm:ss ffff} {p}"), 
-                    sp.IsConnected.Select(p => $"{DateTime.Now:mm:ss ffff} 连接状态: {p}"), 
-                    sp.Received.Select(p=>$"{DateTime.Now:mm:ss ffff} receive : {p}")
+                    sp.History.Select(p => $"{DateTime.Now:mm:ss ffff} {p}"),
+                    sp.ConnectionState.Select(p => $"{DateTime.Now:mm:ss ffff} 连接状态: {p}"),
+                    sp.Received.Select(p => $"{DateTime.Now:mm:ss ffff} receive : {p}")
                 )
                 .Subscribe(p =>
                 {
@@ -43,7 +43,7 @@ namespace Limxc.Tools.DeviceComm.Protocol.Tests
                 })
                 .DisposeWith(dis);
 
-            await sp.Send(new CPContext("AA00 0a10 afBB", "AA00$2$1BB", 256));
+            await sp.Send(new CPContext("AA00 0a10 afBB", "AA00$2$1BB") { TimeOut = 256 });
             await Task.Delay(1000);
 
             Assert.True(rst.Count > 0 && rst.Count(p => p.Contains("数据格式错误")) == 0);
@@ -54,14 +54,14 @@ namespace Limxc.Tools.DeviceComm.Protocol.Tests
 
             //-------------
             Debug.WriteLine($"****** {nameof(SerialPortProtocol_SPS)} Test  ******");
-            IProtocol sps = new SerialPortProtocol_SPS();
-             
-            await sps.Connect(SerialPort.GetPortNames()[0], 9600);
+            var sps = new SerialPortProtocol_SPS(SerialPort.GetPortNames()[0], 9600);
+
+            await sps.Connect();
 
             Observable.Merge
                 (
                     sps.History.Select(p => $"{DateTime.Now:mm:ss ffff} {p}"),
-                    sps.IsConnected.Select(p => $"{DateTime.Now:mm:ss ffff} 连接状态: {p}"),
+                    sps.ConnectionState.Select(p => $"{DateTime.Now:mm:ss ffff} 连接状态: {p}"),
                     sps.Received.Select(p => $"{DateTime.Now:mm:ss ffff} receive : {p}")
                 )
                 .Subscribe(p =>
@@ -70,7 +70,7 @@ namespace Limxc.Tools.DeviceComm.Protocol.Tests
                 })
                 .DisposeWith(dis);
 
-            await sps.Send(new CPContext("AA00 0a10 afBB", "AA00$2$1BB", 256));
+            await sps.Send(new CPContext("AA00 0a10 afBB", "AA00$2$1BB") { TimeOut = 256 });
             await Task.Delay(1000);
 
             Assert.True(rst.Count > 0 && rst.Count(p => p.Contains("数据格式错误")) == 0);
@@ -78,7 +78,7 @@ namespace Limxc.Tools.DeviceComm.Protocol.Tests
             rst.ForEach(p => Debug.WriteLine(p));
             rst.Clear();
             await sps.Disconnect();
-             
+
             dis.Dispose();
             sp.Dispose();
             sps.Dispose();

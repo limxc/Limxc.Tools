@@ -1,52 +1,52 @@
-﻿using GodSharp.SerialPort;
-using Limxc.Tools.DeviceComm.Entities;
+﻿using Limxc.Tools.DeviceComm.Entities;
 using Limxc.Tools.DeviceComm.Extensions;
 using Limxc.Tools.Extensions;
+using SimpleTcp;
 using System;
 using System.Reactive.Concurrency;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 
 namespace Limxc.Tools.DeviceComm.Protocol
 {
-    public class SerialPortProtocol_GS : ISerialPortProtocol
+    public class TcpServerProtocol_SST : ITcpProtocol
     {
-        private GodSerialPort _sp;
+        private SimpleTcpServer _sp;
 
         private ISubject<CPContext> _msg;
 
-        public SerialPortProtocol_GS(string portName, int baudRate)
+        public TcpServerProtocol_SST(string ip, int port)
         {
             _msg = new Subject<CPContext>();
 
-            _sp = new GodSerialPort(portName, baudRate, 0);
+            _sp = new SimpleTcpServer(ip, port, false, null, null);
 
-            ConnectionState = Observable.Defer(() =>
-            {
-                return Observable
-                        .Interval(TimeSpan.FromSeconds(0.1), TaskPoolScheduler.Default)
-                        .Select(_ => _sp.IsOpen)
-                        .StartWith(false)
-                        .DistinctUntilChanged()
-                        .Retry()
-                        .Publish()
-                        .RefCount();
-            });
+            var connect = Observable
+                .FromEventPattern<ClientConnectedEventArgs>(h => _sp.Events.ClientConnected += h, h => _sp.Events.ClientConnected -= h)
+                .Select(p => new ProcotolConnectionState()
+                {
+                    IpPort = p.EventArgs.IpPort,
+                    IsConnected = true
+                });
+
+            var disconnect = Observable
+                .FromEventPattern<ClientDisconnectedEventArgs>(h => _sp.Events.ClientDisconnected += h, h => _sp.Events.ClientDisconnected -= h)
+                .Select(p => new ProcotolConnectionState()
+                {
+                    IpPort = p.EventArgs.IpPort,
+                    IsConnected = false
+                });
+
+            ConnectionState = Observable
+                .Merge(connect, disconnect)
+                .Retry();
 
             Received = Observable.Defer(() =>
             {
                 return Observable
-                        .Create<byte[]>(x =>
-                        {
-                            _sp.UseDataReceived(true, (gs, data) =>
-                            {
-                                if (data != null && data.Length > 0)
-                                    x.OnNext(data);
-                            });
-                            return Disposable.Empty;
-                        });
+                            .FromEventPattern<DataReceivedFromClientEventArgs>(h => _sp.Events.DataReceived += h, h => _sp.Events.DataReceived -= h)
+                            .Select(p => p.EventArgs.Data);
             })
             //.Debug("receive")
             .Retry()
@@ -62,7 +62,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
                     var st = ((DateTime)p.SendTime).ToDateTimeOffset();
                     return Received
-                             .Select(d=>d.ToHexStr())
+                             .Select(d => d.ToHexStr())
                              .Timestamp()
                              .SkipUntil(st)
                              .TakeUntil(st.AddMilliseconds(p.TimeOut))
@@ -85,7 +85,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
                 .AsObservable();
         }
 
-        public IObservable<bool> ConnectionState { get; private set; }
+        public IObservable<ProcotolConnectionState> ConnectionState { get; private set; }
         public IObservable<byte[]> Received { get; private set; }
         public IObservable<CPContext> History { get; private set; }
 
@@ -93,9 +93,6 @@ namespace Limxc.Tools.DeviceComm.Protocol
         {
             _msg?.OnCompleted();
             _msg = null;
-
-            _sp?.Close();
-            _sp = null;
         }
 
         /// <summary>
@@ -109,7 +106,9 @@ namespace Limxc.Tools.DeviceComm.Protocol
             try
             {
                 var cmdStr = cmd.ToCommand();
-                state = _sp.WriteHexString(cmdStr) > 0;
+                //state = _sp.WriteHexString(cmdStr) > 0;
+
+                //_sp.Send(ip, b);
 
                 if (state)
                 {
@@ -128,10 +127,13 @@ namespace Limxc.Tools.DeviceComm.Protocol
             bool state = false;
             try
             {
-                if (_sp.IsOpen)
-                    await Disconnect();
+                //if (_sp.IsOpen)
+                //    await Disconnect();
 
-                state = _sp.Open();
+                //_sp.PortName = portName;
+                //_sp.BaudRate = baudRate;
+
+                //state = _sp.Open();
             }
             catch (Exception e)
             {
@@ -144,7 +146,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
             bool state = false;
             try
             {
-                state = _sp.Close();
+                //state = _sp.Close();
             }
             catch (Exception e)
             {

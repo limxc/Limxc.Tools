@@ -11,19 +11,24 @@ using static Limxc.Tools.DeviceComm.Utils.SerialPortStreamHelper;
 
 namespace Limxc.Tools.DeviceComm.Protocol
 {
-    public class SerialPortProtocol_SPS : IProtocol
+    public class SerialPortProtocol_SPS : ISerialPortProtocol
     {
         private SerialPortStreamHelper _sp;
+        private readonly string _portName;
+        private readonly int _baudRate;
 
         private ISubject<CPContext> _msg;
 
-        public SerialPortProtocol_SPS()
+        public SerialPortProtocol_SPS(string portName, int baudRate)
         {
+            _portName = portName;
+            _baudRate = baudRate;
+
             _msg = new Subject<CPContext>();
 
             _sp = new SerialPortStreamHelper();
 
-            IsConnected = Observable.Defer(() =>
+            ConnectionState = Observable.Defer(() =>
             {
                 return Observable
                         .Interval(TimeSpan.FromSeconds(0.1), TaskPoolScheduler.Default)
@@ -38,7 +43,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
             Received = Observable
                 .FromEventPattern<DataReceivedEventHandle, byte[]>(h => _sp.ReceivedEvent += h, h => _sp.ReceivedEvent -= h)
                 .Where(p => p.EventArgs != null && p.EventArgs.Length > 0)
-                .Select(p => p.EventArgs.ToHexStrFromChar())
+                .Select(p => p.EventArgs)
                 .Retry()
                 .Publish()
                 .RefCount()
@@ -54,6 +59,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
                     var st = ((DateTime)p.SendTime).ToDateTimeOffset();
                     return Received
+                             .Select(d=>d.ToHexStrFromChar())
                              .Timestamp()
                              .SkipUntil(st)
                              .TakeUntil(st.AddMilliseconds(p.TimeOut))
@@ -76,8 +82,8 @@ namespace Limxc.Tools.DeviceComm.Protocol
                 .AsObservable();
         }
 
-        public IObservable<bool> IsConnected { get; private set; }
-        public IObservable<string> Received { get; private set; }
+        public IObservable<bool> ConnectionState { get; private set; }
+        public IObservable<byte[]> Received { get; private set; }
         public IObservable<CPContext> History { get; private set; }
 
         public void Dispose()
@@ -91,7 +97,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
         }
 
         /// <summary>
-        /// 使用SerialPortStream: 响应延时建议>256ms
+        /// 使用SerialPortStream: 响应时间建议>256ms
         /// </summary>
         /// <param name="cmd"></param>
         /// <returns></returns>
@@ -115,7 +121,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
             return Task.FromResult(state);
         }
 
-        public async Task<bool> Connect(string portName, int baudRate)
+        public async Task<bool> Connect()
         {
             bool state = false;
             try
@@ -123,7 +129,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
                 if (_sp.IsOpen)
                     await Disconnect();
 
-                state = _sp.Open(portName, baudRate);
+                state = _sp.Open(_portName, _baudRate);
             }
             catch (Exception e)
             {
