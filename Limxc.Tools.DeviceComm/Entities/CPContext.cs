@@ -9,12 +9,12 @@ namespace Limxc.Tools.DeviceComm.Entities
         /// </summary>
         /// <param name="command"></param>
         /// <param name="respTemplate"></param>
-        /// <param name="timeout">读取延时(毫秒):读取完整数据所需时间,每条指令不同</param>
+        /// <param name="timeout">接收延时(毫秒):读取完整数据所需时间,每条指令不同,默认128ms</param>
         /// <param name="cmdDesc"></param>
         /// <param name="respDesc"></param>
         public CPContext
 
-            (string command, string respTemplate, int timeout, string cmdDesc = "", string respDesc = "") : base(command, respTemplate, cmdDesc, respDesc)
+            (string command, string respTemplate, int timeout = 128, string cmdDesc = "", string respDesc = "") : base(command, respTemplate, cmdDesc, respDesc)
         {
             TimeOut = timeout;
             Id = Guid.NewGuid().ToString("N");
@@ -32,7 +32,7 @@ namespace Limxc.Tools.DeviceComm.Entities
         }
 
         /// <summary>
-        /// 读取超时(毫秒):读取完整数据所需时间,每条指令不同
+        /// 接收延时(毫秒): 下位机处理并返回结果的时常
         /// </summary>
         public int TimeOut { get; }
 

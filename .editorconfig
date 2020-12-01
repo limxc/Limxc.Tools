@@ -1,0 +1,13 @@
+﻿[*.cs]
+
+# IDE0059: 不需要赋值
+dotnet_diagnostic.IDE0059.severity = silent
+
+# CS0168: 声明了变量，但从未使用过
+dotnet_diagnostic.CS0168.severity = silent
+ 
+# RCS1075: Avoid empty catch clause that catches System.Exception.
+dotnet_diagnostic.RCS1075.severity = silent
+
+# CS0219: 变量已被赋值，但从未使用过它的值
+dotnet_diagnostic.CS0219.severity = silent

@@ -1,5 +1,4 @@
-﻿using DynamicData;
-using GodSharp.SerialPort;
+﻿using GodSharp.SerialPort;
 using Limxc.Tools.DeviceComm.Entities;
 using Limxc.Tools.DeviceComm.Extensions;
 using Limxc.Tools.Extensions;
@@ -7,50 +6,27 @@ using System;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading.Tasks;
 
 namespace Limxc.Tools.DeviceComm.Protocol
 {
-    public class SerialPortProtocol_GodSharp : IProtocol
+    public class SerialPortProtocol_GS : IProtocol
     {
         private GodSerialPort _sp;
 
-        private SourceList<CPContext> _msg;
+        private ISubject<CPContext> _msg;
 
-        //private CompositeDisposable _disposables;
-
-        public SerialPortProtocol_GodSharp()
+        public SerialPortProtocol_GS()
         {
-            _msg = new SourceList<CPContext>();
-
-            //_disposables = new CompositeDisposable();
-
-            //IsConnected = Observable.Empty<bool>();
-            //Received = Observable.Empty<string>();
-            //History = Observable.Empty<CPContext>();
-
-            //Observable
-            //    .Interval(TimeSpan.FromSeconds(0.5), TaskPoolScheduler.Default)
-            //    .Where(_ => _sp != null)
-            //    .DistinctUntilChanged()
-            //    .FirstAsync()
-            //    .Subscribe(__ =>
-            //    {
-            //        CreateObs();
-            //    }
-            //    ).DisposeWith(_disposables);
+            _msg = new Subject<CPContext>();
 
             _sp = new GodSerialPort(" ", 9600, 0);
 
-            CreateObs();
-        }
-
-        private void CreateObs()
-        {
             IsConnected = Observable.Defer(() =>
             {
                 return Observable
-                        .Interval(TimeSpan.FromSeconds(0.5), TaskPoolScheduler.Default)
+                        .Interval(TimeSpan.FromSeconds(0.1), TaskPoolScheduler.Default)
                         .Select(_ => _sp.IsOpen)
                         .StartWith(false)
                         .DistinctUntilChanged()
@@ -64,18 +40,20 @@ namespace Limxc.Tools.DeviceComm.Protocol
                 return Observable
                         .Create<string>(x =>
                         {
-                            _sp.OnData = (gs, data) => x.OnNext(data.ToHexStr());
+                            _sp.UseDataReceived(true, (gs, data) =>
+                            {
+                                if (data != null && data.Length > 0)
+                                    x.OnNext(data.ToHexStr());
+                            });
                             return Disposable.Empty;
-                        })
-                        .Retry()
-                        .Publish()
-                        .RefCount();
-            });
+                        });
+            }).Debug("receive")
+            .Retry()
+            .Publish()
+            .RefCount();
 
             History = _msg
-                .Connect()
-                .SelectMany(p => p)
-                .Select(p => p.Item.Current)
+                .Debug("send")
                 .SelectMany(p =>
                 {
                     if (p.TimeOut == 0 || string.IsNullOrWhiteSpace(p.Response.Template) || p.SendTime == null)
@@ -86,14 +64,19 @@ namespace Limxc.Tools.DeviceComm.Protocol
                              .Timestamp()
                              .SkipUntil(st)
                              .TakeUntil(st.AddMilliseconds(p.TimeOut))
-                             .FirstAsync(t => p.Response.Template.IsMatch(t.Value))
+                             .FirstOrDefaultAsync(t =>
+                             {
+                                 return p.Response.Template.IsMatch(t.Value);
+                             })
+                             .Where(r => r.Value != null)
                              .Select(r =>
                              {
                                  p.Response.Value = r.Value;
                                  p.ReceivedTime = r.Timestamp.LocalDateTime;
                                  return p;
                              })
-                             .DefaultIfEmpty(p);
+                             .DefaultIfEmpty(p)
+                             .Debug("merge");
                 })
                 .SubscribeOn(TaskPoolScheduler.Default)
                 .AsObservable();
@@ -105,26 +88,30 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
         public void Dispose()
         {
-            _msg?.Dispose();
+            _msg?.OnCompleted();
+            _msg = null;
 
             _sp?.Close();
             _sp = null;
-
-            //_disposables?.Dispose();
         }
 
+        /// <summary>
+        /// 使用GodSharp.SerialPort: 响应延时建议>128ms
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <returns></returns>
         public Task<bool> Send(CPContext cmd)
         {
             bool state = false;
             try
             {
                 var cmdStr = cmd.ToCommand();
-                state = _sp.WriteAsciiString(cmdStr) > 0;
+                state = _sp.WriteHexString(cmdStr) > 0;
 
                 if (state)
                 {
                     cmd.SendTime = DateTime.Now;
-                    _msg.Add(cmd);
+                    _msg.OnNext(cmd);
                 }
             }
             catch (Exception e)
@@ -133,12 +120,13 @@ namespace Limxc.Tools.DeviceComm.Protocol
             return Task.FromResult(state);
         }
 
-        public Task<bool> Connect(string portName, int baudRate)
+        public async Task<bool> Connect(string portName, int baudRate)
         {
             bool state = false;
             try
             {
-                Disconnect();
+                if (_sp.IsOpen)
+                    await Disconnect();
 
                 _sp.PortName = portName;
                 _sp.BaudRate = baudRate;
@@ -148,7 +136,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
             catch (Exception e)
             {
             }
-            return Task.FromResult(state);
+            return await Task.FromResult(state);
         }
 
         public Task<bool> Disconnect()

@@ -90,9 +90,13 @@
       <Project>{4b147f67-cb13-434e-a06c-8648ebbec4d3}</Project>
       <Name>Limxc.Tools.DeviceComm</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Limxc.Tools.Report\Limxc.Tools.Fx.csproj">
+    <ProjectReference Include="..\Limxc.Tools.Fx\Limxc.Tools.Fx.csproj">
       <Project>{2634da37-6a52-4f93-bee1-43e9366462b8}</Project>
       <Name>Limxc.Tools.Fx</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Limxc.Tools\Limxc.Tools.csproj">
+      <Project>{7f72063e-6783-4b30-a438-88ad1b101591}</Project>
+      <Name>Limxc.Tools</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

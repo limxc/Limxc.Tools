@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace Limxc.Tools.DeviceComm.Utils
 {
-    public class CustomSerialPort
+    public class SerialPortStreamHelper
     {
         public static string[] GetPortNames() => SerialPortStream.GetPortNames();
 
@@ -14,7 +14,7 @@ namespace Limxc.Tools.DeviceComm.Utils
 
         protected SerialPortStream sp = null;
 
-        public bool IsOpen => sp.IsOpen;
+        public bool IsOpen => sp?.IsOpen ?? false;
 
         /// <summary>
         /// 是否使用接收超时机制
@@ -93,7 +93,7 @@ namespace Limxc.Tools.DeviceComm.Utils
             }
             catch (Exception e)
             {
-                throw (e);
+                throw;
             }
         }
 

@@ -86,9 +86,7 @@ namespace Limxc.Tools.DeviceComm.Entities
 
         public override string ToString()
         {
-            return $"Command:[ 描述:{Desc} 指令:{Template.HexStrFormat()}]"
-                + Environment.NewLine
-                + Response?.ToString();
+            return $"Command:[ 描述:{Desc} 指令:{Template.HexStrFormat()}] || Response:{Response?.ToString()}";
         }
     }
 }

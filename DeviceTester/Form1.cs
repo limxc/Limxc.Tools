@@ -1,5 +1,6 @@
 ﻿using Limxc.Tools.DeviceComm.Entities;
 using Limxc.Tools.DeviceComm.Protocol;
+using ReactiveUI;
 using System;
 using System.Reactive.Linq;
 using System.Windows.Forms;
@@ -13,17 +14,24 @@ namespace DeviceTester
             InitializeComponent();
         }
 
-        private SerialPortProtocol_GodSharp spp;
+        private IProtocol sp;
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            spp = new SerialPortProtocol_GodSharp();
-            spp.History.Subscribe(p => Log($"--- history : {p.ToString()}"));
-            spp.IsConnected.Subscribe(p => Log($"--- connected : {p.ToString()}"));
-            spp.Received.Subscribe(p => Log($"--- received : {p.ToString()}"));
+            sp = new SerialPortProtocol_SPS();
+            sp = new SerialPortProtocol();
 
-            spp.Connect("COM12", 9600);
+            sp.IsConnected
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(p => Log($"--- connected : {p.ToString()}"));
+            sp.Received
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(p => Log($"--- received : {p.ToString()}"));
+            sp.History
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(p => Log($"--- history : {p.ToString()}"));
 
+            sp.Connect("COM12", 9600);
         }
 
         private void Log(string msg)
@@ -31,9 +39,36 @@ namespace DeviceTester
             richTextBox1.AppendText(msg + Environment.NewLine);
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void button1_Click(object sender, EventArgs ea)
         {
-            spp.Send(new CPContext("AA0102af0304BB", "AA0102$10304BB", 20));
+            var cmd = new CPContext("AA01021a0304BB", "AA0102$10304BB", Convert.ToInt32(textBox1.Text));
+            sp.Send(cmd);
+            //var r = CPTool.Send("Com12",9600,cmd.ToCommand());
+            //Debug.Write(r);
+
+            string result;
+
+            //var sp = new GodSerialPort("Com12", 9600, 0);
+            //sp.UseDataReceived(true, (gs, data) =>
+            //{
+            //    var r = data.ToHexStr();
+            //});
+            ////sp.TryReadSpanTime = 20;
+            //if (sp.Open())
+            //{
+            //    sp.WriteHexString(cmd.ToCommand());
+            //    //result = sp.ReadString();
+            //}
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            sp.Connect("COM12", 9600);
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            sp.Disconnect();
         }
     }
 }

@@ -117,7 +117,18 @@ namespace Limxc.Tools.DeviceComm.Extensions
             }
             return returnStr;
         }
-
+        public static string ToHexStrFromChar(this byte[] bytes)
+        {
+            string returnStr = "";
+            if (bytes != null)
+            {
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    returnStr += (char)bytes[i];
+                }
+            }
+            return returnStr;
+        }
         /// <summary>
         /// 16进制字符串转byte数组
         /// </summary>

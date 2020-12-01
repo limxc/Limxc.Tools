@@ -38,7 +38,7 @@ namespace Limxc.Tools.DeviceComm.Utils
             {
                 Debug.WriteLine(e);
                 if (debug)
-                    throw e;
+                    throw;
                 else
                     result = e.Message;
             }
