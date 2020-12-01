@@ -29,7 +29,7 @@ namespace Limxc.Tools.DeviceComm.Protocol.Tests
 
             var rst = new List<string>();
 
-            await sp.Connect();
+            await sp.OpenAsync();
 
             Observable.Merge
                 (
@@ -43,20 +43,20 @@ namespace Limxc.Tools.DeviceComm.Protocol.Tests
                 })
                 .DisposeWith(dis);
 
-            await sp.Send(new CPContext("AA00 0a10 afBB", "AA00$2$1BB") { TimeOut = 256 });
+            await sp.SendAsync(new CPContext("AA00 0a10 afBB", "AA00$2$1BB") { TimeOut = 256 });
             await Task.Delay(1000);
 
             Assert.True(rst.Count > 0 && rst.Count(p => p.Contains("数据格式错误")) == 0);
 
             rst.ForEach(p => Debug.WriteLine(p));
             rst.Clear();
-            await sp.Disconnect();
+            await sp.CloseAsync();
 
             //-------------
             Debug.WriteLine($"****** {nameof(SerialPortProtocol_SPS)} Test  ******");
             var sps = new SerialPortProtocol_SPS(SerialPort.GetPortNames()[0], 9600);
 
-            await sps.Connect();
+            await sps.OpenAsync();
 
             Observable.Merge
                 (
@@ -70,14 +70,14 @@ namespace Limxc.Tools.DeviceComm.Protocol.Tests
                 })
                 .DisposeWith(dis);
 
-            await sps.Send(new CPContext("AA00 0a10 afBB", "AA00$2$1BB") { TimeOut = 256 });
+            await sps.SendAsync(new CPContext("AA00 0a10 afBB", "AA00$2$1BB") { TimeOut = 256 });
             await Task.Delay(1000);
 
             Assert.True(rst.Count > 0 && rst.Count(p => p.Contains("数据格式错误")) == 0);
 
             rst.ForEach(p => Debug.WriteLine(p));
             rst.Clear();
-            await sps.Disconnect();
+            await sps.CloseAsync();
 
             dis.Dispose();
             sp.Dispose();

@@ -32,7 +32,7 @@ namespace DeviceTester
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(p => Log($"--- history : {p.ToString()}"));
 
-            sp.Connect();
+            sp.OpenAsync();
         }
 
         private void Log(string msg)
@@ -43,7 +43,7 @@ namespace DeviceTester
         private void button1_Click(object sender, EventArgs ea)
         {
             var cmd = new CPContext("AA01021a0304BB", "AA0102$10304BB") {  TimeOut = Convert.ToInt32(textBox1.Text) };
-            sp.Send(cmd);
+            sp.SendAsync(cmd);
 
             //string result;
             //var sp = new GodSerialPort("Com12", 9600, 0);
@@ -61,12 +61,12 @@ namespace DeviceTester
 
         private void button2_Click(object sender, EventArgs e)
         {
-            sp.Connect();
+            sp.OpenAsync();
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            sp.Disconnect();
+            sp.CloseAsync();
         }
     }
 }

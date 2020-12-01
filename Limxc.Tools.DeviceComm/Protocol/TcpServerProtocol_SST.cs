@@ -1,37 +1,39 @@
 ﻿using Limxc.Tools.DeviceComm.Entities;
-using Limxc.Tools.DeviceComm.Extensions;
-using Limxc.Tools.Extensions;
 using SimpleTcp;
 using System;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 
 namespace Limxc.Tools.DeviceComm.Protocol
 {
+    /// <summary>
+    /// 用作下位机服务器,连接客户端一般只有一台
+    /// </summary>
     public class TcpServerProtocol_SST : ITcpProtocol
     {
-        private SimpleTcpServer _sp;
+        private SimpleTcpServer _server;
 
         private ISubject<CPContext> _msg;
+        private string lastIpPort;
 
         public TcpServerProtocol_SST(string ip, int port)
         {
             _msg = new Subject<CPContext>();
 
-            _sp = new SimpleTcpServer(ip, port, false, null, null);
+            _server = new SimpleTcpServer(ip, port, false, null, null);
 
             var connect = Observable
-                .FromEventPattern<ClientConnectedEventArgs>(h => _sp.Events.ClientConnected += h, h => _sp.Events.ClientConnected -= h)
+                .FromEventPattern<ClientConnectedEventArgs>(h => _server.Events.ClientConnected += h, h => _server.Events.ClientConnected -= h)
                 .Select(p => new ProcotolConnectionState()
                 {
                     IpPort = p.EventArgs.IpPort,
                     IsConnected = true
-                });
+                })
+                .Do(p => lastIpPort = p.IpPort);
 
             var disconnect = Observable
-                .FromEventPattern<ClientDisconnectedEventArgs>(h => _sp.Events.ClientDisconnected += h, h => _sp.Events.ClientDisconnected -= h)
+                .FromEventPattern<ClientDisconnectedEventArgs>(h => _server.Events.ClientDisconnected += h, h => _server.Events.ClientDisconnected -= h)
                 .Select(p => new ProcotolConnectionState()
                 {
                     IpPort = p.EventArgs.IpPort,
@@ -45,7 +47,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
             Received = Observable.Defer(() =>
             {
                 return Observable
-                            .FromEventPattern<DataReceivedFromClientEventArgs>(h => _sp.Events.DataReceived += h, h => _sp.Events.DataReceived -= h)
+                            .FromEventPattern<DataReceivedFromClientEventArgs>(h => _server.Events.DataReceived += h, h => _server.Events.DataReceived -= h)
                             .Select(p => p.EventArgs.Data);
             })
             //.Debug("receive")
@@ -53,36 +55,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
             .Publish()
             .RefCount();
 
-            History = _msg
-                //.Debug("send")
-                .SelectMany(p =>
-                {
-                    if (p.TimeOut == 0 || string.IsNullOrWhiteSpace(p.Response.Template) || p.SendTime == null)
-                        return Observable.Return(p);
-
-                    var st = ((DateTime)p.SendTime).ToDateTimeOffset();
-                    return Received
-                             .Select(d => d.ToHexStr())
-                             .Timestamp()
-                             .SkipUntil(st)
-                             .TakeUntil(st.AddMilliseconds(p.TimeOut))
-                             .FirstOrDefaultAsync(t =>
-                             {
-                                 return p.Response.Template.IsMatch(t.Value);
-                             })
-                             .Where(r => r.Value != null)
-                             .Select(r =>
-                             {
-                                 p.Response.Value = r.Value;
-                                 p.ReceivedTime = r.Timestamp.LocalDateTime;
-                                 return p;
-                             })
-                             .DefaultIfEmpty(p)
-                             //.Debug("merge")
-                             ;
-                })
-                .SubscribeOn(TaskPoolScheduler.Default)
-                .AsObservable();
+            History = _msg.AsObservable();
         }
 
         public IObservable<ProcotolConnectionState> ConnectionState { get; private set; }
@@ -96,20 +69,18 @@ namespace Limxc.Tools.DeviceComm.Protocol
         }
 
         /// <summary>
-        /// 使用GodSharp.SerialPort: 响应时间建议>128ms
+        /// 向最后成功连接的客户端发送指令
         /// </summary>
         /// <param name="cmd"></param>
         /// <returns></returns>
-        public Task<bool> Send(CPContext cmd)
+        public async Task<bool> SendAsync(CPContext cmd)
         {
             bool state = false;
             try
             {
                 var cmdStr = cmd.ToCommand();
-                //state = _sp.WriteHexString(cmdStr) > 0;
 
-                //_sp.Send(ip, b);
-
+                await _server.SendAsync(lastIpPort, cmdStr);
                 if (state)
                 {
                     cmd.SendTime = DateTime.Now;
@@ -119,34 +90,28 @@ namespace Limxc.Tools.DeviceComm.Protocol
             catch (Exception e)
             {
             }
-            return Task.FromResult(state);
+            return await Task.FromResult(state); ;
         }
 
-        public async Task<bool> Connect()
+        public async Task<bool> OpenAsync()
         {
             bool state = false;
             try
             {
-                //if (_sp.IsOpen)
-                //    await Disconnect();
-
-                //_sp.PortName = portName;
-                //_sp.BaudRate = baudRate;
-
-                //state = _sp.Open();
+                await _server.StartAsync();
             }
             catch (Exception e)
             {
             }
-            return await Task.FromResult(state);
+            return await Task.FromResult(state); ;
         }
 
-        public Task<bool> Disconnect()
+        public Task<bool> CloseAsync()
         {
             bool state = false;
             try
             {
-                //state = _sp.Close();
+                _server.Stop();
             }
             catch (Exception e)
             {

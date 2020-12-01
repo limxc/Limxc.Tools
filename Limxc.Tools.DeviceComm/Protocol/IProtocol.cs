@@ -1,6 +1,5 @@
 ﻿using Limxc.Tools.DeviceComm.Entities;
 using System;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 
 namespace Limxc.Tools.DeviceComm.Protocol
@@ -11,11 +10,11 @@ namespace Limxc.Tools.DeviceComm.Protocol
         IObservable<byte[]> Received { get; }
         IObservable<CPContext> History { get; }
 
-        Task<bool> Send(CPContext cmd);
+        Task<bool> SendAsync(CPContext cmd);
 
-        Task<bool> Connect();
+        Task<bool> OpenAsync();
 
-        Task<bool> Disconnect();
+        Task<bool> CloseAsync();
     }
 
     public interface ISerialPortProtocol : IProtocol<bool>

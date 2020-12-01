@@ -62,7 +62,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
                     var st = ((DateTime)p.SendTime).ToDateTimeOffset();
                     return Received
-                             .Select(d=>d.ToHexStr())
+                             .Select(d => d.ToHexStr())
                              .Timestamp()
                              .SkipUntil(st)
                              .TakeUntil(st.AddMilliseconds(p.TimeOut))
@@ -103,7 +103,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
         /// </summary>
         /// <param name="cmd"></param>
         /// <returns></returns>
-        public Task<bool> Send(CPContext cmd)
+        public Task<bool> SendAsync(CPContext cmd)
         {
             bool state = false;
             try
@@ -123,13 +123,13 @@ namespace Limxc.Tools.DeviceComm.Protocol
             return Task.FromResult(state);
         }
 
-        public async Task<bool> Connect()
+        public async Task<bool> OpenAsync()
         {
             bool state = false;
             try
             {
                 if (_sp.IsOpen)
-                    await Disconnect();
+                    await CloseAsync();
 
                 state = _sp.Open();
             }
@@ -139,7 +139,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
             return await Task.FromResult(state);
         }
 
-        public Task<bool> Disconnect()
+        public Task<bool> CloseAsync()
         {
             bool state = false;
             try
