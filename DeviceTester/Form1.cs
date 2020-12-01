@@ -2,6 +2,7 @@
 using Limxc.Tools.DeviceComm.Protocol;
 using ReactiveUI;
 using System;
+using System.IO.Ports;
 using System.Reactive.Linq;
 using System.Windows.Forms;
 
@@ -31,7 +32,7 @@ namespace DeviceTester
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(p => Log($"--- history : {p.ToString()}"));
 
-            sp.Connect("COM12", 9600);
+            sp.Connect(SerialPort.GetPortNames()[0], 9600);
         }
 
         private void Log(string msg)
@@ -43,11 +44,8 @@ namespace DeviceTester
         {
             var cmd = new CPContext("AA01021a0304BB", "AA0102$10304BB", Convert.ToInt32(textBox1.Text));
             sp.Send(cmd);
-            //var r = CPTool.Send("Com12",9600,cmd.ToCommand());
-            //Debug.Write(r);
 
-            string result;
-
+            //string result;
             //var sp = new GodSerialPort("Com12", 9600, 0);
             //sp.UseDataReceived(true, (gs, data) =>
             //{

@@ -59,10 +59,10 @@ namespace Limxc.Tools.DeviceComm.Entities
             if (string.IsNullOrWhiteSpace(Template))
                 return values;
 
-            resp = resp.Replace(" ", "");
-
             if (checkPattern && !Template.IsMatch(resp))
                 throw new FormatException($"返回值与响应模板不匹配! Template:[{Template}] Value:{resp}");
+
+            resp = resp.Replace(" ", "");
 
             var arr = Template.ToCharArray();
             int skipLen = 0;
@@ -95,7 +95,25 @@ namespace Limxc.Tools.DeviceComm.Entities
 
         public override string ToString()
         {
-            return $"Resp:[ 描述:{Desc} 响应:{Template} 响应值:{Value?.HexStrFormat()} ]";
+            string strValue = string.Empty;
+            string intValue = string.Empty;
+            try
+            {
+                strValue = string.Join(",", GetStrValues());
+            }
+            catch (Exception e)
+            {
+                strValue = e.Message;
+            }
+            try
+            {
+                intValue = string.Join(",", GetIntValues());
+            }
+            catch (Exception e)
+            {
+                intValue = e.Message;
+            }
+            return $"Resp:[ 描述:{Desc} 响应:{Template} 响应值:{Value?.HexStrFormat()} 解析值: hex=({strValue});int=({intValue}) ]";
         }
     }
 }

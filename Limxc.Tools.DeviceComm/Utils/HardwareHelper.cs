@@ -43,7 +43,7 @@ namespace Limxc.Tools.DeviceComm.Utils
         /// <param name="propKey">筛选范围,默认为属性名</param>
         /// <param name="propValue">筛选条件,默认为COM</param>
         /// <returns></returns>
-        private static string[] GetHardWare(HardwareEnum hardType, string propKey = "Name", string propValue = "COM")
+        public static string[] GetHardWare(HardwareEnum hardType, string propKey = "Name", string propValue = "COM")
         {
             List<string> strs = new List<string>();
             try
