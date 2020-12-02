@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Limxc.Tools.DeviceComm.Protocol
 {
-    public class SerialPortProtocol_GS : ISerialPortProtocol
+    public class SerialPortProtocol_GS : IPortProtocol
     {
         private GodSerialPort _sp;
 

@@ -11,89 +11,51 @@ namespace Limxc.Tools.DeviceComm.Protocol
     /// <summary>
     /// 用作下位机服务器,连接客户端一般只有一台
     /// </summary>
-    public class TcpServerProtocol_SST : ITcpProtocol
+    public class TcpServerProtocol_SST : IPortProtocol
     {
         private SimpleTcpServer _server;
 
         private ISubject<CPContext> _msg;
 
-        public TcpServerProtocol_SST(string ip, int port, params string[] ipWhiteList)
+        private string _clientIpPort;
+
+        public TcpServerProtocol_SST(string ipPort, string allowedIp)
         {
             _msg = new Subject<CPContext>();
 
-            _server = new SimpleTcpServer(ip, port, false, null, null);
+            _server = new SimpleTcpServer(ipPort);
 
             var connect = Observable
-                .FromEventPattern<ClientConnectedEventArgs>(h => _server.Events.ClientConnected += h, h => _server.Events.ClientConnected -= h)
-                .Where(p =>
-                {
-                    try
-                    {
-                        var ipAddr = p.EventArgs.IpPort.Split(':')[0];
-                        return ipWhiteList.Contains(ipAddr);
-                    }
-                    catch
-                    {
-                        return false;
-                    }
-                })
-                .Select(p => new ProcotolConnectionState()
-                {
-                    IpPort = p.EventArgs.IpPort,
-                    IsConnected = true
-                });
+                            .FromEventPattern<ClientConnectedEventArgs>(h => _server.Events.ClientConnected += h, h => _server.Events.ClientConnected -= h)
+                            .Where(p => p.EventArgs.IpPort.StartsWith(allowedIp))
+                            .Select(p => (p.EventArgs.IpPort, true));
 
             var disconnect = Observable
                 .FromEventPattern<ClientDisconnectedEventArgs>(h => _server.Events.ClientDisconnected += h, h => _server.Events.ClientDisconnected -= h)
-                .Where(p =>
-                {
-                    try
-                    {
-                        var ipAddr = p.EventArgs.IpPort.Split(':')[0];
-                        return ipWhiteList.Contains(ipAddr);
-                    }
-                    catch
-                    {
-                        return false;
-                    }
-                })
-                .Select(p => new ProcotolConnectionState()
-                {
-                    IpPort = p.EventArgs.IpPort,
-                    IsConnected = false
-                });
+                .Where(p => p.EventArgs.IpPort.StartsWith(allowedIp))
+                .Select(p => (p.EventArgs.IpPort, false));
 
             ConnectionState = Observable
                 .Merge(connect, disconnect)
+                .Do(p => _clientIpPort = p.IpPort)
+                .Select(p => p.Item2)
                 .Retry();
 
             Received = Observable.Defer(() =>
             {
                 return Observable
                             .FromEventPattern<DataReceivedFromClientEventArgs>(h => _server.Events.DataReceived += h, h => _server.Events.DataReceived -= h)
-                            .Where(p =>
-                            {
-                                try
-                                {
-                                    var ipAddr = p.EventArgs.IpPort.Split(':')[0];
-                                    return ipWhiteList.Contains(ipAddr);
-                                }
-                                catch
-                                {
-                                    return false;
-                                }
-                            })
+                            .Where(p => p.EventArgs.IpPort.StartsWith(allowedIp))
                             .Select(p => p.EventArgs.Data);
             })
-            //.Debug("receive")
             .Retry()
             .Publish()
             .RefCount();
 
-            History = _msg.AsObservable(); 
+            History = _msg.AsObservable();
         }
 
-        public IObservable<ProcotolConnectionState> ConnectionState { get; private set; }
+        public IObservable<bool> ConnectionState { get; private set; }
         public IObservable<byte[]> Received { get; private set; }
         public IObservable<CPContext> History { get; private set; }
 
@@ -103,11 +65,6 @@ namespace Limxc.Tools.DeviceComm.Protocol
             _msg = null;
         }
 
-        /// <summary>
-        /// 向最后成功连接的客户端发送指令
-        /// </summary>
-        /// <param name="cmd"></param>
-        /// <returns></returns>
         public async Task<bool> SendAsync(CPContext cmd)
         {
             bool state = false;
@@ -115,7 +72,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
             {
                 var cmdStr = cmd.ToCommand();
 
-                await _server.SendAsync(cmd.ClientId, cmdStr);
+                await _server.SendAsync(_clientIpPort, cmdStr);
                 if (state)
                 {
                     cmd.SendTime = DateTime.Now;

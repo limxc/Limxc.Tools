@@ -1,12 +1,13 @@
 ﻿using Limxc.Tools.DeviceComm.Entities;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Limxc.Tools.DeviceComm.Protocol
 {
-    public interface IProtocol<TConnectionState> : IDisposable
+    public interface IPortProtocol : IDisposable
     {
-        IObservable<TConnectionState> ConnectionState { get; }
+        IObservable<bool> ConnectionState { get; }
         IObservable<byte[]> Received { get; }
         IObservable<CPContext> History { get; }
 
@@ -15,13 +16,5 @@ namespace Limxc.Tools.DeviceComm.Protocol
         Task<bool> OpenAsync();
 
         Task<bool> CloseAsync();
-    }
-
-    public interface ISerialPortProtocol : IProtocol<bool>
-    {
-    }
-
-    public interface ITcpProtocol : IProtocol<ProcotolConnectionState>
-    {
-    }
+    } 
 }

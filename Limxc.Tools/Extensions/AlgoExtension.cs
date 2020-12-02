@@ -1,9 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Limxc.Tools.Extensions
 {
     public static class AlgoExtension
     {
+        #region Locate
+
+        /// <summary>
+        /// 查找目标值所在位置index
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <param name="pattern"></param>
+        /// <returns></returns>
         public static int[] Locate(this byte[] bytes, byte[] pattern)
         {
             var matches = new List<int>();
@@ -27,6 +37,12 @@ namespace Limxc.Tools.Extensions
             return matches.ToArray();
         }
 
+        /// <summary>
+        /// 查找目标值所在位置index
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <param name="pattern"></param>
+        /// <returns></returns>
         public static int[] Locate(this string bytes, string pattern)
         {
             var matches = new List<int>();
@@ -51,7 +67,7 @@ namespace Limxc.Tools.Extensions
         }
 
         /// <summary>
-        /// 泛型版本要慢3倍左右
+        /// 查找目标值所在位置index, 泛型版本要慢3倍左右
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="bytes"></param>
@@ -78,6 +94,47 @@ namespace Limxc.Tools.Extensions
                 }
             }
             return matches.ToArray();
+        }
+
+        #endregion Locate
+
+        public static (T[][] pack, T[] remain) LocateToPack<T>(this int[] indexes, T[] datas)
+        {
+            var list = new List<T[]>();
+
+            T[] remain = new T[] { };
+            if (indexes.Length == 0 || datas.Length == 0)
+                return (list.ToArray(), remain);
+
+            if (indexes.Max() > datas.Length - 1 || indexes.Min() < 0)
+                throw new ArgumentException($"{nameof(LocateToPack)}: max index {indexes.Max()} > datas length {datas.Length}!");
+
+            var ids = indexes.Distinct().ToList();
+            ids.Sort();
+
+            for (int i = 1; i < ids.Count; i++)
+            {
+                list.Add(datas.Skip(indexes[i - 1]).Take(indexes[i] - indexes[i - 1]).ToArray());
+            }
+            remain = datas.Skip(indexes.Last()).ToArray();
+            return (list.ToArray(), remain);
+        }
+
+        public static (byte[][] pack, byte[] remain) LocateToPack(this byte[] datas, byte[] pattern)
+        {
+            var indexes = datas.Locate(pattern);
+
+            var list = new List<byte[]>();
+            byte[] remain = new byte[] { };
+            if (indexes.Length == 0 || datas.Length == 0)
+                return (list.ToArray(), remain);
+
+            for (int i = 1; i < indexes.Length; i++)
+            {
+                list.Add(datas.Skip(indexes[i - 1]).Take(indexes[i] - indexes[i - 1]).ToArray());
+            }
+            remain = datas.Skip(indexes.Last()).ToArray();
+            return (list.ToArray(), remain);
         }
     }
 }

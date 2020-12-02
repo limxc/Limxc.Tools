@@ -8,11 +8,14 @@
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<DocumentationFile></DocumentationFile>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Remove="Algos\**" />
+	  <EmbeddedResource Remove="Algos\**" />
+	  <None Remove="Algos\**" />
+	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" /> 
 		<PackageReference Include="System.Reactive" Version="5.0.0" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="Algos\" />
 	</ItemGroup>
 </Project>

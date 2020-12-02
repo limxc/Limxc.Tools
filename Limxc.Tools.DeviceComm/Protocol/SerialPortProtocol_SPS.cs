@@ -11,7 +11,7 @@ using static Limxc.Tools.DeviceComm.Utils.SerialPortStreamHelper;
 
 namespace Limxc.Tools.DeviceComm.Protocol
 {
-    public class SerialPortProtocol_SPS : ISerialPortProtocol
+    public class SerialPortProtocol_SPS : IPortProtocol
     {
         private SerialPortStreamHelper _sp;
         private readonly string _portName;

@@ -1,6 +1,7 @@
 ﻿using AutoBogus;
 using FluentAssertions;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Xunit;
@@ -78,7 +79,7 @@ namespace Limxc.Tools.Extensions.Tests
 
             //移除干扰数据
             var source = new string(bs.ToArray());
-            source = source.Replace('a', '0').Replace('b', '0'); 
+            source = source.Replace('a', '0').Replace('b', '0');
 
             //添加匹配项
             var pattern = "ab";
@@ -123,6 +124,78 @@ namespace Limxc.Tools.Extensions.Tests
             var t1 = PerformanceTest(() => source.Locate(pattern));
 
             Debugger.Break();
+        }
+
+        [Fact()]
+        public void LocateToPackGenericTest()
+        {
+            var datas = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+            new int[] { }.LocateToPack(datas).Should().BeEquivalentTo((new byte[][] { }, new byte[] { }));
+
+            Action act = () => new int[] { 11 }.LocateToPack(datas);
+            act.Should().Throw<ArgumentException>();
+            Assert.Throws<ArgumentException>(() => { new int[] { -1 }.LocateToPack(datas); });
+
+            var r1 = new int[] { 9 }.LocateToPack(datas);
+            r1.pack.Should().BeEquivalentTo(new List<byte[]>().ToArray());
+            r1.remain.Should().BeEquivalentTo(new byte[] { 9 });
+
+            new int[] { 0 }.LocateToPack(datas).Should().BeEquivalentTo((
+                                                                            new byte[][] { },
+                                                                            new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
+                                                                          ));
+
+            new int[] { 0, 9 }.LocateToPack(datas).Should().BeEquivalentTo((
+                                                                                new byte[][]
+                                                                                    {
+                                                                                        new byte[]{ 0,1,2,3,4,5,6,7,8 }
+                                                                                    },
+                                                                                new byte[] { 9 }
+                                                                             ));
+
+            new int[] { 1, 3, 6 }.LocateToPack(datas).Should().BeEquivalentTo((
+                                                                                    new byte[][]
+                                                                                    {
+                                                                                        new byte[]{ 1,2 },
+                                                                                        new byte[]{ 3,4,5 }
+                                                                                    },
+                                                                                    new byte[] { 6, 7, 8, 9 }
+                                                                                ));
+        }
+
+        [Fact()]
+        public void LocateToPackTest()
+        {
+            var pattern1 = new byte[] { 0xa };
+            var pattern2 = new byte[] { 0xa, 0xb };
+
+            new byte[] { 0, 1, 0xa, 3, 4, 0xa, 6, 7, 8, 9 }
+                .LocateToPack(pattern1).Should().BeEquivalentTo((
+                                                                    new byte[][]
+                                                                        {
+                                                                            new byte[]{ 0xa,3,4 },
+                                                                        },
+                                                                    new byte[] { 0xa, 6, 7, 8, 9 }
+                                                                  ));
+
+            new byte[] { 0, 1, 0xa, 0xb, 3, 4, 0xa, 6, 7, 8, 9, 0xa }
+                .LocateToPack(pattern1).Should().BeEquivalentTo((
+                                                                    new byte[][]
+                                                                        {
+                                                                            new byte[] { 0xa, 0xb, 3, 4 },
+                                                                            new byte[] { 0xa, 6, 7, 8, 9 }
+                                                                        },
+                                                                    new byte[] { 0xa }
+                                                                  ));
+
+            new byte[] { 0, 1, 0xa, 0xb, 3, 4, 0xa, 6, 7, 8, 9 }
+                .LocateToPack(pattern2).Should().BeEquivalentTo((
+                                                                    new byte[][]
+                                                                        {
+                                                                        },
+                                                                    new byte[] { 0xa, 0xb, 3, 4, 0xa, 6, 7, 8, 9 }
+                                                                  ));
         }
     }
 }
