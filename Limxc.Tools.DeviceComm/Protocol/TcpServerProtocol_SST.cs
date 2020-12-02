@@ -1,6 +1,7 @@
 ﻿using Limxc.Tools.DeviceComm.Entities;
 using SimpleTcp;
 using System;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
@@ -16,7 +17,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
         private ISubject<CPContext> _msg;
 
-        public TcpServerProtocol_SST(string ip, int port)
+        public TcpServerProtocol_SST(string ip, int port, params string[] ipWhiteList)
         {
             _msg = new Subject<CPContext>();
 
@@ -24,6 +25,18 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
             var connect = Observable
                 .FromEventPattern<ClientConnectedEventArgs>(h => _server.Events.ClientConnected += h, h => _server.Events.ClientConnected -= h)
+                .Where(p =>
+                {
+                    try
+                    {
+                        var ipAddr = p.EventArgs.IpPort.Split(':')[0];
+                        return ipWhiteList.Contains(ipAddr);
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                })
                 .Select(p => new ProcotolConnectionState()
                 {
                     IpPort = p.EventArgs.IpPort,
@@ -32,6 +45,18 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
             var disconnect = Observable
                 .FromEventPattern<ClientDisconnectedEventArgs>(h => _server.Events.ClientDisconnected += h, h => _server.Events.ClientDisconnected -= h)
+                .Where(p =>
+                {
+                    try
+                    {
+                        var ipAddr = p.EventArgs.IpPort.Split(':')[0];
+                        return ipWhiteList.Contains(ipAddr);
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                })
                 .Select(p => new ProcotolConnectionState()
                 {
                     IpPort = p.EventArgs.IpPort,
@@ -46,6 +71,18 @@ namespace Limxc.Tools.DeviceComm.Protocol
             {
                 return Observable
                             .FromEventPattern<DataReceivedFromClientEventArgs>(h => _server.Events.DataReceived += h, h => _server.Events.DataReceived -= h)
+                            .Where(p =>
+                            {
+                                try
+                                {
+                                    var ipAddr = p.EventArgs.IpPort.Split(':')[0];
+                                    return ipWhiteList.Contains(ipAddr);
+                                }
+                                catch
+                                {
+                                    return false;
+                                }
+                            })
                             .Select(p => p.EventArgs.Data);
             })
             //.Debug("receive")
@@ -53,7 +90,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
             .Publish()
             .RefCount();
 
-            History = _msg.AsObservable();
+            History = _msg.AsObservable(); 
         }
 
         public IObservable<ProcotolConnectionState> ConnectionState { get; private set; }

@@ -1,7 +1,11 @@
-﻿using Limxc.Tools.DeviceComm.Entities;
+﻿using DynamicData;
+using Limxc.Tools.DeviceComm.Entities;
 using Limxc.Tools.DeviceComm.Protocol;
+using Limxc.Tools.Extensions;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -13,17 +17,19 @@ namespace DeviceTester
         private int _sendPort = 9000;
         private int _receivePort = 9080;
 
-        private string _serverIp = "192.168.0.103";
-        private string _clientIp = "192.168.0.200";
+        private readonly string _serverIp = "192.168.0.103";
+        private readonly string _clientIp = "192.168.0.200";
 
         private TcpServerProtocol_SST _sendServer, _receiveServer;
         public extern string ConnectionPort { [ObservableAsProperty]get; }
         public extern bool ConnectedClients { [ObservableAsProperty]get; }
 
+        private SourceList<byte[]> packs = new SourceList<byte[]>();
+
         public GmdConnector()
         {
-            _sendServer = new TcpServerProtocol_SST(_serverIp, _sendPort);
-            _receiveServer = new TcpServerProtocol_SST(_serverIp, _receivePort);
+            _sendServer = new TcpServerProtocol_SST(_serverIp, _sendPort, _clientIp);
+            _receiveServer = new TcpServerProtocol_SST(_serverIp, _receivePort, _clientIp);
 
             _sendServer.ConnectionState
                 .Select(p => p.IsConnected ? p.IpPort : string.Empty)
@@ -41,16 +47,32 @@ namespace DeviceTester
                 .StartWith(false)
                 .ToPropertyEx(this, x => x.ConnectedClients);
 
-            var packHead = new byte[] { 0xeb, 0x90 };
-            var packTail = new byte[] { };
-
-            //_receiveServer.Received
-            //    .SelectMany(p=>p)
-            //    .Buffer(2,2)
-            //    .BufferUntil(new byte[] { 0xeb ,0x90},)
+            _receiveServer
+                .Received
+                .Subscribe((byte[] bs) =>
+                {
+                    HandlePack(bs);
+                });
         }
 
         #region 硬件参数设置
+
+        #region 分包处理
+
+        private List<byte> tmpList = new List<byte>();
+        private List<byte> packList = new List<byte>();
+        private readonly byte[] packHead = new byte[] { 0xeb, 0x90 };
+
+        private void HandlePack(byte[] bytes)
+        {
+            var indexes = bytes.Locate(packHead);
+            for (int i = 0; i < indexes.Length; i++)
+            {
+
+            }
+        }
+
+        #endregion 分包处理
 
         public async Task Send(string command, string desc = "")
         {
