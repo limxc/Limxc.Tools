@@ -15,7 +15,6 @@ namespace Limxc.Tools.DeviceComm.Protocol
         private SimpleTcpServer _server;
 
         private ISubject<CPContext> _msg;
-        private string lastIpPort;
 
         public TcpServerProtocol_SST(string ip, int port)
         {
@@ -29,8 +28,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
                 {
                     IpPort = p.EventArgs.IpPort,
                     IsConnected = true
-                })
-                .Do(p => lastIpPort = p.IpPort);
+                });
 
             var disconnect = Observable
                 .FromEventPattern<ClientDisconnectedEventArgs>(h => _server.Events.ClientDisconnected += h, h => _server.Events.ClientDisconnected -= h)
@@ -80,7 +78,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
             {
                 var cmdStr = cmd.ToCommand();
 
-                await _server.SendAsync(lastIpPort, cmdStr);
+                await _server.SendAsync(cmd.ClientId, cmdStr);
                 if (state)
                 {
                     cmd.SendTime = DateTime.Now;
@@ -90,7 +88,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
             catch (Exception e)
             {
             }
-            return await Task.FromResult(state); ;
+            return await Task.FromResult(state);
         }
 
         public async Task<bool> OpenAsync()

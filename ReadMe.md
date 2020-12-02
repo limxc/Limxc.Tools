@@ -1,6 +1,6 @@
 
 ### Limxc.Tools.DeviceComm
-##### 1.´®¿Ú
+##### 1.SerialPort 
 
 
     IProtocol sp = new SerialPortProtocol();
@@ -10,7 +10,7 @@
     Observable.Merge
         (
             sp.History.Select(p => $"{DateTime.Now:mm:ss ffff} {p}"),
-            sp.IsConnected.Select(p => $"{DateTime.Now:mm:ss ffff} Á¬½Ó×´Ì¬: {p}"),
+            sp.IsConnected.Select(p => $"{DateTime.Now:mm:ss ffff} State: {p}"),
             sp.Received.Select(p => $"{DateTime.Now:mm:ss ffff} receive : {p}")
         )
         .Subscribe(p =>

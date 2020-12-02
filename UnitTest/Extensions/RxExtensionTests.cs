@@ -12,6 +12,10 @@ namespace Limxc.Tools.Extensions.Tests
 {
     public class RxExtensionTests
     {
+        /*
+            rx不适合处理大量实时数据 
+         */
+
         [Fact()]
         public void CharBufferUntilTest()
         {
@@ -44,7 +48,7 @@ namespace Limxc.Tools.Extensions.Tests
                 .Retry()
                 .SelectMany(p => p)
                 .Subscribe(list.Add);
-            ts.AdvanceTo(str.Length); 
+            ts.AdvanceTo(str.Length);
             new string(list.ToArray()).Should().Be("4aa0000bbaa1111bb43");
         }
 
@@ -97,6 +101,24 @@ namespace Limxc.Tools.Extensions.Tests
                .Subscribe(p => rst = p);
             ts.AdvanceTo(str.Length);
             rst.Should().Be("aa01020304bb");
+
+            //4
+            rst = "";
+            obs
+               .BufferUntil(start, 0, 200)
+               .Select(p => Encoding.Default.GetString(p))
+               .Subscribe(p => rst = p);
+            ts.AdvanceTo(str.Length);
+            rst.Should().Be("aa");
+
+            //5
+            rst = "";
+            obs
+               .BufferUntil(start, 6, 200)
+               .Select(p => Encoding.Default.GetString(p))
+               .Subscribe(p => rst = p);
+            ts.AdvanceTo(str.Length);
+            rst.Should().Be("aa0102");
         }
     }
 }
