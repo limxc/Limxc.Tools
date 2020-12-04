@@ -1,6 +1,5 @@
 ﻿using Limxc.Tools.DeviceComm.Entities;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Limxc.Tools.DeviceComm.Protocol
@@ -16,5 +15,5 @@ namespace Limxc.Tools.DeviceComm.Protocol
         Task<bool> OpenAsync();
 
         Task<bool> CloseAsync();
-    } 
+    }
 }

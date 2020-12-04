@@ -1,57 +1,57 @@
-﻿using GodSharp.SerialPort;
-using Limxc.Tools.DeviceComm.Entities;
+﻿using Limxc.Tools.DeviceComm.Entities;
 using Limxc.Tools.DeviceComm.Extensions;
+using SimpleTcp;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Reactive.Concurrency;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using Limxc.Tools.Extensions;
 
 namespace Limxc.Tools.DeviceComm.Protocol
 {
-    public class SerialPortProtocol_GS : IPortProtocol
+    /// <summary>
+    /// 用作下位机服务器,连接客户端一般只有一台
+    /// </summary>
+    public class TcpClientProtocol_SST : IPortProtocol
     {
-        private GodSerialPort _sp;
+        private SimpleTcpClient _server;
 
         private ISubject<CPContext> _msg;
-        private readonly string _portName;
-        private readonly int _baudRate;
 
-        public SerialPortProtocol_GS(string portName, int baudRate)
+        private readonly string _serverIpPort;
+
+        public TcpClientProtocol_SST(string serverIpPort)
         {
-            _portName = portName;
-            _baudRate = baudRate;
+            if (!serverIpPort.CheckIpPort())
+                throw new ArgumentException($"IpPort Error : {serverIpPort}");
+
+            _serverIpPort = serverIpPort;
 
             _msg = new Subject<CPContext>();
 
-            _sp = new GodSerialPort(_portName, _baudRate, 0);
+            _server = new SimpleTcpClient(_serverIpPort);
 
-            ConnectionState = Observable.Defer(() =>
-            {
-                return Observable
-                            .Interval(TimeSpan.FromSeconds(0.1), TaskPoolScheduler.Default)
-                            .Select(_ => _sp.IsOpen)
-                            .StartWith(false)
-                            .DistinctUntilChanged()
-                            .Retry()
-                            .Publish()
-                            .RefCount();
-            });
+            var connect = Observable
+                            .FromEventPattern(h => _server.Events.Connected += h, h => _server.Events.Connected -= h)
+                            .Select(_ => true)
+                             ;
+
+            var disconnect = Observable
+                .FromEventPattern(h => _server.Events.Disconnected += h, h => _server.Events.Disconnected -= h)
+                .Select(_ => false);
+
+            ConnectionState = Observable
+                .Merge(connect, disconnect)
+                .Retry();
 
             Received = Observable.Defer(() =>
             {
                 return Observable
-                            .Create<byte[]>(x =>
-                            {
-                                _sp.UseDataReceived(true, (gs, data) =>
-                                {
-                                    if (data != null && data.Length > 0)
-                                        x.OnNext(data);
-                                });
-                                return Disposable.Empty;
-                            })
+                            .FromEventPattern<DataReceivedFromServerEventArgs>(h => _server.Events.DataReceived += h, h => _server.Events.DataReceived -= h)
+                            .Select(p => p.EventArgs.Data)
                             .Retry()
                             .Publish()
                             .RefCount()
@@ -77,47 +77,20 @@ namespace Limxc.Tools.DeviceComm.Protocol
         {
             _msg?.OnCompleted();
             _msg = null;
-
-            _sp?.Close();
-            _sp = null;
         }
 
-        /// <summary>
-        /// 使用GodSharp.SerialPort: 响应时间建议>128ms
-        /// </summary>
-        /// <param name="cmd"></param>
-        /// <returns></returns>
-        public Task<bool> SendAsync(CPContext cmd)
+        public async Task<bool> SendAsync(CPContext cmd)
         {
             bool state = false;
             try
             {
                 var cmdStr = cmd.ToCommand();
-                state = _sp.WriteHexString(cmdStr) > 0;
 
-                if (state)
-                {
-                    cmd.SendTime = DateTime.Now;
-                    _msg.OnNext(cmd);
-                }
-            }
-            catch (Exception e)
-            {
-                if (Debugger.IsAttached)
-                    throw e;
-            }
-            return Task.FromResult(state);
-        }
+                await _server.SendAsync(cmdStr);
+                state = true;
 
-        public async Task<bool> OpenAsync()
-        {
-            bool state = false;
-            try
-            {
-                if (_sp.IsOpen)
-                    await CloseAsync();
-
-                state = _sp.Open();
+                cmd.SendTime = DateTime.Now;
+                _msg.OnNext(cmd);
             }
             catch (Exception e)
             {
@@ -127,12 +100,29 @@ namespace Limxc.Tools.DeviceComm.Protocol
             return await Task.FromResult(state);
         }
 
+        public async Task<bool> OpenAsync()
+        {
+            bool state = false;
+            try
+            {
+                _server.Connect();
+                state = true;
+            }
+            catch (Exception e)
+            {
+                if (Debugger.IsAttached)
+                    throw e;
+            }
+            return await Task.FromResult(state); ;
+        }
+
         public Task<bool> CloseAsync()
         {
             bool state = false;
             try
             {
-                state = _sp.Close();
+                _server.Disconnect();
+                state = true;
             }
             catch (Exception e)
             {

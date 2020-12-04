@@ -18,19 +18,19 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
         [Fact()]
         public void IsMatchTest()
         {
-            "AA0000$200 00BB".IsMatch("A A0000A2B30000BB").Should().BeTrue();
-            "AA0 000$20000BB".IsMatch("AA0000abcd0000B B").Should().BeTrue();
-            "AA0000$20000BB".IsMatch("AA0000A2B3D40000BB").Should().BeFalse();
-            "AA0000$20000BB".IsMatch("AA0000a10000BB").Should().BeFalse();
-            "AA0000$20000BB".IsMatch("AA0000AbcH0000BB").Should().BeFalse();
-            "AA0000$20000BB".IsMatch("").Should().BeFalse();
-            "AA0000$20000BB".IsMatch(null).Should().BeFalse();
+            "AA0000$200 00BB".IsTemplateMatch("A A0000A2B30000BB").Should().BeTrue();
+            "AA0 000$20000BB".IsTemplateMatch("AA0000abcd0000B B").Should().BeTrue();
+            "AA0000$20000BB".IsTemplateMatch("AA0000A2B3D40000BB").Should().BeFalse();
+            "AA0000$20000BB".IsTemplateMatch("AA0000a10000BB").Should().BeFalse();
+            "AA0000$20000BB".IsTemplateMatch("AA0000AbcH0000BB").Should().BeFalse();
+            "AA0000$20000BB".IsTemplateMatch("").Should().BeFalse();
+            "AA0000$20000BB".IsTemplateMatch(null).Should().BeFalse();
             string s = null;
-            s.IsMatch("1").Should().BeFalse();
-            s.IsMatch("").Should().BeTrue();
+            s.IsTemplateMatch("1").Should().BeFalse();
+            s.IsTemplateMatch("").Should().BeTrue();
 
-            "2".IsMatch(s).Should().BeFalse();
-            "".IsMatch(s).Should().BeTrue(); 
+            "2".IsTemplateMatch(s).Should().BeFalse();
+            "".IsTemplateMatch(s).Should().BeTrue(); 
         }
     }
 }

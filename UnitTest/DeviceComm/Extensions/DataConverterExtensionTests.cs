@@ -10,7 +10,6 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
 
         private string s1 = "Ab Cde fGH";
         private string s2 = "abcdef";
-         
 
         [Fact()]
         public void ToStrArrayTest()
@@ -31,7 +30,6 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
         {
             i1.ToHexStr().ToInt().Should().Be(i1);
 
-            
             "A".ToInt().Should().Be(10);
 
             26.ToHexStr(2).Should().Be("1a");
@@ -43,6 +41,16 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
         [Fact()]
         public void Int_ByteTest()
         {
+            new byte[] { 0, 1 }.ToInt().Should().Be(1);
+            new byte[] { 0, 0, 0, 1 }.ToInt().Should().Be(1);
+            new byte[] { 255, 255 }.ToInt().Should().Be(65535);
+            new byte[] { 0, 0, 255, 255 }.ToInt().Should().Be(65535);//big endian
+            new byte[] { 0, 1, 0, 0 }.ToInt().Should().Be(65536);
+
+            i1.ToBytes(true).ToInt().Should().Be(i1);
+            int.MaxValue.ToBytes(true).ToInt().Should().Be(65535);
+            int.MinValue.ToBytes(true).ToInt().Should().Be(0);
+
             i1.ToBytes().ToInt().Should().Be(i1);
             i2.ToBytes().ToInt().Should().Be(i2);
         }

@@ -14,6 +14,7 @@ namespace Limxc.Tools.DeviceComm.Entities
         public int TimeOut { get; set; } = 256;
 
         public string Id { get; set; }
+        public object Data { get; set; }
 
         public DateTime? SendTime { get; set; }
         public DateTime? ReceivedTime { get; set; }

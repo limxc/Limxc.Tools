@@ -59,7 +59,7 @@ namespace Limxc.Tools.DeviceComm.Entities
             if (string.IsNullOrWhiteSpace(Template))
                 return values;
 
-            if (checkPattern && !Template.IsMatch(resp))
+            if (checkPattern && !Template.IsTemplateMatch(resp))
                 throw new FormatException($"返回值与响应模板不匹配! Template:[{Template}] Value:{resp}");
 
             resp = resp.Replace(" ", "");

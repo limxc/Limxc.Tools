@@ -1,9 +1,8 @@
 ﻿using DynamicData;
 using Limxc.Tools.DeviceComm.Entities;
+using Limxc.Tools.DeviceComm.Extensions;
 using Limxc.Tools.DeviceComm.Protocol;
 using Limxc.Tools.Extensions;
-using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
 using System;
 using System.Linq;
 using System.Reactive.Linq;
@@ -11,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DeviceTester
 {
-    public class GmdConnector : ReactiveObject
+    public class GmdConnector : IDisposable
     {
         private int _sendPort = 9000;
         private int _receivePort = 9080;
@@ -21,58 +20,61 @@ namespace DeviceTester
 
         private TcpServerProtocol_SST _sendServer, _receiveServer;
 
-        public extern bool IsConnected { [ObservableAsProperty]get; }
-
-        private SourceList<byte[]> packs = new SourceList<byte[]>();
+        public IObservable<bool> IsConnected { get; }
+        public IObservable<(int channel, int[] value)> Datas { get; }
 
         public GmdConnector()
         {
-            _sendServer = new TcpServerProtocol_SST(_serverIp + ":" + _sendPort, _clientIp);
-            _receiveServer = new TcpServerProtocol_SST(_serverIp + ":" + _receivePort, _clientIp);
+            _sendServer = new TcpServerProtocol_SST(_serverIp + ":" + _sendPort, _clientIp + ":" + _sendPort);
+            _receiveServer = new TcpServerProtocol_SST(_serverIp + ":" + _receivePort, "");
 
-            _sendServer.ConnectionState
+            IsConnected = _sendServer.ConnectionState
                 .CombineLatest(_receiveServer.ConnectionState)
-                .Select(p => p.First && p.Second)
-                //.ObserveOn(RxApp.MainThreadScheduler)
-                .ToPropertyEx(this, x => x.IsConnected);
+                .Select(p => p.First && p.Second);
 
-            _receiveServer
+            Datas = _receiveServer
                 .Received
-                .Subscribe((byte[] bs) =>
-                {
-                    HandlePack(bs);
-                });
-
-            packs.Connect()
                 .SelectMany(p => p)
-                .Select(p => p.Item.Current)
-                .Subscribe(pack =>
+                .SeparatorMessagePackParser(packHead)
+                .Where(p => p.Length == 4096 - 2)
+                .Select(pack =>
                 {
-                    //todo
-                });
+                    var channel = pack.Take(2).ToArray().ToInt();
+                    //2046个点
+                    var value = pack.Skip(2).Split(2).Select(p => p.ToArray().ToInt()).ToArray();
+                    return (channel, value);
+                })
+                .Retry()
+                .Publish()
+                .RefCount();
         }
 
-        #region 分包处理
-
-        private byte[] lastPackRemains = new byte[0];
         private readonly byte[] packHead = new byte[] { 0xeb, 0x90 };
 
-        private void HandlePack(byte[] bytes)
+        public void Open()
         {
-            Array.Copy(lastPackRemains, bytes, lastPackRemains.Length);
-
-            var rst = bytes.LocateToPack(packHead);
-            packs.AddRange(rst.pack);
-            lastPackRemains.AddRange(rst.remain);
+            _sendServer.OpenAsync();
+            _receiveServer.OpenAsync();
         }
 
-        #endregion 分包处理
+        public void Close()
+        {
+            _sendServer.CloseAsync();
+            _receiveServer.CloseAsync();
+        }
+
+        public void Dispose()
+        {
+            _sendServer.Dispose();
+            _receiveServer.Dispose();
+        }
 
         #region 硬件参数设置
 
-        public Task<bool> Send(string command, string desc = "")
+        public async Task<bool> Send(string command, string desc = "")
         {
-            return _sendServer.SendAsync(new CPContext(command, ""));
+            var r = await _sendServer.SendAsync(new CPContext(command, "", desc));
+            return r;
         }
 
         /// <summary>
@@ -93,7 +95,7 @@ namespace DeviceTester
         /// <summary>
         /// 每秒采样次数 (n*4条)
         /// </summary>
-        /// <param name="rate">5-25</param>
+        /// <param name="rate">5,10,15,20,25</param>
         public Task<bool> SetHwSampleRate(int rate = 5)
         {
             switch (rate)
@@ -119,7 +121,7 @@ namespace DeviceTester
         /// <summary>
         /// 硬件增益值
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">80,90,100,110,120</param>
         public Task<bool> SetHwGainValue(int value)
         {
             switch (value)

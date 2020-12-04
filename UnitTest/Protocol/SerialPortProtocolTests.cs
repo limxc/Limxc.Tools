@@ -46,11 +46,16 @@ namespace Limxc.Tools.DeviceComm.Protocol.Tests
             await sp.SendAsync(new CPContext("AA00 0a10 afBB", "AA00$2$1BB") { TimeOut = 256 });
             await Task.Delay(1000);
 
-            Assert.True(rst.Count > 0 && rst.Count(p => p.Contains("数据格式错误")) == 0);
+            Assert.True(rst.Count > 0 && rst.Count(p => p.Contains("不匹配")) == 0);
+
+            await sp.CloseAsync();
+
+            dis.Dispose();
+            dis = new CompositeDisposable();
 
             rst.ForEach(p => Debug.WriteLine(p));
+            Debugger.Break();
             rst.Clear();
-            await sp.CloseAsync();
 
             //-------------
             Debug.WriteLine($"****** {nameof(SerialPortProtocol_SPS)} Test  ******");
@@ -73,17 +78,17 @@ namespace Limxc.Tools.DeviceComm.Protocol.Tests
             await sps.SendAsync(new CPContext("AA00 0a10 afBB", "AA00$2$1BB") { TimeOut = 256 });
             await Task.Delay(1000);
 
-            Assert.True(rst.Count > 0 && rst.Count(p => p.Contains("数据格式错误")) == 0);
+            Assert.True(rst.Count > 0 && rst.Count(p => p.Contains("不匹配")) == 0);
+
+            await sps.CloseAsync();
+            dis.Dispose();
 
             rst.ForEach(p => Debug.WriteLine(p));
+            Debugger.Break();
             rst.Clear();
-            await sps.CloseAsync();
 
-            dis.Dispose();
             sp.Dispose();
             sps.Dispose();
-
-            Debugger.Break();
         }
     }
 }

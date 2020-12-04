@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Limxc.Tools.DeviceComm.Extensions
@@ -36,9 +37,9 @@ namespace Limxc.Tools.DeviceComm.Extensions
             if (result.Length % 2 == 1)
                 result = "0" + result;
 
-            if (length < result.Length)//数值过大 导致长度增加
+            if (length < result.Length) 
             {
-                throw new Exception("数值过大导致长度增加");
+                throw new Exception($"Result Length Changed. From {length} to {result.Length}");
             }
 
             return result;
@@ -62,7 +63,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
         /// <returns></returns>
         public static int[] ToIntArray(this string hexStr, int length)
         {
-            return hexStr.ToStrArray(length).ToIntArray();
+            return hexStr.ToStrArray(length).ToIntArray().ToArray();
         }
 
         #endregion int hexstr
@@ -70,31 +71,86 @@ namespace Limxc.Tools.DeviceComm.Extensions
         #region Int Bytes
 
         /// <summary>
-        /// int 转 byte数组 (Big Endian)
+        /// int 转 byte数组(2/4)
         /// </summary>
         /// <param name="value"></param>
-        /// <param name="byteLength">2/4</param>
+        /// <param name="take2Bit">0-65535</param>
         /// <returns></returns>
-        public static byte[] ToBytes(this int value)
+        public static byte[] ToBytes(this int value, bool take2Bit = false)
         {
+            if (take2Bit)
+            {
+                byte[] result = new byte[2];
+                result[0] = (byte)((value >> 8) & 0xFF);
+                result[1] = (byte)(value & 0xFF);
+                return result;
+            }
+
             var bytes = BitConverter.GetBytes(value);
             if (BitConverter.IsLittleEndian)
                 Array.Reverse(bytes);
 
             return bytes;
+
+            //if (byteLength != 2 && byteLength != 4)
+            //    throw new NotSupportedException($"Bytes Length Should Be : 2 or 4");
+
+            //byte[] result = new byte[byteLength];
+            //if (byteLength == 2)
+            //{
+            //    result[0] = (byte)((value >> 8) & 0xFF);
+            //    result[1] = (byte)(value & 0xFF);
+            //}
+            //if (byteLength == 4)
+            //{
+            //    result[0] = (byte)((value >> 24) & 0xFF);
+            //    result[1] = (byte)((value >> 16) & 0xFF);
+            //    result[2] = (byte)((value >> 8) & 0xFF);
+            //    result[3] = (byte)(value & 0xFF);
+            //}
+            //return result;
         }
 
         /// <summary>
-        ///  byte数组 转 int (Big Endian)
+        ///  byte数组(2/4) 转 int
         /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
         public static int ToInt(this byte[] bytes)
         {
+            if (bytes.Length == 2)
+            { 
+                int num = bytes[1] & 0xFF;
+                num |= ((bytes[0] << 8) & 0xFF00);
+                return num;
+            }
+
             if (BitConverter.IsLittleEndian)
                 Array.Reverse(bytes);
             return BitConverter.ToInt32(bytes, 0);
+
+            //var byteLength = bytes.Length;
+            //if (byteLength != 2 && byteLength != 4)
+            //    throw new NotSupportedException($"Bytes Length Should Be : 2 or 4");
+
+            //int num = -1;
+
+            //if (byteLength == 2)
+            //{
+            //    num = bytes[1] & 0xFF;
+            //    num |= ((bytes[0] << 8) & 0xFF00);
+            //}
+            //if (byteLength == 4)
+            //{
+            //    num = bytes[3] & 0xFF;
+            //    num |= ((bytes[2] << 8) & 0xFF00);
+            //    num |= ((bytes[1] << 16) & 0xFF0000);
+            //    num |= ((bytes[0] << 24) & 0xFF0000);
+            //}
+
+            //return num;
         }
+         
 
         #endregion Int Bytes
 
@@ -117,6 +173,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
             }
             return returnStr;
         }
+
         public static string ToHexStrFromChar(this byte[] bytes)
         {
             string returnStr = "";
@@ -129,6 +186,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
             }
             return returnStr;
         }
+
         /// <summary>
         /// 16进制字符串转byte数组
         /// </summary>
@@ -138,7 +196,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
         {
             hexString = hexString.Replace(" ", "");
             if ((hexString.Length % 2) != 0)
-                throw new FormatException($"16进制字符串长度错误:{hexString.Length}");
+                throw new FormatException($"Hex String Length Error : {hexString.Length}");
 
             byte[] returnBytes = new byte[hexString.Length / 2];
             for (int i = 0; i < returnBytes.Length; i++)
@@ -181,7 +239,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
             hexStr = hexStr.Replace(" ", "");
 
             if (hexStr.Length < (length) || hexStr.Length % (length) != 0)
-                throw new FormatException($"数据格式错误:{hexStr}");
+                throw new FormatException($"Length Error (2 or 4) : {hexStr}");
 
             var ay = hexStr.ToCharArray();
             var rst = new string[ay.Length / (length)];

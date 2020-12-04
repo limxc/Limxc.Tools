@@ -32,7 +32,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
             }
         }
 
-        public static bool IsMatch(this string template, string resp, char sep = '$')
+        public static bool IsTemplateMatch(this string template, string resp, char sep = '$')
         {
             if (string.IsNullOrWhiteSpace(template))
                 return string.IsNullOrWhiteSpace(resp);

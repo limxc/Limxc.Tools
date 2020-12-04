@@ -19,7 +19,7 @@ namespace Limxc.Tools.Extensions
         {
             return obs.Do(p =>
             {
-                System.Diagnostics.Debug.WriteLine($"****** {msg ?? "Rx"} @{DateTime.Now:mm:ss fff} : {p.ToString()} ******");
+                System.Diagnostics.Debug.WriteLine($"****** {msg ?? "Rx"} @ {DateTime.Now:mm:ss fff} : {p.ToString()} ******");
             });
         }
 
@@ -27,9 +27,9 @@ namespace Limxc.Tools.Extensions
         {
             return obs
                     .Subscribe(
-                        x => Console.WriteLine($"OnNext @{DateTime.Now:mm:ss ffff} : {x}"),
-                        e => Console.WriteLine($"OnError @{DateTime.Now:mm:ss ffff} : {e.Message}"),
-                        () => Console.WriteLine($"OnComplete @{DateTime.Now:mm:ss ffff}")
+                        x => Console.WriteLine($"OnNext @ {DateTime.Now:mm:ss ffff} : {x}"),
+                        e => Console.WriteLine($"OnError @ {DateTime.Now:mm:ss ffff} : {e.Message}"),
+                        () => Console.WriteLine($"OnComplete @ {DateTime.Now:mm:ss ffff}")
                     );
         }
 
