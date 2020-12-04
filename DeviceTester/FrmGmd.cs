@@ -1,5 +1,6 @@
 ﻿using Limxc.Tools.Extensions;
 using System;
+using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Windows.Forms;
 
@@ -26,7 +27,7 @@ namespace DeviceTester
                 .Subscribe(p => button1.Enabled = p,
                 ex =>
                 {
-
+                    Debug.WriteLine("Connected Error : " + ex.Message);
                 });
 
             connector.Datas
@@ -40,15 +41,25 @@ namespace DeviceTester
                     richTextBox1.ScrollToCaret();
                 }, ex =>
                 {
-
+                    Debug.WriteLine("Data Received Error : " + ex.Message);
                 });
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private async void button1_Click(object sender, EventArgs e)
         {
-            connector.SetHwGainValue(100);
-            connector.SetHwSampleRate(5);
-            connector?.Start();
+            await connector.SetHwGainValue(100);
+            await connector.SetHwSampleRate(5);
+            await connector.Start();
+        }
+
+        private async void button2_Click(object sender, EventArgs e)
+        {
+            await connector.Stop();
+        }
+
+        private async void button3_Click(object sender, EventArgs e)
+        {
+            await connector.Adjust();
         }
     }
 }

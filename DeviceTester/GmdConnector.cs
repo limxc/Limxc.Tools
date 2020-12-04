@@ -1,5 +1,4 @@
-﻿using DynamicData;
-using Limxc.Tools.DeviceComm.Entities;
+﻿using Limxc.Tools.DeviceComm.Entities;
 using Limxc.Tools.DeviceComm.Extensions;
 using Limxc.Tools.DeviceComm.Protocol;
 using Limxc.Tools.Extensions;
@@ -31,7 +30,7 @@ namespace DeviceTester
             IsConnected = _sendServer.ConnectionState
                 .CombineLatest(_receiveServer.ConnectionState)
                 .Select(p => p.First && p.Second);
-
+             
             Datas = _receiveServer
                 .Received
                 .SelectMany(p => p)
