@@ -21,6 +21,11 @@ namespace Limxc.Tools.DeviceComm.Entities
 
         public string Id { get; set; }
 
+        /// <summary>
+        /// 重试次数( +1 = 运行次数 )
+        /// </summary>
+        public int RetryTimes { get; set; } = 0;
+
         public object Data { get; set; }
 
         public DateTime? SendTime { get; set; }
@@ -50,7 +55,7 @@ namespace Limxc.Tools.DeviceComm.Entities
         Success = 2,
 
         /// <summary>
-        /// 解析超时
+        /// 解析超时(返回值丢失)
         /// </summary>
         Timeout = 3
     }

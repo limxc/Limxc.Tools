@@ -10,7 +10,7 @@
         (
             sp.History.Select(p => $"{DateTime.Now:mm:ss fff} {p}"),
             sp.IsConnected.Select(p => $"{DateTime.Now:mm:ss fff} State: {p}"),
-            sp.Received.Select(p => $"{DateTime.Now:mm:ss fff} receive : {p}")
+            sp.Received.Select(p => $"{DateTime.Now:mm:ss fff} Receive : {p}")
         )
         .Subscribe(p =>
         {
@@ -27,8 +27,8 @@
 
     var simulator = new ProtocolDeviceSimulator();
 
-    simulator.ConnectionState.Select(p => $"@ {DateTime.Now:mm:ss fff} 连接状态 : {p}").Subscribe(p => msg.Add(p));
-    simulator.Received.Select(p => $"@ {DateTime.Now:mm:ss fff} 接收 : {p.ToHexStr()}").Subscribe(p => msg.Add(p));
+    simulator.ConnectionState.Select(p => $"@ {DateTime.Now:mm:ss fff} State : {p}").Subscribe(p => msg.Add(p));
+    simulator.Received.Select(p => $"@ {DateTime.Now:mm:ss fff} Receive : {p.ToHexStr()}").Subscribe(p => msg.Add(p));
     simulator.History.Subscribe(p =>
     {
         msg.Add($"@ {DateTime.Now:mm:ss fff} {p}");

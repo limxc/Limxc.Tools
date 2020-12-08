@@ -1,17 +1,20 @@
 ﻿using Limxc.Tools.DeviceComm.Entities;
+using Limxc.Tools.DeviceComm.Protocol;
 using Limxc.Tools.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Limxc.Tools.DeviceComm.Extensions
 {
     public static class ProtocolExtension
     {
         /// <summary>
-        /// 匹配解析返回值
+        /// 返回值匹配及解析
         /// </summary>
         /// <param name="cmd"></param>
         /// <param name="resp"></param>
@@ -59,6 +62,13 @@ namespace Limxc.Tools.DeviceComm.Extensions
                 ;
         }
 
+        /// <summary>
+        /// 字节流分包 (1bit头 1bit尾)
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="bom"></param>
+        /// <param name="eom"></param>
+        /// <returns></returns>
         public static IObservable<byte[]> B1E1MessagePackParser(this IObservable<byte> source, byte bom, byte eom)
         {
             return source.Publish(s =>
@@ -76,7 +86,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
         }
 
         /// <summary>
-        /// (不确定是否完整的包1)sep(完整包2)sep(完整包3)sep(未识别的包4)
+        ///  (不确定是否完整的包1)sep(完整包2)sep...sep(完整包3)sep(未识别的包4)
         /// </summary>
         public class SeparatorMessagePack
         {
@@ -111,6 +121,9 @@ namespace Limxc.Tools.DeviceComm.Extensions
             }
         }
 
+        /// <summary>
+        /// 字节流分包 (不确定是否完整的包1|完整包2|...|完整包3|未识别的包4)
+        /// </summary>
         public static IObservable<byte[]> SeparatorMessagePackParser(this IObservable<byte> source, byte[] separator)
         {
             return source.Publish(s =>
@@ -122,6 +135,22 @@ namespace Limxc.Tools.DeviceComm.Extensions
                         .Select(p => p.AccumulatedBytes.ToArray())
                 );
             });
+        }
+
+        /// <summary>
+        /// 任务队列
+        /// </summary>
+        /// <param name="protocol"></param>
+        /// <param name="token"></param>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public static Task CPContextTaskQueue(this IProtocol protocol, CancellationToken token, params CPContext[] list)
+        {
+            //todo
+            //1.
+            //return Task.FromCanceled(token);
+            return Task.FromException(new OperationCanceledException("某个context失败导致后续中断"));
+            return Task.CompletedTask;
         }
     }
 }
