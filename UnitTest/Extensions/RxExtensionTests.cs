@@ -13,7 +13,7 @@ namespace Limxc.Tools.Extensions.Tests
     public class RxExtensionTests
     {
         /*
-            rx不适合处理大量实时数据 
+            rx不适合处理大量实时数据
          */
 
         [Fact()]

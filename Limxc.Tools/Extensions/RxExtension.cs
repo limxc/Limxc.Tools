@@ -27,9 +27,9 @@ namespace Limxc.Tools.Extensions
         {
             return obs
                     .Subscribe(
-                        x => Console.WriteLine($"OnNext @ {DateTime.Now:mm:ss ffff} : {x}"),
-                        e => Console.WriteLine($"OnError @ {DateTime.Now:mm:ss ffff} : {e.Message}"),
-                        () => Console.WriteLine($"OnComplete @ {DateTime.Now:mm:ss ffff}")
+                        x => Console.WriteLine($"OnNext @ {DateTime.Now:mm:ss fff} : {x}"),
+                        e => Console.WriteLine($"OnError @ {DateTime.Now:mm:ss fff} : {e.Message}"),
+                        () => Console.WriteLine($"OnComplete @ {DateTime.Now:mm:ss fff}")
                     );
         }
 

@@ -3,7 +3,6 @@ using Limxc.Tools.DeviceComm.Extensions;
 using Limxc.Tools.DeviceComm.Utils;
 using System;
 using System.Diagnostics;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
@@ -11,7 +10,7 @@ using static Limxc.Tools.DeviceComm.Utils.SerialPortStreamHelper;
 
 namespace Limxc.Tools.DeviceComm.Protocol
 {
-    public class SerialPortProtocol_SPS : IPortProtocol
+    public class SerialPortProtocol_SPS : IProtocol
     {
         private SerialPortStreamHelper _sp;
         private readonly string _portName;
@@ -28,21 +27,16 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
             _sp = new SerialPortStreamHelper();
 
-            ConnectionState = Observable.Defer(() =>
-            {
-                return Observable
-                            .Interval(TimeSpan.FromSeconds(0.1), TaskPoolScheduler.Default)
+            ConnectionState = Observable
+                            .Interval(TimeSpan.FromSeconds(0.1))
                             .Select(_ => _sp.IsOpen)
                             .StartWith(false)
                             .DistinctUntilChanged()
                             .Retry()
                             .Publish()
                             .RefCount();
-            });
 
-            Received = Observable.Defer(() =>
-            {
-                return Observable
+            Received = Observable
                             .FromEventPattern<DataReceivedEventHandle, byte[]>(h => _sp.ReceivedEvent += h, h => _sp.ReceivedEvent -= h)
                             .Where(p => p.EventArgs != null && p.EventArgs.Length > 0)
                             .Select(p => p.EventArgs)
@@ -51,29 +45,25 @@ namespace Limxc.Tools.DeviceComm.Protocol
                             .RefCount()
                             //.Debug("receive")
                             ;
-            });
 
-            History = Observable.Defer(() =>
-            {
-                return _msg.AsObservable()
+            History = _msg.AsObservable()
                             //.Debug("send")
                             .FindResponse(Received, b => b.ToHexStrFromChar())
                             //.Debug("prase received")
-                            .SubscribeOn(TaskPoolScheduler.Default);
-            });
+                            ;
         }
 
         public IObservable<bool> ConnectionState { get; private set; }
         public IObservable<byte[]> Received { get; private set; }
         public IObservable<CPContext> History { get; private set; }
 
-        public void Dispose()
+        public void CleanUp()
         {
             _msg?.OnCompleted();
             _msg = null;
 
             _sp?.Close();
-            _sp.Dispose();
+            _sp.CleanUp();
             _sp = null;
         }
 

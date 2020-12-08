@@ -8,9 +8,9 @@
     ],
 
     "Enrich": [
-      "FromLogContext"
-      ,"WithMachineName"
-      ,"WithThreadId"
+      "FromLogContext",
+      "WithMachineName",
+      "WithThreadId"
     ],
 
     "MinimumLevel": {

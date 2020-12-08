@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace Limxc.Tools.Core.MQTT
 {
-    public class RxMqttClient : IDisposable, ICommClientService
+    public class RxMqttClient : ICommClientService
     {
         private IRxMqttClinet client;
 
@@ -56,7 +56,7 @@ namespace Limxc.Tools.Core.MQTT
             return client.StopAsync();
         }
 
-        public void Dispose()
+        public void CleanUp()
         {
             client.Dispose();
         }

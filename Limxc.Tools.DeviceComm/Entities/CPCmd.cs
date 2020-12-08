@@ -22,7 +22,7 @@ namespace Limxc.Tools.DeviceComm.Entities
             Template = cmdCemplate.Replace(" ", "").ToUpper();
 
             //校验
-            if (Template.Length <= 0 || Template.Length % 2 != 0) throw new Exception($"指令格式错误{Template}");
+            if (Template.Length <= 0 || Template.Length % 2 != 0) throw new FormatException($"Command Format Error.{Template}");
 
             Response = new CPResp(respTemplate, respDesc);
         }
@@ -80,13 +80,13 @@ namespace Limxc.Tools.DeviceComm.Entities
             }
             catch (Exception ex)
             {
-                throw new Exception($"指令模板与参数不匹配({Desc}|{Template}|{string.Join(",", pars)}): {ex.Message}");
+                throw new FormatException($"Command Build Error. {Desc}|{Template}|{string.Join(",", pars)}");
             }
         }
 
         public override string ToString()
         {
-            return $"Command:[ 描述:{Desc} 指令:{Template.HexStrFormat()}] || Response:{Response?.ToString()}";
+            return $"Command({Desc}):[{Template.HexStrFormat()}]    |    {Response?.ToString()}";
         }
     }
 }

@@ -51,7 +51,7 @@ namespace Limxc.Tools.Extensions.Tests
 
             //性能测试
 
-            long PerformanceTest(Action action)
+            float PerformanceTest(Action action)
             {
                 var sw = new Stopwatch();
                 sw.Start();
@@ -62,7 +62,7 @@ namespace Limxc.Tools.Extensions.Tests
                 }
 
                 sw.Stop();
-                return sw.ElapsedMilliseconds;
+                return sw.ElapsedMilliseconds / 50000f;
             }
 
             var t0 = PerformanceTest(() => source.Locate<byte>(pattern));

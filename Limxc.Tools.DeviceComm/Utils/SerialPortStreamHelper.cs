@@ -111,7 +111,7 @@ namespace Limxc.Tools.DeviceComm.Utils
             }
         }
 
-        public void Dispose()
+        public void CleanUp()
         {
             if (sp != null)
                 sp.Dispose();

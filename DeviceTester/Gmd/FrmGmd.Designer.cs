@@ -1,5 +1,5 @@
 ﻿
-namespace DeviceTester
+namespace DeviceTester.Gmd
 {
     partial class FrmGmd
     {

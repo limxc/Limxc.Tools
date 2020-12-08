@@ -12,7 +12,7 @@ namespace Limxc.Tools.Abstractions
 
         Task Stop();
 
-        void Dispose();
+        void CleanUp();
 
         Task Pub(string topic, string payload, CancellationToken token);
 

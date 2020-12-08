@@ -17,8 +17,8 @@ namespace Limxc.Tools.Core.Extensions
                         .SetBasePath(EnvPath.BaseDirectory)
                         .AddJsonFile("SerilogLogger.json", true, true)
                         .Build();
-             
+
             return configuration.ReadFrom.Configuration(config);
-        } 
+        }
     }
 }

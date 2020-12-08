@@ -1,21 +1,20 @@
 ﻿using Limxc.Tools.DeviceComm.Entities;
 using Limxc.Tools.DeviceComm.Extensions;
+using Limxc.Tools.Extensions;
 using SimpleTcp;
 using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using Limxc.Tools.Extensions;
 
 namespace Limxc.Tools.DeviceComm.Protocol
 {
     /// <summary>
     /// 用作下位机服务器,连接客户端一般只有一台
     /// </summary>
-    public class TcpClientProtocol_SST : IPortProtocol
+    public class TcpClientProtocol_SST : IProtocol
     {
         private SimpleTcpClient _server;
 
@@ -47,9 +46,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
                 .Merge(connect, disconnect)
                 .Retry();
 
-            Received = Observable.Defer(() =>
-            {
-                return Observable
+            Received = Observable
                             .FromEventPattern<DataReceivedFromServerEventArgs>(h => _server.Events.DataReceived += h, h => _server.Events.DataReceived -= h)
                             .Select(p => p.EventArgs.Data)
                             .Retry()
@@ -57,23 +54,19 @@ namespace Limxc.Tools.DeviceComm.Protocol
                             .RefCount()
                             //.Debug("receive")
                             ;
-            });
 
-            History = Observable.Defer(() =>
-            {
-                return _msg.AsObservable()
+            History = _msg.AsObservable()
                             //.Debug("send")
                             .FindResponse(Received)
                             //.Debug("prase received")
-                            .SubscribeOn(TaskPoolScheduler.Default);
-            });
+                            ;
         }
 
         public IObservable<bool> ConnectionState { get; private set; }
         public IObservable<byte[]> Received { get; private set; }
         public IObservable<CPContext> History { get; private set; }
 
-        public void Dispose()
+        public void CleanUp()
         {
             _msg?.OnCompleted();
             _msg = null;

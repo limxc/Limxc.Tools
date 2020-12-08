@@ -6,7 +6,7 @@ namespace Limxc.Tools.Extensions
     public static class CollectionExtension
     {
         /// <summary>
-        /// 拆分子数组 
+        /// 拆分子数组
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source"></param>

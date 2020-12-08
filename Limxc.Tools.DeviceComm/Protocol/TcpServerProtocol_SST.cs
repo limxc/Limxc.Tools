@@ -5,7 +5,6 @@ using SimpleTcp;
 using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
@@ -15,7 +14,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
     /// <summary>
     /// 用作下位机服务器,连接客户端一般只有一台
     /// </summary>
-    public class TcpServerProtocol_SST : IPortProtocol
+    public class TcpServerProtocol_SST : IProtocol
     {
         private SimpleTcpServer _server;
 
@@ -36,26 +35,21 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
             _server = new SimpleTcpServer(_ipPort);
 
-            ConnectionState = Observable.Defer(() =>
-            {
-                var connect = Observable
-                    .FromEventPattern<ClientConnectedEventArgs>(h => _server.Events.ClientConnected += h, h => _server.Events.ClientConnected -= h) 
-                    .Select(p => (p.EventArgs.IpPort, true));
+            var connect = Observable
+                .FromEventPattern<ClientConnectedEventArgs>(h => _server.Events.ClientConnected += h, h => _server.Events.ClientConnected -= h)
+                .Select(p => (p.EventArgs.IpPort, true));
 
-                var disconnect = Observable
-                    .FromEventPattern<ClientDisconnectedEventArgs>(h => _server.Events.ClientDisconnected += h, h => _server.Events.ClientDisconnected -= h) 
-                    .Select(p => (p.EventArgs.IpPort, false));
+            var disconnect = Observable
+                .FromEventPattern<ClientDisconnectedEventArgs>(h => _server.Events.ClientDisconnected += h, h => _server.Events.ClientDisconnected -= h)
+                .Select(p => (p.EventArgs.IpPort, false));
 
-                return Observable
+            ConnectionState = Observable
                     .Merge(connect, disconnect)
                     .Select(p => p.Item2)
                     .Debug(_ipPort)
                     .Retry();
-            });
 
-            Received = Observable.Defer(() =>
-            {
-                return Observable
+            Received = Observable
                             .FromEventPattern<DataReceivedFromClientEventArgs>(h => _server.Events.DataReceived += h, h => _server.Events.DataReceived -= h)
                             .Select(p => p.EventArgs.Data)
                             .Retry()
@@ -63,23 +57,19 @@ namespace Limxc.Tools.DeviceComm.Protocol
                             .RefCount()
                             //.Debug("receive")
                             ;
-            });
 
-            History = Observable.Defer(() =>
-            {
-                return _msg.AsObservable()
+            History = _msg.AsObservable()
                             //.Debug("send")
                             .FindResponse(Received)
                             //.Debug("prase received")
-                            .SubscribeOn(TaskPoolScheduler.Default);
-            });
+                            ;
         }
 
         public IObservable<bool> ConnectionState { get; private set; }
         public IObservable<byte[]> Received { get; private set; }
         public IObservable<CPContext> History { get; private set; }
 
-        public void Dispose()
+        public void CleanUp()
         {
             _msg?.OnCompleted();
             _msg = null;

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Limxc.Tools.DeviceComm.Extensions
@@ -37,7 +36,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
             if (result.Length % 2 == 1)
                 result = "0" + result;
 
-            if (length < result.Length) 
+            if (length < result.Length)
             {
                 throw new Exception($"Result Length Changed. From {length} to {result.Length}");
             }
@@ -119,7 +118,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
         public static int ToInt(this byte[] bytes)
         {
             if (bytes.Length == 2)
-            { 
+            {
                 int num = bytes[1] & 0xFF;
                 num |= ((bytes[0] << 8) & 0xFF00);
                 return num;
@@ -150,7 +149,6 @@ namespace Limxc.Tools.DeviceComm.Extensions
 
             //return num;
         }
-         
 
         #endregion Int Bytes
 

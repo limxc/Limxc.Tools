@@ -3,6 +3,7 @@ using Limxc.Tools.DeviceComm.Protocol;
 using ReactiveUI;
 using System;
 using System.IO.Ports;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Windows.Forms;
 
@@ -15,7 +16,7 @@ namespace DeviceTester
             InitializeComponent();
         }
 
-        private IPortProtocol sp;
+        private IProtocol sp;
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -23,12 +24,15 @@ namespace DeviceTester
             sp = new SerialPortProtocol(SerialPort.GetPortNames()[0], 9600);
 
             sp.ConnectionState
+                .SubscribeOn(NewThreadScheduler.Default)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(p => Log($"--- connected : {p.ToString()}"));
             sp.Received
+                .SubscribeOn(NewThreadScheduler.Default)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(p => Log($"--- received : {p.ToString()}"));
             sp.History
+                .SubscribeOn(NewThreadScheduler.Default)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(p => Log($"--- history : {p.ToString()}"));
 
@@ -42,7 +46,7 @@ namespace DeviceTester
 
         private void button1_Click(object sender, EventArgs ea)
         {
-            var cmd = new CPContext("AA01021a0304BB", "AA0102$10304BB") {  TimeOut = Convert.ToInt32(textBox1.Text) };
+            var cmd = new CPContext("AA01021a0304BB", "AA0102$10304BB") { Timeout = Convert.ToInt32(textBox1.Text) };
             sp.SendAsync(cmd);
 
             //string result;

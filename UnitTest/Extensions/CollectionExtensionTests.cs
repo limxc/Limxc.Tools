@@ -16,7 +16,7 @@ namespace Limxc.Tools.Extensions.Tests
                                                                 new char[]{ '5','6'},
                                                             });
 
-            str.Split(2,false).Should().BeEquivalentTo(new char[][]
+            str.Split(2, false).Should().BeEquivalentTo(new char[][]
                                                              {
                                                                 new char[]{ '1','2'},
                                                                 new char[]{ '3','4'},

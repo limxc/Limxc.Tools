@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace Limxc.Tools.Extensions
 {
     public static class RegexExtension
     {
-        public static bool IsRegexMatch(this string source,string pattern)
+        public static bool IsRegexMatch(this string source, string pattern)
         {
             var suc = false;
             try

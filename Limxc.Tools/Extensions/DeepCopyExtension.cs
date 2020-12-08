@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace Limxc.Tools.Extensions
 {
-    public  static  class DeepCopyExtension
+    public static class DeepCopyExtension
     {
         private sealed class DeepCopyExp<TIn, TOut>
         {
@@ -48,5 +48,4 @@ namespace Limxc.Tools.Extensions
             return DeepCopyExp<TIn, TOut>.Copy(tIn);
         }
     }
-    
 }

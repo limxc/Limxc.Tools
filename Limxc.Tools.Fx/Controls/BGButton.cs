@@ -12,14 +12,13 @@ namespace Limxc.Tools.Fx.Controls
     [DefaultEvent("Click")]
     [DefaultProperty("Text")]
     public partial class BGButton : UserControl
-    { 
-
+    {
         /// <summary>
         /// 自定义Button控件的默认实例化方法。使用本自定义Button控件前，请确保应用程序的
         /// Properties.Resources资源文件中，包含了2张分别名为：ButtonBG01、ButtonBG02的图片。
         /// </summary>
         public BGButton()
-        { 
+        {
             InitializeComponent();
             LblText.MouseMove += new MouseEventHandler(LblText_MouseMove);
             LblText.MouseLeave += new EventHandler(LblText_MouseLeave);

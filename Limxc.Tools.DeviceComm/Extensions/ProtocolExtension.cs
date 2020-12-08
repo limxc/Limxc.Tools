@@ -3,6 +3,7 @@ using Limxc.Tools.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 
 namespace Limxc.Tools.DeviceComm.Extensions
@@ -22,31 +23,40 @@ namespace Limxc.Tools.DeviceComm.Extensions
                 byteToStringConverter = DataConverterExtension.ToHexStr;
 
             return cmd
-                        .SelectMany(p =>
-                        {
-                            if (p.TimeOut == 0 || string.IsNullOrWhiteSpace(p.Response.Template) || p.SendTime == null)
-                                return Observable.Return(p);
+                .SelectMany(p =>
+                {
+                    if (p.Timeout == 0 || string.IsNullOrWhiteSpace(p.Response.Template))
+                    {
+                        p.Status = CPContextStatus.NoNeed;
+                        return Observable.Return(p);
+                    }
 
-                            var st = ((DateTime)p.SendTime).ToDateTimeOffset();
-                            return resp
-                                        .Select(d => byteToStringConverter(d))
-                                        .Timestamp()
-                                        .SkipUntil(st)
-                                        .TakeUntil(st.AddMilliseconds(p.TimeOut))
-                                        .FirstOrDefaultAsync(t =>
-                                        {
-                                            return p.Response.Template.IsTemplateMatch(t.Value);
-                                        })
-                                        .Where(r => r.Value != null)
-                                        .Select(r =>
-                                        {
-                                            p.Response.Value = r.Value;
-                                            p.ReceivedTime = r.Timestamp.LocalDateTime;
-                                            return p;
-                                        })
-                                        .DefaultIfEmpty(p)
-                                        ;
-                        });
+                    var st = ((DateTime)p.SendTime).ToDateTimeOffset();
+
+                    return resp.Timestamp()
+                                .Select(d => new Timestamped<string>(byteToStringConverter(d.Value), d.Timestamp))
+                                .SkipUntil(st)
+                                .TakeUntil(st.AddMilliseconds(p.Timeout))
+                                .FirstOrDefaultAsync(t => p.Response.Template.IsTemplateMatch(t.Value))
+                                .Select(r =>
+                                {
+                                    if (r.Value != null)
+                                    {
+                                        p.Response.Value = r.Value;
+                                        p.ReceivedTime = r.Timestamp.LocalDateTime;
+                                        p.Status = CPContextStatus.Success;
+                                    }
+                                    else
+                                    {
+                                        p.Status = CPContextStatus.Timeout;
+                                    }
+
+                                    return p;
+                                })
+                                .Retry()
+                                ;
+                })
+                ;
         }
 
         public static IObservable<byte[]> B1E1MessagePackParser(this IObservable<byte> source, byte bom, byte eom)

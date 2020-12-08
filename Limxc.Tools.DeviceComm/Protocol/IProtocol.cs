@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Limxc.Tools.DeviceComm.Protocol
 {
-    public interface IPortProtocol : IDisposable
+    public interface IProtocol
     {
         IObservable<bool> ConnectionState { get; }
         IObservable<byte[]> Received { get; }
@@ -15,5 +15,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
         Task<bool> OpenAsync();
 
         Task<bool> CloseAsync();
+
+        void CleanUp();
     }
 }

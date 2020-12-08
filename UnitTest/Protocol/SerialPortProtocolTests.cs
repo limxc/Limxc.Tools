@@ -33,9 +33,9 @@ namespace Limxc.Tools.DeviceComm.Protocol.Tests
 
             Observable.Merge
                 (
-                    sp.History.Select(p => $"{DateTime.Now:mm:ss ffff} {p}"),
-                    sp.ConnectionState.Select(p => $"{DateTime.Now:mm:ss ffff} 连接状态: {p}"),
-                    sp.Received.Select(p => $"{DateTime.Now:mm:ss ffff} receive : {p}")
+                    sp.History.Select(p => $"{DateTime.Now:mm:ss fff} {p}"),
+                    sp.ConnectionState.Select(p => $"{DateTime.Now:mm:ss fff} 连接状态: {p}"),
+                    sp.Received.Select(p => $"{DateTime.Now:mm:ss fff} receive : {p}")
                 )
                 .Subscribe(p =>
                 {
@@ -43,12 +43,11 @@ namespace Limxc.Tools.DeviceComm.Protocol.Tests
                 })
                 .DisposeWith(dis);
 
-            await sp.SendAsync(new CPContext("AA00 0a10 afBB", "AA00$2$1BB") { TimeOut = 256 });
+            await sp.SendAsync(new CPContext("AA00 0a10 afBB", "AA00$2$1BB") { Timeout = 256 });
             await Task.Delay(1000);
-
-            Assert.True(rst.Count > 0 && rst.Count(p => p.Contains("不匹配")) == 0);
-
             await sp.CloseAsync();
+
+            Assert.True(rst.Count == 5 && rst.Count(p => p.Contains("Error")) == 0);
 
             dis.Dispose();
             dis = new CompositeDisposable();
@@ -65,9 +64,9 @@ namespace Limxc.Tools.DeviceComm.Protocol.Tests
 
             Observable.Merge
                 (
-                    sps.History.Select(p => $"{DateTime.Now:mm:ss ffff} {p}"),
-                    sps.ConnectionState.Select(p => $"{DateTime.Now:mm:ss ffff} 连接状态: {p}"),
-                    sps.Received.Select(p => $"{DateTime.Now:mm:ss ffff} receive : {p}")
+                    sps.History.Select(p => $"{DateTime.Now:mm:ss fff} {p}"),
+                    sps.ConnectionState.Select(p => $"{DateTime.Now:mm:ss fff} 连接状态: {p}"),
+                    sps.Received.Select(p => $"{DateTime.Now:mm:ss fff} receive : {p}")
                 )
                 .Subscribe(p =>
                 {
@@ -75,20 +74,20 @@ namespace Limxc.Tools.DeviceComm.Protocol.Tests
                 })
                 .DisposeWith(dis);
 
-            await sps.SendAsync(new CPContext("AA00 0a10 afBB", "AA00$2$1BB") { TimeOut = 256 });
+            await sps.SendAsync(new CPContext("AA00 0a10 afBB", "AA00$2$1BB") { Timeout = 256 });
             await Task.Delay(1000);
-
-            Assert.True(rst.Count > 0 && rst.Count(p => p.Contains("不匹配")) == 0);
-
             await sps.CloseAsync();
+
+            Assert.True(rst.Count == 5 && rst.Count(p => p.Contains("Error")) == 0);
+
             dis.Dispose();
 
             rst.ForEach(p => Debug.WriteLine(p));
             Debugger.Break();
             rst.Clear();
 
-            sp.Dispose();
-            sps.Dispose();
+            sp.CleanUp();
+            sps.CleanUp();
         }
     }
 }

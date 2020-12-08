@@ -7,9 +7,9 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 
-namespace DeviceTester
+namespace DeviceTester.Gmd
 {
-    public class GmdConnector : IDisposable
+    public class GmdConnector
     {
         private int _sendPort = 9000;
         private int _receivePort = 9080;
@@ -30,7 +30,7 @@ namespace DeviceTester
             IsConnected = _sendServer.ConnectionState
                 .CombineLatest(_receiveServer.ConnectionState)
                 .Select(p => p.First && p.Second);
-             
+
             Datas = _receiveServer
                 .Received
                 .SelectMany(p => p)
@@ -62,10 +62,10 @@ namespace DeviceTester
             _receiveServer.CloseAsync();
         }
 
-        public void Dispose()
+        public void CleanUp()
         {
-            _sendServer.Dispose();
-            _receiveServer.Dispose();
+            _sendServer.CleanUp();
+            _receiveServer.CleanUp();
         }
 
         #region 硬件参数设置

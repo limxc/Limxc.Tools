@@ -1,8 +1,12 @@
 ﻿using FluentAssertions;
+using Limxc.Tools.DeviceComm.Entities;
 using Microsoft.Reactive.Testing;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Limxc.Tools.DeviceComm.Extensions.Tests
@@ -110,6 +114,107 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
                                             new byte[]{ 2,2,2 },
                                         });
             rst.Clear();
+        }
+
+        /// <summary>
+        /// todo: 使用TestScheduler重构
+        /// </summary>
+        [Fact()]
+        public async Task FindResponseTest()
+        {
+            var ts = new TestScheduler();
+
+            var obsSend = Observable.Create<CPContext>(async o =>
+                  {
+                      //01  第1秒
+                      await Task.Delay(1000);
+                      o.OnNext(new CPContext("AA01BB", "AA$1BB", "01") { Timeout = 1000, SendTime = DateTime.Now });
+
+                      //02  第2秒
+                      await Task.Delay(1000);
+                      o.OnNext(new CPContext("AB02BB", "AB$1BB", "02") { Timeout = 1000, SendTime = DateTime.Now });
+
+                      //03  第3秒
+                      await Task.Delay(1000);
+                      o.OnNext(new CPContext("AC03BB", "AC$1BB", "03") { Timeout = 0, SendTime = DateTime.Now });//不触发解析
+
+                      //04  第4秒
+                      await Task.Delay(1000);
+                      o.OnNext(new CPContext("AD04BB", "AD$1BB", "04") { Timeout = 1000, SendTime = DateTime.Now });
+
+                      //05  第5秒
+                      await Task.Delay(1000);
+                      o.OnNext(new CPContext("AE05BB", "AE$1BB", "05") { Timeout = 1000, SendTime = DateTime.Now });
+
+                      //06  第6秒
+                      await Task.Delay(1000);
+                      o.OnNext(new CPContext("AF06BB", "AF$1BB", "06") { Timeout = 1000, SendTime = DateTime.Now });
+
+                      o.OnCompleted();
+                      return Disposable.Empty;
+                  })
+                    .Publish()
+                    //.RefCount();
+                    ;
+
+            var obsRecv = Observable.Create<byte[]>(async o =>
+                    {
+                        o.OnNext("AC0000AC".ToByte());
+                        await Task.Delay(500);//500响应时间
+                        //01 丢失
+                        //第2.5秒 ; 02 接收
+                        await Task.Delay(2000);
+                        o.OnNext("AB02BB".ToByte());
+
+                        //第3.5秒 ; 03 不匹配
+                        await Task.Delay(1000);
+                        o.OnNext("A003BB".ToByte());
+
+                        //第5.5秒 ; 04 超时 ; 05 接收
+                        await Task.Delay(2000);
+                        o.OnNext("AD04BB".ToByte());
+                        o.OnNext("AE05BB".ToByte());
+
+                        //第6.5秒 ; 06接收第一个
+                        await Task.Delay(1000);
+                        o.OnNext("AF16BB".ToByte());
+                        o.OnNext("AF26BB".ToByte());
+
+                        o.OnCompleted();
+                        return Disposable.Empty;
+                    })
+                     .Publish()
+                     //.RefCount()
+                     ;
+
+            var cpsr = new List<CPContext>();
+
+            //obsSend.Select(p => p.ToString())
+            //    .Merge(obsRecv.Select(p => p.ToHexStr()))
+            //    .Subscribe(p => Debug.WriteLine($"@{DateTime.Now:mm:ss fff} | {p}"));
+
+            obsSend.FindResponse(obsRecv).Subscribe(p => cpsr.Add(p));
+
+            var sc = obsSend.Connect();
+            var rc = obsRecv.Connect();
+
+            await Task.Delay(8000);
+
+            cpsr[0].Status.Should().Be(CPContextStatus.Timeout);
+            cpsr[1].Status.Should().Be(CPContextStatus.Success);
+            cpsr[2].Status.Should().Be(CPContextStatus.NoNeed);
+            cpsr[3].Status.Should().Be(CPContextStatus.Timeout);
+            cpsr[4].Status.Should().Be(CPContextStatus.Success);
+            cpsr[5].Status.Should().Be(CPContextStatus.Success);
+
+            cpsr[1].Response.GetIntValues()[0].Should().Be(2);
+            cpsr[4].Response.GetIntValues()[0].Should().Be(5);
+            cpsr[5].Response.GetStrValues()[0].Should().Be("16");
+
+            sc.Dispose();
+            rc.Dispose();
+
+            Debugger.Break();
         }
     }
 }

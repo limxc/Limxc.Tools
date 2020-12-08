@@ -3,7 +3,6 @@ using Limxc.Tools.DeviceComm.Entities;
 using Limxc.Tools.DeviceComm.Extensions;
 using System;
 using System.Diagnostics;
-using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -11,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Limxc.Tools.DeviceComm.Protocol
 {
-    public class SerialPortProtocol_GS : IPortProtocol
+    public class SerialPortProtocol_GS : IProtocol
     {
         private GodSerialPort _sp;
 
@@ -28,21 +27,16 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
             _sp = new GodSerialPort(_portName, _baudRate, 0);
 
-            ConnectionState = Observable.Defer(() =>
-            {
-                return Observable
-                            .Interval(TimeSpan.FromSeconds(0.1), TaskPoolScheduler.Default)
+            ConnectionState = Observable
+                            .Interval(TimeSpan.FromSeconds(0.1))
                             .Select(_ => _sp.IsOpen)
                             .StartWith(false)
                             .DistinctUntilChanged()
                             .Retry()
                             .Publish()
                             .RefCount();
-            });
 
-            Received = Observable.Defer(() =>
-            {
-                return Observable
+            Received = Observable
                             .Create<byte[]>(x =>
                             {
                                 _sp.UseDataReceived(true, (gs, data) =>
@@ -55,25 +49,21 @@ namespace Limxc.Tools.DeviceComm.Protocol
                             .Retry()
                             .Publish()
                             .RefCount()
-                            //.Debug("receive")
-                            ;
-            });
+                             //.Debug("receive")
+                             ;
 
-            History = Observable.Defer(() =>
-            {
-                return _msg.AsObservable()
+            History = _msg.AsObservable()
                             //.Debug("send")
                             .FindResponse(Received)
                             //.Debug("prase received")
-                            .SubscribeOn(TaskPoolScheduler.Default);
-            });
+                            ;
         }
 
         public IObservable<bool> ConnectionState { get; private set; }
         public IObservable<byte[]> Received { get; private set; }
         public IObservable<CPContext> History { get; private set; }
 
-        public void Dispose()
+        public void CleanUp()
         {
             _msg?.OnCompleted();
             _msg = null;

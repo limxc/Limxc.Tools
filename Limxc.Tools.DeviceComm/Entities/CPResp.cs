@@ -60,7 +60,9 @@ namespace Limxc.Tools.DeviceComm.Entities
                 return values;
 
             if (checkPattern && !Template.IsTemplateMatch(resp))
-                throw new FormatException($"返回值与响应模板不匹配! Template:[{Template}] Value:{resp}");
+                throw new FormatException($"Response Parse Error. Template:[{Template}] Value:{resp}");
+            else if (string.IsNullOrWhiteSpace(resp))
+                return values;
 
             resp = resp.Replace(" ", "");
 
@@ -99,7 +101,7 @@ namespace Limxc.Tools.DeviceComm.Entities
             string intValue = string.Empty;
             try
             {
-                strValue = string.Join(",", GetStrValues());
+                strValue = string.Join(",", GetStrValues(false));
             }
             catch (Exception e)
             {
@@ -107,13 +109,13 @@ namespace Limxc.Tools.DeviceComm.Entities
             }
             try
             {
-                intValue = string.Join(",", GetIntValues());
+                intValue = string.Join(",", GetIntValues(false));
             }
             catch (Exception e)
             {
                 intValue = e.Message;
             }
-            return $"Resp:[ 描述:{Desc} 响应:{Template} 响应值:{Value?.HexStrFormat()} 解析值: hex=({strValue});int=({intValue}) ]";
+            return $"Response({Desc}):[{Template}={Value?.HexStrFormat()}]  hex=({strValue})  int=({intValue})";
         }
     }
 }

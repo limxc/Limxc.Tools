@@ -61,7 +61,7 @@ namespace Limxc.Tools.DeviceComm.Utils
         {
             var ret = Send(portName, baudRate, cmd.ToCommand(pars), cmd.TimeOut, true);
             var rst = cmd.Response.GetIntValues(ret);
-            Debug.WriteLine($" ****** Send Command {cmd.Desc} @ {DateTime.Now:hh:mm:ss:ffff} ({portName},{baudRate}) : [{cmd.ToCommand(pars)}] | Received: [{cmd.Response.Value}] | IntValue:[{string.Join(",", rst)}] ******");
+            Debug.WriteLine($" ****** Send Command {cmd.Desc} @ {DateTime.Now:hh:mm:ss:fff} ({portName},{baudRate}) : [{cmd.ToCommand(pars)}] | Received: [{cmd.Response.Value}] | IntValue:[{string.Join(",", rst)}] ******");
             return rst;
         }
     }

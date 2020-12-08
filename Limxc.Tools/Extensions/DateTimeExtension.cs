@@ -29,17 +29,6 @@ namespace Limxc.Tools.Extensions
             return unixTimestamp;
         }
 
-        /// <summary>
-        /// yyyyMMddHHmmss + ffff
-        /// </summary>
-        /// <param name="dateTime"></param>
-        /// <param name="msLength"></param>
-        /// <returns></returns>
-        public static string Format(this DateTime dateTime, int msLength = 0)
-        {
-            return $"{dateTime:yyyyMMddHHmmssffff}".Substring(0, msLength + 14);
-        }
-
         public static DateTimeOffset ToDateTimeOffset(this DateTime dateTime)
         {
             return dateTime.ToUniversalTime() <= DateTimeOffset.MinValue.UtcDateTime
