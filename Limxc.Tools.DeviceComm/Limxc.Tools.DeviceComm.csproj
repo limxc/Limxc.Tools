@@ -30,4 +30,8 @@
 	<ItemGroup>
 	  <EditorConfigFiles Update="D:\Git\limxc\Limxc.Tools\.editorconfig" Link=".editorconfig" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="TestControls\" />
+	</ItemGroup>
 </Project>

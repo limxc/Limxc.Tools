@@ -5,35 +5,45 @@ namespace Limxc.Tools.DeviceComm.Entities
 {
     public class CPContext : CPCmd
     {
-        public CPContext(string cmdCemplate, string respTemplate, string cmdDesc = "", string respDesc = "") : base(cmdCemplate, respTemplate, cmdDesc, respDesc)
+        /// <summary>
+        /// 无返回值
+        /// </summary>
+        /// <param name="cmdTemplate"></param>
+        /// <param name="desc"></param>
+        public CPContext(string cmdTemplate, string desc = "") : base(cmdTemplate, "", desc)
         {
+            Timeout = 0;
         }
+
+        /// <summary>
+        /// 有返回值
+        /// </summary>
+        /// <param name="cmdTemplate"></param>
+        /// <param name="respTemplate"></param>
+        /// <param name="timeout"></param>
+        /// <param name="desc"></param>
+        public CPContext(string cmdTemplate, string respTemplate, int timeout = 1000, string desc = "") : base(cmdTemplate, respTemplate, desc)
+        {
+            Timeout = timeout;
+        }
+
+        /// <summary>
+        /// 响应时间(毫秒): 下位机处理并返回结果的时常
+        /// 0表明没有返回值
+        /// </summary>
+        public int Timeout { get; }
 
         /// <summary>
         /// 解析状态
         /// </summary>
-        public CPContextStatus Status { get; set; } = CPContextStatus.Waiting;
-
-        /// <summary>
-        /// 响应时间(毫秒): 下位机处理并返回结果的时常
-        /// </summary>
-        public int Timeout { get; set; } = 1000;
-
-        public string Id { get; set; }
-
-        /// <summary>
-        /// 重试次数( +1 = 运行次数 )
-        /// </summary>
-        public int RetryTimes { get; set; } = 0;
-
-        public object Data { get; set; }
+        public CPContextStatus Status { get; internal set; } = CPContextStatus.Waiting;
 
         public DateTime? SendTime { get; set; }
         public DateTime? ReceivedTime { get; set; }
 
         public override string ToString()
         {
-            return $"Command({Desc}):[{Template.HexStrFormat()}]    |    {Status}(Send@{SendTime:hh:mm:ss fff}  Receive@{ReceivedTime:hh:mm:ss fff})    |    {Response?.ToString()}";
+            return $"Command({Desc}):[{Template.HexStrFormat()}]    |    Status:{Status} Send@{SendTime:hh:mm:ss fff}  Receive@{ReceivedTime:hh:mm:ss fff}    |    {Response?.ToString()}";
         }
     }
 

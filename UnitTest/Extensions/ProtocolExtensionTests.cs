@@ -128,27 +128,27 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
                   {
                       //01  第1秒
                       await Task.Delay(1000);
-                      o.OnNext(new CPContext("AA01BB", "AA$1BB", "01") { Timeout = 1000, SendTime = DateTime.Now });
+                      o.OnNext(new CPContext("AA01BB", "AA$1BB", 1000, "01") { SendTime = DateTime.Now });
 
                       //02  第2秒
                       await Task.Delay(1000);
-                      o.OnNext(new CPContext("AB02BB", "AB$1BB", "02") { Timeout = 1000, SendTime = DateTime.Now });
+                      o.OnNext(new CPContext("AB02BB", "AB$1BB", 1000, "02") { SendTime = DateTime.Now });
 
                       //03  第3秒
                       await Task.Delay(1000);
-                      o.OnNext(new CPContext("AC03BB", "AC$1BB", "03") { Timeout = 0, SendTime = DateTime.Now });//不触发解析
+                      o.OnNext(new CPContext("AC03BB", "AC$1BB", 0, "03") { SendTime = DateTime.Now });//不触发解析
 
                       //04  第4秒
                       await Task.Delay(1000);
-                      o.OnNext(new CPContext("AD04BB", "AD$1BB", "04") { Timeout = 1000, SendTime = DateTime.Now });
+                      o.OnNext(new CPContext("AD04BB", "AD$1BB", 1000, "04") { SendTime = DateTime.Now });
 
                       //05  第5秒
                       await Task.Delay(1000);
-                      o.OnNext(new CPContext("AE05BB", "AE$1BB", "05") { Timeout = 1000, SendTime = DateTime.Now });
+                      o.OnNext(new CPContext("AE05BB", "AE$1BB", 1000, "05") { SendTime = DateTime.Now });
 
                       //06  第6秒
                       await Task.Delay(1000);
-                      o.OnNext(new CPContext("AF06BB", "AF$1BB", "06") { Timeout = 1000, SendTime = DateTime.Now });
+                      o.OnNext(new CPContext("AF06BB", "AF$1BB", 1000, "06") { SendTime = DateTime.Now });
 
                       o.OnCompleted();
                       return Disposable.Empty;
@@ -215,6 +215,18 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
             rc.Dispose();
 
             Debugger.Break();
+        }
+
+        [Fact()]
+        public void WaitingSendResultTest()
+        {
+            Assert.True(false, "This test needs an implementation");
+        }
+
+        [Fact()]
+        public void ExecQueueTest()
+        {
+            Assert.True(false, "This test needs an implementation");
         }
     }
 }

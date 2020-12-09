@@ -43,7 +43,7 @@ namespace Limxc.Tools.DeviceComm.Protocol.Tests
                 })
                 .DisposeWith(dis);
 
-            await sp.SendAsync(new CPContext("AA00 0a10 afBB", "AA00$2$1BB") { Timeout = 256 });
+            await sp.SendAsync(new CPContext("AA00 0a10 afBB", "AA00$2$1BB", 256));
             await Task.Delay(1000);
             await sp.CloseAsync();
 
@@ -74,7 +74,7 @@ namespace Limxc.Tools.DeviceComm.Protocol.Tests
                 })
                 .DisposeWith(dis);
 
-            await sps.SendAsync(new CPContext("AA00 0a10 afBB", "AA00$2$1BB") { Timeout = 256 });
+            await sps.SendAsync(new CPContext("AA00 0a10 afBB", "AA00$2$1BB", 256));
             await Task.Delay(1000);
             await sps.CloseAsync();
 

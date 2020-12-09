@@ -46,7 +46,7 @@ namespace DeviceTester
 
         private void button1_Click(object sender, EventArgs ea)
         {
-            var cmd = new CPContext("AA01021a0304BB", "AA0102$10304BB") { Timeout = Convert.ToInt32(textBox1.Text) };
+            var cmd = new CPContext("AA01021a0304BB", "AA0102$10304BB", Convert.ToInt32(textBox1.Text));
             sp.SendAsync(cmd);
 
             //string result;

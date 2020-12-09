@@ -72,7 +72,7 @@ namespace DeviceTester.Gmd
 
         public async Task<bool> Send(string command, string desc = "")
         {
-            var r = await _sendServer.SendAsync(new CPContext(command, "", desc));
+            var r = await _sendServer.SendAsync(new CPContext(command, desc));
             return r;
         }
 

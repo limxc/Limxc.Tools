@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -138,19 +139,35 @@ namespace Limxc.Tools.DeviceComm.Extensions
         }
 
         /// <summary>
-        /// 任务队列
+        /// Send解析任务完成通知
         /// </summary>
         /// <param name="protocol"></param>
-        /// <param name="token"></param>
-        /// <param name="list"></param>
         /// <returns></returns>
-        public static Task CPContextTaskQueue(this IProtocol protocol, CancellationToken token, params CPContext[] list)
+        public static async Task WaitingSendResult(this IProtocol protocol, CPTaskContext context, int timeout = 1000)
         {
-            //todo
-            //1.
-            //return Task.FromCanceled(token);
-            return Task.FromException(new OperationCanceledException("某个context失败导致后续中断"));
-            return Task.CompletedTask;
+            var cts = new CancellationTokenSource(timeout + context.Timeout);//timeout 为解析时间
+            await protocol.History.FirstAsync(p => ((CPTaskContext)p).Id == context.Id).ToTask(cts.Token);
+        }
+
+        /// <summary>
+        /// 任务队列执行
+        /// </summary>
+        /// <param name="protocol"></param>
+        /// <param name="queue"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public static async Task ExecQueue(this IProtocol protocol, List<CPTaskContext> queue, CancellationToken token)
+        {
+            foreach (var task in queue)
+            {
+                while (!token.IsCancellationRequested && !task.ReceivedTime.HasValue && task.RemainTimes > 0)
+                {
+                    task.RemainTimes--;
+                    protocol.SendAsync(task);
+                    await protocol.WaitingSendResult(task);
+                }
+            }
+            return;
         }
     }
 }

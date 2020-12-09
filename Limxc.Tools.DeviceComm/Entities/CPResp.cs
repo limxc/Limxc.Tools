@@ -6,7 +6,7 @@ using System.Linq;
 namespace Limxc.Tools.DeviceComm.Entities
 {
     /// <summary>
-    /// 自定义版返回值
+    /// Communication Protocol Response
     /// </summary>
     public class CPResp
     {
@@ -16,17 +16,10 @@ namespace Limxc.Tools.DeviceComm.Entities
         /// 初始化响应模板,占位符 $n n=1-9
         /// </summary>
         /// <param name="template"></param>
-        /// <param name="desc"></param>
-        public CPResp(string template = "", string desc = "")
+        public CPResp(string template = "")
         {
             Template = template.Replace(" ", "").ToUpper();
-            Desc = desc;
         }
-
-        /// <summary>
-        /// 返回值格式描述
-        /// </summary>
-        public string Desc { get; }
 
         /// <summary>
         /// 响应模板,占位符 $n n=1-9位 length=n*2
@@ -115,7 +108,7 @@ namespace Limxc.Tools.DeviceComm.Entities
             {
                 intValue = e.Message;
             }
-            return $"Response({Desc}):[{Template}={Value?.HexStrFormat()}]  hex=({strValue})  int=({intValue})";
+            return $"Response:[{Template}={Value?.HexStrFormat()}]  hex=({strValue})  int=({intValue})";
         }
     }
 }

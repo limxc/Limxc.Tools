@@ -5,26 +5,25 @@ using System.Linq;
 namespace Limxc.Tools.DeviceComm.Entities
 {
     /// <summary>
-    /// 自定义版指令
+    /// Communication Protocol Command
     /// </summary>
     public class CPCmd
     {
         /// <summary>
         /// 初始化指令模板,占位符 $n n=1-9位 length=n*2
         /// </summary>
-        /// <param name="cmdCemplate"></param>
+        /// <param name="cmdTemplate"></param>
         /// <param name="respTemplate"></param>
-        /// <param name="cmdDesc"></param>
-        /// <param name="respDesc"></param>
-        public CPCmd(string cmdCemplate, string respTemplate, string cmdDesc = "", string respDesc = "")
+        /// <param name="desc"></param>
+        public CPCmd(string cmdTemplate, string respTemplate, string desc = "")
         {
-            Desc = cmdDesc;
-            Template = cmdCemplate.Replace(" ", "").ToUpper();
+            Desc = desc;
+            Template = cmdTemplate.Replace(" ", "").ToUpper();
 
             //校验
             if (Template.Length <= 0 || Template.Length % 2 != 0) throw new FormatException($"Command Format Error.{Template}");
 
-            Response = new CPResp(respTemplate, respDesc);
+            Response = new CPResp(respTemplate);
         }
 
         /// <summary>
