@@ -59,9 +59,9 @@ namespace Limxc.Tools.DeviceComm.Protocol
                             ;
         }
 
-        public IObservable<bool> ConnectionState { get; private set; }
-        public IObservable<byte[]> Received { get; private set; }
-        public IObservable<CPContext> History { get; private set; }
+        public IObservable<bool> ConnectionState { get; }
+        public IObservable<byte[]> Received { get; }
+        public IObservable<CPContext> History { get; }
 
         public void CleanUp()
         {
@@ -75,20 +75,20 @@ namespace Limxc.Tools.DeviceComm.Protocol
         /// <summary>
         /// 使用GodSharp.SerialPort: 响应时间建议>128ms
         /// </summary>
-        /// <param name="cmd"></param>
+        /// <param name="context"></param>
         /// <returns></returns>
-        public Task<bool> SendAsync(CPContext cmd)
+        public Task<bool> SendAsync(CPContext context)
         {
             bool state = false;
             try
             {
-                var cmdStr = cmd.ToCommand();
+                var cmdStr = context.Command.Build();
                 state = _sp.WriteHexString(cmdStr) > 0;
 
                 if (state)
                 {
-                    cmd.SendTime = DateTime.Now;
-                    _msg.OnNext(cmd);
+                    context.SendTime = DateTime.Now;
+                    _msg.OnNext(context);
                 }
             }
             catch (Exception e)

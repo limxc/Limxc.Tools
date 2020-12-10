@@ -2,7 +2,7 @@
 
 namespace Limxc.Tools.DeviceComm.Extensions
 {
-    public static class TemplatePraseExtension
+    public static class CPContextExtension
     {
         /// <summary>
         /// 计算指令长度,$n 0-9位

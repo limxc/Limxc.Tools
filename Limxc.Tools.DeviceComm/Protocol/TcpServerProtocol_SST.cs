@@ -65,9 +65,9 @@ namespace Limxc.Tools.DeviceComm.Protocol
                             ;
         }
 
-        public IObservable<bool> ConnectionState { get; private set; }
-        public IObservable<byte[]> Received { get; private set; }
-        public IObservable<CPContext> History { get; private set; }
+        public IObservable<bool> ConnectionState { get; }
+        public IObservable<byte[]> Received { get; }
+        public IObservable<CPContext> History { get; }
 
         public void CleanUp()
         {
@@ -75,21 +75,21 @@ namespace Limxc.Tools.DeviceComm.Protocol
             _msg = null;
         }
 
-        public async Task<bool> SendAsync(CPContext cmd)
+        public async Task<bool> SendAsync(CPContext context)
         {
             bool state = false;
             try
             {
                 if (_clientIpPort.CheckIpPort())
                 {
-                    var cmdStr = cmd.ToCommand();
+                    var cmdStr = context.Command.Build();
 
                     await _server.SendAsync(_clientIpPort, cmdStr);
 
                     state = true;
 
-                    cmd.SendTime = DateTime.Now;
-                    _msg.OnNext(cmd);
+                    context.SendTime = DateTime.Now;
+                    _msg.OnNext(context);
                 }
             }
             catch (Exception e)

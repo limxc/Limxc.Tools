@@ -8,7 +8,7 @@ namespace Limxc.Tools.DeviceComm.Entities
     /// <summary>
     /// Communication Protocol Response
     /// </summary>
-    public class CPResp
+    public class CPResponse
     {
         #region 初始化
 
@@ -16,7 +16,7 @@ namespace Limxc.Tools.DeviceComm.Entities
         /// 初始化响应模板,占位符 $n n=1-9
         /// </summary>
         /// <param name="template"></param>
-        public CPResp(string template = "")
+        public CPResponse(string template = "")
         {
             Template = template.Replace(" ", "").ToUpper();
         }

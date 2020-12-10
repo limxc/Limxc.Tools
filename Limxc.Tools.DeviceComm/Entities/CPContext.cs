@@ -1,18 +1,20 @@
-﻿using Limxc.Tools.DeviceComm.Extensions;
-using System;
+﻿using System;
 
 namespace Limxc.Tools.DeviceComm.Entities
 {
-    public class CPContext : CPCmd
+    public class CPContext
     {
         /// <summary>
         /// 无返回值
         /// </summary>
         /// <param name="cmdTemplate"></param>
         /// <param name="desc"></param>
-        public CPContext(string cmdTemplate, string desc = "") : base(cmdTemplate, "", desc)
+        public CPContext(string cmdTemplate, string desc = "")
         {
+            Command = new CPCommand(cmdTemplate);
+            Response = new CPResponse();
             Timeout = 0;
+            Desc = desc;
         }
 
         /// <summary>
@@ -22,10 +24,18 @@ namespace Limxc.Tools.DeviceComm.Entities
         /// <param name="respTemplate"></param>
         /// <param name="timeout"></param>
         /// <param name="desc"></param>
-        public CPContext(string cmdTemplate, string respTemplate, int timeout = 1000, string desc = "") : base(cmdTemplate, respTemplate, desc)
+        public CPContext(string cmdTemplate, string respTemplate, int timeout = 1000, string desc = "")
         {
+            Command = new CPCommand(cmdTemplate);
+            Response = new CPResponse(respTemplate);
             Timeout = timeout;
+            Desc = desc;
         }
+
+        public string Desc { get; }
+
+        public CPCommand Command { get; }
+        public CPResponse Response { get; }
 
         /// <summary>
         /// 响应时间(毫秒): 下位机处理并返回结果的时常
@@ -36,18 +46,18 @@ namespace Limxc.Tools.DeviceComm.Entities
         /// <summary>
         /// 解析状态
         /// </summary>
-        public CPContextStatus Status { get; internal set; } = CPContextStatus.Waiting;
+        public CPContextState State { get; internal set; } = CPContextState.Waiting;
 
         public DateTime? SendTime { get; set; }
         public DateTime? ReceivedTime { get; set; }
 
         public override string ToString()
         {
-            return $"Command({Desc}):[{Template.HexStrFormat()}]    |    Status:{Status} Send@{SendTime:hh:mm:ss fff}  Receive@{ReceivedTime:hh:mm:ss fff}    |    {Response?.ToString()}";
+            return $"{Desc} : {Command}    |    State:{State} Send@{SendTime:hh:mm:ss fff}  Receive@{ReceivedTime:hh:mm:ss fff}    |    {Response}";
         }
     }
 
-    public enum CPContextStatus
+    public enum CPContextState
     {
         /// <summary>
         /// 等待解析

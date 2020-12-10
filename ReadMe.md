@@ -20,7 +20,7 @@
     Observable.Interval(TimeSpan.FromSeconds(3))
         .Subscribe(async _ =>
         {
-            await sp.Send(new Limxc.Tools.DeviceComm.Entities.CPContext("AA00 0a10 afBB", "AA00$2$1BB", 256));
+            await sp.SendAsync(new CPContext("AA00 0a10 afBB", "AA00$2$1BB", 256));
         });
 
 ##### 2.ProtocolDeviceSimulator
@@ -37,12 +37,12 @@
 
     await simulator.OpenAsync();
      
-    await simulator.SendAsync(new CPContext("AA01BB", "AA$1BB", "01") { Timeout = 1000 });
-    await simulator.SendAsync(new CPContext("AB02BB", "AB$1BB", "02") { Timeout = 1000 });
-    await simulator.SendAsync(new CPContext("AC03BB", "AC$1BB", "03") { Timeout = 1000 });
-    await simulator.SendAsync(new CPContext("AD04BB", "AD$1BB", "04") { Timeout = 1000 });
-    await simulator.SendAsync(new CPContext("AE05BB", "AE$1BB", "05") { Timeout = 1000 });
-    await simulator.SendAsync(new CPContext("AF06BB", "AF$1BB", "06") { Timeout = 1000 });
+    await simulator.SendAsync(new CPContext("AA01BB", "AA$1BB", 1000, "01"));
+    await simulator.SendAsync(new CPContext("AB02BB", "AB$1BB", 1000, "02"));
+    await simulator.SendAsync(new CPContext("AC03BB", "AC$1BB", 1000, "03"));
+    await simulator.SendAsync(new CPContext("AD04BB", "AD$1BB", 1000, "04"));
+    await simulator.SendAsync(new CPContext("AE05BB", "AE$1BB", 1000, "05"));
+    await simulator.SendAsync(new CPContext("AF06BB", "AF$1BB", 1000, "06"));
   
     await simulator.CloseAsync();
     simulator.CleanUp();

@@ -2,7 +2,7 @@
 using System;
 using System.Reactive;
 
-namespace UnitTest.TestUtils
+namespace Limxc.Tools.DeviceComm.Tests
 {
     public static class TestSchedulerTools
     {

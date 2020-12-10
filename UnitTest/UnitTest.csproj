@@ -26,8 +26,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Limxc.Tools.Core\Limxc.Tools.Core.csproj" />
     <ProjectReference Include="..\Limxc.Tools.DeviceComm\Limxc.Tools.DeviceComm.csproj" />
     <ProjectReference Include="..\Limxc.Tools\Limxc.Tools.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="DeviceComm\Contracts\" />
   </ItemGroup>
  
 </Project>

@@ -7,7 +7,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 
-namespace UnitTest.TestUtils
+namespace Limxc.Tools.DeviceComm.Tests
 {
     public class ProtocolSimulator : IProtocol
     {
@@ -83,10 +83,10 @@ namespace UnitTest.TestUtils
             return Task.FromResult(true);
         }
 
-        public async Task<bool> SendAsync(CPContext cmd)
+        public async Task<bool> SendAsync(CPContext context)
         {
-            cmd.SendTime = DateTime.Now;
-            _msg.OnNext(cmd);
+            context.SendTime = DateTime.Now;
+            _msg.OnNext(context);
 
             await Task.Delay(_sendDelayMs);
 
@@ -94,7 +94,7 @@ namespace UnitTest.TestUtils
                 return true;
 
             //if(cmd.Timeout != 0 && !string.IsNullOrWhiteSpace(cmd.Response.Template))
-                _received.OnNext(cmd.ToCommand().ToByte());//发什么回什么
+            _received.OnNext(context.Command.Build().ToByte());//发什么回什么
 
             return true;
         }

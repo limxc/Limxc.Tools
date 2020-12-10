@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
-using Force.DeepCloner;
 using Limxc.Tools.DeviceComm.Entities;
+using Limxc.Tools.DeviceComm.Tests;
 using Microsoft.Reactive.Testing;
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,6 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using UnitTest.TestUtils;
 using Xunit;
 
 namespace Limxc.Tools.DeviceComm.Extensions.Tests
@@ -319,12 +318,12 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
 
             await Task.Delay(8000);
 
-            cpsr[0].Status.Should().Be(CPContextStatus.Timeout);
-            cpsr[1].Status.Should().Be(CPContextStatus.Success);
-            cpsr[2].Status.Should().Be(CPContextStatus.NoNeed);
-            cpsr[3].Status.Should().Be(CPContextStatus.Timeout);
-            cpsr[4].Status.Should().Be(CPContextStatus.Success);
-            cpsr[5].Status.Should().Be(CPContextStatus.Success);
+            cpsr[0].State.Should().Be(CPContextState.Timeout);
+            cpsr[1].State.Should().Be(CPContextState.Success);
+            cpsr[2].State.Should().Be(CPContextState.NoNeed);
+            cpsr[3].State.Should().Be(CPContextState.Timeout);
+            cpsr[4].State.Should().Be(CPContextState.Success);
+            cpsr[5].State.Should().Be(CPContextState.Success);
 
             cpsr[1].Response.GetIntValues()[0].Should().Be(2);
             cpsr[4].Response.GetIntValues()[0].Should().Be(5);
@@ -362,7 +361,7 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
 
             ctx1.Response.Value.Should().Be("AA01BB");
             (end - begin).TotalMilliseconds.Should().BeApproximately(3500, 500);
-            rst.TrueForAll(p => p.Status == CPContextStatus.Success);
+            rst.TrueForAll(p => p.State == CPContextState.Success);
 
             rst.Clear();
 
@@ -370,7 +369,7 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
             var ctx2 = new CPTaskContext("2", "000000");
             simulator.SendAsync(ctx2);
             await simulator.WaitingSendResult(ctx2, 3000 + 3000);
-            ctx2.Status.Should().Be(CPContextStatus.NoNeed);
+            ctx2.State.Should().Be(CPContextState.NoNeed);
 
             await simulator.CloseAsync();
             simulator.CleanUp();
@@ -408,14 +407,14 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
 
             await simulator.CloseAsync();
             simulator.CleanUp();
- 
-            tcList.Count(p => p.Status == CPContextStatus.Timeout).Should().Be(1);
-            tcList.Count(p => p.Status == CPContextStatus.NoNeed).Should().Be(1);
-            tcList.Count(p => p.Status == CPContextStatus.Success).Should().Be(3);
-              
-            history.Count(p => p.Status == CPContextStatus.NoNeed).Should().Be(1);
-            history.Count(p => p.Status == CPContextStatus.Success).Should().Be(3);
-            history.Count(p => p.Status == CPContextStatus.Timeout).Should().Be(3);
+
+            tcList.Count(p => p.State == CPContextState.Timeout).Should().Be(1);
+            tcList.Count(p => p.State == CPContextState.NoNeed).Should().Be(1);
+            tcList.Count(p => p.State == CPContextState.Success).Should().Be(3);
+
+            history.Count(p => p.State == CPContextState.NoNeed).Should().Be(1);
+            history.Count(p => p.State == CPContextState.Success).Should().Be(3);
+            history.Count(p => p.State == CPContextState.Timeout).Should().Be(3);
         }
     }
 }

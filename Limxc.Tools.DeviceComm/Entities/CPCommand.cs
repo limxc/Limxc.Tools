@@ -7,34 +7,20 @@ namespace Limxc.Tools.DeviceComm.Entities
     /// <summary>
     /// Communication Protocol Command
     /// </summary>
-    public class CPCmd
+    public class CPCommand
     {
         /// <summary>
         /// 初始化指令模板,占位符 $n n=1-9位 length=n*2
         /// </summary>
         /// <param name="cmdTemplate"></param>
         /// <param name="respTemplate"></param>
-        /// <param name="desc"></param>
-        public CPCmd(string cmdTemplate, string respTemplate, string desc = "")
+        public CPCommand(string cmdTemplate)
         {
-            Desc = desc;
             Template = cmdTemplate.Replace(" ", "").ToUpper();
 
             //校验
             if (Template.Length <= 0 || Template.Length % 2 != 0) throw new FormatException($"Command Format Error.{Template}");
-
-            Response = new CPResp(respTemplate);
         }
-
-        /// <summary>
-        /// 返回值
-        /// </summary>
-        public CPResp Response { get; }
-
-        /// <summary>
-        /// 命令描述
-        /// </summary>
-        public string Desc { get; }
 
         /// <summary>
         /// 指令模板,占位符 $n n=1-9位 length=n*2
@@ -48,7 +34,7 @@ namespace Limxc.Tools.DeviceComm.Entities
         /// </summary>
         /// <param name="pars"></param>
         /// <returns></returns>
-        public string ToCommand(params int[] pars)
+        public string Build(params int[] pars)
         {
             try
             {
@@ -79,13 +65,13 @@ namespace Limxc.Tools.DeviceComm.Entities
             }
             catch (Exception ex)
             {
-                throw new FormatException($"Command Build Error. {Desc}|{Template}|{string.Join(",", pars)}");
+                throw new FormatException($"Command Build Error. {Template}|{string.Join(",", pars)}");
             }
         }
 
         public override string ToString()
         {
-            return $"Command({Desc}):[{Template.HexStrFormat()}]    |    {Response?.ToString()}";
+            return $"Command:[{Template.HexStrFormat()}]";
         }
     }
 }

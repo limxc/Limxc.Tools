@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Limxc.Tools.DeviceComm.Extensions
 {
-    public static class DataConverterExtension
+    public static class DataConversionExtension
     {
         #region int hexstr
 

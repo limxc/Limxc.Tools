@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net5</TargetFramework>
+
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="AutoBogus.FakeItEasy" Version="2.12.0" />
+		<PackageReference Include="DeepCloner" Version="0.10.2" />
+		<PackageReference Include="FakeItEasy" Version="6.2.1" />
+		<PackageReference Include="FluentAssertions" Version="5.10.3" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.0" />
+		<PackageReference Include="Microsoft.Reactive.Testing" Version="5.0.0" />
+		<PackageReference Include="ReactiveUI.Testing" Version="12.1.5" />
+		<PackageReference Include="xunit" Version="2.4.1" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="coverlet.collector" Version="1.3.0">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+	</ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Limxc.Tools\Limxc.Tools.csproj" />
+  </ItemGroup>
+
+</Project>

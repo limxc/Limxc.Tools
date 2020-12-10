@@ -1,6 +1,4 @@
-﻿using Limxc.Tools.DeviceComm.Extensions;
-
-namespace Limxc.Tools.DeviceComm.Entities
+﻿namespace Limxc.Tools.DeviceComm.Entities
 {
     public class CPTaskContext : CPContext
     {
@@ -44,7 +42,7 @@ namespace Limxc.Tools.DeviceComm.Entities
 
         public override string ToString()
         {
-            return $"Command({Desc}):[{Template.HexStrFormat()}]    |    Id:{Id} RemainTimes:{RemainTimes} Status:{Status} (Send@{SendTime:hh:mm:ss fff}  Receive@{ReceivedTime:hh:mm:ss fff})    |    {Response?.ToString()}";
+            return $"{Command}    |    Id:{Id} RemainTimes:{RemainTimes} State:{State} (Send@{SendTime:hh:mm:ss fff}  Receive@{ReceivedTime:hh:mm:ss fff})    |    {Response}";
         }
     }
 }

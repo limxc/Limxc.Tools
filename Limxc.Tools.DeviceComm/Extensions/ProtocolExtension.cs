@@ -19,19 +19,19 @@ namespace Limxc.Tools.DeviceComm.Extensions
         /// </summary>
         /// <param name="cmd"></param>
         /// <param name="resp"></param>
-        /// <param name="byteToStringConverter">默认:<see cref="DataConverterExtension.ToHexStr"/></param>
+        /// <param name="byteToStringConverter">默认:<see cref="DataConversionExtension.ToHexStr"/></param>
         /// <returns></returns>
         public static IObservable<CPContext> FindResponse(this IObservable<CPContext> cmd, IObservable<byte[]> resp, Func<byte[], string> byteToStringConverter = null)
         {
             if (byteToStringConverter == null)
-                byteToStringConverter = DataConverterExtension.ToHexStr;
+                byteToStringConverter = DataConversionExtension.ToHexStr;
 
             return cmd
                 .SelectMany(p =>
                 {
                     if (p.Timeout == 0 || string.IsNullOrWhiteSpace(p.Response.Template))
                     {
-                        p.Status = CPContextStatus.NoNeed;
+                        p.State = CPContextState.NoNeed;
                         return Observable.Return(p);//.Delay(TimeSpan.FromMilliseconds(500));
                     }
 
@@ -48,11 +48,11 @@ namespace Limxc.Tools.DeviceComm.Extensions
                                     {
                                         p.Response.Value = r.Value;
                                         p.ReceivedTime = r.Timestamp.LocalDateTime;
-                                        p.Status = CPContextStatus.Success;
+                                        p.State = CPContextState.Success;
                                     }
                                     else
                                     {
-                                        p.Status = CPContextStatus.Timeout;
+                                        p.State = CPContextState.Timeout;
                                     }
 
                                     return p;
@@ -277,7 +277,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
         {
             foreach (var task in queue)
             {
-                while (!token.IsCancellationRequested && task.Status != CPContextStatus.Success && task.Status != CPContextStatus.NoNeed && task.RemainTimes > 0)
+                while (!token.IsCancellationRequested && task.State != CPContextState.Success && task.State != CPContextState.NoNeed && task.RemainTimes > 0)
                 {
                     task.RemainTimes--; 
                     await protocol.WaitingSendResult(task, schedulerRunTime);
