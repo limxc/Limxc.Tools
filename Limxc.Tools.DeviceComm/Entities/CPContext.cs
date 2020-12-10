@@ -56,27 +56,4 @@ namespace Limxc.Tools.DeviceComm.Entities
             return $"{Desc} : {Command}    |    State:{State} Send@{SendTime:hh:mm:ss fff}  Receive@{ReceivedTime:hh:mm:ss fff}    |    {Response}";
         }
     }
-
-    public enum CPContextState
-    {
-        /// <summary>
-        /// 等待解析
-        /// </summary>
-        Waiting = 0,
-
-        /// <summary>
-        /// 无需解析
-        /// </summary>
-        NoNeed = 1,
-
-        /// <summary>
-        /// 解析成功
-        /// </summary>
-        Success = 2,
-
-        /// <summary>
-        /// 解析超时(返回值丢失)
-        /// </summary>
-        Timeout = 3
-    }
 }

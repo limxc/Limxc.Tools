@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Force.DeepCloner;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
@@ -40,7 +41,8 @@ namespace Limxc.Tools.Extensions
 
         public static T DeepCopy<T>(this T t)
         {
-            return DeepCopyExp<T, T>.Copy(t);
+            return t.DeepClone();
+            //return DeepCopyExp<T, T>.Copy(t);
         }
 
         public static TOut DeepCopy<TIn, TOut>(this TIn tIn)

@@ -15,6 +15,7 @@
 	  <None Remove="Algos\**" />
 	</ItemGroup>
 	<ItemGroup>
+		<PackageReference Include="DeepCloner" Version="0.10.2" />
 		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" /> 
 		<PackageReference Include="System.Reactive" Version="5.0.0" />
 	</ItemGroup>

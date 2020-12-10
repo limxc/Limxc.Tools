@@ -10,6 +10,15 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Limxc.Tools.DeviceComm %28netstandard2.0%29\**" />
+	  <Compile Remove="TestControls\**" />
+	  <EmbeddedResource Remove="Limxc.Tools.DeviceComm %28netstandard2.0%29\**" />
+	  <EmbeddedResource Remove="TestControls\**" />
+	  <None Remove="Limxc.Tools.DeviceComm %28netstandard2.0%29\**" />
+	  <None Remove="TestControls\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="GodSharp.SerialPort" Version="1.2.0.6" />
 		<PackageReference Include="SerialPortStream" Version="2.2.2" />
 		<PackageReference Include="SuperSimpleTcp" Version="2.1.0.13" />
@@ -29,9 +38,5 @@
 
 	<ItemGroup>
 	  <EditorConfigFiles Update="D:\Git\limxc\Limxc.Tools\.editorconfig" Link=".editorconfig" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="TestControls\" />
 	</ItemGroup>
 </Project>
