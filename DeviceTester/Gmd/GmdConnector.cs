@@ -34,7 +34,7 @@ namespace DeviceTester.Gmd
             Datas = _receiveServer
                 .Received
                 .SelectMany(p => p)
-                .SeparatorMessagePackParser(packHead)
+                .ParsePackage(packHead)
                 .Where(p => p.Length == 4096 - 2)
                 .Select(pack =>
                 {

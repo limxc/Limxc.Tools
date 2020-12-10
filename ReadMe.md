@@ -51,7 +51,10 @@
     rst.TrueForAll(p => p.Status == CPContextStatus.Success);
 
 ### Todos
+    ~~byte[]分包~~
+    ~~SerialPortProtocol_GS~~
+    ~~TaskQueue(实现思路有问题)~~
+
     SerialPortProtocol_SPS : linux环境测试
     TcpClientProtocol_SST : 待真机测试
-    TcpServerProtocol_SST : 待真机测试
-    TaskManager.JobScheduler 开发及测试
+    TcpServerProtocol_SST : 待真机测试 

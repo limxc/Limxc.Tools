@@ -1,12 +1,16 @@
 ﻿using FluentAssertions;
+using Force.DeepCloner;
 using Limxc.Tools.DeviceComm.Entities;
 using Microsoft.Reactive.Testing;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using UnitTest.TestUtils;
 using Xunit;
 
 namespace Limxc.Tools.DeviceComm.Extensions.Tests
@@ -14,7 +18,7 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
     public class ProtocolExtensionTests
     {
         [Fact()]
-        public void B1E1MessagePackParserTest()
+        public void B1E1ParsePackageTest()
         {
             var ts = new TestScheduler();
 
@@ -33,7 +37,7 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
             };
             var rst = new List<byte[]>();
             source.ToObservable(ts)
-                .B1E1MessagePackParser(254, 255)
+                .ParsePackage(254, 255)
                 .Subscribe(p => rst.Add(p));
 
             ts.AdvanceTo(source.Length);
@@ -47,7 +51,122 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
         }
 
         [Fact()]
-        public void SeparratorMessagePackParserTest()
+        public void ParsePackageTest()
+        {
+            var ts = new TestScheduler();
+            //1bit
+            var source1 = new byte[] {
+                0,0,11,23,12,
+
+                254,0,255,
+
+                254,1,1,255,
+
+                22,
+
+                254,2,2,2,255
+
+                ,33,5,0
+            };
+            var rst1 = new List<byte[]>();
+            source1.ToObservable(ts)
+                .ParsePackage(new byte[] { 254 }, new byte[] { 255 })
+                .Subscribe(p => rst1.Add(p));
+
+            ts.AdvanceBy(source1.Length);
+            var expect1 = new List<byte[]>()
+            {
+                new byte[]{ 0 },
+                new byte[]{ 1,1, },
+                new byte[]{ 2,2,2 }
+            };
+            rst1.Should().BeEquivalentTo(expect1);
+
+            //2bit
+            var source2 = new byte[] {
+                0,0,11,23,12,
+
+                99,254,0,99,255,
+
+                99,254,1,1,99,255,99,255,
+
+                22,
+
+                99,254,2,2,2,99,255,
+
+                33,5,0
+            };
+            var rst2 = new List<byte[]>();
+            source2.ToObservable(ts)
+                .ParsePackage(new byte[] { 99, 254 }, new byte[] { 99, 255 })
+                .Subscribe(p => rst2.Add(p));
+
+            ts.AdvanceBy(source2.Length);
+            var expect2 = new List<byte[]>()
+            {
+                new byte[]{ 0 },
+                new byte[]{ 1,1, },
+                new byte[]{ 2,2,2 }
+            };
+            rst2.Should().BeEquivalentTo(expect2);
+
+            //3bit
+            var source3 = new byte[] {
+                0,0,11,23,12,
+
+                88,99,254,0,88,99,255,
+
+                88,99,254,1,1,88,99,255,
+
+                22,
+
+                99,254,2,2,2,88,99,255,
+
+                88,99,254,2,2,2,88,99,255,
+
+                33,5,0
+            };
+            var rst3 = new List<byte[]>();
+            source3.ToObservable(ts)
+                .ParsePackage(new byte[] { 88, 99, 254 }, new byte[] { 88, 99, 255 })
+                .Subscribe(p => rst3.Add(p));
+
+            ts.AdvanceBy(source3.Length);
+            var expect3 = new List<byte[]>()
+            {
+                new byte[]{ 0 },
+                new byte[]{ 1,1 },
+                new byte[]{ 2,2,2 }
+            };
+            rst3.Should().BeEquivalentTo(expect3);
+
+            //separator  98,98,97,97  bom = 97,97  eom = 98,98
+            var sourceSep = new byte[] {
+                2,41,
+                97,97,0,98,98,//无法识别
+                62,//Separator的缺陷
+                97,97,1,1,98,98,//错误的包1: 2,41, 97,97,0,98,98, 62, 97,97,1,1,
+                97,97,2,2,2,98,98,//包2: 2,2,2
+                97,97,3,3,3,3,98//未识别: 3,3,3,3,98
+            };
+            var rstSep = new List<byte[]>();
+            sourceSep.ToObservable(ts)
+                .ParsePackage(new byte[] { 97, 97 }, new byte[] { 98, 98 })
+                .Subscribe(p => rstSep.Add(p));
+
+            ts.AdvanceBy(sourceSep.Length);
+            var expectSep = new List<byte[]>()
+            {
+                new byte[]{ 0 },
+                new byte[]{ 1,1 },
+                new byte[]{ 2,2,2 }
+            };
+            rstSep.Should().BeEquivalentTo(expectSep);
+            //separator 结果:  new byte[]{ 2,41, 97,97,0,98,98, 62, 97,97,1,1, }, new byte[] { 2, 2, 2 }
+        }
+
+        [Fact()]
+        public void SeparatorParsePackageTest()
         {
             var ts = new TestScheduler();
 
@@ -81,7 +200,7 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
             var rst = new List<byte[]>();
             //d1
             d1.ToObservable()
-                .SeparatorMessagePackParser(new byte[] { 0, 0 })
+                .ParsePackage(new byte[] { 0, 0 })
                 .Subscribe(p => rst.Add(p));
             ts.AdvanceTo(d1.Length);
             rst.Should().BeEquivalentTo(new List<byte[]>
@@ -93,7 +212,7 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
 
             //d2
             d2.ToObservable()
-                .SeparatorMessagePackParser(new byte[] { 0, 0, 0 })
+                .ParsePackage(new byte[] { 0, 0, 0 })
                 .Subscribe(p => rst.Add(p));
             ts.AdvanceTo(d2.Length);
             rst.Should().BeEquivalentTo(new List<byte[]>
@@ -105,7 +224,7 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
 
             //d3
             d3.ToObservable()
-                .SeparatorMessagePackParser(new byte[] { 98, 98, 97, 97 })
+                .ParsePackage(new byte[] { 98, 98, 97, 97 })
                 .Subscribe(p => rst.Add(p));
             ts.AdvanceTo(d3.Length);
             rst.Should().BeEquivalentTo(new List<byte[]>
@@ -218,15 +337,85 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
         }
 
         [Fact()]
-        public void WaitingSendResultTest()
+        public async void WaitingSendResultTest()
         {
-            Assert.True(false, "This test needs an implementation");
+            var simulator = new ProtocolSimulator(0, 3000);
+            var msg = new List<string>();
+            var rst = new List<CPContext>();
+
+            simulator.Received.Select(p => $"@ {DateTime.Now:mm:ss fff} 接收 : {p.ToHexStr()}").Subscribe(p => msg.Add(p));
+            simulator.History.Subscribe(p =>
+            {
+                msg.Add($"@ {DateTime.Now:mm:ss fff} {p}");
+                rst.Add(p);
+            });
+
+            await simulator.OpenAsync();
+
+            //有返回值
+            var ctx1 = new CPTaskContext("1", "AA01BB", "AA$1BB", 1000 + 3000, 1);
+
+            var begin = DateTime.Now;
+            simulator.SendAsync(ctx1);
+            await simulator.WaitingSendResult(ctx1, 1000 + 3000);
+            var end = DateTime.Now;
+
+            ctx1.Response.Value.Should().Be("AA01BB");
+            (end - begin).TotalMilliseconds.Should().BeApproximately(3500, 500);
+            rst.TrueForAll(p => p.Status == CPContextStatus.Success);
+
+            rst.Clear();
+
+            //无返回值
+            var ctx2 = new CPTaskContext("2", "000000");
+            simulator.SendAsync(ctx2);
+            await simulator.WaitingSendResult(ctx2, 3000 + 3000);
+            ctx2.Status.Should().Be(CPContextStatus.NoNeed);
+
+            await simulator.CloseAsync();
+            simulator.CleanUp();
         }
 
         [Fact()]
-        public void ExecQueueTest()
+        public async void ExecQueueTest()
         {
-            Assert.True(false, "This test needs an implementation");
+            var simulator = new ProtocolSimulator();
+            var msg = new List<string>();
+            var history = new List<CPTaskContext>();
+
+            simulator.Received.Select(p => $"@ {DateTime.Now:mm:ss fff} 接收 : {p.ToHexStr()}").Subscribe(p =>
+            {
+                msg.Add(p);
+            });
+            simulator.History.Subscribe(p =>
+            {
+                msg.Add($"@ {DateTime.Now:mm:ss fff} {p}");
+                history.Add((p as CPTaskContext));
+            });
+
+            await simulator.OpenAsync();
+
+            var tcList = new List<CPTaskContext>()
+            {
+                new CPTaskContext("id1", "AA01BB", "AA$1BB", 1000 , 3),
+                new CPTaskContext("id2", "AB01BB", "AB$1BB", 1000 , 3),
+                new CPTaskContext("id3", "AC01BB", "AA$1BB", 1000 , 3),//失败重试
+                new CPTaskContext("id4", "AD01BB",  3),//无返回值
+                new CPTaskContext("id5", "AE01BB", "AE$1BB", 1000 , 3)
+            };
+
+            await simulator.ExecQueue(tcList, CancellationToken.None, 2000);
+
+            await simulator.CloseAsync();
+            simulator.CleanUp();
+ 
+            tcList.Count(p => p.Status == CPContextStatus.Timeout).Should().Be(1);
+            tcList.Count(p => p.Status == CPContextStatus.NoNeed).Should().Be(1);
+            tcList.Count(p => p.Status == CPContextStatus.Success).Should().Be(3);
+              
+            history.Count(p => p.Status == CPContextStatus.NoNeed).Should().Be(1);
+            history.Count(p => p.Status == CPContextStatus.Success).Should().Be(3);
+            history.Count(p => p.Status == CPContextStatus.Timeout).Should().Be(3);
         }
     }
 }

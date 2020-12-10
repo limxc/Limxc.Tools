@@ -1,16 +1,17 @@
 ﻿using Limxc.Tools.DeviceComm.Entities;
 using Limxc.Tools.DeviceComm.Extensions;
+using Limxc.Tools.DeviceComm.Protocol;
 using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using Limxc.Tools.DeviceComm.Protocol;
 
 namespace UnitTest.TestUtils
 {
-    public class ProtocolSimulator: IProtocol
+    public class ProtocolSimulator : IProtocol
     {
+        private readonly int _sendDelayMs;
         private readonly int _lostSimulateInterval;
         private bool _isConnected;
 
@@ -19,8 +20,9 @@ namespace UnitTest.TestUtils
         private Subject<CPContext> _msg;
         private CompositeDisposable _disposables;
 
-        public ProtocolSimulator(int lostSimulateInterval = 0)
+        public ProtocolSimulator(int lostSimulateInterval = 0, int sendDelayMs = 500)
         {
+            _sendDelayMs = sendDelayMs;
             _lostSimulateInterval = lostSimulateInterval;
 
             _received = new Subject<byte[]>();
@@ -86,12 +88,13 @@ namespace UnitTest.TestUtils
             cmd.SendTime = DateTime.Now;
             _msg.OnNext(cmd);
 
-            await Task.Delay(500);
+            await Task.Delay(_sendDelayMs);
 
             if (_lostSimulateInterval > 0 && DateTime.Now.Second % _lostSimulateInterval == 0)//模拟失败
                 return true;
 
-            _received.OnNext(cmd.ToCommand().ToByte());//发什么回什么
+            //if(cmd.Timeout != 0 && !string.IsNullOrWhiteSpace(cmd.Response.Template))
+                _received.OnNext(cmd.ToCommand().ToByte());//发什么回什么
 
             return true;
         }
