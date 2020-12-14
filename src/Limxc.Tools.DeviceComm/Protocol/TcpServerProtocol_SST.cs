@@ -95,7 +95,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
             catch (Exception e)
             {
                 if (Debugger.IsAttached)
-                    throw e;
+                    throw;
             }
             return await Task.FromResult(state);
         }
@@ -111,7 +111,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
             catch (Exception e)
             {
                 if (Debugger.IsAttached)
-                    throw e;
+                    throw;
             }
             return await Task.FromResult(state); ;
         }
@@ -127,7 +127,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
             catch (Exception e)
             {
                 if (Debugger.IsAttached)
-                    throw e;
+                    throw;
             }
             return Task.FromResult(state);
         }

@@ -2,6 +2,7 @@
 using Force.DeepCloner;
 using Limxc.Tools.DeviceComm.Entities;
 using Limxc.Tools.DeviceComm.Extensions;
+using Limxc.Tools.DeviceComm.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,7 +15,7 @@ namespace Limxc.Tools.DeviceComm.Tests
 {
     public class ProtocolSimulatorTests
     {
-        private ProtocolSimulator simulator;
+        private IProtocol simulator;
 
         public ProtocolSimulatorTests()
         {
@@ -23,7 +24,7 @@ namespace Limxc.Tools.DeviceComm.Tests
 
         [Fact]
         public async Task Test()
-        { 
+        {
             var msg = new List<string>();
             var rst = new List<CPContext>();
             var sendList = new List<CPContext>()

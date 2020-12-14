@@ -14,7 +14,7 @@ namespace Limxc.Tools.DeviceComm.Protocol.Tests
     public class SerialPortProtocolTests
     {
         [Fact()]
-        public async void SerialPortProtocolTest()
+        public async Task SerialPortProtocolTest()
         {
             /*
              * 需要硬件环境
@@ -26,7 +26,7 @@ namespace Limxc.Tools.DeviceComm.Protocol.Tests
                 return;
 
             Debug.WriteLine($"****** {nameof(SerialPortProtocol_GS)} Test  ******");
-            var sp = new SerialPortProtocol_GS(SerialPort.GetPortNames()[0], 9600);
+            IProtocol sp = new SerialPortProtocol_GS(SerialPort.GetPortNames()[0], 9600);
 
             var rst = new List<string>();
 
@@ -59,7 +59,7 @@ namespace Limxc.Tools.DeviceComm.Protocol.Tests
 
             //-------------
             Debug.WriteLine($"****** {nameof(SerialPortProtocol_SPS)} Test  ******");
-            var sps = new SerialPortProtocol_SPS(SerialPort.GetPortNames()[0], 9600);
+            IProtocol sps = new SerialPortProtocol_SPS(SerialPort.GetPortNames()[0], 9600);
 
             await sps.OpenAsync();
 

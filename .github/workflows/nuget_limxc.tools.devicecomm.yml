@@ -2,7 +2,7 @@ name: publish to nuget
 on:
   push:
     branches:
-      - nuget # Default release branch
+      - master # Default release branch
 jobs:
   publish:
     name: build, pack & publish
@@ -21,7 +21,7 @@ jobs:
         uses: rohith/publish-nuget@v2
         with:
           # Filepath of the project to be packaged, relative to root of repository
-          PROJECT_FILE_PATH: Limxc.Tools.DeviceComm/Limxc.Tools.DeviceComm.csproj
+          PROJECT_FILE_PATH: src/Limxc.Tools.DeviceComm/Limxc.Tools.DeviceComm.csproj
 
           # NuGet package id, used for version detection & defaults to project name
           # PACKAGE_NAME:

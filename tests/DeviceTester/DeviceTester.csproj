@@ -90,15 +90,15 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Limxc.Tools.DeviceComm\Limxc.Tools.DeviceComm.csproj">
+    <ProjectReference Include="..\..\src\Limxc.Tools.DeviceComm\Limxc.Tools.DeviceComm.csproj">
       <Project>{4b147f67-cb13-434e-a06c-8648ebbec4d3}</Project>
       <Name>Limxc.Tools.DeviceComm</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Limxc.Tools.Fx\Limxc.Tools.Fx.csproj">
+    <ProjectReference Include="..\..\src\Limxc.Tools.Fx\Limxc.Tools.Fx.csproj">
       <Project>{2634da37-6a52-4f93-bee1-43e9366462b8}</Project>
       <Name>Limxc.Tools.Fx</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Limxc.Tools\Limxc.Tools.csproj">
+    <ProjectReference Include="..\..\src\Limxc.Tools\Limxc.Tools.csproj">
       <Project>{7f72063e-6783-4b30-a438-88ad1b101591}</Project>
       <Name>Limxc.Tools</Name>
     </ProjectReference>
@@ -108,13 +108,13 @@
       <Version>5.0.0</Version>
     </PackageReference>
     <PackageReference Include="ReactiveUI.Events.Winforms">
-      <Version>12.1.5</Version>
+      <Version>13.0.1</Version>
     </PackageReference>
     <PackageReference Include="ReactiveUI.Fody">
-      <Version>12.1.5</Version>
+      <Version>13.0.1</Version>
     </PackageReference>
     <PackageReference Include="ReactiveUI.WinForms">
-      <Version>12.1.5</Version>
+      <Version>13.0.1</Version>
     </PackageReference>
     <PackageReference Include="System.Reactive">
       <Version>5.0.0</Version>

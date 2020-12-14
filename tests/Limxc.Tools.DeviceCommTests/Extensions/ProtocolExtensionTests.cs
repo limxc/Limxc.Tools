@@ -336,7 +336,7 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
         }
 
         [Fact()]
-        public async void WaitingSendResultTest()
+        public async Task WaitingSendResultTest()
         {
             var simulator = new ProtocolSimulator(0, 3000);
             var msg = new List<string>();
@@ -355,7 +355,7 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
             var ctx1 = new CPTaskContext("1", "AA01BB", "AA$1BB", 1000 + 3000, 1);
 
             var begin = DateTime.Now;
-            simulator.SendAsync(ctx1);
+            _ = simulator.SendAsync(ctx1);
             await simulator.WaitingSendResult(ctx1, 1000 + 3000);
             var end = DateTime.Now;
 
@@ -367,7 +367,7 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
 
             //无返回值
             var ctx2 = new CPTaskContext("2", "000000");
-            simulator.SendAsync(ctx2);
+            _ = simulator.SendAsync(ctx2);
             await simulator.WaitingSendResult(ctx2, 3000 + 3000);
             ctx2.State.Should().Be(CPContextState.NoNeed);
 
@@ -376,7 +376,7 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
         }
 
         [Fact()]
-        public async void ExecQueueTest()
+        public async Task ExecQueueTest()
         {
             var simulator = new ProtocolSimulator();
             var msg = new List<string>();

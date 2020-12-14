@@ -13,7 +13,7 @@ namespace Limxc.Tools.Pipeline.Host.Tests
         [Fact()]
         public async Task CancelPipeLineTest()
         {
-            var pipe = new PipeBuilder<PipeTestContext>()
+            IPipeBuilder<PipeTestContext> pipe = new PipeBuilder<PipeTestContext>()
                     .Use(c =>
                     {
                         c.Msg += "_1";
@@ -28,7 +28,9 @@ namespace Limxc.Tools.Pipeline.Host.Tests
                     .Use((c, t) =>//1100ms
                     {
                         c.Msg += "_3";
+#pragma warning disable AsyncFixer02 // Long-running or blocking operations inside an async method
                         Thread.Sleep(1000);
+#pragma warning restore AsyncFixer02 // Long-running or blocking operations inside an async method
                         if (t.IsCancellationRequested)
                             return;
                         c.Value += 3;
