@@ -1,24 +1,18 @@
-﻿using Xunit;
-using Limxc.Tools.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FluentAssertions;
 using System.ComponentModel;
-using FluentAssertions;
+using Xunit;
 
 namespace Limxc.Tools.Extensions.Tests
 {
     public class EnumExtensionTests
     {
-        enum TestEnum
+        private enum TestEnum
         {
             [Description("a")]
             A,
+
             B
         }
-         
 
         [Fact()]
         public void DescriptionTest()
@@ -30,7 +24,7 @@ namespace Limxc.Tools.Extensions.Tests
         [Fact()]
         public void NamesTest()
         {
-            TestEnum.A.Names().Should().BeEquivalentTo("A","B");
+            TestEnum.A.Names().Should().BeEquivalentTo("A", "B");
         }
 
         [Fact()]

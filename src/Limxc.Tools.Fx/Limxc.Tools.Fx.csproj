@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <TargetFrameworks>net472;net48</TargetFrameworks>
-  </PropertyGroup> 
-
-  <ItemGroup>
-    <Reference Include="System.Windows.Forms" />
-  </ItemGroup>
+  </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Limxc.Tools\Limxc.Tools.csproj" />
+  </ItemGroup> 
+
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
 
   <ItemGroup>

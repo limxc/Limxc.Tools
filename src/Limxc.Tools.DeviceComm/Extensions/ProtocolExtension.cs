@@ -232,16 +232,16 @@ namespace Limxc.Tools.DeviceComm.Extensions
         /// Send解析任务完成通知
         /// </summary>
         /// <param name="protocol"></param>
-        /// <param name="context"></param> 
+        /// <param name="context"></param>
         /// <param name="schedulerRunTime">rx处理时间</param>
         /// <returns></returns>
-        public static async Task WaitingSendResult(this IProtocol protocol, CPTaskContext context,  int schedulerRunTime = 100)
+        public static async Task WaitingSendResult(this IProtocol protocol, CPTaskContext context, int schedulerRunTime = 100)
         {
             int state = 0;//等待中..
 
             var dis = protocol
                         .History
-                        .TakeUntil(DateTimeOffset.Now.AddMilliseconds(context.Timeout+schedulerRunTime))
+                        .TakeUntil(DateTimeOffset.Now.AddMilliseconds(context.Timeout + schedulerRunTime))
                         .FirstOrDefaultAsync(p => ((CPTaskContext)p).Id == context.Id)
                         .ObserveOn(TaskPoolScheduler.Default)
                         .Subscribe(p =>
@@ -252,11 +252,11 @@ namespace Limxc.Tools.DeviceComm.Extensions
                                 state = 2;//有返回值
                         });
 
-            await protocol.SendAsync(context);
+            await protocol.SendAsync(context).ConfigureAwait(false);
 
             while (state == 0)
             {
-                await Task.Delay(10);
+                await Task.Delay(10).ConfigureAwait(false);
             }
 
             dis.Dispose();
@@ -279,8 +279,8 @@ namespace Limxc.Tools.DeviceComm.Extensions
             {
                 while (!token.IsCancellationRequested && task.State != CPContextState.Success && task.State != CPContextState.NoNeed && task.RemainTimes > 0)
                 {
-                    task.RemainTimes--; 
-                    await protocol.WaitingSendResult(task, schedulerRunTime);
+                    task.RemainTimes--;
+                    await protocol.WaitingSendResult(task, schedulerRunTime).ConfigureAwait(false);
                 }
             }
             return;

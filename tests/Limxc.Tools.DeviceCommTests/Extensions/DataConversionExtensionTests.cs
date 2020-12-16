@@ -74,7 +74,7 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
         public void HexStrMultiplyTest()
         {
             int i = 6;
-            //i.ToHexStr().HexStrMultiply();
+            i.ToHexStr().HexStrMultiply(3).ToInt().Should().Be(18);
         }
     }
 }

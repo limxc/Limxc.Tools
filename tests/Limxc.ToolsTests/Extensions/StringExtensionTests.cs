@@ -4,7 +4,7 @@ using Xunit;
 namespace Limxc.Tools.Extensions.Tests
 {
     public class StringExtensionTests
-    { 
+    {
         [Fact()]
         public void ContainsTest()
         {
@@ -15,7 +15,7 @@ namespace Limxc.Tools.Extensions.Tests
             "中文English!@#".Contains(new string[] { "天", "中" }).Should().BeTrue();
             "中文English!@#".Contains(new string[] { "天", "En" }).Should().BeTrue();
 
-            "中文English!@#".Contains(new string[] { "天", "en" },false).Should().BeFalse();
+            "中文English!@#".Contains(new string[] { "天", "en" }, false).Should().BeFalse();
         }
 
         [Fact()]

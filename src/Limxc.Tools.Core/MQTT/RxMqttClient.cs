@@ -18,7 +18,7 @@ namespace Limxc.Tools.Core.MQTT
 {
     public class RxMqttClient : ICommClientService
     {
-        private IRxMqttClinet client;
+        private IRxMqttClient client;
 
         public RxMqttClient()
         {
@@ -107,7 +107,9 @@ namespace Limxc.Tools.Core.MQTT
 
             var rpcClient = new MqttRpcClient(client.InternalClient.InternalClient, rpcOption);
 
-            var response = await rpcClient.ExecuteAsync(TimeSpan.FromSeconds(timeoutSeconds), methodName, msg, MqttQualityOfServiceLevel.ExactlyOnce);
+            var response = await rpcClient
+                .ExecuteAsync(TimeSpan.FromSeconds(timeoutSeconds), methodName, msg, MqttQualityOfServiceLevel.ExactlyOnce)
+                .ConfigureAwait(false);
 
             return Encoding.UTF8.GetString(response);
         }
@@ -128,8 +130,10 @@ namespace Limxc.Tools.Core.MQTT
                     if (p.ApplicationMessage.Payload != null)
                         msg = Encoding.UTF8.GetString(p.ApplicationMessage.Payload);
 
-                    var resp = await action(msg);
-                    await client.PublishAsync(MqttMessageBuilder.CreateMsg(p.ApplicationMessage.Topic + "/response", resp), CancellationToken.None);
+                    var resp = await action(msg).ConfigureAwait(false);
+                    await client
+                        .PublishAsync(MqttMessageBuilder.CreateMsg(p.ApplicationMessage.Topic + "/response", resp), CancellationToken.None)
+                        .ConfigureAwait(false);
                 });
         }
 
@@ -182,7 +186,9 @@ namespace Limxc.Tools.Core.MQTT
 
             var rpcClient = new MqttRpcClient(client.InternalClient.InternalClient, rpcOption);
 
-            var response = await rpcClient.ExecuteAsync(TimeSpan.FromSeconds(timeoutSeconds), methodName, JsonConvert.SerializeObject(msg), MqttQualityOfServiceLevel.AtMostOnce);
+            var response = await rpcClient
+                .ExecuteAsync(TimeSpan.FromSeconds(timeoutSeconds), methodName, JsonConvert.SerializeObject(msg), MqttQualityOfServiceLevel.AtMostOnce)
+                .ConfigureAwait(false);
 
             return JsonConvert.DeserializeObject<TRst>(Encoding.UTF8.GetString(response));
         }
@@ -203,8 +209,10 @@ namespace Limxc.Tools.Core.MQTT
                     if (p.ApplicationMessage.Payload != null)
                         msg = Encoding.UTF8.GetString(p.ApplicationMessage.Payload);
 
-                    var resp = await action(JsonConvert.DeserializeObject<TMsg>(msg));
-                    await client.PublishAsync(MqttMessageBuilder.CreateMsg(p.ApplicationMessage.Topic + "/response", JsonConvert.SerializeObject(resp)), CancellationToken.None);
+                    var resp = await action(JsonConvert.DeserializeObject<TMsg>(msg)).ConfigureAwait(false);
+                    await client
+                        .PublishAsync(MqttMessageBuilder.CreateMsg(p.ApplicationMessage.Topic + "/response", JsonConvert.SerializeObject(resp)), CancellationToken.None)
+                        .ConfigureAwait(false);
                 });
         }
 

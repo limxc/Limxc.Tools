@@ -69,32 +69,25 @@ namespace Limxc.Tools.DeviceComm.Utils
 
         public bool Open(string portName, int baudRate, Parity parity = Parity.None, int databits = 8, StopBits stopBits = StopBits.One)
         {
-            try
+            sp = new SerialPortStream
             {
-                sp = new SerialPortStream
-                {
-                    PortName = portName,
-                    BaudRate = baudRate,
-                    Parity = parity,
-                    DataBits = databits,
-                    StopBits = stopBits,
+                PortName = portName,
+                BaudRate = baudRate,
+                Parity = parity,
+                DataBits = databits,
+                StopBits = stopBits,
 
-                    DtrEnable = true,
-                    RtsEnable = true
-                };
+                DtrEnable = true,
+                RtsEnable = true
+            };
 
-                if (receiveBuffer == null)
-                {
-                    receiveBuffer = new byte[BufSize];
-                }
-                sp.Open();
-                sp.DataReceived += Sp_DataReceived;
-                return true;
-            }
-            catch (Exception e)
+            if (receiveBuffer == null)
             {
-                throw;
+                receiveBuffer = new byte[BufSize];
             }
+            sp.Open();
+            sp.DataReceived += Sp_DataReceived;
+            return true;
         }
 
         public void Close()

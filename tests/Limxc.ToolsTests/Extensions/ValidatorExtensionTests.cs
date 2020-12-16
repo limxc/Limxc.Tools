@@ -1,5 +1,4 @@
-﻿using Limxc.Tools.Extensions;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Xunit;
 
 namespace Limxc.Tools.Extensions.Tests
@@ -47,8 +46,8 @@ namespace Limxc.Tools.Extensions.Tests
             "4".CheckPort().Should().BeTrue();
             "25".CheckPort().Should().BeTrue();
             "254".CheckPort().Should().BeTrue();
-            "6625".CheckPort().Should().BeTrue(); 
-        } 
+            "6625".CheckPort().Should().BeTrue();
+        }
 
         [Fact()]
         public void CheckEmailTest()
@@ -60,6 +59,6 @@ namespace Limxc.Tools.Extensions.Tests
             "xxx.asd.com".CheckEmail().Should().BeFalse();
             "xxx.asd@com".CheckEmail().Should().BeFalse();
             "xxxasd.com".CheckEmail().Should().BeFalse();
-        } 
+        }
     }
 }

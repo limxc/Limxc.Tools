@@ -40,7 +40,7 @@ namespace Limxc.Tools.Pipeline.Builder
                     {
                         if (handler != null && !token.IsCancellationRequested)
                         {
-                            await handler(context.Body);
+                            await handler(context.Body).ConfigureAwait(false);
                             if (!string.IsNullOrWhiteSpace(descForSnapshot))
                                 context.AddSnapshot(descForSnapshot);
                         }
@@ -80,7 +80,7 @@ namespace Limxc.Tools.Pipeline.Builder
                 {
                     if (handler != null && !token.IsCancellationRequested)
                     {
-                        await handler(context.Body, token);
+                        await handler(context.Body, token).ConfigureAwait(false);
                         if (!string.IsNullOrWhiteSpace(descForSnapshot) && !token.IsCancellationRequested)
                             context.AddSnapshot(descForSnapshot);
                     }
@@ -116,7 +116,7 @@ namespace Limxc.Tools.Pipeline.Builder
         {
             var context = new PipeContext<T>(obj);
             context.AddSnapshot("original");
-            await finalHandler(context, token);
+            await finalHandler(context, token).ConfigureAwait(false);
             return context;
         }
 

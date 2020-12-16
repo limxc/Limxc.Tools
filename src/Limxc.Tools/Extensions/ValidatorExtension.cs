@@ -26,6 +26,5 @@ namespace Limxc.Tools.Extensions
 
         public static bool CheckEmail(this string str)
             => str.IsRegexMatch(@"^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$");
-         
     }
 }

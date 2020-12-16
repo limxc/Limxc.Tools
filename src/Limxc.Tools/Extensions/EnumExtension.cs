@@ -11,8 +11,8 @@ namespace Limxc.Tools.Extensions
         {
             string value = string.Empty;
             FieldInfo field = enumValue.GetType().GetField(enumValue.ToString());
-            object[] objs = field.GetCustomAttributes(typeof(DescriptionAttribute), false);    
-            if (objs == null || objs.Length == 0)   
+            object[] objs = field.GetCustomAttributes(typeof(DescriptionAttribute), false);
+            if (objs == null || objs.Length == 0)
                 return value;
 
             return ((DescriptionAttribute)objs[0]).Description;

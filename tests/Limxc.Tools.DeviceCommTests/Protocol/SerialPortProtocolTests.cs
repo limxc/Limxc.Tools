@@ -30,7 +30,10 @@ namespace Limxc.Tools.DeviceComm.Protocol.Tests
 
             var rst = new List<string>();
 
-            await sp.OpenAsync();
+            var opened = await sp.OpenAsync();
+
+            if (!opened && !Debugger.IsAttached)
+                return;
 
             Observable.Merge
                 (

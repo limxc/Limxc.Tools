@@ -1,5 +1,4 @@
-﻿using Limxc.Tools.Extensions;
-using FluentAssertions;
+﻿using FluentAssertions;
 using System;
 using Xunit;
 
@@ -21,7 +20,7 @@ namespace Limxc.Tools.Extensions.Tests
             var birth = new DateTime(1999, 8, 11);
             birth.Age(new DateTime(1999, 8, 11)).Should().Be((0, 0, 0));
             birth.Age(new DateTime(1999, 8, 12)).Should().Be((0, 0, 1));
-            birth.Age(new DateTime(2020, 11, 5)).Should().Be((21,2,25));
+            birth.Age(new DateTime(2020, 11, 5)).Should().Be((21, 2, 25));
         }
     }
 }

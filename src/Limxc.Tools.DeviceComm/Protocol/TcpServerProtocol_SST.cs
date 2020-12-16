@@ -3,7 +3,6 @@ using Limxc.Tools.DeviceComm.Extensions;
 using Limxc.Tools.Extensions;
 using SimpleTcp;
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -50,7 +49,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
                     .Retry();
 
             Received = Observable
-                            .FromEventPattern<DataReceivedFromClientEventArgs>(h => _server.Events.DataReceived += h, h => _server.Events.DataReceived -= h)
+                            .FromEventPattern<SimpleTcp.DataReceivedEventArgs>(h => _server.Events.DataReceived += h, h => _server.Events.DataReceived -= h)
                             .Select(p => p.EventArgs.Data)
                             .Retry()
                             .Publish()
@@ -77,59 +76,33 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
         public async Task<bool> SendAsync(CPContext context)
         {
-            bool state = false;
-            try
+            if (_clientIpPort.CheckIpPort())
             {
-                if (_clientIpPort.CheckIpPort())
-                {
-                    var cmdStr = context.Command.Build();
+                var cmdStr = context.Command.Build();
 
-                    await _server.SendAsync(_clientIpPort, cmdStr);
+                await _server.SendAsync(_clientIpPort, cmdStr).ConfigureAwait(false);
 
-                    state = true;
+                context.SendTime = DateTime.Now;
+                _msg.OnNext(context);
 
-                    context.SendTime = DateTime.Now;
-                    _msg.OnNext(context);
-                }
+                return await Task.FromResult(true);
             }
-            catch (Exception e)
+            else
             {
-                if (Debugger.IsAttached)
-                    throw;
+                return await Task.FromResult(false);
             }
-            return await Task.FromResult(state);
         }
 
-        public async Task<bool> OpenAsync()
+        public Task<bool> OpenAsync()
         {
-            bool state = false;
-            try
-            {
-                await _server.StartAsync();
-                state = true;
-            }
-            catch (Exception e)
-            {
-                if (Debugger.IsAttached)
-                    throw;
-            }
-            return await Task.FromResult(state); ;
+            _server.StartAsync();
+            return Task.FromResult(true);
         }
 
         public Task<bool> CloseAsync()
         {
-            bool state = false;
-            try
-            {
-                _server.Stop();
-                state = true;
-            }
-            catch (Exception e)
-            {
-                if (Debugger.IsAttached)
-                    throw;
-            }
-            return Task.FromResult(state);
+            _server.Stop();
+            return Task.FromResult(true);
         }
     }
 }

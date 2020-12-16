@@ -20,7 +20,7 @@ namespace DeviceTester.Gmd
         {
             connector = new GmdConnector();
             connector.Open();
-            
+
             connector.IsConnected
                 .StartWith(false)
                 .Debug("IsConnected")

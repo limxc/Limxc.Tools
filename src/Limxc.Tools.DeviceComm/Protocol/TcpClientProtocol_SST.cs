@@ -3,7 +3,6 @@ using Limxc.Tools.DeviceComm.Extensions;
 using Limxc.Tools.Extensions;
 using SimpleTcp;
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -16,7 +15,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
     /// </summary>
     public class TcpClientProtocol_SST : IProtocol
     {
-        private SimpleTcpClient _server;
+        private SimpleTcpClient _client;
 
         private ISubject<CPContext> _msg;
 
@@ -31,15 +30,15 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
             _msg = new Subject<CPContext>();
 
-            _server = new SimpleTcpClient(_serverIpPort);
+            _client = new SimpleTcpClient(_serverIpPort);
 
             var connect = Observable
-                            .FromEventPattern(h => _server.Events.Connected += h, h => _server.Events.Connected -= h)
+                            .FromEventPattern<SimpleTcp.ClientConnectedEventArgs>(h => _client.Events.Connected += h, h => _client.Events.Connected -= h)
                             .Select(_ => true)
                              ;
 
             var disconnect = Observable
-                .FromEventPattern(h => _server.Events.Disconnected += h, h => _server.Events.Disconnected -= h)
+                .FromEventPattern<SimpleTcp.ClientDisconnectedEventArgs>(h => _client.Events.Disconnected += h, h => _client.Events.Disconnected -= h)
                 .Select(_ => false);
 
             ConnectionState = Observable
@@ -47,7 +46,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
                 .Retry();
 
             Received = Observable
-                            .FromEventPattern<DataReceivedFromServerEventArgs>(h => _server.Events.DataReceived += h, h => _server.Events.DataReceived -= h)
+                            .FromEventPattern<SimpleTcp.DataReceivedEventArgs>(h => _client.Events.DataReceived += h, h => _client.Events.DataReceived -= h)
                             .Select(p => p.EventArgs.Data)
                             .Retry()
                             .Publish()
@@ -74,55 +73,26 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
         public async Task<bool> SendAsync(CPContext context)
         {
-            bool state = false;
-            try
-            {
-                var cmdStr = context.Command.Build();
+            var cmdStr = context.Command.Build();
 
-                await _server.SendAsync(cmdStr);
-                state = true;
+            await _client.SendAsync(cmdStr).ConfigureAwait(false);
 
-                context.SendTime = DateTime.Now;
-                _msg.OnNext(context);
-            }
-            catch (Exception e)
-            {
-                if (Debugger.IsAttached)
-                    throw;
-            }
-            return await Task.FromResult(state);
+            context.SendTime = DateTime.Now;
+            _msg.OnNext(context);
+
+            return await Task.FromResult(true);
         }
 
-        public async Task<bool> OpenAsync()
+        public Task<bool> OpenAsync()
         {
-            bool state = false;
-            try
-            {
-                _server.Connect();
-                state = true;
-            }
-            catch (Exception e)
-            {
-                if (Debugger.IsAttached)
-                    throw;
-            }
-            return await Task.FromResult(state); ;
+            _client.Connect();
+            return Task.FromResult(true);
         }
 
         public Task<bool> CloseAsync()
         {
-            bool state = false;
-            try
-            {
-                _server.Disconnect();
-                state = true;
-            }
-            catch (Exception e)
-            {
-                if (Debugger.IsAttached)
-                    throw;
-            }
-            return Task.FromResult(state);
+            _client.Disconnect();
+            return Task.FromResult(true);
         }
     }
 }

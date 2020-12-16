@@ -63,9 +63,9 @@ namespace Limxc.Tools.DeviceComm.Entities
 
                 return command.ToUpper();
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                throw new FormatException($"Command Build Error. {Template}|{string.Join(",", pars)}");
+                throw new FormatException($"Command Build Error. {Template}|{string.Join(",", pars)} | Exception:{e.Message}");
             }
         }
 

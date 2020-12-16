@@ -32,7 +32,7 @@ namespace Limxc.Tools.Extensions
         {
             return Regex.Replace(str, @"[^\u4e00-\u9fa5]+", "");
         }
-          
+
         public static List<double> Numbers(this string str)
         {
             var rst = new List<double>();

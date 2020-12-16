@@ -2,7 +2,6 @@
 using Limxc.Tools.DeviceComm.Entities;
 using Limxc.Tools.DeviceComm.Extensions;
 using System;
-using System.Diagnostics;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -79,57 +78,29 @@ namespace Limxc.Tools.DeviceComm.Protocol
         /// <returns></returns>
         public Task<bool> SendAsync(CPContext context)
         {
-            bool state = false;
-            try
-            {
-                var cmdStr = context.Command.Build();
-                state = _sp.WriteHexString(cmdStr) > 0;
+            var cmdStr = context.Command.Build();
+            var state = _sp.WriteHexString(cmdStr) > 0;
 
-                if (state)
-                {
-                    context.SendTime = DateTime.Now;
-                    _msg.OnNext(context);
-                }
-            }
-            catch (Exception e)
+            if (state)
             {
-                if (Debugger.IsAttached)
-                    throw e;
+                context.SendTime = DateTime.Now;
+                _msg.OnNext(context);
             }
+
             return Task.FromResult(state);
         }
 
-        public async Task<bool> OpenAsync()
+        public Task<bool> OpenAsync()
         {
-            bool state = false;
-            try
-            {
-                if (_sp.IsOpen)
-                    await CloseAsync();
-
-                state = _sp.Open();
-            }
-            catch (Exception e)
-            {
-                if (Debugger.IsAttached)
-                    throw e;
-            }
-            return await Task.FromResult(state);
+            if (_sp.IsOpen)
+                return CloseAsync();
+            else
+                return Task.FromResult(false);
         }
 
         public Task<bool> CloseAsync()
         {
-            bool state = false;
-            try
-            {
-                state = _sp.Close();
-            }
-            catch (Exception e)
-            {
-                if (Debugger.IsAttached)
-                    throw e;
-            }
-            return Task.FromResult(state);
+            return Task.FromResult(_sp.Close());
         }
     }
 }
