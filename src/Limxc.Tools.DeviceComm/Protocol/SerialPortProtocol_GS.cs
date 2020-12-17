@@ -71,23 +71,22 @@ namespace Limxc.Tools.DeviceComm.Protocol
             _sp = null;
         }
 
-        /// <summary>
-        /// 使用GodSharp.SerialPort: 响应时间建议>128ms
-        /// </summary>
-        /// <param name="context"></param>
-        /// <returns></returns>
         public Task<bool> SendAsync(CPContext context)
         {
             var cmdStr = context.Command.Build();
-            var state = _sp.WriteHexString(cmdStr) > 0;
+            _sp.WriteHexString(cmdStr);
 
-            if (state)
-            {
-                context.SendTime = DateTime.Now;
-                _msg.OnNext(context);
-            }
+            context.SendTime = DateTime.Now;
+            _msg.OnNext(context);
 
-            return Task.FromResult(state);
+            return Task.FromResult(true);
+        }
+
+        public Task<bool> SendAsync(byte[] bytes)
+        {
+            _sp.Write(bytes);
+
+            return Task.FromResult(true);
         }
 
         public Task<bool> OpenAsync()

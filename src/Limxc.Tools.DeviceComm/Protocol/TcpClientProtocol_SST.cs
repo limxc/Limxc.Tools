@@ -33,12 +33,12 @@ namespace Limxc.Tools.DeviceComm.Protocol
             _client = new SimpleTcpClient(_serverIpPort);
 
             var connect = Observable
-                            .FromEventPattern<SimpleTcp.ClientConnectedEventArgs>(h => _client.Events.Connected += h, h => _client.Events.Connected -= h)
+                            .FromEventPattern<ClientConnectedEventArgs>(h => _client.Events.Connected += h, h => _client.Events.Connected -= h)
                             .Select(_ => true)
                              ;
 
             var disconnect = Observable
-                .FromEventPattern<SimpleTcp.ClientDisconnectedEventArgs>(h => _client.Events.Disconnected += h, h => _client.Events.Disconnected -= h)
+                .FromEventPattern<ClientDisconnectedEventArgs>(h => _client.Events.Disconnected += h, h => _client.Events.Disconnected -= h)
                 .Select(_ => false);
 
             ConnectionState = Observable
@@ -46,7 +46,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
                 .Retry();
 
             Received = Observable
-                            .FromEventPattern<SimpleTcp.DataReceivedEventArgs>(h => _client.Events.DataReceived += h, h => _client.Events.DataReceived -= h)
+                            .FromEventPattern<DataReceivedEventArgs>(h => _client.Events.DataReceived += h, h => _client.Events.DataReceived -= h)
                             .Select(p => p.EventArgs.Data)
                             .Retry()
                             .Publish()
@@ -67,6 +67,9 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
         public void CleanUp()
         {
+            _client?.Disconnect();
+            _client?.Dispose();
+            
             _msg?.OnCompleted();
             _msg = null;
         }
@@ -79,6 +82,13 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
             context.SendTime = DateTime.Now;
             _msg.OnNext(context);
+
+            return await Task.FromResult(true);
+        }
+
+        public async Task<bool> SendAsync(byte[] bytes)
+        {
+            await _client.SendAsync(bytes).ConfigureAwait(false);
 
             return await Task.FromResult(true);
         }

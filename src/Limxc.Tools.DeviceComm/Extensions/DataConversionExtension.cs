@@ -1,237 +1,96 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 
 namespace Limxc.Tools.DeviceComm.Extensions
 {
     public static class DataConversionExtension
     {
-        #region int hexstr
+        #region Format
 
         /// <summary>
-        /// hexstr to int
+        /// length :
+        /// 1 = (0~255)
+        /// 2 = (0~65535) 1bit
+        /// 3 = (0~16777215)
+        /// 4 = (0~4294967295) 2bit
         /// </summary>
-        /// <param name="hexStr">
-        /// </param>
-        /// <returns>
-        /// </returns>
-        public static int ToInt(this string hexStr)
-        {
-            hexStr = hexStr.Replace(" ", "");
-
-            return Convert.ToInt32(hexStr, 16);
-        }
-
-        /// <summary>
-        /// int to hexstr
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="length">2(普通) or 4(高低)</param>
-        /// <returns></returns>
-        public static string ToHexStr(this int value, int length = 2)
-        {
-            string result = Convert.ToString(value, 16).Trim();//十进制数字转十六进制字符串
-
-            result = result.PadLeft(length, '0');
-
-            if (result.Length % 2 == 1)
-                result = "0" + result;
-
-            if (length < result.Length)
-            {
-                throw new Exception($"Result Length Changed. From {length} to {result.Length}");
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// hexstr[] to int[]
-        /// </summary>
-        /// <param name="hexStrs"></param>
-        /// <returns></returns>
-        public static int[] ToIntArray(this string[] hexStrs)
-        {
-            return hexStrs.Select(p => p.ToInt()).ToArray();
-        }
-
-        /// <summary>
-        /// hexstr to hexstr[] to int[]
-        /// </summary>
-        /// <param name="hexStr"></param>
+        /// <param name="bytes"></param>
         /// <param name="length"></param>
         /// <returns></returns>
-        public static int[] ToIntArray(this string hexStr, int length)
+        public static byte[] ChangeLength(this byte[] bytes, int length)
         {
-            return hexStr.ToStrArray(length).ToIntArray().ToArray();
-        }
+            var len = bytes.Length;
 
-        #endregion int hexstr
-
-        #region Int Bytes
-
-        /// <summary>
-        /// int 转 byte数组(2/4)
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="take2Bit">0-65535</param>
-        /// <returns></returns>
-        public static byte[] ToBytes(this int value, bool take2Bit = false)
-        {
-            if (take2Bit)
+            if (len > length)
             {
-                byte[] result = new byte[2];
-                result[0] = (byte)((value >> 8) & 0xFF);
-                result[1] = (byte)(value & 0xFF);
-                return result;
+                return bytes.Skip(bytes.Length - length).ToArray();
             }
 
-            var bytes = BitConverter.GetBytes(value);
-            if (BitConverter.IsLittleEndian)
-                Array.Reverse(bytes);
+            if (len < length)
+            {
+                return new byte[length - len].Concat(bytes).ToArray();
+            }
 
             return bytes;
-
-            //if (byteLength != 2 && byteLength != 4)
-            //    throw new NotSupportedException($"Bytes Length Should Be : 2 or 4");
-
-            //byte[] result = new byte[byteLength];
-            //if (byteLength == 2)
-            //{
-            //    result[0] = (byte)((value >> 8) & 0xFF);
-            //    result[1] = (byte)(value & 0xFF);
-            //}
-            //if (byteLength == 4)
-            //{
-            //    result[0] = (byte)((value >> 24) & 0xFF);
-            //    result[1] = (byte)((value >> 16) & 0xFF);
-            //    result[2] = (byte)((value >> 8) & 0xFF);
-            //    result[3] = (byte)(value & 0xFF);
-            //}
-            //return result;
         }
 
         /// <summary>
-        ///  byte数组(2/4) 转 int
+        /// natural int (0 ~ int.MaxValue)
         /// </summary>
-        /// <param name="bytes"></param>
+        /// <param name="value"></param>
+        /// <param name="adjustRange"></param>
         /// <returns></returns>
-        public static int ToInt(this byte[] bytes)
+        public static int ToNInt(this uint value, bool adjustRange)
         {
-            if (bytes.Length == 2)
-            {
-                int num = bytes[1] & 0xFF;
-                num |= ((bytes[0] << 8) & 0xFF00);
-                return num;
-            }
-
-            if (BitConverter.IsLittleEndian)
-                Array.Reverse(bytes);
-            return BitConverter.ToInt32(bytes, 0);
-
-            //var byteLength = bytes.Length;
-            //if (byteLength != 2 && byteLength != 4)
-            //    throw new NotSupportedException($"Bytes Length Should Be : 2 or 4");
-
-            //int num = -1;
-
-            //if (byteLength == 2)
-            //{
-            //    num = bytes[1] & 0xFF;
-            //    num |= ((bytes[0] << 8) & 0xFF00);
-            //}
-            //if (byteLength == 4)
-            //{
-            //    num = bytes[3] & 0xFF;
-            //    num |= ((bytes[2] << 8) & 0xFF00);
-            //    num |= ((bytes[1] << 16) & 0xFF0000);
-            //    num |= ((bytes[0] << 24) & 0xFF0000);
-            //}
-
-            //return num;
+            if (!adjustRange && value > int.MaxValue)
+                throw new ArgumentOutOfRangeException($"{value} is bigger than {int.MaxValue}");
+            return value > int.MaxValue ? int.MaxValue : (int)value;
         }
 
-        #endregion Int Bytes
-
-        #region Byte HexStr
-
         /// <summary>
-        /// byte数组转16进制字符串
+        /// natural int (0 ~ int.MaxValue)
         /// </summary>
-        /// <param name="bytes"></param>
+        /// <param name="value"></param>
+        /// <param name="adjustRange"></param>
         /// <returns></returns>
-        public static string ToHexStr(this byte[] bytes)
+        public static int ToNInt(this int value, bool adjustRange)
         {
-            string returnStr = "";
-            if (bytes != null)
-            {
-                for (int i = 0; i < bytes.Length; i++)
-                {
-                    returnStr += bytes[i].ToString("X2");
-                }
-            }
-            return returnStr;
-        }
-
-        public static string ToHexStrFromChar(this byte[] bytes)
-        {
-            string returnStr = "";
-            if (bytes != null)
-            {
-                for (int i = 0; i < bytes.Length; i++)
-                {
-                    returnStr += (char)bytes[i];
-                }
-            }
-            return returnStr;
+            if (!adjustRange && value < 0)
+                throw new ArgumentOutOfRangeException($"{value} is less than {0}");
+            return value < 0 ? 0 : value;
         }
 
         /// <summary>
-        /// 16进制字符串转byte数组
+        /// hexstr format
         /// </summary>
-        /// <param name="hexString"></param>
+        /// <param name="hexStr"></param>
+        /// <param name="reverse"></param>
+        /// <param name="separtor"></param>
         /// <returns></returns>
-        public static byte[] ToByte(this string hexString)
+        public static string HexStrFormat(this string hexStr, bool reverse = false, string separtor = " ")
         {
-            hexString = hexString.Replace(" ", "");
-            if ((hexString.Length % 2) != 0)
-                throw new FormatException($"Hex String Length Error : {hexString.Length}");
+            if (string.IsNullOrWhiteSpace(hexStr))
+                return string.Empty;
 
-            byte[] returnBytes = new byte[hexString.Length / 2];
-            for (int i = 0; i < returnBytes.Length; i++)
-                returnBytes[i] = Convert.ToByte(hexString.Substring(i * 2, 2), 16);
-            return returnBytes;
+            hexStr = hexStr.ToUpper().Replace(" ", "");
+
+            if (hexStr.Length % 2 == 1)
+                hexStr = "0" + hexStr;
+
+            var arr = hexStr.ToStrArray(2);
+            if (reverse)
+                arr = hexStr.ToStrArray(2).Reverse().ToArray();
+
+            return string.Join(separtor, arr);
         }
 
-        #endregion Byte HexStr
-
-        #region Calculate
-
         /// <summary>
-        /// 16进制乘法
+        /// string to string[]
         /// </summary>
-        /// <param name="value">16进制原数值</param>
-        /// <param name="times">倍数</param>
-        /// <returns></returns>
-        public static string HexStrMultiply(this string value, int times)
-        {
-            var valueInt = value.ToInt();
-
-            valueInt *= times;
-
-            return valueInt.ToHexStr(2);
-        }
-
-        #endregion Calculate
-
-        /// <summary>
-        /// 处理数据区 切成数组(length) 普通 = 2 高低位 = 4
-        /// </summary>
-        /// <param name="hexStr">
-        /// </param>
-        /// <param name="length">
-        /// </param>
-        /// <returns>
-        /// </returns>
+        /// <param name="hexStr"></param>
+        /// <param name="length">2/4/..</param>
+        /// <returns> </returns>
         public static string[] ToStrArray(this string hexStr, int length)
         {
             hexStr = hexStr.Replace(" ", "");
@@ -251,26 +110,213 @@ namespace Limxc.Tools.DeviceComm.Extensions
             return rst;
         }
 
+        #endregion Format
+
+        #region Int HexStr
+
         /// <summary>
-        /// 16进制字符串格式化, 添加空格
+        /// hexstr to uint
+        /// </summary>
+        /// <param name="hexStr">
+        /// </param>
+        /// <returns></returns>
+        public static uint ToUInt(this string hexStr)
+        {
+            hexStr = hexStr.Replace(" ", "");
+
+            return Convert.ToUInt32(hexStr, 16);
+        }
+
+        /// <summary>
+        /// hexstr to natural int
+        /// </summary>
+        /// <param name="hexStr">
+        /// </param>
+        /// <returns></returns>
+        public static int ToNInt(this string hexStr, bool adjustRange = false) => hexStr.ToUInt().ToNInt(adjustRange);
+
+        /// <summary>
+        /// natural int to hexstr
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="length">2/4/8</param>
+        /// <param name="adjustRange"></param>
+        /// <returns></returns>
+        public static string ToHexStr(this int value, int length, bool adjustRange = false)
+        {
+            value = value.ToNInt(adjustRange);
+
+            string result = Convert.ToString(value, 16).Trim();
+
+            result = result.PadLeft(length, '0');
+
+            if (result.Length % 2 == 1)
+                result = "0" + result;
+
+            if (length < result.Length)
+            {
+                throw new Exception($"Result Length Changed. From {length} to {result.Length}");
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// hexstr[] to natural int[]
+        /// </summary>
+        /// <param name="hexstrs"></param>
+        /// <returns></returns>
+        public static int[] ToNInts(this string[] hexstrs)
+        {
+            return hexstrs.Select(p => p.ToNInt()).ToArray();
+        }
+
+        /// <summary>
+        /// hexstr to hexstr[] to int[]
         /// </summary>
         /// <param name="hexStr"></param>
+        /// <param name="length">2/4/8</param>
         /// <returns></returns>
-        public static string HexStrFormat(this string hexStr)
+        public static int[] ToNInts(this string hexStr, int length)
         {
-            if (string.IsNullOrWhiteSpace(hexStr))
-                return string.Empty;
-
-            hexStr = hexStr.ToUpper().Replace(" ", "");
-
-            if (hexStr.Length % 2 == 1)
-                hexStr = "0" + hexStr;
-
-            for (int i = hexStr.Length - 2; i > 0; i = i - 2)
-            {
-                hexStr = hexStr.Insert(i, " ");
-            }
-            return hexStr;
+            return hexStr.ToStrArray(length).ToNInts().ToArray();
         }
+
+        #endregion Int HexStr
+
+        #region Int Bytes
+
+        /// <summary>
+        /// natural int to byte[length]
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="length">2/4</param>
+        /// <returns></returns>
+        public static byte[] ToBytes(this int value, int length, bool adjustRange = false)
+        {
+            var bytes = BitConverter.GetBytes(value.ToNInt(adjustRange));
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(bytes);
+
+            return bytes.ChangeLength(length);
+        }
+
+        /// <summary>
+        /// byte[n] to byte[4] to natural int
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        public static int ToNInt(this byte[] bytes, bool adjustRange = false)
+        {
+            bytes = bytes.ChangeLength(4);
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(bytes);
+
+            return BitConverter.ToUInt32(bytes, 0).ToNInt(adjustRange);
+        }
+
+        #endregion Int Bytes
+
+        #region HexStr Bytes
+
+        /// <summary>
+        /// byte[] to hexstr
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        public static string ToHexStr(this byte[] bytes)
+        {
+            string returnStr = "";
+            if (bytes != null)
+            {
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    returnStr += bytes[i].ToString("X2");
+                }
+            }
+            return returnStr;
+        }
+
+        /// <summary>
+        /// byte[](char) to hexstr
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        public static string ToHexStrFromChar(this byte[] bytes)
+        {
+            string returnStr = string.Empty;
+            if (bytes != null)
+            {
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    returnStr += (char)bytes[i];
+                }
+            }
+            return returnStr;
+        }
+
+        /// <summary>
+        /// hexstr to byte[]
+        /// </summary>
+        /// <param name="hexString"></param>
+        /// <returns></returns>
+        public static byte[] ToByte(this string hexString)
+        {
+            hexString = hexString.Replace(" ", "");
+            if ((hexString.Length % 2) != 0)
+                throw new FormatException($"Hex String Length Error : {hexString.Length}");
+
+            byte[] returnBytes = new byte[hexString.Length / 2];
+            for (int i = 0; i < returnBytes.Length; i++)
+                returnBytes[i] = Convert.ToByte(hexString.Substring(i * 2, 2), 16);
+            return returnBytes;
+        }
+
+        #endregion HexStr Bytes
+
+        #region Calculate
+
+        /// <summary>
+        /// hexstr * n to hexstr
+        /// </summary>
+        /// <param name="value">16进制原数值</param>
+        /// <param name="times">倍数</param>
+        /// <param name="adjustRange"></param>
+        /// <returns></returns>
+        public static string HexStrMultiply(this string value, int times, bool adjustRange = false)
+        {
+            var valueInt = value.ToNInt(adjustRange);
+
+            valueInt *= times;
+
+            return valueInt.ToHexStr(value.Length, adjustRange);
+        }
+
+        #endregion Calculate
+
+        #region AscII HexStr
+
+        /// <summary>
+        /// hex string to ascii string
+        /// </summary>
+        /// <param name="hexString"></param>
+        /// <returns></returns>
+        public static string HexToAscII(this string hexString)
+        {
+            var ca = hexString.ToNInts(2).Select(p => (char)p).ToArray();
+            return new string(ca);
+        }
+
+        /// <summary>
+        /// ascii string to hex string
+        /// </summary>
+        /// <param name="asciiString"></param>
+        /// <returns></returns>
+        public static string AscIIToHex(this string asciiString)
+        {
+            return Encoding.UTF8.GetBytes(asciiString).ToHexStr();
+        }
+
+        #endregion AscII HexStr
     }
 }

@@ -38,9 +38,9 @@ namespace DeviceTester.Gmd
                 .Where(p => p.Length == 4096 - 2)
                 .Select(pack =>
                 {
-                    var channel = pack.Take(2).ToArray().ToInt();
+                    var channel = pack.Take(2).ToArray().ToNInt();
                     //2046个点
-                    var value = pack.Skip(2).Split(2).Select(p => p.ToArray().ToInt()).ToArray();
+                    var value = pack.Skip(2).Split(2).Select(p => p.ToArray().ToNInt()).ToArray();
                     return (channel, value);
                 })
                 .Retry()
@@ -64,8 +64,8 @@ namespace DeviceTester.Gmd
 
         public void CleanUp()
         {
-            _sendServer.CleanUp();
-            _receiveServer.CleanUp();
+            _sendServer?.CleanUp();
+            _receiveServer?.CleanUp();
         }
 
         #region 硬件参数设置
