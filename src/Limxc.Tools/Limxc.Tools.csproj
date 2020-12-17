@@ -5,18 +5,8 @@
 		<Description>Basic utils, extensions, abstractions.</Description>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<DocumentationFile></DocumentationFile>
-	</PropertyGroup>
-
-	<ItemGroup>
-	  <Compile Remove="Algos\**" />
-	  <EmbeddedResource Remove="Algos\**" />
-	  <None Remove="Algos\**" />
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="DeepCloner" Version="0.10.2" />
-		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" /> 
+	<ItemGroup> 
+		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
 		<PackageReference Include="System.Reactive" Version="5.0.0" />
 	</ItemGroup>
 </Project>

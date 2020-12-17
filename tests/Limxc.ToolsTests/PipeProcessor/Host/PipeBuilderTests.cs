@@ -11,7 +11,7 @@ namespace Limxc.Tools.Pipeline.Host.Tests
     public class PipeBuilderTests
     {
         [Fact()]
-        public async Task CancelPipeLineTest()
+        public async Task PipeLineTest()
         {
             IPipeBuilder<PipeTestContext> pipe = new PipeBuilder<PipeTestContext>()
                     .Use(c =>

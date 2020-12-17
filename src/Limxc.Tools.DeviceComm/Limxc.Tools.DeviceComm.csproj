@@ -5,38 +5,15 @@
 		<Description>Device communication library, and usercontrols for testing.</Description>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-	  <NoWarn>1701;1702;</NoWarn>
-	</PropertyGroup>
-
-	<ItemGroup>
-	  <Compile Remove="Limxc.Tools.DeviceComm %28netstandard2.0%29\**" />
-	  <Compile Remove="TestControls\**" />
-	  <EmbeddedResource Remove="Limxc.Tools.DeviceComm %28netstandard2.0%29\**" />
-	  <EmbeddedResource Remove="TestControls\**" />
-	  <None Remove="Limxc.Tools.DeviceComm %28netstandard2.0%29\**" />
-	  <None Remove="TestControls\**" />
-	</ItemGroup>
-
 	<ItemGroup>
 		<PackageReference Include="GodSharp.SerialPort" Version="1.2.0.6" />
 		<PackageReference Include="SerialPortStream" Version="2.2.2" />
 		<PackageReference Include="SuperSimpleTcp" Version="2.2.0.1" />
 		<PackageReference Include="System.IO.Ports" Version="5.0.0" />
-		<PackageReference Include="System.Management" Version="5.0.0" />  
+		<PackageReference Include="System.Management" Version="5.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Limxc.Tools\Limxc.Tools.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Reference Include="System.Windows.Forms">
-			<HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Windows.Forms.dll</HintPath>
-		</Reference>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <EditorConfigFiles Update="D:\Git\limxc\Limxc.Tools\.editorconfig" Link=".editorconfig" />
 	</ItemGroup>
 </Project>

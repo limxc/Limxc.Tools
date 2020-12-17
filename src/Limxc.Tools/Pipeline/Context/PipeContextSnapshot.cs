@@ -5,9 +5,11 @@ namespace Limxc.Tools.Pipeline.Context
 {
     public class PipeContextSnapshot<T> where T : class
     {
-        public PipeContextSnapshot(T body, string desc)
+        public PipeContextSnapshot(T body, string desc, Func<T, T> cloner = null)
         {
-            Body = body.DeepCopy();
+            if (cloner == null)
+                cloner = DeepCopyExtension.DeepCopy;
+            Body = cloner(body);
             CreateTime = DateTime.Now;
             Desc = desc;
         }
