@@ -64,8 +64,8 @@ namespace DeviceTester.Gmd
 
         public void CleanUp()
         {
-            _sendServer.CleanUp();
-            _receiveServer.CleanUp();
+            _sendServer?.CleanUp();
+            _receiveServer?.CleanUp();
         }
 
         #region 硬件参数设置

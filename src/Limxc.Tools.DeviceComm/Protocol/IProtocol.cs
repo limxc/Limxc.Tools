@@ -12,6 +12,8 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
         Task<bool> SendAsync(CPContext cmd);
 
+        Task<bool> SendAsync(byte[] bytes);
+
         Task<bool> OpenAsync();
 
         Task<bool> CloseAsync();

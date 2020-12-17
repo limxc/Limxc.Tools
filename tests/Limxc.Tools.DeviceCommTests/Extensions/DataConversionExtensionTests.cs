@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Limxc.Tools.DeviceComm.Extensions.Tests
 {
-    public class DataConverterExtensionTests
+    public class DataConversionExtensionTests
     {
         private int i1 = 211;
         private int i2 = int.MinValue;
@@ -22,13 +22,14 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
         [Fact()]
         public void HexStrFormatTest()
         {
-            s1.HexStrFormat().Should().Be("AB CD EF GH");
+            "Ab Cde fG".HexStrFormat().Should().Be("0A BC DE FG");
+            "Ab Cde fG".HexStrFormat(false).Should().Be("0ABCDEFG");
         }
 
         [Fact()]
         public void Int_HexStrTest()
         {
-            i1.ToHexStr().ToInt().Should().Be(i1);
+            i1.ToHexStr(2).ToInt().Should().Be(i1);
 
             "A".ToInt().Should().Be(10);
 
@@ -47,12 +48,12 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
             new byte[] { 0, 0, 255, 255 }.ToInt().Should().Be(65535);//big endian
             new byte[] { 0, 1, 0, 0 }.ToInt().Should().Be(65536);
 
-            i1.ToBytes(true).ToInt().Should().Be(i1);
-            int.MaxValue.ToBytes(true).ToInt().Should().Be(65535);
-            int.MinValue.ToBytes(true).ToInt().Should().Be(0);
+            i1.ToBytes(4).ToInt().Should().Be(i1);
+            int.MaxValue.ToBytes(2).ToInt().Should().Be(65535);
+            int.MinValue.ToBytes(2).ToInt().Should().Be(0);
 
-            i1.ToBytes().ToInt().Should().Be(i1);
-            i2.ToBytes().ToInt().Should().Be(i2);
+            i1.ToBytes(2).ToInt().Should().Be(i1);
+            i2.ToBytes(4).ToInt().Should().Be(i2);
         }
 
         [Fact()]
@@ -71,10 +72,21 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
         }
 
         [Fact()]
+        public void AscII_HexTest()
+        {
+            var data = "32 30 32 30 2C 31 32 2C 31 38 2C 31 30 2C 35 34 2C 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 2C 30 2C 31 34 38 2C 31 32 32 2C 20 38 31 2C 31 0D 0A "
+                .Replace(" ", "");
+            var asc = data.HexToAscII();
+            asc.Should().Be("2020,12,18,10,54,                    ,0,148,122, 81,1\r\n");
+            var hex = asc.AscIIToHex();
+            hex.ToUpper().Should().Be(data);
+        }
+
+        [Fact()]
         public void HexStrMultiplyTest()
         {
             int i = 6;
-            i.ToHexStr().HexStrMultiply(3).ToInt().Should().Be(18);
+            i.ToHexStr(2).HexStrMultiply(3).ToInt().Should().Be(18);
         }
     }
 }

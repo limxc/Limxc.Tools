@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 
 namespace Limxc.Tools.DeviceComm.Extensions
 {
     public static class DataConversionExtension
     {
-        #region int hexstr
+        #region Int HexStr
 
         /// <summary>
         /// hexstr to int
@@ -25,9 +26,9 @@ namespace Limxc.Tools.DeviceComm.Extensions
         /// int to hexstr
         /// </summary>
         /// <param name="value"></param>
-        /// <param name="length">2(普通) or 4(高低)</param>
+        /// <param name="length">2/4/8</param>
         /// <returns></returns>
-        public static string ToHexStr(this int value, int length = 2)
+        public static string ToHexStr(this int value, int length)
         {
             string result = Convert.ToString(value, 16).Trim();//十进制数字转十六进制字符串
 
@@ -58,26 +59,26 @@ namespace Limxc.Tools.DeviceComm.Extensions
         /// hexstr to hexstr[] to int[]
         /// </summary>
         /// <param name="hexStr"></param>
-        /// <param name="length"></param>
+        /// <param name="length">2/4/8</param>
         /// <returns></returns>
         public static int[] ToIntArray(this string hexStr, int length)
         {
             return hexStr.ToStrArray(length).ToIntArray().ToArray();
         }
 
-        #endregion int hexstr
+        #endregion Int HexStr
 
         #region Int Bytes
 
         /// <summary>
-        /// int 转 byte数组(2/4)
+        /// int to byte[2]/byte[4]
         /// </summary>
         /// <param name="value"></param>
-        /// <param name="take2Bit">0-65535</param>
+        /// <param name="length">2/4</param>
         /// <returns></returns>
-        public static byte[] ToBytes(this int value, bool take2Bit = false)
+        public static byte[] ToBytes(this int value, int length)
         {
-            if (take2Bit)
+            if (length == 2)
             {
                 byte[] result = new byte[2];
                 result[0] = (byte)((value >> 8) & 0xFF);
@@ -111,7 +112,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
         }
 
         /// <summary>
-        ///  byte数组(2/4) 转 int
+        ///  byte[2]/byte[4] to int
         /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
@@ -152,10 +153,10 @@ namespace Limxc.Tools.DeviceComm.Extensions
 
         #endregion Int Bytes
 
-        #region Byte HexStr
+        #region HexStr Bytes
 
         /// <summary>
-        /// byte数组转16进制字符串
+        /// byte[] to hexstr
         /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
@@ -172,6 +173,11 @@ namespace Limxc.Tools.DeviceComm.Extensions
             return returnStr;
         }
 
+        /// <summary>
+        /// byte[](char) to hexstr
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
         public static string ToHexStrFromChar(this byte[] bytes)
         {
             string returnStr = "";
@@ -186,7 +192,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
         }
 
         /// <summary>
-        /// 16进制字符串转byte数组
+        /// hexstr to byte[]
         /// </summary>
         /// <param name="hexString"></param>
         /// <returns></returns>
@@ -202,12 +208,12 @@ namespace Limxc.Tools.DeviceComm.Extensions
             return returnBytes;
         }
 
-        #endregion Byte HexStr
+        #endregion HexStr Bytes
 
         #region Calculate
 
         /// <summary>
-        /// 16进制乘法
+        /// hexstr * n to hexstr
         /// </summary>
         /// <param name="value">16进制原数值</param>
         /// <param name="times">倍数</param>
@@ -223,15 +229,37 @@ namespace Limxc.Tools.DeviceComm.Extensions
 
         #endregion Calculate
 
+        #region AscII HexStr
+
         /// <summary>
-        /// 处理数据区 切成数组(length) 普通 = 2 高低位 = 4
+        /// hex string to ascii string
         /// </summary>
-        /// <param name="hexStr">
-        /// </param>
-        /// <param name="length">
-        /// </param>
-        /// <returns>
-        /// </returns>
+        /// <param name="hexString"></param>
+        /// <returns></returns>
+        public static string HexToAscII(this string hexString)
+        {
+            var ca = hexString.ToIntArray(2).Select(p => (char)p).ToArray();
+            return new string(ca);
+        }
+
+        /// <summary>
+        /// ascii string to hex string
+        /// </summary>
+        /// <param name="asciiString"></param>
+        /// <returns></returns>
+        public static string AscIIToHex(this string asciiString)
+        {
+            return Encoding.UTF8.GetBytes(asciiString).ToHexStr();
+        }
+
+        #endregion AscII HexStr
+
+        /// <summary>
+        /// string to string[]
+        /// </summary>
+        /// <param name="hexStr"></param>
+        /// <param name="length">2/4/..</param>
+        /// <returns> </returns>
         public static string[] ToStrArray(this string hexStr, int length)
         {
             hexStr = hexStr.Replace(" ", "");
@@ -252,11 +280,12 @@ namespace Limxc.Tools.DeviceComm.Extensions
         }
 
         /// <summary>
-        /// 16进制字符串格式化, 添加空格
+        /// hexstr format
         /// </summary>
         /// <param name="hexStr"></param>
+        /// <param name="spaceSplit"></param>
         /// <returns></returns>
-        public static string HexStrFormat(this string hexStr)
+        public static string HexStrFormat(this string hexStr, bool spaceSplit = true)
         {
             if (string.IsNullOrWhiteSpace(hexStr))
                 return string.Empty;
@@ -266,10 +295,11 @@ namespace Limxc.Tools.DeviceComm.Extensions
             if (hexStr.Length % 2 == 1)
                 hexStr = "0" + hexStr;
 
-            for (int i = hexStr.Length - 2; i > 0; i = i - 2)
-            {
-                hexStr = hexStr.Insert(i, " ");
-            }
+            if (spaceSplit)
+                for (int i = hexStr.Length - 2; i > 0; i = i - 2)
+                {
+                    hexStr = hexStr.Insert(i, " ");
+                }
             return hexStr;
         }
     }

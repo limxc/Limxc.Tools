@@ -98,5 +98,17 @@ namespace Limxc.Tools.DeviceComm.Tests
 
             return true;
         }
+
+        public async Task<bool> SendAsync(byte[] bytes)
+        {
+            await Task.Delay(_sendDelayMs);
+
+            if (_lostSimulateInterval > 0 && DateTime.Now.Second % _lostSimulateInterval == 0)//模拟失败
+                return true;
+
+            _received.OnNext(bytes);//发什么回什么
+
+            return true;
+        }
     }
 }

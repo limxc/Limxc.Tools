@@ -14,43 +14,62 @@ namespace Limxc.Tools.Extensions.Tests
         public void LocateByteTest()
         {
             var fakeLength = 4000;
-            var bs = AutoFaker.Generate<byte>(fakeLength);
-
-            //移除干扰数据
-            var source = bs.ToArray();
-            for (int i = 0; i < source.Length; i++)
-            {
-                if (source[i] == 0x90 || source[i] == 0xeb)
-                    source[i] = 0x01;
-            }
-            source.Count(p => p == 0x90 || p == 0xeb).Should().Be(0);
-
-            //添加匹配项
             var pattern = new byte[] { 0xeb, 0x90 };
-            var indexes = new int[] { 234, 1199, 2020, 3333, 3989 };
-            var il = indexes.ToList();
-            il.Sort();
-            indexes = il.ToArray();
 
-            foreach (var item in indexes)
+            int[] GetIndexes(int n)
             {
-                bs.InsertRange(item, pattern);
+                var rnd = new Random(Guid.NewGuid().GetHashCode());
+                var indexes = new List<int>();
+                for (int i = 0; i < n; i++)
+                {
+                    var r = rnd.Next(1, 2000);
+                    if (!indexes.Contains(r * 2))
+                        indexes.Add(r * 2);
+                }
+                indexes.Sort();
+                return indexes.ToArray();
             }
-            source = bs.ToArray();
+            byte[] GetTestData(int[] indexes)
+            {
+                //移除干扰数据
+                var source = AutoFaker.Generate<byte>(fakeLength);
+                for (int i = 0; i < source.Count; i++)
+                {
+                    if (source[i] == 0x90 || source[i] == 0xeb)
+                        source[i] = 0x01;
+                }
+                source.Count(p => p == 0x90 || p == 0xeb).Should().Be(0);
+
+                //添加匹配项
+                foreach (var item in indexes)
+                {
+                    source.InsertRange(item, pattern);
+                }
+                source.Count.Should().Be(fakeLength + indexes.Length * 2);
+
+                return source.ToArray();
+            }
+
+            var indexes = GetIndexes(5);
+            var source = GetTestData(indexes);
 
             //测试
-            source.Length.Should().Be(fakeLength + indexes.Length * 2);
+            void Test(int count)
+            {
+                var idx = GetIndexes(5);
+                var data = GetTestData(idx);
 
-            var r0 = source.Locate<byte>(pattern);
-            var r1 = source.Locate(pattern);
-
-            r0.Should().BeEquivalentTo(r1);
-
-            r0.Should().BeEquivalentTo(indexes);
-            r1.Should().BeEquivalentTo(indexes);
+                var r1 = data.Locate<byte>(pattern);
+                var r2 = data.Locate(pattern);
+                r1.Should().BeEquivalentTo(r2);
+                r1.Should().BeEquivalentTo(idx);
+            }
+            for (int i = 0; i < 1000; i++)
+            {
+                Test(i);
+            }
 
             //性能测试
-
             float PerformanceTest(Action action)
             {
                 var sw = new Stopwatch();
@@ -62,11 +81,14 @@ namespace Limxc.Tools.Extensions.Tests
                 }
 
                 sw.Stop();
+
                 return sw.ElapsedMilliseconds / 50000f;
             }
 
-            var t0 = PerformanceTest(() => source.Locate<byte>(pattern));
-            var t1 = PerformanceTest(() => source.Locate(pattern));
+            var idx = GetIndexes(5);
+            var data = GetTestData(idx);
+            var t0 = PerformanceTest(() => data.Locate<byte>(pattern));
+            var t1 = PerformanceTest(() => data.Locate(pattern));
 
             Debugger.Break();
         }
