@@ -83,10 +83,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
         }
 
         public Task<bool> OpenAsync()
-        {
-            if (_sp.IsOpen)
-                return Task.FromResult(true);
-
+        { 
             return Task.FromResult(_sp.Open(_portName, _baudRate));
         }
 

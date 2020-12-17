@@ -92,10 +92,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
         public Task<bool> OpenAsync()
         {
-            if (_sp.IsOpen)
-                return CloseAsync();
-            else
-                return Task.FromResult(false);
+            return Task.FromResult(_sp.Open());
         }
 
         public Task<bool> CloseAsync()

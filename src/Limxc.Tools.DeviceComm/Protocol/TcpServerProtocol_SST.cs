@@ -93,10 +93,10 @@ namespace Limxc.Tools.DeviceComm.Protocol
             }
         }
 
-        public Task<bool> OpenAsync()
+        public async Task<bool> OpenAsync()
         {
-            _server.StartAsync();
-            return Task.FromResult(true);
+            await _server.StartAsync();
+            return await Task.FromResult(true);
         }
 
         public Task<bool> CloseAsync()
