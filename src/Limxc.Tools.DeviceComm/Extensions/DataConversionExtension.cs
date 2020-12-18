@@ -6,7 +6,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
 {
     public static class DataConversionExtension
     {
-        #region int hexstr
+        #region Int HexStr
 
         /// <summary>
         /// hexstr to int
@@ -66,7 +66,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
             return hexStr.ToStrArray(length).ToIntArray().ToArray();
         }
 
-        #endregion int hexstr
+        #endregion Int HexStr
 
         #region Int Bytes
 
@@ -153,7 +153,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
 
         #endregion Int Bytes
 
-        #region Byte HexStr
+        #region HexStr Bytes
 
         /// <summary>
         /// byte[] to hexstr
@@ -208,7 +208,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
             return returnBytes;
         }
 
-        #endregion Byte HexStr
+        #endregion HexStr Bytes
 
         #region Calculate
 
@@ -229,7 +229,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
 
         #endregion Calculate
 
-        #region AscII  byte hexstr
+        #region AscII HexStr
 
         /// <summary>
         /// hex string to ascii string
@@ -252,7 +252,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
             return Encoding.UTF8.GetBytes(asciiString).ToHexStr();
         }
 
-        #endregion AscII  byte hexstr
+        #endregion AscII HexStr
 
         /// <summary>
         /// string to string[]

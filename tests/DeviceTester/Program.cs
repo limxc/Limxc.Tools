@@ -1,4 +1,5 @@
 ﻿using DeviceTester.Gmd;
+using DeviceTester.Tcf;
 using System;
 using System.Windows.Forms;
 
@@ -16,7 +17,8 @@ namespace DeviceTester
             Application.SetCompatibleTextRenderingDefault(false);
 
             //Application.Run(new FrmSerialPort());
-            Application.Run(new FrmGmd());
+            //Application.Run(new FrmGmd());
+            Application.Run(new FrmTcf());
         }
     }
 }
