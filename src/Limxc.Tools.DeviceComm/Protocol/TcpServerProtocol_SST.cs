@@ -70,6 +70,9 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
         public void CleanUp()
         {
+            _server?.Stop();
+            _server?.Dispose();
+
             _msg?.OnCompleted();
             _msg = null;
         }
@@ -85,6 +88,19 @@ namespace Limxc.Tools.DeviceComm.Protocol
                 context.SendTime = DateTime.Now;
                 _msg.OnNext(context);
 
+                return await Task.FromResult(true);
+            }
+            else
+            {
+                return await Task.FromResult(false);
+            }
+        }
+
+        public async Task<bool> SendAsync(byte[] bytes)
+        {
+            if (_clientIpPort.CheckIpPort())
+            {
+                await _server.SendAsync(_clientIpPort, bytes).ConfigureAwait(false);
                 return await Task.FromResult(true);
             }
             else

@@ -1,9 +1,10 @@
-﻿using GodSharp.SerialPort;
-using Limxc.Tools.DeviceComm.Extensions;
+﻿using Limxc.Tools.DeviceComm.Extensions;
+using Limxc.Tools.DeviceComm.Protocol;
 using System;
 using System.Diagnostics;
 using System.IO.Ports;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -16,28 +17,41 @@ namespace DeviceTester.Tcf
             InitializeComponent();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private async void button1_Click(object sender, EventArgs e)
         {
             var cmd = GetCmd(textBox1.Text);
-            _sp.Write(cmd);
-
-            Thread.Sleep(100);
-            richTextBox1.AppendText(_sp.ReadString() + Environment.NewLine);
-            //richTextBox1.AppendText(_sp.ReadLine() + Environment.NewLine);
-            richTextBox1.AppendText(_sp.ReadExisting() + Environment.NewLine);
+            await _ptc.SendAsync(cmd);
         }
 
-        private GodSerialPort _sp;
+        private IProtocol _ptc;
 
-        private void FrmTcf_Load(object sender, EventArgs e)
+        private async void FrmTcf_Load(object sender, EventArgs e)
         {
-            _sp = new GodSerialPort(SerialPort.GetPortNames().Last(), 115200, 0);
-            _sp.ReadTimeout = 1000;
+            InitCmd();
 
-            var r = _sp.Open();
+            _ptc = new SerialPortProtocol(SerialPort.GetPortNames().Last(), 115200);
 
-            richTextBox1.AppendText(r ? "连接成功" : "连接失败" + Environment.NewLine);
+            _ptc.Received
+                .SubscribeOn(SynchronizationContext.Current)
+                .Subscribe(p =>
+                {
+                    var recv = p.Skip(4).ToArray().ToHexStr().HexToAscII();
+                    richTextBox1.AppendText($"{DateTime.Now:HH:mm:ss fff} {recv} \r\n");
+                });
 
+            _ptc.ConnectionState
+                .SubscribeOn(SynchronizationContext.Current)
+                .Select(s => s ? "连接成功" : "连接失败")
+                .Subscribe(s =>
+                {
+                    richTextBox1.AppendText($"{DateTime.Now:HH:mm:ss fff} {s} \r\n");
+                });
+
+            var r = await _ptc.OpenAsync();
+        }
+
+        private void InitCmd()
+        {
             listBox1.Items.Add("*idn?\n");
             listBox1.Items.Add("*wei?\n");
             listBox1.Items.Add("*stp?\n");
@@ -65,6 +79,11 @@ namespace DeviceTester.Tcf
             Debug.WriteLine($"{cmd} {bs.Crc32().ToHexStr()}-{cmd.AscIIToHex()} {combine.ToHexStr()}");
 
             return combine;
+        }
+
+        private void FrmTcf_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            _ptc?.CleanUp();
         }
     }
 }

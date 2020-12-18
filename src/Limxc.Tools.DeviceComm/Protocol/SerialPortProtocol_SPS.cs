@@ -62,15 +62,10 @@ namespace Limxc.Tools.DeviceComm.Protocol
             _msg = null;
 
             _sp?.Close();
-            _sp.CleanUp();
+            _sp?.CleanUp();
             _sp = null;
         }
 
-        /// <summary>
-        /// 使用SerialPortStream: 响应时间建议>256ms
-        /// </summary>
-        /// <param name="context"></param>
-        /// <returns></returns>
         public Task<bool> SendAsync(CPContext context)
         {
             var cmdStr = context.Command.Build();
@@ -82,8 +77,15 @@ namespace Limxc.Tools.DeviceComm.Protocol
             return Task.FromResult(true);
         }
 
+        public Task<bool> SendAsync(byte[] bytes)
+        {
+            _sp.Write(bytes);
+
+            return Task.FromResult(true);
+        }
+
         public Task<bool> OpenAsync()
-        { 
+        {
             return Task.FromResult(_sp.Open(_portName, _baudRate));
         }
 
