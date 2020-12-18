@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 
 namespace Limxc.Tools.DeviceComm.Extensions
 {
@@ -227,6 +228,31 @@ namespace Limxc.Tools.DeviceComm.Extensions
         }
 
         #endregion Calculate
+
+        #region AscII  byte hexstr
+
+        /// <summary>
+        /// hex string to ascii string
+        /// </summary>
+        /// <param name="hexString"></param>
+        /// <returns></returns>
+        public static string HexToAscII(this string hexString)
+        {
+            var ca = hexString.ToIntArray(2).Select(p => (char)p).ToArray();
+            return new string(ca);
+        }
+
+        /// <summary>
+        /// ascii string to hex string
+        /// </summary>
+        /// <param name="asciiString"></param>
+        /// <returns></returns>
+        public static string AscIIToHex(this string asciiString)
+        {
+            return Encoding.UTF8.GetBytes(asciiString).ToHexStr();
+        }
+
+        #endregion AscII  byte hexstr
 
         /// <summary>
         /// string to string[]
