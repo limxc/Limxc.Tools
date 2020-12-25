@@ -1,4 +1,5 @@
-﻿using Limxc.Tools.DeviceComm.Extensions;
+﻿using Limxc.Tools.CrcCSharp;
+using Limxc.Tools.DeviceComm.Extensions;
 using Limxc.Tools.DeviceComm.Protocol;
 using System;
 using System.Diagnostics;
@@ -24,9 +25,12 @@ namespace DeviceTester.Tcf
         }
 
         private IProtocol _ptc;
+        private Crc _crc;
 
         private async void FrmTcf_Load(object sender, EventArgs e)
         {
+            _crc = new Crc(CrcStdParams.StandartParameters[CrcAlgorithms.Crc16Modbus]);
+
             InitCmd();
 
             _ptc = new SerialPortProtocol(SerialPort.GetPortNames().Last(), 115200);
@@ -73,10 +77,10 @@ namespace DeviceTester.Tcf
         private byte[] GetCmd(string cmd)
         {
             var bs = cmd.AscIIToHex().ToByte();
-            var crc = bs.Crc32();
+            var crc = _crc.ComputeHash(bs);
             var combine = crc.Concat(bs).ToArray();
 
-            Debug.WriteLine($"{cmd} {bs.Crc32().ToHexStr()}-{cmd.AscIIToHex()} {combine.ToHexStr()}");
+            Debug.WriteLine($"{cmd} {_crc.ComputeHash(bs).ToHexStr()}-{cmd.AscIIToHex()} {combine.ToHexStr()}");
 
             return combine;
         }
