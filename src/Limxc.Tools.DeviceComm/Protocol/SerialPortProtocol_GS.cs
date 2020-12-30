@@ -28,7 +28,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
             ConnectionState = Observable
                             .Interval(TimeSpan.FromSeconds(0.1))
-                            .Select(_ => _sp.IsOpen)
+                            .Select(_ => _sp?.IsOpen ?? false)
                             .StartWith(false)
                             .DistinctUntilChanged()
                             .Retry()

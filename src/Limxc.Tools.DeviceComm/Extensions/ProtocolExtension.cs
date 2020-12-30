@@ -32,7 +32,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
                     if (p.Timeout == 0 || string.IsNullOrWhiteSpace(p.Response.Template))
                     {
                         p.State = CPContextState.NoNeed;
-                        return Observable.Return(p);//.Delay(TimeSpan.FromMilliseconds(500));
+                        return Observable.Return(p);
                     }
 
                     var st = ((DateTime)p.SendTime).ToDateTimeOffset();
@@ -99,22 +99,15 @@ namespace Limxc.Tools.DeviceComm.Extensions
         {
             if (bom.Length == 0 || eom.Length == 0)
                 throw new ArgumentException("If bom or eom is empty, use SeparatorMessagePackParser.");
-            return source.Publish((Func<IObservable<byte>, IObservable<byte[]>>)(s =>
+            return source.Publish(s =>
             {
                 return Observable.Defer
-                ((Func<IObservable<byte[]>>)(() => s
-
-                        /* 项目“Limxc.Tools.DeviceComm (netstandard2.1)”的未合并的更改
-                        在此之前:
-                                                .Scan(new BEMessagePack(bom, eom, new byte[0]), (pack, b) => pack.Push(b))
-                        在此之后:
-                                                .Scan(new ProtocolExtension.BEMessagePack(bom, eom, new byte[0]), (pack, b) => pack.Push(b))
-                        */
-                        .Scan((MessagePack)new MessagePack(bom, eom, new byte[0]), (pack, b) => pack.Push(b))
+                (() => s
+                        .Scan(new MessagePack(bom, eom, new byte[0]), (pack, b) => pack.Push(b))
                         .Where(p => p.IsComplete && p.AccumulatedBytes.Any())
-                        .Select(p => p.AccumulatedBytes.ToArray()))
+                        .Select(p => p.AccumulatedBytes.ToArray())
                 );
-            }));
+            });
         }
 
         private class MessagePack
@@ -135,7 +128,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
 
             public MessagePack Push(byte b)
             {
-                if (IsComplete == true)
+                if (IsComplete)
                 {
                     IsBomComplete = false;
                     IsComplete = false;
@@ -165,6 +158,102 @@ namespace Limxc.Tools.DeviceComm.Extensions
                 }
 
                 return new MessagePack(Bom, Eom, AccumulatedBytes) { IsBomComplete = IsBomComplete };
+            }
+        }
+
+        /// <summary>
+        /// 泛型分包 (1头 1尾)
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="bom"></param>
+        /// <param name="eom"></param>
+        /// <returns></returns>
+        public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T bom, T eom) where T : IEquatable<T>
+        {
+            return source.Publish(s =>
+            {
+                return Observable.Defer
+                (() => s
+                        .SkipWhile(b => !b.Equals(bom))
+                        .Skip(1)
+                        .TakeWhile(b => !b.Equals(eom))
+                        .ToArray()
+                        .Where(p => p.Any())
+                        .Repeat()
+                );
+            });
+        }
+
+        /// <summary>
+        /// 泛型分包
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="bom"></param>
+        /// <param name="eom"></param>
+        /// <returns></returns>
+        public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T[] bom, T[] eom) where T : IEquatable<T>
+        {
+            if (bom.Length == 0 || eom.Length == 0)
+                throw new ArgumentException("If bom or eom is empty, use SeparatorMessagePackParser.");
+            return source.Publish(s =>
+            {
+                return Observable.Defer
+                (() => s
+                        .Scan(new MessagePack<T>(bom, eom, new T[0]), (pack, b) => pack.Push(b))
+                        .Where(p => p.IsComplete && p.Accumulated.Any())
+                        .Select(p => p.Accumulated.ToArray())
+                );
+            });
+        }
+
+        private class MessagePack<T> where T : IEquatable<T>
+        {
+            public T[] Bom { get; }
+            public T[] Eom { get; }
+
+            public MessagePack(T[] bom, T[] eom, IEnumerable<T> accumulated)
+            {
+                Bom = bom;
+                Eom = eom;
+                Accumulated = accumulated;
+            }
+
+            public bool IsComplete { get; private set; }
+            public IEnumerable<T> Accumulated { get; private set; }
+            public bool IsBomComplete { get; private set; }
+
+            public MessagePack<T> Push(T b)
+            {
+                if (IsComplete)
+                {
+                    IsBomComplete = false;
+                    IsComplete = false;
+                    Accumulated = new T[0];
+                }
+                Accumulated = Accumulated.Concat(new[] { b });
+
+                var abLen = Accumulated.Count();
+                var bomLen = Bom.Length;
+                var eomLen = Eom.Length;
+                //head
+                if (!IsBomComplete && abLen == bomLen)
+                {
+                    var arr = Accumulated.ToArray();
+                    for (int i = 0; i < Accumulated.Count(); i++)
+                    {
+                        if (!arr[i].Equals(Bom[i]))
+                            return new MessagePack<T>(Bom, Eom, Accumulated.Skip(i + 1));
+                    }
+
+                    IsBomComplete = true;
+                }
+                //tail
+                if (IsBomComplete && abLen >= bomLen + eomLen && Accumulated.Skip(abLen - eomLen).SequenceEqual(Eom))
+                {
+                    return new MessagePack<T>(Bom, Eom, Accumulated.Skip(bomLen).Take(abLen - bomLen - eomLen)) { IsComplete = true, IsBomComplete = IsBomComplete };
+                }
+
+                return new MessagePack<T>(Bom, Eom, Accumulated) { IsBomComplete = IsBomComplete };
             }
         }
 
@@ -207,7 +296,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
 
             public SeparatorMessagePack Push(byte b)
             {
-                if (IsComplete == true)
+                if (IsComplete)
                 {
                     IsComplete = false;
                     AccumulatedBytes = new byte[0];
@@ -221,6 +310,58 @@ namespace Limxc.Tools.DeviceComm.Extensions
                     return new SeparatorMessagePack(Separator, AccumulatedBytes.Take(abLen - sepLen)) { IsComplete = true };
                 }
                 return new SeparatorMessagePack(Separator, AccumulatedBytes);
+            }
+        }
+
+        /// <summary>
+        /// 泛型分包 (不确定是否完整的包1|完整包2|...|完整包3|未识别的包4)
+        /// </summary>
+        public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T[] separator) where T : IEquatable<T>
+        {
+            return source.Publish(s =>
+            {
+                return Observable.Defer
+                (() => s
+                        .Scan(new SeparatorMessagePack<T>(separator, new T[0]), (pack, b) => pack.Push(b))
+                        .Where(p => p.IsComplete && p.Accumulated.Any())
+                        .Select(p => p.Accumulated.ToArray())
+                );
+            });
+        }
+
+        /// <summary>
+        ///  (不确定是否完整的包1)sep(完整包2)sep...sep(完整包3)sep(未识别的包4)
+        /// </summary>
+        private class SeparatorMessagePack<T> where T : IEquatable<T>
+        {
+            public T[] Separator { get; }
+
+            public SeparatorMessagePack(T[] separator, IEnumerable<T> accumulatedBytes)
+            {
+                Separator = separator;
+
+                Accumulated = accumulatedBytes;
+            }
+
+            public bool IsComplete { get; private set; }
+            public IEnumerable<T> Accumulated { get; private set; }
+
+            public SeparatorMessagePack<T> Push(T b)
+            {
+                if (IsComplete == true)
+                {
+                    IsComplete = false;
+                    Accumulated = new T[0];
+                }
+                Accumulated = Accumulated.Concat(new[] { b });
+
+                var abLen = Accumulated.Count();
+                var sepLen = Separator.Length;
+                if (abLen >= sepLen && Accumulated.Skip(abLen - sepLen).SequenceEqual(Separator))
+                {
+                    return new SeparatorMessagePack<T>(Separator, Accumulated.Take(abLen - sepLen)) { IsComplete = true };
+                }
+                return new SeparatorMessagePack<T>(Separator, Accumulated);
             }
         }
 

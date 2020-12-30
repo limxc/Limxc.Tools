@@ -69,7 +69,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
         {
             _client?.Disconnect();
             _client?.Dispose();
-            
+
             _msg?.OnCompleted();
             _msg = null;
         }

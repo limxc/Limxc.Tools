@@ -38,7 +38,7 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
             26.ToHexStr(2).Should().Be("1a");
             26.ToHexStr(4).Should().Be("001a");
 
-            i2.ToHexStr(8,true).ToNInt(true).Should().Be(i2.ToNInt(true));
+            i2.ToHexStr(8, true).ToNInt(true).Should().Be(i2.ToNInt(true));
         }
 
         [Fact()]

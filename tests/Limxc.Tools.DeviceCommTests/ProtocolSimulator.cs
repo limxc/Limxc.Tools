@@ -110,5 +110,32 @@ namespace Limxc.Tools.DeviceComm.Tests
 
             return true;
         }
+
+        public async Task<bool> SendAsync(CPContext context, byte[] resp, int delay)
+        {
+            context.SendTime = DateTime.Now;
+            _msg.OnNext(context);
+
+            await Task.Delay(delay);
+
+            if (_lostSimulateInterval > 0 && DateTime.Now.Second % _lostSimulateInterval == 0)//模拟失败
+                return true;
+
+            _received.OnNext(resp);
+
+            return true;
+        }
+
+        public async Task<bool> SendAsync(byte[] bytes, byte[] resp, int delay)
+        {
+            await Task.Delay(delay);
+
+            if (_lostSimulateInterval > 0 && DateTime.Now.Second % _lostSimulateInterval == 0)//模拟失败
+                return true;
+
+            _received.OnNext(resp);//发什么回什么
+
+            return true;
+        }
     }
 }

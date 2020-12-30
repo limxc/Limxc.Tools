@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Limxc.Tools.Extensions
@@ -29,6 +30,30 @@ namespace Limxc.Tools.Extensions
                     yield return source.Skip(i * size).Take(size);
                 }
             }
+        }
+
+        public static Dictionary<TKey, TValue> AddOrUpdate<TKey, TValue>(this Dictionary<TKey, TValue> source, TKey key, TValue value, bool update = true)
+        {
+            if (!source.ContainsKey(key))
+                source.Add(key, value);
+            else if (update)
+                source[key] = value;
+
+            return source;
+        }
+
+        public static ICollection<T> AddOrUpdate<T>(this ICollection<T> source, T value, Func<T, bool> condation)
+        {
+            var res = source.Where(condation);
+            if (res.Count() > 0)
+                foreach (var item in res.ToList())
+                {
+                    source.Remove(item);
+                }
+
+            source.Add(value);
+
+            return source;
         }
     }
 }

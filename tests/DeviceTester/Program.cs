@@ -1,5 +1,4 @@
-﻿using DeviceTester.Gmd;
-using DeviceTester.Tcf;
+﻿using DeviceTester.Tcf;
 using System;
 using System.Windows.Forms;
 
@@ -18,7 +17,9 @@ namespace DeviceTester
 
             //Application.Run(new FrmSerialPort());
             //Application.Run(new FrmGmd());
-            Application.Run(new FrmTcf());
+
+            //Application.Run(new FrmTcf());
+            RxUILoader.Instance.ShowForm(typeof(TcfViewModel));
         }
     }
 }

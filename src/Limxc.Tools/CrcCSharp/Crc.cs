@@ -8,7 +8,7 @@ namespace Limxc.Tools.CrcCSharp
     /// <summary>
     /// https://github.com/meetanthony/crccsharp
     /// crccalc.com
-    /// 
+    ///
     /// </summary>
     public class Crc : HashAlgorithm
     {

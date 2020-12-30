@@ -165,6 +165,48 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
         }
 
         [Fact()]
+        public void GenericParsePackageTest()
+        {
+            var ts = new TestScheduler();
+            var rst = new List<string>();
+
+            var d1 = "A*stp=1B" + "error" + "A41.2B" + "A41.9B" + "error" + "A46.0B" + "A*stp=2B" + "error";
+            var dis1 = d1.ToObservable(ts)
+                .ParsePackage('A', 'B')
+                .Select(p => new string(p))
+                .Subscribe(p => rst.Add(p));
+            ts.AdvanceBy(d1.Length);
+            rst.Should().BeEquivalentTo(new List<string>
+                                        {
+                                            "*stp=1",
+                                            "41.2",
+                                            "41.9",
+                                            "46.0",
+                                            "*stp=2"
+                                        });
+            dis1.Dispose();
+            rst.Clear();
+
+            var d2 = "AA*stp=1BB" + "error" + "AA41.2BB" + "AA41.9BB" + "error" + "AA46.0BB" + "AA*stp=2BB" + "error";
+
+            var dis2 = d2.ToObservable(ts)
+                .ParsePackage("AA".ToCharArray(), "BB".ToCharArray())
+                .Select(p => new string(p))
+                .Subscribe(p => rst.Add(p));
+            ts.AdvanceBy(d2.Length);
+            rst.Should().BeEquivalentTo(new List<string>
+                                        {
+                                            "*stp=1",
+                                            "41.2",
+                                            "41.9",
+                                            "46.0",
+                                            "*stp=2"
+                                        });
+            dis2.Dispose();
+            rst.Clear();
+        }
+
+        [Fact()]
         public void SeparatorParsePackageTest()
         {
             var ts = new TestScheduler();
@@ -198,10 +240,10 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
 
             var rst = new List<byte[]>();
             //d1
-            d1.ToObservable()
+            d1.ToObservable(ts)
                 .ParsePackage(new byte[] { 0, 0 })
                 .Subscribe(p => rst.Add(p));
-            ts.AdvanceTo(d1.Length);
+            ts.AdvanceBy(d1.Length);
             rst.Should().BeEquivalentTo(new List<byte[]>
                                         {
                                             new byte[]{ 1,0,8 },
@@ -210,10 +252,10 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
             rst.Clear();
 
             //d2
-            d2.ToObservable()
+            d2.ToObservable(ts)
                 .ParsePackage(new byte[] { 0, 0, 0 })
                 .Subscribe(p => rst.Add(p));
-            ts.AdvanceTo(d2.Length);
+            ts.AdvanceBy(d2.Length);
             rst.Should().BeEquivalentTo(new List<byte[]>
                                         {
                                             new byte[]{ 0,11,254,0,255,254 },
@@ -222,10 +264,10 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
             rst.Clear();
 
             //d3
-            d3.ToObservable()
+            d3.ToObservable(ts)
                 .ParsePackage(new byte[] { 98, 98, 97, 97 })
                 .Subscribe(p => rst.Add(p));
-            ts.AdvanceTo(d3.Length);
+            ts.AdvanceBy(d3.Length);
             rst.Should().BeEquivalentTo(new List<byte[]>
                                         {
                                             new byte[]{ 2,41, 97,97,0,98,98, 62, 97,97,1,1, },
@@ -234,14 +276,36 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
             rst.Clear();
         }
 
+        [Fact()]
+        public void GenericSeparatorParsePackageTest()
+        {
+            var ts = new TestScheduler();
+
+            var data = "\n*stp=1\n41.2\n41.9\n46.0\n*stp=2\nerror";
+
+            var rst = new List<string>();
+
+            data.ToObservable()
+                .ParsePackage("\n".ToCharArray())
+                .Select(p => new string(p))
+                .Subscribe(p => rst.Add(p));
+            ts.AdvanceTo(data.Length);
+            rst.Should().BeEquivalentTo(new List<string>
+                                        {
+                                            "*stp=1",
+                                            "41.2",
+                                            "41.9",
+                                            "46.0",
+                                            "*stp=2"
+                                        });
+        }
+
         /// <summary>
         /// todo: 使用TestScheduler重构
         /// </summary>
         [Fact()]
         public async Task FindResponseTest()
         {
-            var ts = new TestScheduler();
-
             var obsSend = Observable.Create<CPContext>(async o =>
                   {
                       //01  第1秒
@@ -317,7 +381,6 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
             var rc = obsRecv.Connect();
 
             await Task.Delay(8000);
-
             cpsr[0].State.Should().Be(CPContextState.Timeout);
             cpsr[1].State.Should().Be(CPContextState.Success);
             cpsr[2].State.Should().Be(CPContextState.NoNeed);
@@ -329,8 +392,8 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
             cpsr[4].Response.GetIntValues()[0].Should().Be(5);
             cpsr[5].Response.GetStrValues()[0].Should().Be("16");
 
-            sc.Dispose();
-            rc.Dispose();
+            //sc.Dispose();
+            //rc.Dispose();
 
             Debugger.Break();
         }

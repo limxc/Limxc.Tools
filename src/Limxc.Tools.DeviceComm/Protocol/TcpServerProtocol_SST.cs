@@ -49,7 +49,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
                     .Retry();
 
             Received = Observable
-                            .FromEventPattern<SimpleTcp.DataReceivedEventArgs>(h => _server.Events.DataReceived += h, h => _server.Events.DataReceived -= h)
+                            .FromEventPattern<DataReceivedEventArgs>(h => _server.Events.DataReceived += h, h => _server.Events.DataReceived -= h)
                             .Select(p => p.EventArgs.Data)
                             .Retry()
                             .Publish()
