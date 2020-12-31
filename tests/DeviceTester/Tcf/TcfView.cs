@@ -2,6 +2,7 @@
 using ReactiveUI.Validation.Extensions;
 using System;
 using System.Diagnostics;
+using System.IO.Ports;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
@@ -18,21 +19,27 @@ namespace DeviceTester.Tcf
 
             this.WhenActivated(d =>
             {
+                this.dSerialPort.Events().SelectedValueChanged
+                    .Subscribe(_ =>
+                    {
+                        var portName = dSerialPort.SelectedItem.ToString();
+                        ViewModel.CreateConnection.Execute(portName);
+                    })
+                    .DisposeWith(d);
+
+                dSerialPort.DataSource = SerialPort.GetPortNames();
+                this.btnRefresh.Events().Click
+                    .Throttle(TimeSpan.FromSeconds(1000))
+                    .Subscribe(_ => dSerialPort.DataSource = SerialPort.GetPortNames())
+                    .DisposeWith(d);
+
                 ViewModel.Connect.Execute();
 
                 ViewModel.WhenAnyValue(p => p.IsConnected)
                     .Where(p => p)
                     .Select(_ => Unit.Default)
                     .InvokeCommand(ViewModel.Reset)
-                    .DisposeWith(d);
-
-                if (Debugger.IsAttached)
-                {
-                    ViewModel.Id = "123456";
-                    ViewModel.Name = "张三";
-                    //ViewModel.Weight = 55;
-                    //ViewModel.Step = 2;
-                }
+                    .DisposeWith(d); 
 
                 this.Bind(ViewModel, vm => vm.EnableAutoReconnect, v => v.dAutoConnect.Checked).DisposeWith(d);
 
@@ -50,12 +57,11 @@ namespace DeviceTester.Tcf
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Subscribe(m => dReceived.Lines = m?.ToArray())
                     .DisposeWith(d);
-                
+
                 ViewModel.WhenAnyValue(vm => vm.ResultList)
                     .ObserveOn(RxApp.MainThreadScheduler)
                     .Subscribe(m => dResult.DataSource = m)
                     .DisposeWith(d);
-
 
                 this.BindCommand(ViewModel, vm => vm.Measure, v => v.btnSend).DisposeWith(d);
 

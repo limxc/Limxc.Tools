@@ -16,6 +16,18 @@ namespace DeviceTester
 
         private RxUILoader()
         {
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+            Application.ThreadException += (s, e) =>
+            {
+                if (!Debugger.IsAttached)
+                    MessageBox.Show($"ThreadException: {e.Exception.Message}");
+            };
+            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+            {
+                if (!Debugger.IsAttached)
+                    MessageBox.Show($"UnhandledException: {e.ExceptionObject}");
+            };
+
             ConfigureServices();
             RxApp.DefaultExceptionHandler = new GlobalErrorHandler();
         }
