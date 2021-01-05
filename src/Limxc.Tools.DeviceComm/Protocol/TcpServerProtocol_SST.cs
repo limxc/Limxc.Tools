@@ -45,7 +45,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
             ConnectionState = Observable
                     .Merge(connect, disconnect)
                     .Select(p => p.Item2)
-                    .Debug(_ipPort)
+                    //.Debug(_ipPort)
                     .Retry();
 
             Received = Observable

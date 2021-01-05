@@ -13,7 +13,6 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -25,35 +24,22 @@ namespace DeviceTester.Tcf
         private TcfCRC _crc;
 
         public ValidationContext ValidationContext { get; } = new ValidationContext();
-        private Subject<bool> _isConnected = new Subject<bool>();
 
-        public TcfViewModel()
+        public TcfViewModel(IProtocol protocol)
         {
             _crc = new TcfCRC();
 
-            _ptc = new SerialPortProtocol(" ", 115200);
-
-            CreateConnection = ReactiveCommand.CreateFromTask<string, Unit>(async portName =>
-             {
-                 if (_ptc != null)
-                     _ptc?.CleanUp();
-
-                 _ptc = new SerialPortProtocol(portName, 115200);
-                 _ptc.ConnectionState.Subscribe(p => _isConnected.OnNext(p));
-                 await _ptc.OpenAsync();
-
-                 return Unit.Default;
-             });
+            _ptc = protocol;
 
             #region Connection
 
-            _isConnected.AsObservable()
+            _ptc.ConnectionState
                 .SubscribeOn(RxApp.MainThreadScheduler)
                 .ToPropertyEx(this, vm => vm.IsConnected);
 
             Connect = ReactiveCommand.CreateFromTask(() => _ptc.OpenAsync());
 
-            var autoReconnect = Observable.Interval(TimeSpan.FromSeconds(1))
+            var autoReconnect = Observable.Interval(TimeSpan.FromSeconds(0.1))
                 .Where(p => !IsConnected)
                 .Select(_ => Unit.Default);
 
@@ -61,12 +47,6 @@ namespace DeviceTester.Tcf
                 .Select(enabled => enabled ? autoReconnect : Observable.Empty<Unit>())
                 .Switch()
                 .InvokeCommand(Connect);
-
-            CleanUp = ReactiveCommand.Create<Unit, Unit>(e =>
-             {
-                 _ptc?.CleanUp();
-                 return Unit.Default;
-             });
 
             #endregion Connection
 
@@ -83,8 +63,8 @@ namespace DeviceTester.Tcf
                 x => x.Gender,
                 (isConnected, step, id, name, height, weight, age, gender) =>
                 {
-                    if (Debugger.IsAttached)
-                        return isConnected && Regex.IsMatch(id, @"^[A-Za-z0-9]{1,18}$");
+                    //if (Debugger.IsAttached)
+                    //    return isConnected && Regex.IsMatch(id, @"^[A-Za-z0-9]{1,18}$");
 
                     return
                         isConnected &&
@@ -92,7 +72,7 @@ namespace DeviceTester.Tcf
                         Regex.IsMatch(id, @"^[A-Za-z0-9]{1,18}$") &&
                         weight > 0;
                 }).ObserveOn(RxApp.MainThreadScheduler);
-            this.ValidationRule(measureParams, "请测量体重并输入1-18位Id.\n");
+            this.ValidationRule(measureParams, "请检查设备连接,测量体重并输入1-18位Id.\n");
 
             #endregion Validation
 
@@ -149,15 +129,15 @@ namespace DeviceTester.Tcf
                         Debug.WriteLine($"*** Crc error: {crc} {valueCrc} {value}");
                     return (eq, value);
                 })
-                .Debug("Received")
+                //.Debug("Received")
                 .Where(p => p.eq)//只返回crc校验通过的数据
                 .Select(p => p.value)
                 .Debug("Received crc")
-                .SubscribeOn(TaskPoolScheduler.Default)
+                .SubscribeOn(NewThreadScheduler.Default)
                 .Publish()
                 .RefCount();
 
-            //Stes
+            //Steps
             received
                 .Where(p => p.StartsWith("*stp="))
                 .Select(p => TryInt(p.Replace("*stp=", "")))
@@ -207,16 +187,18 @@ namespace DeviceTester.Tcf
 
             #region Debug
 
-            received.Merge(_isConnected.Select(p => p ? "连接成功" : "连接断开"))
+            received.Merge(_ptc.ConnectionState.Select(p => p ? "连接成功" : "连接断开"))
                 .Timestamp()
                 .Select(p => $"{p.Timestamp.LocalDateTime:HH:mm:ss fff} | {p.Value}")
                 .Bucket(10)
+                .SubscribeOn(NewThreadScheduler.Default)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .ToPropertyEx(this, vm => vm.ReceivedMsg);
 
             this.WhenAnyValue(vm => vm.Result)
                 .Where(p => p != null)
                 .Select(p => p.GetResult().Select(r => $"{r.Key}:{r.Value}"))
+                .SubscribeOn(NewThreadScheduler.Default)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .ToPropertyEx(this, vm => vm.ResultList);
 
@@ -228,6 +210,9 @@ namespace DeviceTester.Tcf
             Name = "张三";
 
             #endregion Debug
+
+            _ptc.ConnectionState.Where(p => p).Take(1).Select(_ => Unit.Default).InvokeCommand(Reset);
+            Connect.Execute().Subscribe().Dispose();
         }
 
         #region Properties
@@ -283,7 +268,6 @@ namespace DeviceTester.Tcf
         #region Commands
 
         public ReactiveCommand<Unit, bool> Connect { get; }
-        public ReactiveCommand<Unit, Unit> CleanUp { get; }
 
         /// <summary>
         /// 拆开  每次修改 id height age gender 发送对应指令
@@ -318,5 +302,7 @@ namespace DeviceTester.Tcf
         private double TryDouble(string value, double def = 0) => double.TryParse(value, out double r) ? r : def;
 
         private int TryInt(string value, int def = 0) => int.TryParse(value, out int r) ? r : def;
+
+        public void CleanUp() => _ptc?.CleanUp();
     }
 }

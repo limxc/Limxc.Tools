@@ -68,8 +68,15 @@
     <Compile Include="Tcf\FrmTcf.Designer.cs">
       <DependentUpon>FrmTcf.cs</DependentUpon>
     </Compile>
-    <Compile Include="Tcf\TcfView.cs">
+    <Compile Include="Tcf\FrmTcfView.cs">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Tcf\FrmTcfView.Designer.cs">
+      <DependentUpon>FrmTcfView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Tcf\FrmTcfViewModel.cs" />
+    <Compile Include="Tcf\TcfView.cs">
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Tcf\TcfView.Designer.cs">
       <DependentUpon>TcfView.cs</DependentUpon>
@@ -94,6 +101,9 @@
     </Compile>
     <EmbeddedResource Include="Tcf\FrmTcf.resx">
       <DependentUpon>FrmTcf.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Tcf\FrmTcfView.resx">
+      <DependentUpon>FrmTcfView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Tcf\TcfView.resx">
       <DependentUpon>TcfView.cs</DependentUpon>

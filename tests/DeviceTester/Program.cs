@@ -19,7 +19,7 @@ namespace DeviceTester
             //Application.Run(new FrmGmd());
 
             //Application.Run(new FrmTcf());
-            RxUILoader.Instance.ShowForm(typeof(TcfViewModel));
+            RxUILoader.Instance.ShowForm(typeof(FrmTcfViewModel));
         }
     }
 }

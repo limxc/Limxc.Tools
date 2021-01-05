@@ -48,9 +48,8 @@ namespace DeviceTester.Tcf
             this.dGenderFemale = new System.Windows.Forms.RadioButton();
             this.dResult = new System.Windows.Forms.ListBox();
             this.dMsg = new System.Windows.Forms.Label();
-            this.dSerialPort = new System.Windows.Forms.ComboBox();
             this.label7 = new System.Windows.Forms.Label();
-            this.btnRefresh = new System.Windows.Forms.Button();
+            this.label8 = new System.Windows.Forms.Label();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dAge)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dWeight)).BeginInit();
@@ -59,15 +58,19 @@ namespace DeviceTester.Tcf
             // 
             // dReceived
             // 
-            this.dReceived.Location = new System.Drawing.Point(12, 12);
+            this.dReceived.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dReceived.Location = new System.Drawing.Point(12, 36);
             this.dReceived.Name = "dReceived";
-            this.dReceived.Size = new System.Drawing.Size(384, 436);
+            this.dReceived.Size = new System.Drawing.Size(272, 477);
             this.dReceived.TabIndex = 0;
             this.dReceived.Text = "";
             // 
             // btnSend
             // 
-            this.btnSend.Location = new System.Drawing.Point(820, 419);
+            this.btnSend.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSend.Location = new System.Drawing.Point(700, 494);
             this.btnSend.Name = "btnSend";
             this.btnSend.Size = new System.Drawing.Size(75, 23);
             this.btnSend.TabIndex = 1;
@@ -76,14 +79,15 @@ namespace DeviceTester.Tcf
             // 
             // dAutoConnect
             // 
+            this.dAutoConnect.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.dAutoConnect.AutoSize = true;
             this.dAutoConnect.Checked = true;
             this.dAutoConnect.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.dAutoConnect.Location = new System.Drawing.Point(805, 254);
+            this.dAutoConnect.Location = new System.Drawing.Point(703, 278);
             this.dAutoConnect.Name = "dAutoConnect";
-            this.dAutoConnect.Size = new System.Drawing.Size(90, 16);
+            this.dAutoConnect.Size = new System.Drawing.Size(72, 16);
             this.dAutoConnect.TabIndex = 5;
-            this.dAutoConnect.Text = "AutoConnect";
+            this.dAutoConnect.Text = "自动重连";
             this.dAutoConnect.UseVisualStyleBackColor = true;
             // 
             // dId
@@ -100,6 +104,7 @@ namespace DeviceTester.Tcf
             // 
             // tableLayoutPanel1
             // 
+            this.tableLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.tableLayoutPanel1.ColumnCount = 3;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 70F));
@@ -117,7 +122,7 @@ namespace DeviceTester.Tcf
             this.tableLayoutPanel1.Controls.Add(this.dHeight, 1, 2);
             this.tableLayoutPanel1.Controls.Add(this.dGenderMale, 1, 5);
             this.tableLayoutPanel1.Controls.Add(this.dGenderFemale, 2, 5);
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(705, 12);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(585, 36);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 6;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
@@ -296,56 +301,52 @@ namespace DeviceTester.Tcf
             // 
             // dResult
             // 
+            this.dResult.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dResult.FormattingEnabled = true;
             this.dResult.ItemHeight = 12;
-            this.dResult.Location = new System.Drawing.Point(402, 12);
+            this.dResult.Location = new System.Drawing.Point(290, 36);
             this.dResult.Name = "dResult";
-            this.dResult.Size = new System.Drawing.Size(297, 436);
+            this.dResult.Size = new System.Drawing.Size(285, 472);
             this.dResult.TabIndex = 8;
             // 
             // dMsg
             // 
-            this.dMsg.Location = new System.Drawing.Point(706, 286);
+            this.dMsg.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dMsg.Location = new System.Drawing.Point(586, 310);
             this.dMsg.Name = "dMsg";
-            this.dMsg.Size = new System.Drawing.Size(189, 117);
+            this.dMsg.Size = new System.Drawing.Size(189, 172);
             this.dMsg.TabIndex = 9;
-            // 
-            // dSerialPort
-            // 
-            this.dSerialPort.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.dSerialPort.FormattingEnabled = true;
-            this.dSerialPort.Location = new System.Drawing.Point(758, 225);
-            this.dSerialPort.Name = "dSerialPort";
-            this.dSerialPort.Size = new System.Drawing.Size(67, 20);
-            this.dSerialPort.TabIndex = 11;
             // 
             // label7
             // 
-            this.label7.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(717, 228);
+            this.label7.Font = new System.Drawing.Font("宋体", 11F);
+            this.label7.Location = new System.Drawing.Point(288, 12);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(35, 12);
-            this.label7.TabIndex = 12;
-            this.label7.Text = "串口:";
+            this.label7.Size = new System.Drawing.Size(75, 15);
+            this.label7.TabIndex = 10;
+            this.label7.Text = "分析结果:";
             // 
-            // btnRefresh
+            // label8
             // 
-            this.btnRefresh.Location = new System.Drawing.Point(831, 223);
-            this.btnRefresh.Name = "btnRefresh";
-            this.btnRefresh.Size = new System.Drawing.Size(64, 23);
-            this.btnRefresh.TabIndex = 13;
-            this.btnRefresh.Text = "Refresh";
-            this.btnRefresh.UseVisualStyleBackColor = true;
+            this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("宋体", 11F);
+            this.label8.Location = new System.Drawing.Point(10, 12);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(75, 15);
+            this.label8.TabIndex = 11;
+            this.label8.Text = "数据接收:";
             // 
             // TcfView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(907, 454);
-            this.Controls.Add(this.btnRefresh);
+            this.Controls.Add(this.label8);
             this.Controls.Add(this.label7);
-            this.Controls.Add(this.dSerialPort);
             this.Controls.Add(this.dMsg);
             this.Controls.Add(this.dResult);
             this.Controls.Add(this.tableLayoutPanel1);
@@ -353,7 +354,7 @@ namespace DeviceTester.Tcf
             this.Controls.Add(this.btnSend);
             this.Controls.Add(this.dReceived);
             this.Name = "TcfView";
-            this.Text = "FrmTcf";
+            this.Size = new System.Drawing.Size(788, 522);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dAge)).EndInit();
@@ -385,8 +386,7 @@ namespace DeviceTester.Tcf
         private System.Windows.Forms.TextBox dName;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label dMsg;
-        private System.Windows.Forms.ComboBox dSerialPort;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Button btnRefresh;
+        private System.Windows.Forms.Label label8;
     }
 }

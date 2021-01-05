@@ -1,5 +1,4 @@
-﻿using Limxc.Tools.Extensions;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
@@ -23,7 +22,7 @@ namespace DeviceTester.Gmd
 
             connector.IsConnected
                 .StartWith(false)
-                .Debug("IsConnected")
+                //.Debug("IsConnected")
                 .SubscribeOn(NewThreadScheduler.Default)
                 .ObserveOn(WindowsFormsSynchronizationContext.Current)
                 .Subscribe(p => button1.Enabled = p,
@@ -33,7 +32,7 @@ namespace DeviceTester.Gmd
                 });
 
             connector.Datas
-                .Debug("Datas")
+                //.Debug("Datas")
                 .SubscribeOn(NewThreadScheduler.Default)
                 .ObserveOn(WindowsFormsSynchronizationContext.Current)
                 .Subscribe(p =>

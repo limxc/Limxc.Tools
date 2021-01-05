@@ -16,7 +16,7 @@ namespace DeviceTester.Tcf
 
             var p = retString.Split(';');
 
-            if (p.LastOrDefault().StartsWith(@"over\n"))
+            if (p.LastOrDefault().StartsWith(@"over"))
             {
                 p.Take(p.Count() - 1)
                     .Aggregate(_result,
@@ -44,7 +44,7 @@ namespace DeviceTester.Tcf
         public Dictionary<string, object> GetResult()
         {
             var dict = new Dictionary<string, object>();
-            foreach (var p in GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            foreach (var p in GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(p => p.Name != "Item"))
             {
                 dict.Add(p.Name, p.GetValue(this));
             }

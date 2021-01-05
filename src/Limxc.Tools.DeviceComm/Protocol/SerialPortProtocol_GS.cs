@@ -30,10 +30,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
                             .Interval(TimeSpan.FromSeconds(0.1))
                             .Select(_ => _sp?.IsOpen ?? false)
                             .StartWith(false)
-                            .DistinctUntilChanged()
-                            .Retry()
-                            .Publish()
-                            .RefCount();
+                            .DistinctUntilChanged();
 
             Received = Observable
                             .Create<byte[]>(x =>
