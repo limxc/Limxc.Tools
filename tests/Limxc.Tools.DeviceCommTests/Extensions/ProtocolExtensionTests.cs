@@ -36,7 +36,7 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
             };
             var rst = new List<byte[]>();
             source.ToObservable(ts)
-                .ParsePackage(254, 255)
+                .ParsePackage<byte>(254, 255)
                 .Subscribe(p => rst.Add(p));
 
             ts.AdvanceTo(source.Length);
