@@ -8,11 +8,9 @@ namespace Limxc.Tools.DeviceComm.Utils
     {
         public static string[] GetPortNames() => SerialPortStream.GetPortNames();
 
-        public delegate void DataReceivedEventHandle(object sender, byte[] bytes);
+        public event EventHandler<byte[]> ReceivedEvent;
 
-        public event DataReceivedEventHandle ReceivedEvent;
-
-        protected SerialPortStream sp = null;
+        protected SerialPortStream sp;
 
         public bool IsOpen => sp?.IsOpen ?? false;
 
@@ -92,7 +90,7 @@ namespace Limxc.Tools.DeviceComm.Utils
 
         public void Close()
         {
-            if (sp != null && sp.IsOpen)
+            if (sp?.IsOpen == true)
             {
                 sp.DataReceived -= Sp_DataReceived;
                 sp.Close();
@@ -106,8 +104,7 @@ namespace Limxc.Tools.DeviceComm.Utils
 
         public void CleanUp()
         {
-            if (sp != null)
-                sp.Dispose();
+            sp?.Dispose();
         }
 
         protected void Sp_DataReceived(object sender, SerialDataReceivedEventArgs e)
@@ -189,7 +186,9 @@ namespace Limxc.Tools.DeviceComm.Utils
                     TimeoutCheckThreadIsWork = false;
                 }
                 else
+                {
                     Thread.Sleep(16);
+                }
             }
         }
 

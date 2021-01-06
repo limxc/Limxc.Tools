@@ -82,7 +82,7 @@ namespace Limxc.Tools.DeviceComm.Protocol.Tests
             await Task.Delay(1000);
             await sps.CloseAsync();
 
-            Assert.True(rst.Count == 5 && rst.Count(p => p.Contains("Error")) == 0);
+            Assert.True(rst.Count == 5 && !rst.Any(p => p.Contains("Error")));
 
             dis.Dispose();
 

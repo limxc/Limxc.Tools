@@ -95,12 +95,12 @@ namespace Limxc.Tools.DeviceComm.Extensions
         {
             hexStr = hexStr.Replace(" ", "");
 
-            if (hexStr.Length < (length) || hexStr.Length % (length) != 0)
+            if (hexStr.Length < length || hexStr.Length % length != 0)
                 throw new FormatException($"Length Error (2 or 4) : {hexStr}");
 
             var ay = hexStr.ToCharArray();
-            var rst = new string[ay.Length / (length)];
-            for (int i = 0; i < ay.Length; i = i + length)
+            var rst = new string[ay.Length / length];
+            for (int i = 0; i < ay.Length; i += length)
             {
                 for (int j = 0; j < length; j++)
                 {
@@ -146,7 +146,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
         {
             value = value.ToNInt(adjustRange);
 
-            string result = Convert.ToString(value, 16).Trim();
+            var result = Convert.ToString(value, 16).Trim();
 
             result = result.PadLeft(length, '0');
 
@@ -226,7 +226,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
         /// <returns></returns>
         public static string ToHexStr(this byte[] bytes)
         {
-            string returnStr = "";
+            var returnStr = "";
             if (bytes != null)
             {
                 for (int i = 0; i < bytes.Length; i++)
@@ -244,7 +244,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
         /// <returns></returns>
         public static string ToHexStrFromChar(this byte[] bytes)
         {
-            string returnStr = string.Empty;
+            var returnStr = string.Empty;
             if (bytes != null)
             {
                 for (int i = 0; i < bytes.Length; i++)
@@ -266,9 +266,11 @@ namespace Limxc.Tools.DeviceComm.Extensions
             if ((hexString.Length % 2) != 0)
                 throw new FormatException($"Hex String Length Error : {hexString.Length}");
 
-            byte[] returnBytes = new byte[hexString.Length / 2];
+            var returnBytes = new byte[hexString.Length / 2];
+
             for (int i = 0; i < returnBytes.Length; i++)
                 returnBytes[i] = Convert.ToByte(hexString.Substring(i * 2, 2), 16);
+
             return returnBytes;
         }
 

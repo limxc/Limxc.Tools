@@ -37,7 +37,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
                             {
                                 _sp.UseDataReceived(true, (gs, data) =>
                                 {
-                                    if (data != null && data.Length > 0)
+                                    if (data?.Length > 0)
                                         x.OnNext(data);
                                 });
                                 return Disposable.Empty;

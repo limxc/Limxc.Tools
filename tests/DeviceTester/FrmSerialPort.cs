@@ -26,15 +26,15 @@ namespace DeviceTester
             sp.ConnectionState
                 .SubscribeOn(NewThreadScheduler.Default)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(p => Log($"--- connected : {p.ToString()}"));
+                .Subscribe(p => Log($"--- connected : {p}"));
             sp.Received
                 .SubscribeOn(NewThreadScheduler.Default)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(p => Log($"--- received : {p.ToString()}"));
+                .Subscribe(p => Log($"--- received : {p}"));
             sp.History
                 .SubscribeOn(NewThreadScheduler.Default)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(p => Log($"--- history : {p.ToString()}"));
+                .Subscribe(p => Log($"--- history : {p}"));
 
             sp.OpenAsync();
         }

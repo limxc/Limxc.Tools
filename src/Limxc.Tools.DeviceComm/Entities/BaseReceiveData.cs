@@ -5,7 +5,7 @@ namespace Limxc.Tools.DeviceComm.Entities
 {
     public abstract class BaseReceiveData
     {
-        public BaseReceiveData(DateTime? receiveTime = null)
+        protected BaseReceiveData(DateTime? receiveTime = null)
         {
             ReceiveTime = receiveTime.HasValue ? receiveTime.Value.ToTimeStamp() : DateTime.Now.ToTimeStamp();
         }

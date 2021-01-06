@@ -19,7 +19,7 @@ namespace Limxc.Tools.DeviceComm.Entities
             Template = cmdTemplate.Replace(" ", "").ToUpper();
 
             //校验
-            if (Template.Length <= 0 || Template.Length % 2 != 0) throw new FormatException($"Command Format Error.{Template}");
+            if (Template.Length == 0 || Template.Length % 2 != 0) throw new FormatException($"Command Format Error.{Template}");
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Limxc.Tools.DeviceComm.Entities
 
                 //替换
                 int parsIndex = 0;
-                for (int i = 0; i < array.Count(); i++)
+                for (int i = 0; i < array.Length; i++)
                 {
                     if (array[i].StartsWith("$"))
                     {

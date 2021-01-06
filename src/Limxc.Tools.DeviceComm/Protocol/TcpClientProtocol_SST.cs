@@ -15,7 +15,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
     /// </summary>
     public class TcpClientProtocol_SST : IProtocol
     {
-        private SimpleTcpClient _client;
+        private readonly SimpleTcpClient _client;
 
         private ISubject<CPContext> _msg;
 
@@ -83,14 +83,14 @@ namespace Limxc.Tools.DeviceComm.Protocol
             context.SendTime = DateTime.Now;
             _msg.OnNext(context);
 
-            return await Task.FromResult(true);
+            return await Task.FromResult(true).ConfigureAwait(false);
         }
 
         public async Task<bool> SendAsync(byte[] bytes)
         {
             await _client.SendAsync(bytes).ConfigureAwait(false);
 
-            return await Task.FromResult(true);
+            return await Task.FromResult(true).ConfigureAwait(false);
         }
 
         public Task<bool> OpenAsync()

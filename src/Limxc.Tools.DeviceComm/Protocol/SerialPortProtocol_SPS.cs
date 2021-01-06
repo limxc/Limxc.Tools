@@ -5,7 +5,6 @@ using System;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using static Limxc.Tools.DeviceComm.Utils.SerialPortStreamHelper;
 
 namespace Limxc.Tools.DeviceComm.Protocol
 {
@@ -33,8 +32,8 @@ namespace Limxc.Tools.DeviceComm.Protocol
                             .DistinctUntilChanged();
 
             Received = Observable
-                            .FromEventPattern<DataReceivedEventHandle, byte[]>(h => _sp.ReceivedEvent += h, h => _sp.ReceivedEvent -= h)
-                            .Where(p => p.EventArgs != null && p.EventArgs.Length > 0)
+                            .FromEventPattern<byte[]>(h => _sp.ReceivedEvent += h, h => _sp.ReceivedEvent -= h)
+                            .Where(p => p.EventArgs?.Length > 0)
                             .Select(p => p.EventArgs)
                             .Retry()
                             .Publish()

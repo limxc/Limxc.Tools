@@ -27,7 +27,7 @@ namespace Limxc.Tools.Extensions.Tests
 
             var obs = Observable.Create<char>(x =>
                     {
-                        foreach (var c in str.ToCharArray())
+                        foreach (var c in str)
                         {
                             x.OnNext(c);
                         }
@@ -123,7 +123,7 @@ namespace Limxc.Tools.Extensions.Tests
         }
 
         [Fact()]
-        public async void BucketTest()
+        public async Task BucketTest()
         {
             var ts = new TestScheduler();
 

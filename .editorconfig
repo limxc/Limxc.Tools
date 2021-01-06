@@ -1,4 +1,14 @@
-锘縖*.cs]
+# EditorConfig is awesome: https://EditorConfig.org
 
-# CS0168: 澹版槑浜嗗彉閲忥紝浣嗕粠鏈娇鐢ㄨ繃
+# top-most EditorConfig file
+root = true
+
+# Don't use tabs for indentation.
+[*]
+indent_style = space
+
+[*.cs]
+
+# CS0168: 声明了变量，但从未使用过
 #dotnet_diagnostic.CS0168.severity = silent
+ 

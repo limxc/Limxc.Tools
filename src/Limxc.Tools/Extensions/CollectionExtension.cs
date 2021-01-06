@@ -45,11 +45,13 @@ namespace Limxc.Tools.Extensions
         public static ICollection<T> AddOrUpdate<T>(this ICollection<T> source, T value, Func<T, bool> condation)
         {
             var res = source.Where(condation);
-            if (res.Count() > 0)
+            if (res.Any())
+            {
                 foreach (var item in res.ToList())
                 {
                     source.Remove(item);
                 }
+            }
 
             source.Add(value);
 

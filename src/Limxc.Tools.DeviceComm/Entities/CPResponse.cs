@@ -67,7 +67,7 @@ namespace Limxc.Tools.DeviceComm.Entities
                 if (arr[i] == '$' && i < arr.Length - 1)
                 {
                     var len = arr[i + 1].ToString().ToNInt();
-                    var tfv = new string(resp.Skip(i + skipLen * 2).Take(len * 2).ToArray());
+                    var tfv = new string(resp.Skip(i + (skipLen * 2)).Take(len * 2).ToArray());
                     skipLen += len > 1 ? len - 1 : 0;
                     values.Add(tfv);
                 }
@@ -86,12 +86,11 @@ namespace Limxc.Tools.DeviceComm.Entities
         /// 无返回值 返回new List<int>();
         /// </summary>
         /// <returns></returns>
-        public List<int> GetIntValues(string resp, bool checkPattern = true) => GetStrValues(resp, checkPattern).Select(p => p.ToNInt()).ToList();
+        public List<int> GetIntValues(string resp, bool checkPattern = true) => GetStrValues(resp, checkPattern).ConvertAll(p => p.ToNInt());
 
         public override string ToString()
         {
-            string strValue = string.Empty;
-            string intValue = string.Empty;
+            string strValue, intValue;
             try
             {
                 strValue = string.Join(",", GetStrValues(false));

@@ -84,7 +84,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
                         .Skip(1)
                         .TakeWhile(b => !b.Equals(eom))
                         .ToArray()
-                        .Where(p => p.Any())
+                        .Where(p => p.Length > 0)
                         .Repeat()
                 );
             });
@@ -137,7 +137,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
                                 bQueue.Clear();
                                 eQueue.Clear();
 #else
-                                o.OnNext(list.Take(list.Count() - el).ToArray());
+                                o.OnNext(list.Take(list.Count - el).ToArray());
                                 while (bQueue.TryDequeue(out _)) { }
                                 while (eQueue.TryDequeue(out _)) { }
 #endif
@@ -150,7 +150,8 @@ namespace Limxc.Tools.DeviceComm.Extensions
                             }
                         }
                     }
-                });
+                }, () => o.OnCompleted());
+
                 return Disposable.Create(() =>
                 {
                     o.OnCompleted();
@@ -197,7 +198,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
                             o.OnNext(list.SkipLast(len).ToArray());
                             queue.Clear();
 #else
-                            o.OnNext(list.Take(list.Count() - len).ToArray());
+                            o.OnNext(list.Take(list.Count - len).ToArray());
                             while (queue.TryDequeue(out _)) { }
 #endif
                             list.Clear();
@@ -207,7 +208,8 @@ namespace Limxc.Tools.DeviceComm.Extensions
                             queue.TryDequeue(out _);
                         }
                     }
-                });
+                }, () => o.OnCompleted());
+
                 return Disposable.Create(() =>
                 {
                     o.OnCompleted();
@@ -237,7 +239,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
         /// <returns></returns>
         public static async Task WaitingSendResult(this IProtocol protocol, CPTaskContext context, int schedulerRunTime = 100)
         {
-            int state = 0;//等待中..
+            var state = 0;//等待中..
 
             var dis = protocol
                         .History

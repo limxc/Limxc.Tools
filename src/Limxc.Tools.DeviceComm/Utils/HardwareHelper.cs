@@ -21,7 +21,7 @@ namespace Limxc.Tools.DeviceComm.Utils
         /// <returns></returns>
         public static string GetPortNameBy(string deviceName)
         {
-            var comStr = SerialPorts.Where(p => p.Contains(deviceName)).FirstOrDefault();
+            var comStr = SerialPorts.FirstOrDefault(p => p.Contains(deviceName));
 
             if (!string.IsNullOrWhiteSpace(comStr))
             {
@@ -29,7 +29,7 @@ namespace Limxc.Tools.DeviceComm.Utils
                 if (sArray.Length >= 2)
                 {
                     comStr = sArray[1];
-                    return SerialPort.GetPortNames().Where(p => p.Contains(comStr)).FirstOrDefault();
+                    return SerialPort.GetPortNames().FirstOrDefault(p => p.Contains(comStr));
                 }
             }
             //未找到匹配设备
@@ -50,8 +50,7 @@ namespace Limxc.Tools.DeviceComm.Utils
             {
                 using (ManagementObjectSearcher searcher = new ManagementObjectSearcher("select * from " + hardType))
                 {
-                    var hardInfos = searcher.Get();
-                    foreach (var hardInfo in hardInfos)
+                    foreach (var hardInfo in searcher.Get())
                     {
                         if (hardInfo.Properties[propKey].Value != null)
                         {
@@ -61,7 +60,6 @@ namespace Limxc.Tools.DeviceComm.Utils
                             }
                         }
                     }
-                    searcher.Dispose();
                 }
                 return strs.ToArray();
             }
@@ -69,8 +67,6 @@ namespace Limxc.Tools.DeviceComm.Utils
             {
                 return null;
             }
-            finally
-            { strs = null; }
         }
     }
 

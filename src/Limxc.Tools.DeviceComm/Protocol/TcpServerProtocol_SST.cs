@@ -15,7 +15,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
     /// </summary>
     public class TcpServerProtocol_SST : IProtocol
     {
-        private SimpleTcpServer _server;
+        private readonly SimpleTcpServer _server;
 
         private ISubject<CPContext> _msg;
 
@@ -88,11 +88,11 @@ namespace Limxc.Tools.DeviceComm.Protocol
                 context.SendTime = DateTime.Now;
                 _msg.OnNext(context);
 
-                return await Task.FromResult(true);
+                return await Task.FromResult(true).ConfigureAwait(false);
             }
             else
             {
-                return await Task.FromResult(false);
+                return await Task.FromResult(false).ConfigureAwait(false);
             }
         }
 
@@ -101,18 +101,18 @@ namespace Limxc.Tools.DeviceComm.Protocol
             if (_clientIpPort.CheckIpPort())
             {
                 await _server.SendAsync(_clientIpPort, bytes).ConfigureAwait(false);
-                return await Task.FromResult(true);
+                return await Task.FromResult(true).ConfigureAwait(false);
             }
             else
             {
-                return await Task.FromResult(false);
+                return await Task.FromResult(false).ConfigureAwait(false);
             }
         }
 
         public async Task<bool> OpenAsync()
         {
-            await _server.StartAsync();
-            return await Task.FromResult(true);
+            await _server.StartAsync().ConfigureAwait(false);
+            return await Task.FromResult(true).ConfigureAwait(false);
         }
 
         public Task<bool> CloseAsync()

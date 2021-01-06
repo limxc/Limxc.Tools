@@ -20,9 +20,9 @@ namespace Limxc.Tools.Fx.Controls
         public BGButton()
         {
             InitializeComponent();
-            LblText.MouseMove += new MouseEventHandler(LblText_MouseMove);
-            LblText.MouseLeave += new EventHandler(LblText_MouseLeave);
-            LblText.Click += new EventHandler(LblText_Click);
+            LblText.MouseMove += LblText_MouseMove;
+            LblText.MouseLeave += LblText_MouseLeave;
+            LblText.Click += LblText_Click;
         }
 
         /// <summary>
@@ -47,17 +47,14 @@ namespace Limxc.Tools.Fx.Controls
         /// <summary>
         /// 用户单击按钮上的文字时，触发按钮的单击事件。
         /// </summary>
-        private void LblText_Click(object sender, EventArgs e)
-        {
-            this.OnClick(e);
-        }
+        private void LblText_Click(object sender, EventArgs e) => OnClick(e);
 
         /// <summary>
         /// 鼠标从按钮上移开时，改变相关子控件的颜色。
         /// </summary>
         private void LblText_MouseLeave(object sender, EventArgs e)
         {
-            PnlBG.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("ButtonBG01")));
+            PnlBG.BackgroundImage = ((Image)(resources.GetObject("ButtonBG01")));
             LblText.ForeColor = Color.FromArgb(102, 102, 102);
             BackColor = Color.FromArgb(135, 163, 193);
         }
@@ -67,7 +64,7 @@ namespace Limxc.Tools.Fx.Controls
         /// </summary>
         private void LblText_MouseMove(object sender, MouseEventArgs e)
         {
-            PnlBG.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("ButtonBG02")));
+            PnlBG.BackgroundImage = ((Image)(resources.GetObject("ButtonBG02")));
             LblText.ForeColor = Color.FromArgb(102, 51, 0);
             BackColor = Color.FromArgb(162, 144, 77);
         }

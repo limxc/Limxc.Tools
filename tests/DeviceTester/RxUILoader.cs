@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace DeviceTester
 {
-    public class RxUILoader
+    public sealed class RxUILoader
     {
         private static readonly Lazy<RxUILoader> lazy = new Lazy<RxUILoader>(() => new RxUILoader());
 

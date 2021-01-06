@@ -38,7 +38,7 @@ namespace Limxc.Tools.Extensions
         public static T ToEnum<T>(this string obj) where T : Enum
         {
             if (!Enum.IsDefined(typeof(T), obj))
-                return default(T);
+                return default;
             return (T)Enum.Parse(typeof(T), obj);
         }
     }

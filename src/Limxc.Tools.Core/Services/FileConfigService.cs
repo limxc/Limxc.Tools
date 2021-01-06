@@ -26,7 +26,7 @@ namespace Limxc.Tools.Core.Utils
             var fullPath = FilePath(fileName);
             if (string.IsNullOrWhiteSpace(section))
                 section = "Settings";
-            var config = Configuration.LoadFromFile(fileName);
+            var config = Configuration.LoadFromFile(fullPath);
             config[section][key].StringValue = value;
             config.SaveToFile(fileName);
         }
@@ -43,7 +43,9 @@ namespace Limxc.Tools.Core.Utils
                 return "";
             }
             else
+            {
                 return config[section][key].StringValue;
+            }
         }
 
         public void Set<T>(T obj, string fileName = "") where T : class, new()
@@ -66,7 +68,9 @@ namespace Limxc.Tools.Core.Utils
                 return def;
             }
             else
+            {
                 return config[typeof(T).FullName].ToObject<T>();
+            }
         }
     }
 }

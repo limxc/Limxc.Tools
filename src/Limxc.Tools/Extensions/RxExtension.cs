@@ -21,12 +21,13 @@ namespace Limxc.Tools.Extensions
         public static IObservable<T> Debug<T>(this IObservable<T> obs, string msg = "")
         {
             if (Debugger.IsAttached)
-                return obs.Do(p =>
-                {
-                    System.Diagnostics.Debug.WriteLine($"****** {msg ?? "Rx"} @ {DateTime.Now:mm:ss fff} : {p.ToString()} ******");
-                });
+            {
+                return obs.Do(p => System.Diagnostics.Debug.WriteLine($"****** {msg ?? "Rx"} @ {DateTime.Now:mm:ss fff} : {p} ******"));
+            }
             else
+            {
                 return obs;
+            }
         }
 
         public static IDisposable SubscribeToConsole<T>(this IObservable<T> obs)
@@ -42,127 +43,133 @@ namespace Limxc.Tools.Extensions
         #region BufferUntil
 
         public static IObservable<T[]> BufferUntil<T>(this IObservable<T[]> obs, T[] startWith, T[] endWith, int timeOut, T[] def = null) where T : IEquatable<T>
-        => Observable.Create<T[]>(o =>
         {
-            var dis = new CompositeDisposable();
-            var bs = new List<T>();
-
-            var startFound = false;
-            var elapsedTime = 0;
-
-            var sub = obs.Subscribe(s =>
-            {
-                elapsedTime = 0;
-                if (startFound || s.SequenceEqual(startWith))
+            return Observable.Create<T[]>(o =>
                 {
-                    startFound = true;
-                    bs.AddRange(s);
-                    if (s.SequenceEqual(endWith))
+                    var dis = new CompositeDisposable();
+                    var bs = new List<T>();
+
+                    var startFound = false;
+                    var elapsedTime = 0;
+
+                    var sub = obs.Subscribe(s =>
                     {
-                        o.OnNext(bs.ToArray());
-                        startFound = false;
-                        bs.Clear();
-                    }
-                }
-            }).DisposeWith(dis);
+                        elapsedTime = 0;
+                        if (startFound || s.SequenceEqual(startWith))
+                        {
+                            startFound = true;
+                            bs.AddRange(s);
+                            if (s.SequenceEqual(endWith))
+                            {
+                                o.OnNext(bs.ToArray());
+                                startFound = false;
+                                bs.Clear();
+                            }
+                        }
+                    }).DisposeWith(dis);
 
-            Observable.Interval(TimeSpan.FromMilliseconds(1)).Subscribe(_ =>
-            {
-                elapsedTime++;
-                if (elapsedTime > timeOut)
-                {
-                    if (def != null)
-                        o.OnNext(def);
-                    startFound = false;
-                    bs.Clear();
-                    elapsedTime = 0;
-                }
-            }).DisposeWith(dis);
+                    Observable.Interval(TimeSpan.FromMilliseconds(1)).Subscribe(_ =>
+                    {
+                        elapsedTime++;
+                        if (elapsedTime > timeOut)
+                        {
+                            if (def != null)
+                                o.OnNext(def);
+                            startFound = false;
+                            bs.Clear();
+                            elapsedTime = 0;
+                        }
+                    }).DisposeWith(dis);
 
-            return dis;
-        });
+                    return dis;
+                });
+        }
 
         public static IObservable<T[]> BufferUntil<T>(this IObservable<T[]> obs, T[] startWith, int length, int timeOut, T[] def = null) where T : IEquatable<T>
-        => Observable.Create<T[]>(o =>
         {
-            var dis = new CompositeDisposable();
-            var bs = new List<T>();
-
-            var startFound = false;
-            var elapsedTime = 0;
-
-            var sub = obs.Subscribe(s =>
-            {
-                elapsedTime = 0;
-                if (startFound || s.SequenceEqual(startWith))
+            return Observable.Create<T[]>(o =>
                 {
-                    startFound = true;
-                    bs.AddRange(s);
-                    if (bs.Count >= length)
+                    var dis = new CompositeDisposable();
+                    var bs = new List<T>();
+
+                    var startFound = false;
+                    var elapsedTime = 0;
+
+                    var sub = obs.Subscribe(s =>
                     {
-                        o.OnNext(bs.ToArray());
-                        startFound = false;
-                        bs.Clear();
-                    }
-                }
-            }).DisposeWith(dis);
+                        elapsedTime = 0;
+                        if (startFound || s.SequenceEqual(startWith))
+                        {
+                            startFound = true;
+                            bs.AddRange(s);
+                            if (bs.Count >= length)
+                            {
+                                o.OnNext(bs.ToArray());
+                                startFound = false;
+                                bs.Clear();
+                            }
+                        }
+                    }).DisposeWith(dis);
 
-            Observable.Interval(TimeSpan.FromMilliseconds(1)).Subscribe(_ =>
-            {
-                elapsedTime++;
-                if (elapsedTime > timeOut)
-                {
-                    if (def != null)
-                        o.OnNext(def);
-                    startFound = false;
-                    bs.Clear();
-                    elapsedTime = 0;
-                }
-            }).DisposeWith(dis);
+                    Observable.Interval(TimeSpan.FromMilliseconds(1)).Subscribe(_ =>
+                    {
+                        elapsedTime++;
+                        if (elapsedTime > timeOut)
+                        {
+                            if (def != null)
+                                o.OnNext(def);
+                            startFound = false;
+                            bs.Clear();
+                            elapsedTime = 0;
+                        }
+                    }).DisposeWith(dis);
 
-            return dis;
-        });
+                    return dis;
+                });
+        }
 
         public static IObservable<T[]> BufferUntil<T>(this IObservable<T> obs, T startWith, T endWith, int timeOut, T[] def = null) where T : IEquatable<T>
-            => Observable.Create<T[]>(o =>
-            {
-                var dis = new CompositeDisposable();
-                var list = new List<T>();
-
-                var startFound = false;
-                var elapsedTime = 0;
-
-                var sub = obs.Subscribe(s =>
+        {
+            return Observable.Create<T[]>(o =>
                 {
-                    elapsedTime = 0;
-                    if (startFound || s.Equals(startWith))
+                    var dis = new CompositeDisposable();
+                    var list = new List<T>();
+
+                    var startFound = false;
+                    var elapsedTime = 0;
+
+                    var sub = obs.Subscribe(s =>
                     {
-                        startFound = true;
-                        list.Add(s);
-                        if (s.Equals(endWith))
+                        elapsedTime = 0;
+                        if (startFound || s.Equals(startWith))
                         {
-                            o.OnNext(list.ToArray());
+                            startFound = true;
+                            list.Add(s);
+                            if (s.Equals(endWith))
+                            {
+                                o.OnNext(list.ToArray());
+                                startFound = false;
+                                list.Clear();
+                            }
+                        }
+                    }).DisposeWith(dis);
+
+                    Observable.Interval(TimeSpan.FromMilliseconds(1)).Subscribe(_ =>
+                    {
+                        elapsedTime++;
+                        if (elapsedTime > timeOut)
+                        {
+                            if (def != null)
+                                o.OnNext(def);
                             startFound = false;
                             list.Clear();
+                            elapsedTime = 0;
                         }
-                    }
-                }).DisposeWith(dis);
+                    }).DisposeWith(dis);
 
-                Observable.Interval(TimeSpan.FromMilliseconds(1)).Subscribe(_ =>
-                {
-                    elapsedTime++;
-                    if (elapsedTime > timeOut)
-                    {
-                        if (def != null)
-                            o.OnNext(def);
-                        startFound = false;
-                        list.Clear();
-                        elapsedTime = 0;
-                    }
-                }).DisposeWith(dis);
-
-                return dis;
-            });
+                    return dis;
+                });
+        }
 
         #endregion BufferUntil
 
@@ -195,39 +202,20 @@ namespace Limxc.Tools.Extensions
 
         public static IObservable<T[]> Bucket<T>(this IObservable<T> source, int number)
         {
-            return source.Publish(s =>
+            return Observable.Create<T[]>(o =>
             {
-                return Observable.Defer
-                    (() => s
-                            .Scan(new NumberBucket<T>(number, new T[0]), (pack, obj) => pack.Push(obj))
-                            .Where(p => p.Accumulated.Any())
-                            .Select(p => p.Accumulated.ToArray())
-                    );
-            });
-        }
+                var queue = new ConcurrentQueue<T>();
 
-        private class NumberBucket<T>
-        {
-            private int _count;
-
-            public NumberBucket(int count, IEnumerable<T> accumulated)
-            {
-                _count = count;
-                Accumulated = accumulated;
-            }
-
-            public IEnumerable<T> Accumulated { get; private set; }
-
-            public NumberBucket<T> Push(T b)
-            {
-                Accumulated = Accumulated.Concat(new[] { b });
-                var ac = Accumulated.Count();
-                if (ac > _count)
+                return source.Subscribe(s =>
                 {
-                    Accumulated = Accumulated.Skip(ac - _count);
-                }
-                return new NumberBucket<T>(_count, Accumulated);
-            }
+                    queue.Enqueue(s);
+                    if (queue.Count > number)
+                    {
+                        queue.TryDequeue(out _);
+                    }
+                    o.OnNext(queue.ToArray());
+                }, () => o.OnCompleted());
+            });
         }
 
         #endregion Bucket

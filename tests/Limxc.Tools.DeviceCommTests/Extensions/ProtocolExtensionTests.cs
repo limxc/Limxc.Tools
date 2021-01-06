@@ -452,7 +452,7 @@ namespace Limxc.Tools.DeviceComm.Extensions.Tests
             simulator.History.Subscribe(p =>
             {
                 msg.Add($"@ {DateTime.Now:mm:ss fff} {p}");
-                history.Add((p as CPTaskContext));
+                history.Add(p as CPTaskContext);
             });
 
             await simulator.OpenAsync();

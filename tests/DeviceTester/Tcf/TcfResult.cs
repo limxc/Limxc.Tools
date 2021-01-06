@@ -832,7 +832,7 @@ namespace DeviceTester.Tcf
                 crc_Low = (byte)crc_table[index + 256];
             }
 
-            return crc_High * 256 + crc_Low;
+            return (crc_High * 256) + crc_Low;
         }
 
         #endregion 国标算法

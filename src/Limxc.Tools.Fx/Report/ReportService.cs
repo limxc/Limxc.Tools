@@ -9,9 +9,9 @@ namespace Limxc.Tools.Report
 {
     public class ReportService : IReportService
     {
-        private string _reportFolder() => EnvPath.ReportDir;
+        private string ReportFolder() => EnvPath.ReportDir;
 
-        private string _defReportPath() => Path.Combine(EnvPath.ReportDir, "Default.frx");
+        private string DefReportPath() => Path.Combine(EnvPath.ReportDir, "Default.frx");
 
         /// <summary>
         /// 打印报告单,并保存pdf及png
@@ -24,11 +24,11 @@ namespace Limxc.Tools.Report
         {
             #region 汉化
 
-            var file = Path.Combine(_reportFolder(), @"Chinese.frl");
+            var file = Path.Combine(ReportFolder(), "Chinese.frl");
 
             if (File.Exists(file))
             {
-                FastReport.Utils.Res.LocaleFolder = _reportFolder();
+                FastReport.Utils.Res.LocaleFolder = ReportFolder();
                 FastReport.Utils.Res.LoadLocale(file);
             }
 
@@ -39,11 +39,11 @@ namespace Limxc.Tools.Report
             if (!frxName.EndsWith(".frx"))
                 frxName += ".frx";
 
-            var frxPath = Path.Combine(_reportFolder(), frxName);
+            var frxPath = Path.Combine(ReportFolder(), frxName);
 
             if (!File.Exists(frxPath))
             {
-                File.Copy(_defReportPath(), frxPath);
+                File.Copy(DefReportPath(), frxPath);
             }
 
             #endregion File
@@ -87,7 +87,7 @@ namespace Limxc.Tools.Report
                             imgExport.Resolution = 200;
                             imgExport.SeparateFiles = false;
                             report.Export(imgExport, outputFilePath + ".png");
-                        };
+                        }
                     });
                     Task.WhenAll(pdfTask, pngTask).ContinueWith(_ =>
                     {
@@ -114,7 +114,7 @@ namespace Limxc.Tools.Report
             {
                 if (!frxName.EndsWith(".frx"))
                     frxName += ".frx";
-                var frxPath = Path.Combine(_reportFolder(), frxName);
+                var frxPath = Path.Combine(ReportFolder(), frxName);
 
                 if (!File.Exists(frxPath))
                 {
