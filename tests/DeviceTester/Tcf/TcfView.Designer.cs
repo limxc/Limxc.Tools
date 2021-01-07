@@ -61,16 +61,16 @@ namespace DeviceTester.Tcf
             this.dReceived.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.dReceived.Location = new System.Drawing.Point(12, 36);
+            this.dReceived.Location = new System.Drawing.Point(12, 33);
             this.dReceived.Name = "dReceived";
-            this.dReceived.Size = new System.Drawing.Size(272, 477);
+            this.dReceived.Size = new System.Drawing.Size(281, 473);
             this.dReceived.TabIndex = 0;
             this.dReceived.Text = "";
             // 
             // btnSend
             // 
             this.btnSend.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSend.Location = new System.Drawing.Point(700, 494);
+            this.btnSend.Location = new System.Drawing.Point(709, 483);
             this.btnSend.Name = "btnSend";
             this.btnSend.Size = new System.Drawing.Size(75, 23);
             this.btnSend.TabIndex = 1;
@@ -83,7 +83,7 @@ namespace DeviceTester.Tcf
             this.dAutoConnect.AutoSize = true;
             this.dAutoConnect.Checked = true;
             this.dAutoConnect.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.dAutoConnect.Location = new System.Drawing.Point(703, 278);
+            this.dAutoConnect.Location = new System.Drawing.Point(712, 251);
             this.dAutoConnect.Name = "dAutoConnect";
             this.dAutoConnect.Size = new System.Drawing.Size(72, 16);
             this.dAutoConnect.TabIndex = 5;
@@ -122,7 +122,7 @@ namespace DeviceTester.Tcf
             this.tableLayoutPanel1.Controls.Add(this.dHeight, 1, 2);
             this.tableLayoutPanel1.Controls.Add(this.dGenderMale, 1, 5);
             this.tableLayoutPanel1.Controls.Add(this.dGenderFemale, 2, 5);
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(585, 36);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(594, 33);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 6;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
@@ -305,7 +305,7 @@ namespace DeviceTester.Tcf
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dResult.FormattingEnabled = true;
             this.dResult.ItemHeight = 12;
-            this.dResult.Location = new System.Drawing.Point(290, 36);
+            this.dResult.Location = new System.Drawing.Point(299, 33);
             this.dResult.Name = "dResult";
             this.dResult.Size = new System.Drawing.Size(285, 472);
             this.dResult.TabIndex = 8;
@@ -314,9 +314,9 @@ namespace DeviceTester.Tcf
             // 
             this.dMsg.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.dMsg.Location = new System.Drawing.Point(586, 310);
+            this.dMsg.Location = new System.Drawing.Point(592, 291);
             this.dMsg.Name = "dMsg";
-            this.dMsg.Size = new System.Drawing.Size(189, 172);
+            this.dMsg.Size = new System.Drawing.Size(189, 161);
             this.dMsg.TabIndex = 9;
             // 
             // label7
@@ -325,7 +325,7 @@ namespace DeviceTester.Tcf
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("宋体", 11F);
-            this.label7.Location = new System.Drawing.Point(288, 12);
+            this.label7.Location = new System.Drawing.Point(297, 12);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(75, 15);
             this.label7.TabIndex = 10;
@@ -354,7 +354,7 @@ namespace DeviceTester.Tcf
             this.Controls.Add(this.btnSend);
             this.Controls.Add(this.dReceived);
             this.Name = "TcfView";
-            this.Size = new System.Drawing.Size(788, 522);
+            this.Size = new System.Drawing.Size(797, 511);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dAge)).EndInit();

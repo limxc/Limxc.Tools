@@ -42,11 +42,14 @@ namespace Limxc.Tools.DeviceComm.Protocol
                 .FromEventPattern<ClientDisconnectedEventArgs>(h => _server.Events.ClientDisconnected += h, h => _server.Events.ClientDisconnected -= h)
                 .Select(p => (p.EventArgs.IpPort, false));
 
-            ConnectionState = Observable
+            ConnectionState = Observable.Defer(() =>
+            {
+                return Observable
                     .Merge(connect, disconnect)
                     .Select(p => p.Item2)
                     //.Debug(_ipPort)
                     .Retry();
+            });
 
             Received = Observable
                             .FromEventPattern<DataReceivedEventArgs>(h => _server.Events.DataReceived += h, h => _server.Events.DataReceived -= h)
@@ -57,11 +60,14 @@ namespace Limxc.Tools.DeviceComm.Protocol
                             //.Debug("receive")
                             ;
 
-            History = _msg.AsObservable()
+            History = Observable.Defer(() =>
+            {
+                return _msg.AsObservable()
                             //.Debug("send")
                             .FindResponse(Received)
                             //.Debug("prase received")
                             ;
+            });
         }
 
         public IObservable<bool> ConnectionState { get; }

@@ -26,11 +26,14 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
             _sp = new GodSerialPort(_portName, _baudRate, 0);
 
-            ConnectionState = Observable
+            ConnectionState = Observable.Defer(() =>
+            {
+                return Observable
                             .Interval(TimeSpan.FromSeconds(0.1))
                             .Select(_ => _sp?.IsOpen ?? false)
                             .StartWith(false)
                             .DistinctUntilChanged();
+            });
 
             Received = Observable
                             .Create<byte[]>(x =>
@@ -48,11 +51,14 @@ namespace Limxc.Tools.DeviceComm.Protocol
                              //.Debug("receive")
                              ;
 
-            History = _msg.AsObservable()
+            History = Observable.Defer(() =>
+            {
+                return _msg.AsObservable()
                             //.Debug("send")
                             .FindResponse(Received)
                             //.Debug("prase received")
                             ;
+            });
         }
 
         public IObservable<bool> ConnectionState { get; }

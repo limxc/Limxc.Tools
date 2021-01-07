@@ -1,6 +1,7 @@
 ﻿using Limxc.Tools.Extensions;
 using ReactiveUI;
 using ReactiveUI.Validation.Extensions;
+using ReactiveUI.Winforms;
 using System;
 using System.Linq;
 using System.Reactive.Disposables;
@@ -9,7 +10,7 @@ using System.Windows.Forms;
 
 namespace DeviceTester.Tcf
 {
-    public partial class TcfView : UserControl, IViewFor<TcfViewModel>
+    public partial class TcfView : ReactiveUserControl<TcfViewModel>
     {
         public TcfView()
         {
@@ -51,9 +52,6 @@ namespace DeviceTester.Tcf
 
                 #endregion Debug
             });
-        }
-
-        public TcfViewModel ViewModel { get; set; }
-        object IViewFor.ViewModel { get => ViewModel; set => ViewModel = (TcfViewModel)value; }
+        } 
     }
 }

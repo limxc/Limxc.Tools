@@ -72,7 +72,7 @@ namespace DeviceTester.Tcf
             this.viewModelControlHost1.DefaultContent = null;
             this.viewModelControlHost1.Location = new System.Drawing.Point(7, 43);
             this.viewModelControlHost1.Name = "viewModelControlHost1";
-            this.viewModelControlHost1.Size = new System.Drawing.Size(1131, 653);
+            this.viewModelControlHost1.Size = new System.Drawing.Size(1127, 621);
             this.viewModelControlHost1.TabIndex = 17;
             this.viewModelControlHost1.ViewLocator = null;
             this.viewModelControlHost1.ViewModel = null;
@@ -81,7 +81,7 @@ namespace DeviceTester.Tcf
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1145, 702);
+            this.ClientSize = new System.Drawing.Size(1141, 670);
             this.Controls.Add(this.viewModelControlHost1);
             this.Controls.Add(this.btnRefresh);
             this.Controls.Add(this.label7);

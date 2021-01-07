@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Concurrency;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -20,33 +21,53 @@ namespace DeviceTester.Tcf
 {
     public class TcfViewModel : ReactiveObject, IValidatableViewModel
     {
-        private IProtocol _ptc;
         private TcfCRC _crc;
 
         public ValidationContext ValidationContext { get; } = new ValidationContext();
+        private CompositeDisposable _disposables;
 
-        public TcfViewModel(IProtocol protocol)
+        private IProtocol _protocol, _emptyProtocol;
+
+        public void SetProtocol(IProtocol protocol = null)
+        {
+            CleanUp();
+
+            _disposables = new CompositeDisposable();
+
+            _protocol = protocol ?? _emptyProtocol;
+
+            Init();
+        }
+
+        public TcfViewModel()
         {
             _crc = new TcfCRC();
+            _emptyProtocol = new EmptyProtocol();
 
-            _ptc = protocol;
+            SetProtocol();
+        }
 
+        private void Init()
+        {
             #region Connection
 
-            _ptc.ConnectionState
+            _protocol.ConnectionState
                 .SubscribeOn(RxApp.MainThreadScheduler)
-                .ToPropertyEx(this, vm => vm.IsConnected);
+                .ToPropertyEx(this, vm => vm.IsConnected)
+                .DisposeWith(_disposables);
 
-            Connect = ReactiveCommand.CreateFromTask(() => _ptc.OpenAsync());
+            Connect = ReactiveCommand.CreateFromTask(() => _protocol.OpenAsync()).DisposeWith(_disposables);
 
-            var autoReconnect = Observable.Interval(TimeSpan.FromSeconds(0.1))
-                .Where(p => !IsConnected)
+            var autoReconnect = Observable.Interval(TimeSpan.FromSeconds(1))
+                .Where(_ => !IsConnected)
                 .Select(_ => Unit.Default);
 
             this.WhenAnyValue(p => p.EnableAutoReconnect)
                 .Select(enabled => enabled ? autoReconnect : Observable.Empty<Unit>())
                 .Switch()
-                .InvokeCommand(Connect);
+                .Debug("try connect.")
+                .InvokeCommand(Connect)
+                .DisposeWith(_disposables);
 
             #endregion Connection
 
@@ -72,7 +93,9 @@ namespace DeviceTester.Tcf
                         Regex.IsMatch(id, @"^[A-Za-z0-9]{1,18}$") &&
                         weight > 0;
                 }).ObserveOn(RxApp.MainThreadScheduler);
-            this.ValidationRule(measureParams, "请检查设备连接,测量体重并输入1-18位Id.\n");
+
+            this.ValidationRule(measureParams, "请检查设备连接,测量体重并输入1-18位Id.\n")
+                .DisposeWith(_disposables);
 
             #endregion Validation
 
@@ -104,17 +127,18 @@ namespace DeviceTester.Tcf
                     return false;
 
                 return true;
-            }, canMeasure);
+            }, canMeasure)
+            .DisposeWith(_disposables);
 
-            GetResult = ReactiveCommand.CreateFromTask<Unit, bool>(_ => Send(TcfCommands.Read()));
+            GetResult = ReactiveCommand.CreateFromTask<Unit, bool>(_ => Send(TcfCommands.Read())).DisposeWith(_disposables);
 
-            Reset = ReactiveCommand.CreateFromTask<Unit, bool>(_ => Send(TcfCommands.ReturnHome()));
+            Reset = ReactiveCommand.CreateFromTask<Unit, bool>(_ => Send(TcfCommands.ReturnHome())).DisposeWith(_disposables);
 
             #endregion Device Commands
 
             #region Received Datas
 
-            var received = _ptc.Received
+            var received = _protocol.Received
                 .Select(p => p.ToHexStr().HexToAscII())
                 .SelectMany(p => p)
                 .ParsePackage("\n".ToCharArray())
@@ -143,7 +167,8 @@ namespace DeviceTester.Tcf
                 .Select(p => TryInt(p.Replace("*stp=", "")))
                 .Where(p => p > 0)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .ToPropertyEx(this, vm => vm.Step);
+                .ToPropertyEx(this, vm => vm.Step)
+                .DisposeWith(_disposables);
 
             //error
             received
@@ -167,40 +192,45 @@ namespace DeviceTester.Tcf
                 })
                 .Where(p => !string.IsNullOrWhiteSpace(p))
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .ToPropertyEx(this, vm => vm.Error);
+                .ToPropertyEx(this, vm => vm.Error)
+                .DisposeWith(_disposables);
 
             //weight
             received
                 .Where(p => Regex.IsMatch(p, @"^\d{1,3}\.\d$"))//x.x;xx.x;xxx.x
                 .Select(p => TryDouble(p))
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .ToPropertyEx(this, vm => vm.Weight);
+                .ToPropertyEx(this, vm => vm.Weight)
+                .DisposeWith(_disposables);
 
             //result
             received
                 .Where(p => p.StartsWith("id="))
                 .Select(p => new TcfResult(p))
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .ToPropertyEx(this, vm => vm.Result);
+                .ToPropertyEx(this, vm => vm.Result)
+                .DisposeWith(_disposables);
 
             #endregion Received Datas
 
             #region Debug
 
-            received.Merge(_ptc.ConnectionState.Select(p => p ? "连接成功" : "连接断开"))
+            received.Merge(_protocol.ConnectionState.Select(p => p ? "连接成功" : "连接断开"))
                 .Timestamp()
                 .Select(p => $"{p.Timestamp.LocalDateTime:HH:mm:ss fff} | {p.Value}")
                 .Bucket(10)
                 .SubscribeOn(NewThreadScheduler.Default)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .ToPropertyEx(this, vm => vm.ReceivedMsg);
+                .ToPropertyEx(this, vm => vm.ReceivedMsg)
+                .DisposeWith(_disposables);
 
             this.WhenAnyValue(vm => vm.Result)
                 .Where(p => p != null)
                 .Select(p => p.GetResult().Select(r => $"{r.Key}:{r.Value}"))
                 .SubscribeOn(NewThreadScheduler.Default)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .ToPropertyEx(this, vm => vm.ResultList);
+                .ToPropertyEx(this, vm => vm.ResultList)
+                .DisposeWith(_disposables);
 
             //this.WhenAnyValue(vm => vm.IsConnected)
             //    .Debug("IsConnected")
@@ -211,7 +241,8 @@ namespace DeviceTester.Tcf
 
             #endregion Debug
 
-            _ptc.ConnectionState.Where(p => p).Take(1).Select(_ => Unit.Default).InvokeCommand(Reset);
+            _protocol.ConnectionState.Where(p => p).Take(1).Select(_ => Unit.Default).InvokeCommand(Reset).DisposeWith(_disposables);
+
             Connect.Execute().Subscribe().Dispose();
         }
 
@@ -267,7 +298,7 @@ namespace DeviceTester.Tcf
 
         #region Commands
 
-        public ReactiveCommand<Unit, bool> Connect { get; }
+        public ReactiveCommand<Unit, bool> Connect { get; private set; }
 
         /// <summary>
         /// 拆开  每次修改 id height age gender 发送对应指令
@@ -276,19 +307,19 @@ namespace DeviceTester.Tcf
         /// age : 5-99
         /// gender : 男/女
         /// </summary>
-        public ReactiveCommand<Unit, bool> Measure { get; }
+        public ReactiveCommand<Unit, bool> Measure { get; private set; }
 
-        public ReactiveCommand<Unit, bool> GetResult { get; }
+        public ReactiveCommand<Unit, bool> GetResult { get; private set; }
 
-        public ReactiveCommand<Unit, bool> Reset { get; }
+        public ReactiveCommand<Unit, bool> Reset { get; private set; }
 
-        public ReactiveCommand<string, Unit> CreateConnection { get; }
+        public ReactiveCommand<string, Unit> CreateConnection { get; private set; }
 
         #endregion Commands
 
         private Task<bool> Send(string cmd)
         {
-            if (string.IsNullOrWhiteSpace(cmd) || _ptc == null)
+            if (string.IsNullOrWhiteSpace(cmd) || _protocol == null)
                 return Task.FromResult(false);
 
             var crc = _crc.CRCEfficacy(cmd);
@@ -296,13 +327,17 @@ namespace DeviceTester.Tcf
 
             $"Send :{crc + cmd}".Debug();
 
-            return _ptc.SendAsync(bytes);
+            return _protocol.SendAsync(bytes);
         }
 
         private double TryDouble(string value, double def = 0) => double.TryParse(value, out double r) ? r : def;
 
         private int TryInt(string value, int def = 0) => int.TryParse(value, out int r) ? r : def;
 
-        public void CleanUp() => _ptc?.CleanUp();
+        public void CleanUp()
+        {
+            _protocol?.CleanUp();
+            _disposables?.Dispose();
+        }
     }
 }
