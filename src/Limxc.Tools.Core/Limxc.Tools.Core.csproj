@@ -20,12 +20,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="SerilogLogger.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <ProjectReference Include="..\Limxc.Tools\Limxc.Tools.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Limxc.Tools\Limxc.Tools.csproj" />
+    <None Update="content\Serilog.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

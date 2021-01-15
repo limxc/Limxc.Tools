@@ -1,6 +1,6 @@
-﻿using Limxc.Tools.CrcCSharp;
-using Limxc.Tools.DeviceComm.Extensions;
+﻿using Limxc.Tools.Core.CrcCSharp;
 using Limxc.Tools.DeviceComm.Protocol;
+using Limxc.Tools.Extensions.DevComm;
 using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
@@ -138,7 +138,7 @@ namespace DeviceTester.Tcf
         private void FrmTcf_FormClosing(object sender, FormClosingEventArgs e)
         {
             _disposables?.Dispose();
-            _ptc?.CleanUp();
+            _ptc?.Dispose();
         }
 
         private async void btnSend_Click(object sender, EventArgs e)

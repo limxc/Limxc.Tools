@@ -1,6 +1,6 @@
-﻿using Limxc.Tools.DeviceComm.Entities;
-using Limxc.Tools.DeviceComm.Extensions;
-using Limxc.Tools.DeviceComm.Utils;
+﻿using Limxc.Tools.DeviceComm.Utils;
+using Limxc.Tools.Entities.DevComm;
+using Limxc.Tools.Extensions.DevComm;
 using System;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -15,6 +15,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
         private readonly int _baudRate;
 
         private ISubject<CPContext> _msg;
+        private bool disposedValue;
 
         public SerialPortProtocol_SPS(string portName, int baudRate)
         {
@@ -58,16 +59,6 @@ namespace Limxc.Tools.DeviceComm.Protocol
         public IObservable<byte[]> Received { get; }
         public IObservable<CPContext> History { get; }
 
-        public void CleanUp()
-        {
-            _msg?.OnCompleted();
-            _msg = null;
-
-            _sp?.Close();
-            _sp?.CleanUp();
-            _sp = null;
-        }
-
         public Task<bool> SendAsync(CPContext context)
         {
             var cmdStr = context.Command.Build();
@@ -95,6 +86,40 @@ namespace Limxc.Tools.DeviceComm.Protocol
         {
             _sp.Close();
             return Task.FromResult(true);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: 释放托管状态(托管对象)
+                    _msg?.OnCompleted();
+                }
+
+                // TODO: 释放未托管的资源(未托管的对象)并替代终结器
+                _sp?.Close();
+                _sp?.CleanUp();
+                // TODO: 将大型字段设置为 null
+                _msg = null;
+                _sp = null;
+                disposedValue = true;
+            }
+        }
+
+        // TODO: 仅当“Dispose(bool disposing)”拥有用于释放未托管资源的代码时才替代终结器
+        ~SerialPortProtocol_SPS()
+        {
+            // 不要更改此代码。请将清理代码放入“Dispose(bool disposing)”方法中
+            Dispose(disposing: false);
+        }
+
+        public void Dispose()
+        {
+            // 不要更改此代码。请将清理代码放入“Dispose(bool disposing)”方法中
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

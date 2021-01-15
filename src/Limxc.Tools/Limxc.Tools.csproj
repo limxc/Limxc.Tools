@@ -5,8 +5,7 @@
 		<Description>Basic utils, extensions, abstractions.</Description>
 	</PropertyGroup>
 
-	<ItemGroup> 
-		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+	<ItemGroup>
 		<PackageReference Include="System.Reactive" Version="5.0.0" />
 	</ItemGroup>
 </Project>

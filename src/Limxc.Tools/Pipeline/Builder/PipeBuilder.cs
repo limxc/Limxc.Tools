@@ -10,6 +10,7 @@ namespace Limxc.Tools.Pipeline.Builder
     {
         private readonly List<Func<PipeHandlerDel<T>, PipeHandlerDel<T>>> _handlers = new List<Func<PipeHandlerDel<T>, PipeHandlerDel<T>>>();
         private PipeHandlerDel<T> finalHandler;
+        private Func<T, T> cloner;
 
         public PipeBuilder<T> Build()
         {
@@ -112,9 +113,15 @@ namespace Limxc.Tools.Pipeline.Builder
             return this;
         }
 
+        public IPipeBuilder<T> UseSnapshotCloner(Func<T, T> cloner)
+        {
+            this.cloner = cloner;
+            return this;
+        }
+
         public async Task<PipeContext<T>> RunAsync(T obj, CancellationToken token)
         {
-            var context = new PipeContext<T>(obj);
+            var context = new PipeContext<T>(obj, cloner);
             context.AddSnapshot("original");
             await finalHandler(context, token).ConfigureAwait(false);
             return context;

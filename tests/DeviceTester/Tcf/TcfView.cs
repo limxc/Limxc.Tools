@@ -52,6 +52,6 @@ namespace DeviceTester.Tcf
 
                 #endregion Debug
             });
-        } 
+        }
     }
 }

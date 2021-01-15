@@ -1,5 +1,5 @@
-﻿using Limxc.Tools.DeviceComm.Entities;
-using Limxc.Tools.DeviceComm.Protocol;
+﻿using Limxc.Tools.DeviceComm.Protocol;
+using Limxc.Tools.Entities.DevComm;
 using ReactiveUI;
 using System;
 using System.IO.Ports;

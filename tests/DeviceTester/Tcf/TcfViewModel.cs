@@ -1,6 +1,6 @@
-﻿using Limxc.Tools.DeviceComm.Extensions;
-using Limxc.Tools.DeviceComm.Protocol;
+﻿using Limxc.Tools.DeviceComm.Protocol;
 using Limxc.Tools.Extensions;
+using Limxc.Tools.Extensions.DevComm;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using ReactiveUI.Validation.Abstractions;
@@ -336,7 +336,7 @@ namespace DeviceTester.Tcf
 
         public void CleanUp()
         {
-            _protocol?.CleanUp();
+            _protocol?.Dispose();
             _disposables?.Dispose();
         }
     }

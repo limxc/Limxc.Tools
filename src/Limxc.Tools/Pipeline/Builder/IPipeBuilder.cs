@@ -9,6 +9,8 @@ namespace Limxc.Tools.Pipeline.Builder
     {
         PipeBuilder<T> Build();
 
+        IPipeBuilder<T> UseSnapshotCloner(Func<T, T> cloner);
+
         IPipeBuilder<T> Use(Func<PipeHandlerDel<T>, PipeHandlerDel<T>> handler);
 
         IPipeBuilder<T> Use(Func<T, Task> handler, string descForSnapshot = null);

@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Limxc.Tools\Limxc.Tools.csproj" />
+    <ProjectReference Include="..\Limxc.Tools.Core\Limxc.Tools.Core.csproj" />
   </ItemGroup> 
 
   <ItemGroup>

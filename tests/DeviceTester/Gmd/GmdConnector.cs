@@ -1,7 +1,7 @@
-﻿using Limxc.Tools.DeviceComm.Entities;
-using Limxc.Tools.DeviceComm.Extensions;
-using Limxc.Tools.DeviceComm.Protocol;
+﻿using Limxc.Tools.DeviceComm.Protocol;
+using Limxc.Tools.Entities.DevComm;
 using Limxc.Tools.Extensions;
+using Limxc.Tools.Extensions.DevComm;
 using System;
 using System.Linq;
 using System.Reactive.Linq;
@@ -64,8 +64,8 @@ namespace DeviceTester.Gmd
 
         public void CleanUp()
         {
-            _sendServer?.CleanUp();
-            _receiveServer?.CleanUp();
+            _sendServer?.Dispose();
+            _receiveServer?.Dispose();
         }
 
         #region 硬件参数设置
