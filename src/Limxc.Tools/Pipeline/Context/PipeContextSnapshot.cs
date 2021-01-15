@@ -1,17 +1,14 @@
-﻿using Limxc.Tools.Extensions;
-using System;
+﻿using System;
 
 namespace Limxc.Tools.Pipeline.Context
 {
     public class PipeContextSnapshot<T> where T : class
     {
-        public PipeContextSnapshot(T body, string desc, Func<T, T> cloner = null)
+        public PipeContextSnapshot(T body, string desc)
         {
-            if (cloner == null)
-                cloner = DeepCopyExtension.DeepCopy;
-            Body = cloner(body);
-            CreateTime = DateTime.Now;
+            Body = body;
             Desc = desc;
+            CreateTime = DateTime.Now;
         }
 
         public T Body { get; }

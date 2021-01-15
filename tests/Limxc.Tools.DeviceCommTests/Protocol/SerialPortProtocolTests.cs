@@ -1,4 +1,4 @@
-﻿using Limxc.Tools.DeviceComm.Entities;
+﻿using Limxc.Tools.Entities.DevComm;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -90,8 +90,8 @@ namespace Limxc.Tools.DeviceComm.Protocol.Tests
             Debugger.Break();
             rst.Clear();
 
-            sp.CleanUp();
-            sps.CleanUp();
+            sp.Dispose();
+            sps.Dispose();
         }
     }
 }

@@ -21,7 +21,7 @@ namespace DeviceTester.Tcf
 
                 this.dSerialPort.Events().SelectedValueChanged
                     .Subscribe(_ =>
-                    { 
+                    {
                         var portName = dSerialPort.SelectedItem.ToString();
                         var ipc = new SerialPortProtocol(portName, 115200);
 
@@ -34,8 +34,6 @@ namespace DeviceTester.Tcf
 
                 this.Events().FormClosing.Subscribe(_ => CleanUp()).DisposeWith(d);
             });
-
-            
         }
 
         public FrmTcfViewModel ViewModel { get; set; }
@@ -45,7 +43,7 @@ namespace DeviceTester.Tcf
         {
             //if (viewModelControlHost1.ViewModel != null)
             //{
-            //    var vm = ((TcfViewModel)viewModelControlHost1.ViewModel); 
+            //    var vm = ((TcfViewModel)viewModelControlHost1.ViewModel);
             //    vm.CleanUp();
             //    viewModelControlHost1.CurrentView.Dispose();
             //}

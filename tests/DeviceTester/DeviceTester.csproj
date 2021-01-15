@@ -122,6 +122,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Limxc.Tools.Core\Limxc.Tools.Core.csproj">
+      <Project>{de8181d7-6e8d-4794-a2f8-dd20dbce9ada}</Project>
+      <Name>Limxc.Tools.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\Limxc.Tools.DeviceComm\Limxc.Tools.DeviceComm.csproj">
       <Project>{4b147f67-cb13-434e-a06c-8648ebbec4d3}</Project>
       <Name>Limxc.Tools.DeviceComm</Name>

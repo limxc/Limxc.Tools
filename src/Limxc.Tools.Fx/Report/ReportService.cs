@@ -1,5 +1,5 @@
 ﻿using Limxc.Tools.Abstractions;
-using Limxc.Tools.Utils;
+using Limxc.Tools.Core.Utils;
 using System;
 using System.Collections;
 using System.IO;
