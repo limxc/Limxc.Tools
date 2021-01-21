@@ -21,7 +21,7 @@ namespace DeviceTester
         private void Form1_Load(object sender, EventArgs e)
         {
             sp = new SerialPortProtocol_SPS(SerialPort.GetPortNames()[0], 9600);
-            sp = new SerialPortProtocol(SerialPort.GetPortNames()[0], 9600);
+            sp = new SerialPortProtocol_GS(SerialPort.GetPortNames()[0], 9600);
 
             sp.ConnectionState
                 .SubscribeOn(NewThreadScheduler.Default)

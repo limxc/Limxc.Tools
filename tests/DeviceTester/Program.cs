@@ -1,4 +1,5 @@
 ﻿using DeviceTester.Tcf;
+using DeviceTester.Wl;
 using System;
 using System.Windows.Forms;
 
@@ -19,7 +20,8 @@ namespace DeviceTester
             //Application.Run(new FrmGmd());
 
             //Application.Run(new FrmTcf());
-            RxUILoader.Instance.ShowForm(typeof(FrmTcfViewModel));
+            //RxUILoader.Instance.ShowForm(typeof(FrmTcfViewModel));
+            RxUILoader.Instance.ShowForm(typeof(VbWlMixViewModel));
         }
     }
 }

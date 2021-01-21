@@ -84,6 +84,21 @@
     <Compile Include="Tcf\TcfCommands.cs" />
     <Compile Include="Tcf\TcfResult.cs" />
     <Compile Include="Tcf\TcfViewModel.cs" />
+    <Compile Include="Wl\VbWlMixView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Wl\VbWlMixView.Designer.cs">
+      <DependentUpon>VbWlMixView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Wl\VbWlView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Wl\VbWlView.Designer.cs">
+      <DependentUpon>VbWlView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Wl\VbWlMixViewModel.cs" />
+    <Compile Include="Wl\VbWlViewModel.cs" />
+    <Compile Include="Wl\WlEntities.cs" />
     <EmbeddedResource Include="Gmd\FrmGmd.resx">
       <DependentUpon>FrmGmd.cs</DependentUpon>
     </EmbeddedResource>
@@ -107,6 +122,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Tcf\TcfView.resx">
       <DependentUpon>TcfView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Wl\VbWlMixView.resx">
+      <DependentUpon>VbWlMixView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Wl\VbWlView.resx">
+      <DependentUpon>VbWlView.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -147,16 +168,16 @@
       <Version>12.0.3</Version>
     </PackageReference>
     <PackageReference Include="ReactiveUI.Events.Winforms">
-      <Version>13.0.27</Version>
+      <Version>13.1.1</Version>
     </PackageReference>
     <PackageReference Include="ReactiveUI.Fody">
-      <Version>13.0.27</Version>
+      <Version>13.1.1</Version>
     </PackageReference>
     <PackageReference Include="ReactiveUI.Validation">
-      <Version>2.0.1</Version>
+      <Version>2.1.1</Version>
     </PackageReference>
     <PackageReference Include="ReactiveUI.WinForms">
-      <Version>13.0.27</Version>
+      <Version>13.1.1</Version>
     </PackageReference>
     <PackageReference Include="System.Reactive">
       <Version>5.0.0</Version>

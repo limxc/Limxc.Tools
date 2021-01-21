@@ -35,7 +35,7 @@ namespace DeviceTester.Tcf
 
             InitCmd();
 
-            _ptc = new SerialPortProtocol(SerialPort.GetPortNames().Last(), 115200);
+            _ptc = new SerialPortProtocol_GS(SerialPort.GetPortNames().Last(), 115200);
 
             _ptc.Received
                 .SubscribeOn(NewThreadScheduler.Default)

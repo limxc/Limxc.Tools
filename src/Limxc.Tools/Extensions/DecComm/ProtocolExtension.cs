@@ -137,8 +137,8 @@ namespace Limxc.Tools.Extensions.DevComm
                                 eQueue.Clear();
 #else
                                 o.OnNext(list.Take(list.Count - el).ToArray());
-                                while (bQueue.TryDequeue(out _)) { }
-                                while (eQueue.TryDequeue(out _)) { }
+                                while (!bQueue.IsEmpty) { bQueue.TryDequeue(out _); }
+                                while (!eQueue.IsEmpty) { eQueue.TryDequeue(out _); }
 #endif
                                 list.Clear();
                                 findHeader = false;
@@ -156,13 +156,6 @@ namespace Limxc.Tools.Extensions.DevComm
                     o.OnCompleted();
                     dis.Dispose();
                     list.Clear();
-#if NETSTANDARD2_1
-                    bQueue.Clear();
-                    eQueue.Clear();
-#else
-                    while (bQueue.TryDequeue(out _)) { }
-                    while (eQueue.TryDequeue(out _)) { }
-#endif
                     list = null;
                     bQueue = null;
                     eQueue = null;
@@ -198,7 +191,7 @@ namespace Limxc.Tools.Extensions.DevComm
                             queue.Clear();
 #else
                             o.OnNext(list.Take(list.Count - len).ToArray());
-                            while (queue.TryDequeue(out _)) { }
+                            while (!queue.IsEmpty) { queue.TryDequeue(out _); }
 #endif
                             list.Clear();
                         }
@@ -213,12 +206,6 @@ namespace Limxc.Tools.Extensions.DevComm
                 {
                     o.OnCompleted();
                     dis.Dispose();
-                    list.Clear();
-#if NETSTANDARD2_1
-                    queue.Clear();
-#else
-                    while (queue.TryDequeue(out _)) { }
-#endif
                     list = null;
                     queue = null;
                 });

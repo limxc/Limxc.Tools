@@ -20,10 +20,6 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
         public IObservable<CPContext> History { get; }
 
-        public void CleanUp()
-        {
-        }
-
         public Task<bool> CloseAsync() => Task.FromResult(false);
 
         public Task<bool> OpenAsync() => Task.FromResult(false);

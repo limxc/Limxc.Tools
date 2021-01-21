@@ -66,7 +66,8 @@ namespace Limxc.Tools.Extensions
                                 bs.Clear();
                             }
                         }
-                    }).DisposeWith(dis);
+                    }, e => o.OnError(e), () => o.OnCompleted())
+                    .DisposeWith(dis);
 
                     Observable.Interval(TimeSpan.FromMilliseconds(1)).Subscribe(_ =>
                     {
@@ -109,7 +110,8 @@ namespace Limxc.Tools.Extensions
                                 bs.Clear();
                             }
                         }
-                    }).DisposeWith(dis);
+                    }, e => o.OnError(e), () => o.OnCompleted())
+                    .DisposeWith(dis);
 
                     Observable.Interval(TimeSpan.FromMilliseconds(1)).Subscribe(_ =>
                     {
@@ -152,7 +154,8 @@ namespace Limxc.Tools.Extensions
                                 list.Clear();
                             }
                         }
-                    }).DisposeWith(dis);
+                    }, e => o.OnError(e), () => o.OnCompleted())
+                    .DisposeWith(dis);
 
                     Observable.Interval(TimeSpan.FromMilliseconds(1)).Subscribe(_ =>
                     {
@@ -184,7 +187,7 @@ namespace Limxc.Tools.Extensions
 
                 source
                     .Timestamp()
-                    .Subscribe(s => list.Add(s), () => o.OnCompleted())
+                    .Subscribe(s => list.Add(s), e => o.OnError(e), () => o.OnCompleted())
                     .DisposeWith(dis);
 
                 Observable.Interval(shift).Subscribe(_ =>
@@ -214,7 +217,7 @@ namespace Limxc.Tools.Extensions
                         queue.TryDequeue(out _);
                     }
                     o.OnNext(queue.ToArray());
-                }, () => o.OnCompleted());
+                }, e => o.OnError(e), () => o.OnCompleted());
             });
         }
 

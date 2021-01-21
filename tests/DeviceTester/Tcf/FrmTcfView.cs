@@ -23,7 +23,7 @@ namespace DeviceTester.Tcf
                     .Subscribe(_ =>
                     {
                         var portName = dSerialPort.SelectedItem.ToString();
-                        var ipc = new SerialPortProtocol(portName, 115200);
+                        var ipc = new SerialPortProtocol_GS(portName, 115200);
 
                         ((TcfViewModel)viewModelControlHost1.ViewModel).SetProtocol(ipc);
                     })
