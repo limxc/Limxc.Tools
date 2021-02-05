@@ -15,17 +15,21 @@ namespace DeviceTester.Wl
         {
             InitializeComponent();
 
-            dCmd.ValueMember = nameof(WlCommand.Command);
-            dCmd.DisplayMember = nameof(WlCommand.Name);
+            dCmd.ValueMember = nameof(WlTask.Tasks);
+            dCmd.DisplayMember = nameof(WlTask.Name);
 
             this.WhenActivated(d =>
             {
                 this.OneWayBind(ViewModel, vm => vm.Commands, v => v.dCmd.DataSource).DisposeWith(d);
 
                 var selectCmd = this.WhenAnyValue(v => v.dCmd.SelectedValue)
-                                    .Where(p => p != null);
+                                    .Where(p => p != null)
+                                    .Do(p=> { 
+                                    
+                                    });
 
-                this.BindCommand(ViewModel, vm => vm.Send, v => v.btnSend, selectCmd).DisposeWith(d);
+                this.BindCommand(ViewModel, vm => vm.Start, v => v.btnStart, selectCmd).DisposeWith(d); 
+                this.BindCommand(ViewModel, vm => vm.Stop, v => v.btnStop).DisposeWith(d);
 
                 ViewModel.WhenAnyValue(vm => vm.Messages)
                      .ObserveOn(RxApp.MainThreadScheduler)

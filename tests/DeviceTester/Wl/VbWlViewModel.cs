@@ -1,4 +1,5 @@
-﻿using Limxc.Tools.DeviceComm.Protocol;
+﻿using Limxc.Tools.Common;
+using Limxc.Tools.DeviceComm.Protocol;
 using Limxc.Tools.Extensions;
 using Limxc.Tools.Extensions.DevComm;
 using ReactiveUI;
@@ -9,6 +10,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -17,6 +19,7 @@ namespace DeviceTester.Wl
     public class VbWlViewModel : ReactiveObject
     {
         private IProtocol _protocol;
+        private CancellationTokenSource _cts;
 
         public VbWlViewModel()
         {
@@ -29,29 +32,46 @@ namespace DeviceTester.Wl
                 .Bucket(20)
                 .ToPropertyEx(this, vm => vm.Messages);
 
-            var canSend = _protocol.ConnectionState.ObserveOn(RxApp.MainThreadScheduler);
-            Send = ReactiveCommand.CreateFromTask<string, Unit>(async cmd =>
+            var canStart = _protocol.ConnectionState.ObserveOn(RxApp.MainThreadScheduler);
+            Start = ReactiveCommand.CreateFromTask<TaskQueue<bool>, Unit>(async task =>
             {
-                await _protocol.SendAsync(cmd.AscIIToHex().ToByte());
+                _cts?.Dispose();
+                _cts = new CancellationTokenSource();
+                await task.Exec(_cts.Token);
                 return Unit.Default;
-            }, canSend
+            }, canStart
             );
+
+            Stop = ReactiveCommand.Create<Unit, Unit>(_ =>
+            {
+                _cts?.Cancel();
+                return Unit.Default;
+            });
 
             this.WhenAnyValue(vm => vm.SelectedPort)
                 .Throttle(TimeSpan.FromSeconds(0.5))
                 .Where(p => !string.IsNullOrWhiteSpace(p))
                 .Debug()
                 .SubscribeOn(TaskPoolScheduler.Default)
-                .Select(async p => await Open(p))
+                .Select(async p =>
+                {
+                    await Open(p);
+                })
                 .Subscribe();
 
-            Commands = WlCommands.Commands;
+            Commands = new List<WlTask>()
+            {
+                new WlTask(){ Name = "测试电机",Tasks = WlCompCmds.测试电机(Send) },
+                new WlTask(){ Name = "测量",Tasks = WlCompCmds.测量(Send) },
+                new WlTask(){ Name = "镀汞",Tasks = WlCompCmds.镀汞(Send) },
+            };
         }
 
-        [Reactive] public IEnumerable<WlCommand> Commands { get; set; }
+        [Reactive] public IEnumerable<WlTask> Commands { get; set; }
         public IEnumerable<string> Messages { [ObservableAsProperty] get; }
 
-        public ReactiveCommand<string, Unit> Send { get; set; }
+        public ReactiveCommand<TaskQueue<bool>, Unit> Start { get; set; }
+        public ReactiveCommand<Unit, Unit> Stop { get; set; }
 
         [Reactive] public string SelectedPort { get; set; }
 
@@ -70,6 +90,11 @@ namespace DeviceTester.Wl
             {
                 MessageBox.Show(ex.Message);
             }
+        }
+
+        private Task<bool> Send(string cmd)
+        {
+            return _protocol.SendAsync(cmd.AscIIToHex().ToByte());
         }
     }
 }

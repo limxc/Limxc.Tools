@@ -33,8 +33,9 @@ namespace DeviceTester.Wl
             this.dPorts = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.btnRefresh = new System.Windows.Forms.Button();
-            this.btnSend = new System.Windows.Forms.Button();
+            this.btnStart = new System.Windows.Forms.Button();
             this.dCmd = new System.Windows.Forms.ListBox();
+            this.btnStop = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // dMsg
@@ -78,15 +79,15 @@ namespace DeviceTester.Wl
             this.btnRefresh.Text = "刷新";
             this.btnRefresh.UseVisualStyleBackColor = true;
             // 
-            // btnSend
+            // btnStart
             // 
-            this.btnSend.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSend.Location = new System.Drawing.Point(978, 559);
-            this.btnSend.Name = "btnSend";
-            this.btnSend.Size = new System.Drawing.Size(75, 23);
-            this.btnSend.TabIndex = 5;
-            this.btnSend.Text = "Send";
-            this.btnSend.UseVisualStyleBackColor = true;
+            this.btnStart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnStart.Location = new System.Drawing.Point(883, 559);
+            this.btnStart.Name = "btnStart";
+            this.btnStart.Size = new System.Drawing.Size(75, 23);
+            this.btnStart.TabIndex = 5;
+            this.btnStart.Text = "Start";
+            this.btnStart.UseVisualStyleBackColor = true;
             // 
             // dCmd
             // 
@@ -99,12 +100,23 @@ namespace DeviceTester.Wl
             this.dCmd.Size = new System.Drawing.Size(170, 436);
             this.dCmd.TabIndex = 4;
             // 
+            // btnStop
+            // 
+            this.btnStop.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnStop.Location = new System.Drawing.Point(978, 559);
+            this.btnStop.Name = "btnStop";
+            this.btnStop.Size = new System.Drawing.Size(75, 23);
+            this.btnStop.TabIndex = 6;
+            this.btnStop.Text = "Stop";
+            this.btnStop.UseVisualStyleBackColor = true;
+            // 
             // VbWlView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1065, 594);
-            this.Controls.Add(this.btnSend);
+            this.Controls.Add(this.btnStop);
+            this.Controls.Add(this.btnStart);
             this.Controls.Add(this.dCmd);
             this.Controls.Add(this.btnRefresh);
             this.Controls.Add(this.label1);
@@ -124,7 +136,8 @@ namespace DeviceTester.Wl
         private System.Windows.Forms.ComboBox dPorts;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button btnRefresh;
-        private System.Windows.Forms.Button btnSend;
+        private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.ListBox dCmd;
+        private System.Windows.Forms.Button btnStop;
     }
 }

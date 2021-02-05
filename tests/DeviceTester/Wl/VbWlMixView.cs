@@ -44,9 +44,9 @@ namespace DeviceTester.Wl
 
         private void VbWlMixView_Load(object sender, EventArgs e)
         {
-            dCmd.ValueMember = nameof(WlCommand.Command);
-            dCmd.DisplayMember = nameof(WlCommand.Name);
-            dCmd.DataSource = WlCommands.Commands;
+            //dCmd.ValueMember = nameof(WlTask.Command);
+            //dCmd.DisplayMember = nameof(WlTask.Name);
+            //dCmd.DataSource = WlCommands.Tasks;
         }
 
         private async void dPorts_SelectedValueChanged(object sender, EventArgs e)
