@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Limxc.Tools.Common;
 using System;
 using System.Linq;
 using System.Threading;
@@ -12,13 +13,13 @@ namespace Limxc.Tools.Entities.DevComm.Tests
         [Fact()]
         public async Task ExecTest()
         {
-            var que = new CPTaskQueue();
+            var que = new TaskQueue<bool>();
             //失败重试
             que.Add(token => Run(1000), 0, "cmd1");
             que.Add(token => Run(500, false), 2, "cmd2");
             que.Add(token => Run(500), 0, "cmd3");
             await que.Exec();
-            que.History.Select(p => p.State).Should().BeEquivalentTo(new bool[] { true, false, false, false });
+            que.History.Select(p => p.Result).Should().BeEquivalentTo(new bool[] { true, false, true });
 
             //固定超时
             que.Clear();
@@ -26,7 +27,7 @@ namespace Limxc.Tools.Entities.DevComm.Tests
             que.Add(token => Run(1000, true, token), 0, "cmd2");
             que.Add(token => Run(1000, true, token), 0, "cmd3");
             await Assert.ThrowsAsync(typeof(OperationCanceledException), async () => await que.Exec(1.9));
-            que.History.Count().Should().Be(1);
+            que.History.Count(p => p.Result).Should().Be(1);
 
             //取消任务
             que.Clear();
@@ -39,7 +40,7 @@ namespace Limxc.Tools.Entities.DevComm.Tests
             var cts = new CancellationTokenSource();
             cts.CancelAfter(2100);
             await Assert.ThrowsAsync(typeof(OperationCanceledException), async () => await que.Exec(cts.Token));
-            que.History.Count().Should().Be(4);
+            que.History.Count().Should().Be(5);
         }
 
         private async Task<bool> Run(int ms, bool rst = true)

@@ -11,8 +11,9 @@
 
     <ItemGroup>
         <Content Include="Serilog.json">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </Content>
+            <pack>true</pack>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content> 
     </ItemGroup>
 
     <ItemGroup>
@@ -20,10 +21,10 @@
         <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
         <PackageReference Include="Serilog.Settings.Configuration" Version="3.1.0" />
         <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
-        <PackageReference Include="Serilog.Sinks.Debug" Version="1.0.1" />
+        <PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
         <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
-        <PackageReference Include="MQTTnet.Extensions.External.RxMQTT.Client" Version="1.1.22" />
-        <PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.13" />
+        <PackageReference Include="MQTTnet.Extensions.External.RxMQTT.Client" Version="1.1.40" />
+        <PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.15" />
         <PackageReference Include="sharpconfig" Version="3.2.9.1" />
         <PackageReference Include="System.IO.Ports" Version="5.0.0" />
         <PackageReference Include="System.Management" Version="5.0.0" />

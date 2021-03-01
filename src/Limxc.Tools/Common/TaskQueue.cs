@@ -56,11 +56,12 @@ namespace Limxc.Tools.Common
                 string error = null;
                 while (!pass && remainCount > 0)
                 {
-                    token.ThrowIfCancellationRequested();
-
-                    remainCount--;
                     try
                     {
+                        token.ThrowIfCancellationRequested();
+
+                        remainCount--;
+
                         res = await item.Task(token);
                         pass = true;
                     }
@@ -68,9 +69,12 @@ namespace Limxc.Tools.Common
                     {
                         error = $"Error:{ex.Message})";
                         pass = false;
+                        throw;
                     }
-
-                    History.Add((DateTime.Now, item.Id, res, $"RemainCount:{remainCount} State:{pass} {error}"));
+                    finally
+                    {
+                        History.Add((DateTime.Now, item.Id, res, $"RemainCount:{remainCount} State:{pass} {error}"));
+                    }
                 }
                 if (!pass)
                     return;

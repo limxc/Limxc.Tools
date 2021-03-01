@@ -16,11 +16,11 @@ namespace Limxc.Tools.Core.Extensions
         {
             if (File.Exists(filePath))
             {
-                var cr = new ConfigurationBuilder()
+                var cfg = new ConfigurationBuilder()
                 //.SetBasePath(EnvPath.BaseDirectory)
                 .AddJsonFile(filePath, true, true)
                 .Build();
-                return configuration.ReadFrom.Configuration(cr);
+                return configuration.ReadFrom.Configuration(cfg);
             }
 
             return configuration

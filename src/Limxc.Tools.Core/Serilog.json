@@ -18,7 +18,8 @@
       "Override": {
         //"Microsoft": "Debug", //将Microsoft前缀的日志的最小输出级别改成Information
         //"System": "Debug", //将System前缀的日志的最小输出级别改成Information,
-        "ReactiveUI": "Error"
+        "ReactiveUI": "Error",
+        "Splat": "Error"
       }
     },
 
@@ -40,7 +41,7 @@
         "Name": "File",
         "Args": {
           "path": "Logs\\.log", //日志保存路径
-          "restrictedToMinimumLevel": "Debug",
+          "restrictedToMinimumLevel": "Information",
           "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss,fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}", //输出格式
           "fileSizeLimitBytes": 5242880, //单个日志文件大小
           "buffered": false, //是否以流的形式写文件

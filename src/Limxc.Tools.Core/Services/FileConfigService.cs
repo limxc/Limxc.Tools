@@ -3,7 +3,7 @@ using SharpConfig;
 using System;
 using System.IO;
 
-namespace Limxc.Tools.Core.Utils
+namespace Limxc.Tools.Core.Services
 {
     public class FileConfigService : IConfigService
     {
