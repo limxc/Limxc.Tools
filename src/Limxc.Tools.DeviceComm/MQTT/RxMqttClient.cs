@@ -14,7 +14,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Limxc.Tools.Core.MQTT
+namespace Limxc.Tools.DeviceComm.MQTT
 {
     public class RxMqttClient : ICommClientService
     {

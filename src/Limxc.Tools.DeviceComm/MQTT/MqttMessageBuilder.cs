@@ -1,6 +1,6 @@
 ﻿using MQTTnet;
 
-namespace Limxc.Tools.Core.MQTT
+namespace Limxc.Tools.DeviceComm.MQTT
 {
     public static class MqttMessageBuilder
     {

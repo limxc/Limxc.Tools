@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -23,15 +24,9 @@ namespace Limxc.Tools.Extensions
             return Regex.IsMatch(value, string.Join("|", keys.Select(Regex.Escape)));
         }
 
-        public static string DeleteChineseWord(this string str)
-        {
-            return Regex.Replace(str, @"[\u4e00-\u9fa5]+", "");
-        }
+        public static string DeleteChineseWord(this string str) => Regex.Replace(str, @"[\u4e00-\u9fa5]+", "");
 
-        public static string RetainChineseWord(this string str)
-        {
-            return Regex.Replace(str, @"[^\u4e00-\u9fa5]+", "");
-        }
+        public static string RetainChineseWord(this string str) => Regex.Replace(str, @"[^\u4e00-\u9fa5]+", "");
 
         public static List<double> Numbers(this string str)
         {
@@ -43,5 +38,17 @@ namespace Limxc.Tools.Extensions
             }
             return rst;
         }
+
+        public static double TryDouble(this string str, double def = 0) => double.TryParse(str, out var result) ? result : def;
+
+        public static int TryInt(this string str, int def = 0) => int.TryParse(str, out var result) ? result : def;
+
+        public static float TryFloat(this string str, float def = 0) => float.TryParse(str, out var result) ? result : def;
+
+        public static bool TryBool(this string str, bool def = false) => bool.TryParse(str, out var result) ? result : def;
+
+        public static DateTime? TryDateTime(this string str) => DateTime.TryParse(str, out var result) ? result : default(DateTime?);
+
+        public static DateTime TryDateTime(this string str, DateTime def) => DateTime.TryParse(str, out var result) ? result : def;
     }
 }

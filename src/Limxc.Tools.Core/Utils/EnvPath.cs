@@ -10,6 +10,7 @@ namespace Limxc.Tools.Core.Utils
         public static string ReportDir => Path.Combine(BaseDirectory, "Reports");
         public static string ResDir => Path.Combine(BaseDirectory, "Resources");
         public static string DatabaseDir => Path.Combine(BaseDirectory, "Database");
+
         public static string BaseDirectory
         {
             get
