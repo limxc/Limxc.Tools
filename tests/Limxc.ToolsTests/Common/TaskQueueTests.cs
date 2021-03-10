@@ -1,14 +1,13 @@
 ﻿using FluentAssertions;
-using Limxc.Tools.Common;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Limxc.Tools.Entities.DevComm.Tests
+namespace Limxc.Tools.Common.Tests
 {
-    public class CPTaskQueueTests
+    public class TaskQueueTests
     {
         [Fact()]
         public async Task ExecTest()
@@ -26,8 +25,8 @@ namespace Limxc.Tools.Entities.DevComm.Tests
             que.Add(token => Run(1000, true, token), 0, "cmd1");
             que.Add(token => Run(1000, true, token), 0, "cmd2");
             que.Add(token => Run(1000, true, token), 0, "cmd3");
-            await Assert.ThrowsAsync(typeof(OperationCanceledException), async () => await que.Exec(1.9));
-            que.History.Count(p => p.Result).Should().Be(1);
+            await Assert.ThrowsAsync(typeof(OperationCanceledException), async () => await que.Exec(1.7));
+            que.History.Count(p => p.Result).Should().Be(2);
 
             //取消任务
             que.Clear();
@@ -41,6 +40,17 @@ namespace Limxc.Tools.Entities.DevComm.Tests
             cts.CancelAfter(2100);
             await Assert.ThrowsAsync(typeof(OperationCanceledException), async () => await que.Exec(cts.Token));
             que.History.Count().Should().Be(5);
+
+            //暂停 继续
+            que.Build();
+            await Assert.ThrowsAsync(typeof(OperationCanceledException), async () => await que.Exec(1.2));
+            que.History.Count(p => p.Result).Should().Be(2);
+            que.History.Count(p => !p.Result).Should().Be(1);
+            que.PendingQueue.Count().Should().Be(4);
+            await que.Exec();
+            que.History.Count(p => p.Result).Should().Be(6);
+            que.History.Count(p => !p.Result).Should().Be(1);
+            que.PendingQueue.Count().Should().Be(0);
         }
 
         private async Task<bool> Run(int ms, bool rst = true)

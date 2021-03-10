@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -8,47 +9,65 @@ namespace Limxc.Tools.Common
 {
     public class TaskQueue<TRet>
     {
+        /// <summary>Tasks</summary>
         public List<(Func<CancellationToken, Task<TRet>> Task, int RetryCount, string Id)> Tasks { get; }
+
+        /// <summary>Execution History</summary>
         public ObservableCollection<(DateTime ExecTime, string Id, TRet Result, string Msg)> History { get; }
+
+        /// <summary>Waiting For Execution</summary>
+        public IEnumerable<(Func<CancellationToken, Task<TRet>> Task, int RetryCount, string Id)> PendingQueue => queue.AsEnumerable();
+
+        private Queue<(Func<CancellationToken, Task<TRet>> Task, int RetryCount, string Id)> queue;
 
         public TaskQueue()
         {
             Tasks = new List<(Func<CancellationToken, Task<TRet>> Task, int RetryCount, string Id)>();
             History = new ObservableCollection<(DateTime ExecTime, string Id, TRet Result, string Msg)>();
+
+            queue = new Queue<(Func<CancellationToken, Task<TRet>> Task, int RetryCount, string Id)>();
         }
 
-        private Queue<(Func<CancellationToken, Task<TRet>> Task, int RetryCount, string Id)> Build()
+        private void BuildOnce()
         {
-            var queue = new Queue<(Func<CancellationToken, Task<TRet>> Run, int RetryCount, string Id)>();
-            Tasks.ForEach(task => queue.Enqueue(task));
-            return queue;
+            if (Tasks.Count > 0 && History.Count == 0 && queue.Count == 0)
+                Build();
         }
 
-        /// <summary>
-        /// 添加任务
-        /// </summary>
-        /// <param name="task">成功返回值,失败抛出异常</param>
-        /// <param name="retryCount">尝试次数 = 重试次数 + 1</param>
-        /// <param name="id">任务标识</param>
-        public void Add(Func<CancellationToken, Task<TRet>> task, int retryCount = 0, string id = null) => Tasks.Add((task, retryCount, id));
+        /// <summary>Build Queue From Tasks.</summary>
+        public void Build()
+        {
+            History.Clear();
+            queue.Clear();
+            Tasks.ForEach(task => queue.Enqueue(task));
+        }
 
+        /// <summary>Clear TaskQueue</summary>
         public void Clear()
         {
             Tasks.Clear();
             History.Clear();
+            queue.Clear();
         }
+
+        /// <summary>
+        /// Add Task
+        /// </summary>
+        /// <param name="task">Task Func</param>
+        /// <param name="retryCount">Execution times = RetryCount + 1</param>
+        /// <param name="id">Task Id</param>
+        public void Add(Func<CancellationToken, Task<TRet>> task, int retryCount = 0, string id = null) => Tasks.Add((task, retryCount, id));
 
         public Task Exec() => Exec(CancellationToken.None);
 
-        public Task Exec(double timeout) => Exec(new CancellationTokenSource((int)timeout * 1000).Token);
+        public Task Exec(double timeoutSeconds) => Exec(new CancellationTokenSource((int)(timeoutSeconds * 1000)).Token);
 
         public async Task Exec(CancellationToken token)
         {
-            History.Clear();
-            var queue = Build();
+            BuildOnce();
             while (queue.Count > 0)
             {
-                var item = queue.Dequeue();
+                var item = queue.Peek();
 
                 int remainCount = 1 + (item.RetryCount < 0 ? 0 : item.RetryCount);
                 bool pass = false;
@@ -78,11 +97,12 @@ namespace Limxc.Tools.Common
                 }
                 if (!pass)
                     return;
+                queue.Dequeue();
             }
         }
 
         /// <summary>
-        /// 合并任务队列
+        /// Combine Queues
         /// </summary>
         /// <param name="queues"></param>
         /// <returns></returns>
