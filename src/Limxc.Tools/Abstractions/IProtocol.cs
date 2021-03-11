@@ -1,6 +1,6 @@
-﻿using Limxc.Tools.Entities.DevComm;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using Limxc.Tools.Entities.DevComm;
 
 namespace Limxc.Tools.DeviceComm.Protocol
 {

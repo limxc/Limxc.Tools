@@ -1,20 +1,20 @@
-﻿using Limxc.Tools.DeviceComm.Utils;
-using Limxc.Tools.Entities.DevComm;
-using Limxc.Tools.Extensions.DevComm;
-using System;
+﻿using System;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using Limxc.Tools.DeviceComm.Utils;
+using Limxc.Tools.Entities.DevComm;
+using Limxc.Tools.Extensions.DevComm;
 
 namespace Limxc.Tools.DeviceComm.Protocol
 {
     public class SerialPortProtocol_SPS : IProtocol
     {
-        private SerialPortStreamHelper _sp;
-        private readonly string _portName;
         private readonly int _baudRate;
+        private readonly string _portName;
 
         private ISubject<CPContext> _msg;
+        private SerialPortStreamHelper _sp;
         private bool disposedValue;
 
         public SerialPortProtocol_SPS(string portName, int baudRate)
@@ -29,29 +29,29 @@ namespace Limxc.Tools.DeviceComm.Protocol
             ConnectionState = Observable.Defer(() =>
             {
                 return Observable
-                            .Interval(TimeSpan.FromSeconds(0.1))
-                            .Select(_ => _sp?.IsOpen ?? false)
-                            .StartWith(false)
-                            .DistinctUntilChanged();
+                    .Interval(TimeSpan.FromSeconds(0.1))
+                    .Select(_ => _sp?.IsOpen ?? false)
+                    .StartWith(false)
+                    .DistinctUntilChanged();
             });
 
             Received = Observable
-                            .FromEventPattern<byte[]>(h => _sp.ReceivedEvent += h, h => _sp.ReceivedEvent -= h)
-                            .Where(p => p.EventArgs?.Length > 0)
-                            .Select(p => p.EventArgs)
-                            .Retry()
-                            .Publish()
-                            .RefCount()
-                            //.Debug("receive")
-                            ;
+                    .FromEventPattern<byte[]>(h => _sp.ReceivedEvent += h, h => _sp.ReceivedEvent -= h)
+                    .Where(p => p.EventArgs?.Length > 0)
+                    .Select(p => p.EventArgs)
+                    .Retry()
+                    .Publish()
+                    .RefCount()
+                //.Debug("receive")
+                ;
 
             History = Observable.Defer(() =>
             {
                 return _msg.AsObservable()
-                            //.Debug("send")
-                            .FindResponse(Received, b => b.ToHexStrFromChar())
-                            //.Debug("prase received")
-                            ;
+                        //.Debug("send")
+                        .FindResponse(Received, b => b.ToHexStrFromChar())
+                    //.Debug("prase received")
+                    ;
             });
         }
 
@@ -88,15 +88,20 @@ namespace Limxc.Tools.DeviceComm.Protocol
             return Task.FromResult(true);
         }
 
+        public void Dispose()
+        {
+            // 不要更改此代码。请将清理代码放入“Dispose(bool disposing)”方法中
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
             {
                 if (disposing)
-                {
                     // TODO: 释放托管状态(托管对象)
                     _msg?.OnCompleted();
-                }
 
                 // TODO: 释放未托管的资源(未托管的对象)并替代终结器
                 _sp?.Close();
@@ -112,14 +117,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
         ~SerialPortProtocol_SPS()
         {
             // 不要更改此代码。请将清理代码放入“Dispose(bool disposing)”方法中
-            Dispose(disposing: false);
-        }
-
-        public void Dispose()
-        {
-            // 不要更改此代码。请将清理代码放入“Dispose(bool disposing)”方法中
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
+            Dispose(false);
         }
     }
 }

@@ -21,7 +21,7 @@ namespace Limxc.Tools.Extensions
         {
             if (Debugger.IsAttached)
             {
-                string msg = dump == null ? obj.ToString() : dump(obj);
+                var msg = dump == null ? obj.ToString() : dump(obj);
                 System.Diagnostics.Debug.WriteLine($"****** {msg} @ {DateTime.Now:mm:ss fff} ******");
             }
         }

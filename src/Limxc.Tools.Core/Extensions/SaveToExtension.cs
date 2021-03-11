@@ -1,7 +1,7 @@
-﻿using Limxc.Tools.Core.Utils;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.IO;
+using Limxc.Tools.Core.Utils;
+using Newtonsoft.Json;
 
 namespace Limxc.Tools.Core.Extensions
 {
@@ -18,7 +18,9 @@ namespace Limxc.Tools.Core.Extensions
                     Directory.CreateDirectory(folder);
                 File.AppendAllText(path, msg.Trim() + Environment.NewLine);
             }
-            catch { }
+            catch
+            {
+            }
         }
 
         public static void SaveTo<T>(this T obj, string ext = ".json")
@@ -32,7 +34,9 @@ namespace Limxc.Tools.Core.Extensions
 
                 File.AppendAllText(path, JsonConvert.SerializeObject(obj) + Environment.NewLine);
             }
-            catch { }
+            catch
+            {
+            }
         }
     }
 }

@@ -1,4 +1,9 @@
-﻿using Limxc.Tools.Abstractions;
+﻿using System;
+using System.Reactive.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Limxc.Tools.Abstractions;
 using MQTTnet;
 using MQTTnet.Client.Options;
 using MQTTnet.Extensions.External.RxMQTT.Client;
@@ -8,17 +13,12 @@ using MQTTnet.Extensions.Rpc.Options;
 using MQTTnet.Formatter;
 using MQTTnet.Protocol;
 using Newtonsoft.Json;
-using System;
-using System.Reactive.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Limxc.Tools.DeviceComm.MQTT
 {
     public class RxMqttClient : ICommClientService
     {
-        private IRxMqttClient client;
+        private readonly IRxMqttClient client;
 
         public RxMqttClient()
         {
@@ -32,21 +32,21 @@ namespace Limxc.Tools.DeviceComm.MQTT
         public Task Start(string clientId, string serverIp, int port)
         {
             var options = new ManagedMqttClientOptionsBuilder()
-              .WithAutoReconnectDelay(TimeSpan.FromSeconds(5))
-              .WithClientOptions(new MqttClientOptionsBuilder()
-                  .WithClientId(clientId + Guid.NewGuid().ToString("D"))
-                  .WithTcpServer(opt =>
-                  {
-                      opt.Server = serverIp;
-                      opt.Port = port;
-                  })
-                  .WithCleanSession(true)
-                  .WithProtocolVersion(MqttProtocolVersion.V500)
-                  .WithCommunicationTimeout(TimeSpan.FromSeconds(10))
-                  .WithKeepAlivePeriod(TimeSpan.FromSeconds(5))
-                  //.WithCredentials(DeviceCommSettings.UserName, DeviceCommSettings.Password)
-                  .Build())
-              .Build();
+                .WithAutoReconnectDelay(TimeSpan.FromSeconds(5))
+                .WithClientOptions(new MqttClientOptionsBuilder()
+                    .WithClientId(clientId + Guid.NewGuid().ToString("D"))
+                    .WithTcpServer(opt =>
+                    {
+                        opt.Server = serverIp;
+                        opt.Port = port;
+                    })
+                    .WithCleanSession()
+                    .WithProtocolVersion(MqttProtocolVersion.V500)
+                    .WithCommunicationTimeout(TimeSpan.FromSeconds(10))
+                    .WithKeepAlivePeriod(TimeSpan.FromSeconds(5))
+                    //.WithCredentials(DeviceCommSettings.UserName, DeviceCommSettings.Password)
+                    .Build())
+                .Build();
 
             return client.StartAsync(options);
         }
@@ -64,7 +64,7 @@ namespace Limxc.Tools.DeviceComm.MQTT
         #region string方法
 
         /// <summary>
-        /// topic : /xxx/yyy
+        ///     topic : /xxx/yyy
         /// </summary>
         /// <param name="topic"></param>
         /// <param name="payload"></param>
@@ -76,7 +76,7 @@ namespace Limxc.Tools.DeviceComm.MQTT
         }
 
         /// <summary>
-        /// topic : /xxx/yyy
+        ///     topic : /xxx/yyy
         /// </summary>
         /// <typeparam name="TMsg"></typeparam>
         /// <param name="topic"></param>
@@ -89,7 +89,7 @@ namespace Limxc.Tools.DeviceComm.MQTT
         }
 
         /// <summary>
-        /// methodName : xxx.yyy
+        ///     methodName : xxx.yyy
         /// </summary>
         /// <param name="methodName"></param>
         /// <param name="msg"></param>
@@ -108,14 +108,15 @@ namespace Limxc.Tools.DeviceComm.MQTT
             var rpcClient = new MqttRpcClient(client.InternalClient.InternalClient, rpcOption);
 
             var response = await rpcClient
-                .ExecuteAsync(TimeSpan.FromSeconds(timeoutSeconds), methodName, msg, MqttQualityOfServiceLevel.ExactlyOnce)
+                .ExecuteAsync(TimeSpan.FromSeconds(timeoutSeconds), methodName, msg,
+                    MqttQualityOfServiceLevel.ExactlyOnce)
                 .ConfigureAwait(false);
 
             return Encoding.UTF8.GetString(response);
         }
 
         /// <summary>
-        /// methodName : xxx.yyy
+        ///     methodName : xxx.yyy
         /// </summary>
         /// <param name="methodName"></param>
         /// <param name="action"></param>
@@ -126,13 +127,14 @@ namespace Limxc.Tools.DeviceComm.MQTT
                 .Connect("MQTTnet.RPC/+/" + methodName)
                 .Subscribe(async p =>
                 {
-                    string msg = string.Empty;
+                    var msg = string.Empty;
                     if (p.ApplicationMessage.Payload != null)
                         msg = Encoding.UTF8.GetString(p.ApplicationMessage.Payload);
 
                     var resp = await action(msg).ConfigureAwait(false);
                     await client
-                        .PublishAsync(MqttMessageBuilder.CreateMsg(p.ApplicationMessage.Topic + "/response", resp), CancellationToken.None)
+                        .PublishAsync(MqttMessageBuilder.CreateMsg(p.ApplicationMessage.Topic + "/response", resp),
+                            CancellationToken.None)
                         .ConfigureAwait(false);
                 });
         }
@@ -142,7 +144,7 @@ namespace Limxc.Tools.DeviceComm.MQTT
         #region 泛型方法
 
         /// <summary>
-        /// topic : /xxx/yyy
+        ///     topic : /xxx/yyy
         /// </summary>
         /// <param name="topic"></param>
         /// <param name="payload"></param>
@@ -150,11 +152,12 @@ namespace Limxc.Tools.DeviceComm.MQTT
         /// <returns></returns>
         public Task Pub<T>(string topic, T payload, CancellationToken token)
         {
-            return client.PublishAsync(MqttMessageBuilder.CreateMsg(topic.ToLower(), JsonConvert.SerializeObject(payload)), token);
+            return client.PublishAsync(
+                MqttMessageBuilder.CreateMsg(topic.ToLower(), JsonConvert.SerializeObject(payload)), token);
         }
 
         /// <summary>
-        /// topic : /xxx/yyy
+        ///     topic : /xxx/yyy
         /// </summary>
         /// <typeparam name="TMsg"></typeparam>
         /// <param name="topic"></param>
@@ -168,7 +171,7 @@ namespace Limxc.Tools.DeviceComm.MQTT
         }
 
         /// <summary>
-        /// methodName : xxx.yyy
+        ///     methodName : xxx.yyy
         /// </summary>
         /// <param name="methodName"></param>
         /// <param name="msg"></param>
@@ -187,14 +190,15 @@ namespace Limxc.Tools.DeviceComm.MQTT
             var rpcClient = new MqttRpcClient(client.InternalClient.InternalClient, rpcOption);
 
             var response = await rpcClient
-                .ExecuteAsync(TimeSpan.FromSeconds(timeoutSeconds), methodName, JsonConvert.SerializeObject(msg), MqttQualityOfServiceLevel.AtMostOnce)
+                .ExecuteAsync(TimeSpan.FromSeconds(timeoutSeconds), methodName, JsonConvert.SerializeObject(msg),
+                    MqttQualityOfServiceLevel.AtMostOnce)
                 .ConfigureAwait(false);
 
             return JsonConvert.DeserializeObject<TRst>(Encoding.UTF8.GetString(response));
         }
 
         /// <summary>
-        /// methodName : xxx.yyy
+        ///     methodName : xxx.yyy
         /// </summary>
         /// <param name="methodName"></param>
         /// <param name="action"></param>
@@ -205,13 +209,15 @@ namespace Limxc.Tools.DeviceComm.MQTT
                 .Connect("MQTTnet.RPC/+/" + methodName)
                 .Subscribe(async p =>
                 {
-                    string msg = string.Empty;
+                    var msg = string.Empty;
                     if (p.ApplicationMessage.Payload != null)
                         msg = Encoding.UTF8.GetString(p.ApplicationMessage.Payload);
 
                     var resp = await action(JsonConvert.DeserializeObject<TMsg>(msg)).ConfigureAwait(false);
                     await client
-                        .PublishAsync(MqttMessageBuilder.CreateMsg(p.ApplicationMessage.Topic + "/response", JsonConvert.SerializeObject(resp)), CancellationToken.None)
+                        .PublishAsync(
+                            MqttMessageBuilder.CreateMsg(p.ApplicationMessage.Topic + "/response",
+                                JsonConvert.SerializeObject(resp)), CancellationToken.None)
                         .ConfigureAwait(false);
                 });
         }

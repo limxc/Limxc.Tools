@@ -1,24 +1,24 @@
-﻿using Limxc.Tools.DeviceComm.Protocol;
-using Limxc.Tools.Entities.DevComm;
-using Limxc.Tools.Extensions.DevComm;
-using System;
+﻿using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using Limxc.Tools.DeviceComm.Protocol;
+using Limxc.Tools.Entities.DevComm;
+using Limxc.Tools.Extensions.DevComm;
 
 namespace Limxc.Tools.Tests
 {
     public class ProtocolSimulator : IProtocol
     {
-        private readonly int _sendDelayMs;
         private readonly int _lostSimulateInterval;
+        private readonly int _sendDelayMs;
+        private CompositeDisposable _disposables;
         private bool _isConnected;
 
-        private Subject<byte[]> _received;
+        private readonly Subject<CPContext> _msg;
 
-        private Subject<CPContext> _msg;
-        private CompositeDisposable _disposables;
+        private readonly Subject<byte[]> _received;
 
         public ProtocolSimulator(int lostSimulateInterval = 0, int sendDelayMs = 500)
         {
@@ -29,24 +29,24 @@ namespace Limxc.Tools.Tests
             _msg = new Subject<CPContext>();
 
             ConnectionState = Observable
-                                .Interval(TimeSpan.FromSeconds(0.1))
-                                .Select(_ => _isConnected)
-                                .StartWith(false)
-                                .DistinctUntilChanged()
-                                .Retry()
-                                .Publish();
+                .Interval(TimeSpan.FromSeconds(0.1))
+                .Select(_ => _isConnected)
+                .StartWith(false)
+                .DistinctUntilChanged()
+                .Retry()
+                .Publish();
 
             Received = _received.AsObservable()
-                            .Retry()
-                            .Publish()
-                            ;
+                    .Retry()
+                    .Publish()
+                ;
 
             History = _msg.AsObservable()
-                            //.Debug("send")
-                            .FindResponse(Received)
-                            //.Debug("prase received")
-                            .Publish()
-                            ;
+                    //.Debug("send")
+                    .FindResponse(Received)
+                    //.Debug("prase received")
+                    .Publish()
+                ;
         }
 
         public IObservable<bool> ConnectionState { get; }
@@ -90,11 +90,11 @@ namespace Limxc.Tools.Tests
 
             await Task.Delay(_sendDelayMs);
 
-            if (_lostSimulateInterval > 0 && DateTime.Now.Second % _lostSimulateInterval == 0)//模拟失败
+            if (_lostSimulateInterval > 0 && DateTime.Now.Second % _lostSimulateInterval == 0) //模拟失败
                 return true;
 
             //if(cmd.Timeout != 0 && !string.IsNullOrWhiteSpace(cmd.Response.Template))
-            _received.OnNext(context.Command.Build().ToByte());//发什么回什么
+            _received.OnNext(context.Command.Build().ToByte()); //发什么回什么
 
             return true;
         }
@@ -103,10 +103,10 @@ namespace Limxc.Tools.Tests
         {
             await Task.Delay(_sendDelayMs);
 
-            if (_lostSimulateInterval > 0 && DateTime.Now.Second % _lostSimulateInterval == 0)//模拟失败
+            if (_lostSimulateInterval > 0 && DateTime.Now.Second % _lostSimulateInterval == 0) //模拟失败
                 return true;
 
-            _received.OnNext(bytes);//发什么回什么
+            _received.OnNext(bytes); //发什么回什么
 
             return true;
         }
@@ -118,7 +118,7 @@ namespace Limxc.Tools.Tests
 
             await Task.Delay(delay);
 
-            if (_lostSimulateInterval > 0 && DateTime.Now.Second % _lostSimulateInterval == 0)//模拟失败
+            if (_lostSimulateInterval > 0 && DateTime.Now.Second % _lostSimulateInterval == 0) //模拟失败
                 return true;
 
             _received.OnNext(resp);
@@ -130,10 +130,10 @@ namespace Limxc.Tools.Tests
         {
             await Task.Delay(delay);
 
-            if (_lostSimulateInterval > 0 && DateTime.Now.Second % _lostSimulateInterval == 0)//模拟失败
+            if (_lostSimulateInterval > 0 && DateTime.Now.Second % _lostSimulateInterval == 0) //模拟失败
                 return true;
 
-            _received.OnNext(resp);//发什么回什么
+            _received.OnNext(resp); //发什么回什么
 
             return true;
         }

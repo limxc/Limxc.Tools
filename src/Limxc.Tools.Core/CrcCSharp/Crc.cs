@@ -6,9 +6,8 @@ using System.Text;
 namespace Limxc.Tools.Core.CrcCSharp
 {
     /// <summary>
-    /// https://github.com/meetanthony/crccsharp
-    /// crccalc.com
-    ///
+    ///     https://github.com/meetanthony/crccsharp
+    ///     crccalc.com
     /// </summary>
     public class Crc : HashAlgorithm
     {
@@ -30,21 +29,15 @@ namespace Limxc.Tools.Core.CrcCSharp
             Init();
         }
 
-        public override bool CanTransformMultipleBlocks
-        {
-            get
-            {
-                return base.CanTransformMultipleBlocks;
-            }
-        }
+        public override bool CanTransformMultipleBlocks => base.CanTransformMultipleBlocks;
 
-        public override int HashSize { get { return Parameters.HashSize; } }
+        public override int HashSize => Parameters.HashSize;
 
         public Parameters Parameters { get; }
 
-        public UInt64[] GetTable()
+        public ulong[] GetTable()
         {
-            var res = new UInt64[_table.Length];
+            var res = new ulong[_table.Length];
             Array.Copy(_table, res, _table.Length);
             return res;
         }
@@ -74,23 +67,23 @@ namespace Limxc.Tools.Core.CrcCSharp
 
         private ulong ComputeCrc(ulong init, byte[] data, int offset, int length)
         {
-            ulong crc = init;
+            var crc = init;
 
             if (Parameters.RefOut)
             {
-                for (int i = offset; i < offset + length; i++)
+                for (var i = offset; i < offset + length; i++)
                 {
-                    crc = (_table[(crc ^ data[i]) & 0xFF] ^ (crc >> 8));
+                    crc = _table[(crc ^ data[i]) & 0xFF] ^ (crc >> 8);
                     crc &= _mask;
                 }
             }
             else
             {
-                int toRight = (HashSize - 8);
+                var toRight = HashSize - 8;
                 toRight = toRight < 0 ? 0 : toRight;
-                for (int i = offset; i < offset + length; i++)
+                for (var i = offset; i < offset + length; i++)
                 {
-                    crc = (_table[((crc >> toRight) ^ data[i]) & 0xFF] ^ (crc << 8));
+                    crc = _table[((crc >> toRight) ^ data[i]) & 0xFF] ^ (crc << 8);
                     crc &= _mask;
                 }
             }
@@ -100,28 +93,26 @@ namespace Limxc.Tools.Core.CrcCSharp
 
         private void CreateTable()
         {
-            for (int i = 0; i < _table.Length; i++)
+            for (var i = 0; i < _table.Length; i++)
                 _table[i] = CreateTableEntry(i);
         }
 
         private ulong CreateTableEntry(int index)
         {
-            ulong r = (ulong)index;
+            var r = (ulong) index;
 
             if (Parameters.RefIn)
                 r = CrcHelper.ReverseBits(r, HashSize);
             else if (HashSize > 8)
-                r <<= (HashSize - 8);
+                r <<= HashSize - 8;
 
-            ulong lastBit = (1ul << (HashSize - 1));
+            var lastBit = 1ul << (HashSize - 1);
 
-            for (int i = 0; i < 8; i++)
-            {
+            for (var i = 0; i < 8; i++)
                 if ((r & lastBit) != 0)
-                    r = ((r << 1) ^ Parameters.Poly);
+                    r = (r << 1) ^ Parameters.Poly;
                 else
                     r <<= 1;
-            }
 
             if (Parameters.RefIn)
                 r = CrcHelper.ReverseBits(r, HashSize);
@@ -134,7 +125,7 @@ namespace Limxc.Tools.Core.CrcCSharp
         #region Test functions
 
         /// <summary>
-        /// Проверить алгоритмы на корректность
+        ///     Проверить алгоритмы на корректность
         /// </summary>
         public static CheckResult[] CheckAll()
         {
@@ -143,9 +134,9 @@ namespace Limxc.Tools.Core.CrcCSharp
             var result = new List<CheckResult>();
             foreach (var parameter in parameters)
             {
-                Crc crc = new Crc(parameter.Value);
+                var crc = new Crc(parameter.Value);
 
-                result.Add(new CheckResult()
+                result.Add(new CheckResult
                 {
                     Parameter = parameter.Value,
                     Table = crc.GetTable()
@@ -157,7 +148,7 @@ namespace Limxc.Tools.Core.CrcCSharp
 
         public bool IsRight()
         {
-            byte[] bytes = Encoding.ASCII.GetBytes("123456789");
+            var bytes = Encoding.ASCII.GetBytes("123456789");
 
             var hashBytes = ComputeHash(bytes, 0, bytes.Length);
 

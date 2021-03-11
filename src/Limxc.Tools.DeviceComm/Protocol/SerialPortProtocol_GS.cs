@@ -1,22 +1,22 @@
-﻿using GodSharp.SerialPort;
-using Limxc.Tools.Entities.DevComm;
-using Limxc.Tools.Extensions.DevComm;
-using System;
+﻿using System;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using GodSharp.SerialPort;
+using Limxc.Tools.Entities.DevComm;
+using Limxc.Tools.Extensions.DevComm;
 
 namespace Limxc.Tools.DeviceComm.Protocol
 {
     public class SerialPortProtocol_GS : IProtocol
     {
-        private GodSerialPort _sp;
+        private readonly int _baudRate;
+        private readonly string _portName;
 
         private ISubject<CPContext> _msg;
+        private GodSerialPort _sp;
         private bool disposedValue;
-        private readonly string _portName;
-        private readonly int _baudRate;
 
         public SerialPortProtocol_GS(string portName, int baudRate)
         {
@@ -30,35 +30,35 @@ namespace Limxc.Tools.DeviceComm.Protocol
             ConnectionState = Observable.Defer(() =>
             {
                 return Observable
-                            .Interval(TimeSpan.FromSeconds(0.1))
-                            .Select(_ => _sp?.IsOpen ?? false)
-                            .StartWith(false)
-                            .DistinctUntilChanged();
+                    .Interval(TimeSpan.FromSeconds(0.1))
+                    .Select(_ => _sp?.IsOpen ?? false)
+                    .StartWith(false)
+                    .DistinctUntilChanged();
             });
 
             Received = Observable
-                            .Create<byte[]>(x =>
-                            {
-                                _sp.UseDataReceived(true, (gs, data) =>
-                                {
-                                    if (data?.Length > 0)
-                                        x.OnNext(data);
-                                });
-                                return Disposable.Empty;
-                            })
-                            .Retry()
-                            .Publish()
-                            .RefCount()
-                             //.Debug("receive")
-                             ;
+                    .Create<byte[]>(x =>
+                    {
+                        _sp.UseDataReceived(true, (gs, data) =>
+                        {
+                            if (data?.Length > 0)
+                                x.OnNext(data);
+                        });
+                        return Disposable.Empty;
+                    })
+                    .Retry()
+                    .Publish()
+                    .RefCount()
+                //.Debug("receive")
+                ;
 
             History = Observable.Defer(() =>
             {
                 return _msg.AsObservable()
-                            //.Debug("send")
-                            .FindResponse(Received)
-                            //.Debug("prase received")
-                            ;
+                        //.Debug("send")
+                        .FindResponse(Received)
+                    //.Debug("prase received")
+                    ;
             });
         }
 
@@ -94,15 +94,20 @@ namespace Limxc.Tools.DeviceComm.Protocol
             return Task.FromResult(_sp.Close());
         }
 
+        public void Dispose()
+        {
+            // 不要更改此代码。请将清理代码放入“Dispose(bool disposing)”方法中
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
             {
                 if (disposing)
-                {
                     // TODO: 释放托管状态(托管对象)
                     _msg?.OnCompleted();
-                }
                 // TODO: 释放未托管的资源(未托管的对象)并替代终结器
                 _sp?.Close();
                 // TODO: 将大型字段设置为 null
@@ -116,14 +121,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
         ~SerialPortProtocol_GS()
         {
             // 不要更改此代码。请将清理代码放入“Dispose(bool disposing)”方法中
-            Dispose(disposing: false);
-        }
-
-        public void Dispose()
-        {
-            // 不要更改此代码。请将清理代码放入“Dispose(bool disposing)”方法中
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
+            Dispose(false);
         }
     }
 }

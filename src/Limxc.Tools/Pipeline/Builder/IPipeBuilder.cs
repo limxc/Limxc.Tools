@@ -1,7 +1,7 @@
-﻿using Limxc.Tools.Pipeline.Context;
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Limxc.Tools.Pipeline.Context;
 
 namespace Limxc.Tools.Pipeline.Builder
 {

@@ -1,25 +1,25 @@
-﻿using FluentAssertions;
-using Force.DeepCloner;
-using Limxc.Tools.DeviceComm.Protocol;
-using Limxc.Tools.Entities.DevComm;
-using Limxc.Tools.Extensions.DevComm;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using FluentAssertions;
+using Force.DeepCloner;
+using Limxc.Tools.DeviceComm.Protocol;
+using Limxc.Tools.Entities.DevComm;
+using Limxc.Tools.Extensions.DevComm;
 using Xunit;
 
 namespace Limxc.Tools.Tests
 {
     public class ProtocolSimulatorTests
     {
-        private IProtocol simulator;
+        private readonly IProtocol simulator;
 
         public ProtocolSimulatorTests()
         {
-            simulator = new ProtocolSimulator();//每5秒丢失一个
+            simulator = new ProtocolSimulator(); //每5秒丢失一个
         }
 
         [Fact]
@@ -27,19 +27,20 @@ namespace Limxc.Tools.Tests
         {
             var msg = new List<string>();
             var rst = new List<CPContext>();
-            var sendList = new List<CPContext>()
+            var sendList = new List<CPContext>
             {
-                new CPContext("000000"),
-                new CPContext("AA01BB", "AA$1BB", 1000, "01"),
-                new CPContext("AB02BB", "AB$1BB", 1000, "02"),
-                new CPContext("AC03BB", "AC$1BB", 1000, "03"),
-                new CPContext("AD04BB", "AD$1BB", 1000, "04"),
-                new CPContext("AE05BB", "AE$1BB", 1000, "05"),
-                new CPContext("AF06BB", "AF$1BB", 1000, "06"),
+                new("000000"),
+                new("AA01BB", "AA$1BB", 1000, "01"),
+                new("AB02BB", "AB$1BB", 1000, "02"),
+                new("AC03BB", "AC$1BB", 1000, "03"),
+                new("AD04BB", "AD$1BB", 1000, "04"),
+                new("AE05BB", "AE$1BB", 1000, "05"),
+                new("AF06BB", "AF$1BB", 1000, "06")
             };
 
             simulator.ConnectionState.Select(p => $"@ {DateTime.Now:mm:ss fff} 连接状态 : {p}").Subscribe(p => msg.Add(p));
-            simulator.Received.Select(p => $"@ {DateTime.Now:mm:ss fff} 接收 : {p.ToHexStr()}").Subscribe(p => msg.Add(p));
+            simulator.Received.Select(p => $"@ {DateTime.Now:mm:ss fff} 接收 : {p.ToHexStr()}")
+                .Subscribe(p => msg.Add(p));
             simulator.History.Subscribe(p =>
             {
                 msg.Add($"@ {DateTime.Now:mm:ss fff} {p}");
@@ -50,8 +51,8 @@ namespace Limxc.Tools.Tests
 
             await simulator.SendAsync(sendList[0]);
 
-            int loop = 3;
-            for (int i = 0; i < loop; i++)
+            var loop = 3;
+            for (var i = 0; i < loop; i++)
             {
                 await simulator.SendAsync(sendList[1]);
                 await simulator.SendAsync(sendList[2]);

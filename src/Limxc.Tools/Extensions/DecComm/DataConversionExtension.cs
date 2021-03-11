@@ -6,14 +6,34 @@ namespace Limxc.Tools.Extensions.DevComm
 {
     public static class DataConversionExtension
     {
+        #region Calculate
+
+        /// <summary>
+        ///     hexstr * n to hexstr
+        /// </summary>
+        /// <param name="value">16进制原数值</param>
+        /// <param name="times">倍数</param>
+        /// <param name="adjustRange"></param>
+        /// <returns></returns>
+        public static string HexStrMultiply(this string value, int times, bool adjustRange = false)
+        {
+            var valueInt = value.ToNInt(adjustRange);
+
+            valueInt *= times;
+
+            return valueInt.ToHexStr(value.Length, adjustRange);
+        }
+
+        #endregion Calculate
+
         #region Format
 
         /// <summary>
-        /// length :
-        /// 1 = (0~255)
-        /// 2 = (0~65535) 1bit
-        /// 3 = (0~16777215)
-        /// 4 = (0~4294967295) 2bit
+        ///     length :
+        ///     1 = (0~255)
+        ///     2 = (0~65535) 1bit
+        ///     3 = (0~16777215)
+        ///     4 = (0~4294967295) 2bit
         /// </summary>
         /// <param name="bytes"></param>
         /// <param name="length"></param>
@@ -22,21 +42,15 @@ namespace Limxc.Tools.Extensions.DevComm
         {
             var len = bytes.Length;
 
-            if (len > length)
-            {
-                return bytes.Skip(bytes.Length - length).ToArray();
-            }
+            if (len > length) return bytes.Skip(bytes.Length - length).ToArray();
 
-            if (len < length)
-            {
-                return new byte[length - len].Concat(bytes).ToArray();
-            }
+            if (len < length) return new byte[length - len].Concat(bytes).ToArray();
 
             return bytes;
         }
 
         /// <summary>
-        /// natural int (0 ~ int.MaxValue)
+        ///     natural int (0 ~ int.MaxValue)
         /// </summary>
         /// <param name="value"></param>
         /// <param name="adjustRange"></param>
@@ -45,11 +59,11 @@ namespace Limxc.Tools.Extensions.DevComm
         {
             if (!adjustRange && value > int.MaxValue)
                 throw new ArgumentOutOfRangeException($"{value} is bigger than {int.MaxValue}");
-            return value > int.MaxValue ? int.MaxValue : (int)value;
+            return value > int.MaxValue ? int.MaxValue : (int) value;
         }
 
         /// <summary>
-        /// natural int (0 ~ int.MaxValue)
+        ///     natural int (0 ~ int.MaxValue)
         /// </summary>
         /// <param name="value"></param>
         /// <param name="adjustRange"></param>
@@ -62,7 +76,7 @@ namespace Limxc.Tools.Extensions.DevComm
         }
 
         /// <summary>
-        /// hexstr format
+        ///     hexstr format
         /// </summary>
         /// <param name="hexStr"></param>
         /// <param name="reverse"></param>
@@ -86,7 +100,7 @@ namespace Limxc.Tools.Extensions.DevComm
         }
 
         /// <summary>
-        /// string to string[]
+        ///     string to string[]
         /// </summary>
         /// <param name="hexStr"></param>
         /// <param name="length">2/4/..</param>
@@ -100,13 +114,9 @@ namespace Limxc.Tools.Extensions.DevComm
 
             var ay = hexStr.ToCharArray();
             var rst = new string[ay.Length / length];
-            for (int i = 0; i < ay.Length; i += length)
-            {
-                for (int j = 0; j < length; j++)
-                {
-                    rst[i / length] += ay[i + j].ToString();
-                }
-            }
+            for (var i = 0; i < ay.Length; i += length)
+            for (var j = 0; j < length; j++)
+                rst[i / length] += ay[i + j].ToString();
             return rst;
         }
 
@@ -115,7 +125,7 @@ namespace Limxc.Tools.Extensions.DevComm
         #region Int HexStr
 
         /// <summary>
-        /// hexstr to uint
+        ///     hexstr to uint
         /// </summary>
         /// <param name="hexStr">
         /// </param>
@@ -128,15 +138,18 @@ namespace Limxc.Tools.Extensions.DevComm
         }
 
         /// <summary>
-        /// hexstr to natural int
+        ///     hexstr to natural int
         /// </summary>
         /// <param name="hexStr">
         /// </param>
         /// <returns></returns>
-        public static int ToNInt(this string hexStr, bool adjustRange = false) => hexStr.ToUInt().ToNInt(adjustRange);
+        public static int ToNInt(this string hexStr, bool adjustRange = false)
+        {
+            return hexStr.ToUInt().ToNInt(adjustRange);
+        }
 
         /// <summary>
-        /// natural int to hexstr
+        ///     natural int to hexstr
         /// </summary>
         /// <param name="value"></param>
         /// <param name="length">2/4/8</param>
@@ -153,16 +166,13 @@ namespace Limxc.Tools.Extensions.DevComm
             if (result.Length % 2 == 1)
                 result = "0" + result;
 
-            if (length < result.Length)
-            {
-                throw new Exception($"Result Length Changed. From {length} to {result.Length}");
-            }
+            if (length < result.Length) throw new Exception($"Result Length Changed. From {length} to {result.Length}");
 
             return result;
         }
 
         /// <summary>
-        /// hexstr[] to natural int[]
+        ///     hexstr[] to natural int[]
         /// </summary>
         /// <param name="hexstrs"></param>
         /// <returns></returns>
@@ -172,7 +182,7 @@ namespace Limxc.Tools.Extensions.DevComm
         }
 
         /// <summary>
-        /// hexstr to hexstr[] to int[]
+        ///     hexstr to hexstr[] to int[]
         /// </summary>
         /// <param name="hexStr"></param>
         /// <param name="length">2/4/8</param>
@@ -187,7 +197,7 @@ namespace Limxc.Tools.Extensions.DevComm
         #region Int Bytes
 
         /// <summary>
-        /// natural int to byte[length]
+        ///     natural int to byte[length]
         /// </summary>
         /// <param name="value"></param>
         /// <param name="length">2/4</param>
@@ -202,7 +212,7 @@ namespace Limxc.Tools.Extensions.DevComm
         }
 
         /// <summary>
-        /// byte[n] to byte[4] to natural int
+        ///     byte[n] to byte[4] to natural int
         /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
@@ -220,7 +230,7 @@ namespace Limxc.Tools.Extensions.DevComm
         #region HexStr Bytes
 
         /// <summary>
-        /// byte[] to hexstr
+        ///     byte[] to hexstr
         /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
@@ -228,17 +238,13 @@ namespace Limxc.Tools.Extensions.DevComm
         {
             var returnStr = "";
             if (bytes != null)
-            {
-                for (int i = 0; i < bytes.Length; i++)
-                {
+                for (var i = 0; i < bytes.Length; i++)
                     returnStr += bytes[i].ToString("X2");
-                }
-            }
             return returnStr;
         }
 
         /// <summary>
-        /// byte[](char) to hexstr
+        ///     byte[](char) to hexstr
         /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
@@ -246,29 +252,25 @@ namespace Limxc.Tools.Extensions.DevComm
         {
             var returnStr = string.Empty;
             if (bytes != null)
-            {
-                for (int i = 0; i < bytes.Length; i++)
-                {
-                    returnStr += (char)bytes[i];
-                }
-            }
+                for (var i = 0; i < bytes.Length; i++)
+                    returnStr += (char) bytes[i];
             return returnStr;
         }
 
         /// <summary>
-        /// hexstr to byte[]
+        ///     hexstr to byte[]
         /// </summary>
         /// <param name="hexString"></param>
         /// <returns></returns>
         public static byte[] ToByte(this string hexString)
         {
             hexString = hexString.Replace(" ", "");
-            if ((hexString.Length % 2) != 0)
+            if (hexString.Length % 2 != 0)
                 throw new FormatException($"Hex String Length Error : {hexString.Length}");
 
             var returnBytes = new byte[hexString.Length / 2];
 
-            for (int i = 0; i < returnBytes.Length; i++)
+            for (var i = 0; i < returnBytes.Length; i++)
                 returnBytes[i] = Convert.ToByte(hexString.Substring(i * 2, 2), 16);
 
             return returnBytes;
@@ -276,41 +278,21 @@ namespace Limxc.Tools.Extensions.DevComm
 
         #endregion HexStr Bytes
 
-        #region Calculate
-
-        /// <summary>
-        /// hexstr * n to hexstr
-        /// </summary>
-        /// <param name="value">16进制原数值</param>
-        /// <param name="times">倍数</param>
-        /// <param name="adjustRange"></param>
-        /// <returns></returns>
-        public static string HexStrMultiply(this string value, int times, bool adjustRange = false)
-        {
-            var valueInt = value.ToNInt(adjustRange);
-
-            valueInt *= times;
-
-            return valueInt.ToHexStr(value.Length, adjustRange);
-        }
-
-        #endregion Calculate
-
         #region AscII HexStr
 
         /// <summary>
-        /// hex string to ascii string
+        ///     hex string to ascii string
         /// </summary>
         /// <param name="hexString"></param>
         /// <returns></returns>
         public static string HexToAscII(this string hexString)
         {
-            var ca = hexString.ToNInts(2).Select(p => (char)p).ToArray();
+            var ca = hexString.ToNInts(2).Select(p => (char) p).ToArray();
             return new string(ca);
         }
 
         /// <summary>
-        /// ascii string to hex string
+        ///     ascii string to hex string
         /// </summary>
         /// <param name="asciiString"></param>
         /// <returns></returns>

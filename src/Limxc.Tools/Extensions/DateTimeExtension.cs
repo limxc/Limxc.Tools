@@ -8,24 +8,24 @@ namespace Limxc.Tools.Extensions
         private static readonly DateTime _epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         /// <summary>
-        /// TimeFromUnixTimestamp
+        ///     TimeFromUnixTimestamp
         /// </summary>
         /// <param name="unixTimestamp"></param>
         /// <returns></returns>
         public static DateTime ToDateTime(this long unixTimestamp)
         {
-            long unixTimeStampInTicks = unixTimestamp * TimeSpan.TicksPerMillisecond;
+            var unixTimeStampInTicks = unixTimestamp * TimeSpan.TicksPerMillisecond;
             return new DateTime(_epoch.Ticks + unixTimeStampInTicks);
         }
 
         /// <summary>
-        /// UnixTimestampFromDateTime
+        ///     UnixTimestampFromDateTime
         /// </summary>
         /// <param name="dateTime"></param>
         /// <returns></returns>
         public static long ToTimeStamp(this DateTime dateTime)
         {
-            long unixTimestamp = dateTime.Ticks - _epoch.Ticks;
+            var unixTimestamp = dateTime.Ticks - _epoch.Ticks;
             unixTimestamp /= TimeSpan.TicksPerMillisecond;
             return unixTimestamp;
         }
@@ -33,12 +33,12 @@ namespace Limxc.Tools.Extensions
         public static DateTimeOffset ToDateTimeOffset(this DateTime dateTime)
         {
             return dateTime.ToUniversalTime() <= DateTimeOffset.MinValue.UtcDateTime
-                       ? DateTimeOffset.MinValue
-                       : new DateTimeOffset(dateTime);
+                ? DateTimeOffset.MinValue
+                : new DateTimeOffset(dateTime);
         }
 
         /// <summary>
-        /// 获取年龄
+        ///     获取年龄
         /// </summary>
         /// <param name="begin"></param>
         /// <param name="end"></param>
@@ -50,17 +50,17 @@ namespace Limxc.Tools.Extensions
             int year = 0, month = 0, day = 0;
 
             if (end.Year % 4 == 0)
-            {
-                MonthDay = new Dictionary<int, int>() {
-                            {1,31},{2,29},{3,31},{4,30},{5,31},{6,30}
-                            ,{7,31},{8,31},{9,30},{10,31},{11,30},{12,31}};
-            }
+                MonthDay = new Dictionary<int, int>
+                {
+                    {1, 31}, {2, 29}, {3, 31}, {4, 30}, {5, 31}, {6, 30}, {7, 31}, {8, 31}, {9, 30}, {10, 31}, {11, 30},
+                    {12, 31}
+                };
             else
-            {
-                MonthDay = new Dictionary<int, int>() {
-                            {1,31},{2,28},{3,31},{4,30},{5,31},{6,30}
-                            ,{7,31},{8,31},{9,30},{10,31},{11,30},{12,31}};
-            }
+                MonthDay = new Dictionary<int, int>
+                {
+                    {1, 31}, {2, 28}, {3, 31}, {4, 30}, {5, 31}, {6, 30}, {7, 31}, {8, 31}, {9, 30}, {10, 31}, {11, 30},
+                    {12, 31}
+                };
 
             //year
             year = end.Year - begin.Year;

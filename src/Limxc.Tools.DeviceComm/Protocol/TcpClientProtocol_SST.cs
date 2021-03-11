@@ -1,25 +1,24 @@
-﻿using Limxc.Tools.Entities.DevComm;
-using Limxc.Tools.Extensions;
-using Limxc.Tools.Extensions.DevComm;
-using SimpleTcp;
-using System;
-using System.Linq;
+﻿using System;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using Limxc.Tools.Entities.DevComm;
+using Limxc.Tools.Extensions;
+using Limxc.Tools.Extensions.DevComm;
+using SimpleTcp;
 
 namespace Limxc.Tools.DeviceComm.Protocol
 {
     /// <summary>
-    /// 用作下位机服务器,连接客户端一般只有一台
+    ///     用作下位机服务器,连接客户端一般只有一台
     /// </summary>
     public class TcpClientProtocol_SST : IProtocol
     {
+        private readonly string _serverIpPort;
         private SimpleTcpClient _client;
 
         private ISubject<CPContext> _msg;
         private bool disposedValue;
-        private readonly string _serverIpPort;
 
         public TcpClientProtocol_SST(string serverIpPort)
         {
@@ -33,37 +32,40 @@ namespace Limxc.Tools.DeviceComm.Protocol
             _client = new SimpleTcpClient(_serverIpPort);
 
             var connect = Observable
-                            .FromEventPattern<ClientConnectedEventArgs>(h => _client.Events.Connected += h, h => _client.Events.Connected -= h)
-                            .Select(_ => true)
-                             ;
+                    .FromEventPattern<ClientConnectedEventArgs>(h => _client.Events.Connected += h,
+                        h => _client.Events.Connected -= h)
+                    .Select(_ => true)
+                ;
 
             var disconnect = Observable
-                .FromEventPattern<ClientDisconnectedEventArgs>(h => _client.Events.Disconnected += h, h => _client.Events.Disconnected -= h)
+                .FromEventPattern<ClientDisconnectedEventArgs>(h => _client.Events.Disconnected += h,
+                    h => _client.Events.Disconnected -= h)
                 .Select(_ => false);
 
             ConnectionState = Observable.Defer(() =>
             {
-                return Observable
-                            .Merge(connect, disconnect)
-                            .Retry();
+                return connect
+                    .Merge(disconnect)
+                    .Retry();
             });
 
             Received = Observable
-                            .FromEventPattern<DataReceivedEventArgs>(h => _client.Events.DataReceived += h, h => _client.Events.DataReceived -= h)
-                            .Select(p => p.EventArgs.Data)
-                            .Retry()
-                            .Publish()
-                            .RefCount()
-                            //.Debug("receive")
-                            ;
+                    .FromEventPattern<DataReceivedEventArgs>(h => _client.Events.DataReceived += h,
+                        h => _client.Events.DataReceived -= h)
+                    .Select(p => p.EventArgs.Data)
+                    .Retry()
+                    .Publish()
+                    .RefCount()
+                //.Debug("receive")
+                ;
 
             History = Observable.Defer(() =>
             {
                 return _msg.AsObservable()
-                            //.Debug("send")
-                            .FindResponse(Received)
-                            //.Debug("prase received")
-                            ;
+                        //.Debug("send")
+                        .FindResponse(Received)
+                    //.Debug("prase received")
+                    ;
             });
         }
 
@@ -102,15 +104,20 @@ namespace Limxc.Tools.DeviceComm.Protocol
             return Task.FromResult(true);
         }
 
+        public void Dispose()
+        {
+            // 不要更改此代码。请将清理代码放入“Dispose(bool disposing)”方法中
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
             {
                 if (disposing)
-                {
                     // TODO: 释放托管状态(托管对象)
                     _msg?.OnCompleted();
-                }
 
                 // TODO: 释放未托管的资源(未托管的对象)并替代终结器
                 _client?.Disconnect();
@@ -126,14 +133,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
         ~TcpClientProtocol_SST()
         {
             // 不要更改此代码。请将清理代码放入“Dispose(bool disposing)”方法中
-            Dispose(disposing: false);
-        }
-
-        public void Dispose()
-        {
-            // 不要更改此代码。请将清理代码放入“Dispose(bool disposing)”方法中
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
+            Dispose(false);
         }
     }
 }

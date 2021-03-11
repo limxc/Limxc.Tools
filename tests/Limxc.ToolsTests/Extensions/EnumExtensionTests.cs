@@ -1,42 +1,41 @@
-﻿using FluentAssertions;
-using System.ComponentModel;
+﻿using System.ComponentModel;
+using FluentAssertions;
 using Xunit;
 
 namespace Limxc.Tools.Extensions.Tests
 {
     public class EnumExtensionTests
     {
-        private enum TestEnum
-        {
-            [Description("a")]
-            A,
-
-            B
-        }
-
-        [Fact()]
+        [Fact]
         public void DescriptionTest()
         {
             TestEnum.A.Description().Should().Be("a");
             TestEnum.B.Description().Should().Be("");
         }
 
-        [Fact()]
+        [Fact]
         public void NamesTest()
         {
             TestEnum.A.Names().Should().BeEquivalentTo("A", "B");
         }
 
-        [Fact()]
+        [Fact]
         public void NameTest()
         {
             TestEnum.A.Name().Should().Be("A");
         }
 
-        [Fact()]
+        [Fact]
         public void ToEnumTest()
         {
             "A".ToEnum<TestEnum>().Should().Be(TestEnum.A);
+        }
+
+        private enum TestEnum
+        {
+            [Description("a")] A,
+
+            B
         }
     }
 }

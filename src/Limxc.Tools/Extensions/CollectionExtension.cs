@@ -7,7 +7,7 @@ namespace Limxc.Tools.Extensions
     public static class CollectionExtension
     {
         /// <summary>
-        /// 拆分子数组
+        ///     拆分子数组
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source"></param>
@@ -17,22 +17,15 @@ namespace Limxc.Tools.Extensions
         public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> source, int size, bool strict = true)
         {
             if (strict)
-            {
                 for (var i = 0; i < source.Count() / size; i++)
-                {
                     yield return source.Skip(i * size).Take(size);
-                }
-            }
             else
-            {
-                for (var i = 0; i < (float)source.Count() / size; i++)
-                {
+                for (var i = 0; i < (float) source.Count() / size; i++)
                     yield return source.Skip(i * size).Take(size);
-                }
-            }
         }
 
-        public static Dictionary<TKey, TValue> AddOrUpdate<TKey, TValue>(this Dictionary<TKey, TValue> source, TKey key, TValue value, bool update = true)
+        public static Dictionary<TKey, TValue> AddOrUpdate<TKey, TValue>(this Dictionary<TKey, TValue> source, TKey key,
+            TValue value, bool update = true)
         {
             if (!source.ContainsKey(key))
                 source.Add(key, value);
@@ -46,12 +39,8 @@ namespace Limxc.Tools.Extensions
         {
             var res = source.Where(condation);
             if (res.Any())
-            {
                 foreach (var item in res.ToList())
-                {
                     source.Remove(item);
-                }
-            }
 
             source.Add(value);
 

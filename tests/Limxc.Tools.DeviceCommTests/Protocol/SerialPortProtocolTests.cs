@@ -1,5 +1,4 @@
-﻿using Limxc.Tools.Entities.DevComm;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Ports;
@@ -7,13 +6,14 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Limxc.Tools.Entities.DevComm;
 using Xunit;
 
 namespace Limxc.Tools.DeviceComm.Protocol.Tests
 {
     public class SerialPortProtocolTests
     {
-        [Fact()]
+        [Fact]
         public async Task SerialPortProtocolTest()
         {
             /*
@@ -41,10 +41,7 @@ namespace Limxc.Tools.DeviceComm.Protocol.Tests
                     sp.ConnectionState.Select(p => $"{DateTime.Now:mm:ss fff} 连接状态: {p}"),
                     sp.Received.Select(p => $"{DateTime.Now:mm:ss fff} receive : {p}")
                 )
-                .Subscribe(p =>
-                {
-                    rst.Add(p);
-                })
+                .Subscribe(p => { rst.Add(p); })
                 .DisposeWith(dis);
 
             await sp.SendAsync(new CPContext("AA00 0a10 afBB", "AA00$2$1BB", 256));
@@ -72,10 +69,7 @@ namespace Limxc.Tools.DeviceComm.Protocol.Tests
                     sps.ConnectionState.Select(p => $"{DateTime.Now:mm:ss fff} 连接状态: {p}"),
                     sps.Received.Select(p => $"{DateTime.Now:mm:ss fff} receive : {p}")
                 )
-                .Subscribe(p =>
-                {
-                    rst.Add(p);
-                })
+                .Subscribe(p => { rst.Add(p); })
                 .DisposeWith(dis);
 
             await sps.SendAsync(new CPContext("AA00 0a10 afBB", "AA00$2$1BB", 256));

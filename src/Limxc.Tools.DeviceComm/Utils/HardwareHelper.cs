@@ -6,7 +6,7 @@ using System.Management;
 namespace Limxc.Tools.DeviceComm.Utils
 {
     /// <summary>
-    /// 硬件信息助手类
+    ///     硬件信息助手类
     /// </summary>
     public static class HardwareHelper
     {
@@ -15,7 +15,7 @@ namespace Limxc.Tools.DeviceComm.Utils
         public static string[] SerialPorts => GetHardWare(HardwareEnum.Win32_SerialPort);
 
         /// <summary>
-        /// 获取匹配设备
+        ///     获取匹配设备
         /// </summary>
         /// <param name="deviceName"></param>
         /// <returns></returns>
@@ -25,19 +25,20 @@ namespace Limxc.Tools.DeviceComm.Utils
 
             if (!string.IsNullOrWhiteSpace(comStr))
             {
-                string[] sArray = comStr.Split(new char[2] { '(', ')' });
+                var sArray = comStr.Split('(', ')');
                 if (sArray.Length >= 2)
                 {
                     comStr = sArray[1];
                     return SerialPort.GetPortNames().FirstOrDefault(p => p.Contains(comStr));
                 }
             }
+
             //未找到匹配设备
             return null;
         }
 
         /// <summary>
-        /// WMI取硬件信息
+        ///     WMI取硬件信息
         /// </summary>
         /// <param name="hardType">硬件类型</param>
         /// <param name="propKey">筛选范围,默认为属性名</param>
@@ -45,22 +46,17 @@ namespace Limxc.Tools.DeviceComm.Utils
         /// <returns></returns>
         public static string[] GetHardWare(HardwareEnum hardType, string propKey = "Name", string propValue = "COM")
         {
-            List<string> strs = new List<string>();
+            var strs = new List<string>();
             try
             {
-                using (ManagementObjectSearcher searcher = new ManagementObjectSearcher("select * from " + hardType))
+                using (var searcher = new ManagementObjectSearcher("select * from " + hardType))
                 {
                     foreach (var hardInfo in searcher.Get())
-                    {
                         if (hardInfo.Properties[propKey].Value != null)
-                        {
                             if (hardInfo.Properties[propKey].Value.ToString().Contains(propValue))
-                            {
                                 strs.Add(hardInfo.Properties[propKey].Value.ToString());
-                            }
-                        }
-                    }
                 }
+
                 return strs.ToArray();
             }
             catch
@@ -71,7 +67,7 @@ namespace Limxc.Tools.DeviceComm.Utils
     }
 
     /// <summary>
-    /// 硬件枚举
+    ///     硬件枚举
     /// </summary>
     public enum HardwareEnum
     {
@@ -129,15 +125,15 @@ namespace Limxc.Tools.DeviceComm.Utils
         Win32_Share, // 共享
         Win32_NetworkClient, // 已安装的网络客户端
         Win32_NetworkProtocol, // 已安装的网络协议
-        Win32_PnPEntity,//all device
+        Win32_PnPEntity //all device
     }
 
     /// <summary>
-    /// 串口波特率列表。
-    /// 75,110,150,300,600,1200,2400,4800,9600,14400,19200,28800,38400,56000,57600,
-    /// 115200,128000,230400,256000
+    ///     串口波特率列表。
+    ///     75,110,150,300,600,1200,2400,4800,9600,14400,19200,28800,38400,56000,57600,
+    ///     115200,128000,230400,256000
     /// </summary>
-    public enum BaudRateEnum : int
+    public enum BaudRateEnum
     {
         BaudRate_75 = 75,
         BaudRate_110 = 110,
@@ -161,9 +157,9 @@ namespace Limxc.Tools.DeviceComm.Utils
     }
 
     /// <summary>
-    /// 串口数据位列表（5,6,7,8）
+    ///     串口数据位列表（5,6,7,8）
     /// </summary>
-    public enum DataBitsEnum : int
+    public enum DataBitsEnum
     {
         FiveBits = 5,
         SixBits = 6,

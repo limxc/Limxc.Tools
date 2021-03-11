@@ -1,55 +1,51 @@
-﻿using RJCP.IO.Ports;
-using System;
+﻿using System;
 using System.Threading;
+using RJCP.IO.Ports;
 
 namespace Limxc.Tools.DeviceComm.Utils
 {
     public class SerialPortStreamHelper
     {
-        public static string[] GetPortNames() => SerialPortStream.GetPortNames();
-
-        public event EventHandler<byte[]> ReceivedEvent;
-
-        protected SerialPortStream sp;
-
-        public bool IsOpen => sp?.IsOpen ?? false;
-
         /// <summary>
-        /// 是否使用接收超时机制
-        /// 默认为真
-        /// 接收到数据后计时，计时期间收到数据，累加数据，重新开始计时。超时后返回接收到的数据。
+        ///     最后接收到数据的时间点
         /// </summary>
-        public bool ReceiveTimeoutEnable { get; set; } = true;
+        private int lastReceiveTick;
 
         /// <summary>
-        /// 读取接收数据未完成之前的超时时间
-        /// 默认128ms
-        /// </summary>
-        public int ReceiveTimeout { get; set; } = 128;
-
-        /// <summary>
-        /// 超时检查线程运行标志
-        /// </summary>
-        private bool TimeoutCheckThreadIsWork = false;
-
-        /// <summary>
-        /// 最后接收到数据的时间点
-        /// </summary>
-        private int lastReceiveTick = 0;
-
-        /// <summary>
-        /// 接到数据的长度
-        /// </summary>
-        private int receiveDatalen;
-
-        /// <summary>
-        /// 接收缓冲区
+        ///     接收缓冲区
         /// </summary>
         private byte[] receiveBuffer;
 
         /// <summary>
-        /// 接收缓冲区大小
-        /// 默认4K
+        ///     接到数据的长度
+        /// </summary>
+        private int receiveDatalen;
+
+        protected SerialPortStream sp;
+
+        /// <summary>
+        ///     超时检查线程运行标志
+        /// </summary>
+        private bool TimeoutCheckThreadIsWork;
+
+        public bool IsOpen => sp?.IsOpen ?? false;
+
+        /// <summary>
+        ///     是否使用接收超时机制
+        ///     默认为真
+        ///     接收到数据后计时，计时期间收到数据，累加数据，重新开始计时。超时后返回接收到的数据。
+        /// </summary>
+        public bool ReceiveTimeoutEnable { get; set; } = true;
+
+        /// <summary>
+        ///     读取接收数据未完成之前的超时时间
+        ///     默认128ms
+        /// </summary>
+        public int ReceiveTimeout { get; set; } = 128;
+
+        /// <summary>
+        ///     接收缓冲区大小
+        ///     默认4K
         /// </summary>
         public int BufSize
         {
@@ -59,13 +55,18 @@ namespace Limxc.Tools.DeviceComm.Utils
                     return 4096;
                 return receiveBuffer.Length;
             }
-            set
-            {
-                receiveBuffer = new byte[value];
-            }
+            set => receiveBuffer = new byte[value];
         }
 
-        public bool Open(string portName, int baudRate, Parity parity = Parity.None, int databits = 8, StopBits stopBits = StopBits.One)
+        public static string[] GetPortNames()
+        {
+            return SerialPortStream.GetPortNames();
+        }
+
+        public event EventHandler<byte[]> ReceivedEvent;
+
+        public bool Open(string portName, int baudRate, Parity parity = Parity.None, int databits = 8,
+            StopBits stopBits = StopBits.One)
         {
             sp = new SerialPortStream
             {
@@ -79,10 +80,7 @@ namespace Limxc.Tools.DeviceComm.Utils
                 RtsEnable = true
             };
 
-            if (receiveBuffer == null)
-            {
-                receiveBuffer = new byte[BufSize];
-            }
+            if (receiveBuffer == null) receiveBuffer = new byte[BufSize];
             sp.Open();
             sp.DataReceived += Sp_DataReceived;
             return true;
@@ -109,7 +107,7 @@ namespace Limxc.Tools.DeviceComm.Utils
 
         protected void Sp_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            int canReadBytesLen = 0;
+            var canReadBytesLen = 0;
             if (ReceiveTimeoutEnable)
             {
                 while (sp.BytesToRead > 0)
@@ -120,19 +118,21 @@ namespace Limxc.Tools.DeviceComm.Utils
                         receiveDatalen = 0;
                         throw new Exception("Serial port receives buffer overflow!");
                     }
+
                     var receiveLen = sp.Read(receiveBuffer, receiveDatalen, canReadBytesLen);
                     if (receiveLen != canReadBytesLen)
                     {
                         receiveDatalen = 0;
                         throw new Exception("Serial port receives exception!");
                     }
+
                     //Array.Copy(recviceBuffer, 0, receivedBytes, receiveDatalen, receiveLen);
                     receiveDatalen += receiveLen;
                     lastReceiveTick = Environment.TickCount;
                     if (!TimeoutCheckThreadIsWork)
                     {
                         TimeoutCheckThreadIsWork = true;
-                        Thread thread = new Thread(ReceiveTimeoutCheckFunc)
+                        var thread = new Thread(ReceiveTimeoutCheckFunc)
                         {
                             Name = "ComReceiveTimeoutCheckThread"
                         };
@@ -145,42 +145,44 @@ namespace Limxc.Tools.DeviceComm.Utils
                 if (ReceivedEvent != null)
                 {
                     // 获取字节长度
-                    int bytesNum = sp.BytesToRead;
+                    var bytesNum = sp.BytesToRead;
                     if (bytesNum == 0)
                         return;
                     // 创建字节数组
-                    byte[] resultBuffer = new byte[bytesNum];
+                    var resultBuffer = new byte[bytesNum];
 
-                    int i = 0;
+                    var i = 0;
                     while (i < bytesNum)
                     {
                         // 读取数据到缓冲区
-                        int j = sp.Read(receiveBuffer, i, bytesNum - i);
+                        var j = sp.Read(receiveBuffer, i, bytesNum - i);
                         i += j;
                     }
+
                     Array.Copy(receiveBuffer, 0, resultBuffer, 0, i);
                     ReceivedEvent(this, resultBuffer);
                 }
+
                 //Array.Clear (receivedBytes,0,receivedBytes.Length );
                 receiveDatalen = 0;
             }
         }
 
         /// <summary>
-        /// 超时返回数据处理线程方法
+        ///     超时返回数据处理线程方法
         /// </summary>
         protected void ReceiveTimeoutCheckFunc()
         {
             while (TimeoutCheckThreadIsWork)
-            {
                 if (Environment.TickCount - lastReceiveTick > ReceiveTimeout)
                 {
                     if (ReceivedEvent != null)
                     {
-                        byte[] returnBytes = new byte[receiveDatalen];
+                        var returnBytes = new byte[receiveDatalen];
                         Array.Copy(receiveBuffer, 0, returnBytes, 0, receiveDatalen);
                         ReceivedEvent(this, returnBytes);
                     }
+
                     //Array.Clear (receivedBytes,0,receivedBytes.Length );
                     receiveDatalen = 0;
                     TimeoutCheckThreadIsWork = false;
@@ -189,7 +191,6 @@ namespace Limxc.Tools.DeviceComm.Utils
                 {
                     Thread.Sleep(16);
                 }
-            }
         }
 
         public void Write(byte[] buffer)

@@ -1,12 +1,12 @@
-﻿using FluentAssertions;
-using System;
+﻿using System;
+using FluentAssertions;
 using Xunit;
 
 namespace Limxc.Tools.Extensions.Tests
 {
     public class DateTimeExtensionTests
     {
-        [Fact()]
+        [Fact]
         public void Test()
         {
             var dt = new DateTime(2019, 11, 1, 3, 4, 5);
@@ -14,7 +14,7 @@ namespace Limxc.Tools.Extensions.Tests
             dt.ToTimeStamp().ToDateTime().Should().Be(dt);
         }
 
-        [Fact()]
+        [Fact]
         public void AgeTest()
         {
             var birth = new DateTime(1999, 8, 11);

@@ -1,26 +1,25 @@
-﻿using Limxc.Tools.Entities.DevComm;
-using Limxc.Tools.Extensions;
-using Limxc.Tools.Extensions.DevComm;
-using SimpleTcp;
-using System;
-using System.Linq;
+﻿using System;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using Limxc.Tools.Entities.DevComm;
+using Limxc.Tools.Extensions;
+using Limxc.Tools.Extensions.DevComm;
+using SimpleTcp;
 
 namespace Limxc.Tools.DeviceComm.Protocol
 {
     /// <summary>
-    /// 用作下位机服务器,连接客户端一般只有一台
+    ///     用作下位机服务器,连接客户端一般只有一台
     /// </summary>
     public class TcpServerProtocol_SST : IProtocol
     {
-        private SimpleTcpServer _server;
+        private readonly string _clientIpPort;
+        private readonly string _ipPort;
 
         private ISubject<CPContext> _msg;
+        private SimpleTcpServer _server;
         private bool disposedValue;
-        private readonly string _ipPort;
-        private readonly string _clientIpPort;
 
         public TcpServerProtocol_SST(string ipPort, string clientIpPort)
         {
@@ -35,38 +34,41 @@ namespace Limxc.Tools.DeviceComm.Protocol
             _server = new SimpleTcpServer(_ipPort);
 
             var connect = Observable
-                .FromEventPattern<ClientConnectedEventArgs>(h => _server.Events.ClientConnected += h, h => _server.Events.ClientConnected -= h)
+                .FromEventPattern<ClientConnectedEventArgs>(h => _server.Events.ClientConnected += h,
+                    h => _server.Events.ClientConnected -= h)
                 .Select(p => (p.EventArgs.IpPort, true));
 
             var disconnect = Observable
-                .FromEventPattern<ClientDisconnectedEventArgs>(h => _server.Events.ClientDisconnected += h, h => _server.Events.ClientDisconnected -= h)
+                .FromEventPattern<ClientDisconnectedEventArgs>(h => _server.Events.ClientDisconnected += h,
+                    h => _server.Events.ClientDisconnected -= h)
                 .Select(p => (p.EventArgs.IpPort, false));
 
             ConnectionState = Observable.Defer(() =>
             {
-                return Observable
-                    .Merge(connect, disconnect)
+                return connect
+                    .Merge(disconnect)
                     .Select(p => p.Item2)
                     //.Debug(_ipPort)
                     .Retry();
             });
 
             Received = Observable
-                            .FromEventPattern<DataReceivedEventArgs>(h => _server.Events.DataReceived += h, h => _server.Events.DataReceived -= h)
-                            .Select(p => p.EventArgs.Data)
-                            .Retry()
-                            .Publish()
-                            .RefCount()
-                            //.Debug("receive")
-                            ;
+                    .FromEventPattern<DataReceivedEventArgs>(h => _server.Events.DataReceived += h,
+                        h => _server.Events.DataReceived -= h)
+                    .Select(p => p.EventArgs.Data)
+                    .Retry()
+                    .Publish()
+                    .RefCount()
+                //.Debug("receive")
+                ;
 
             History = Observable.Defer(() =>
             {
                 return _msg.AsObservable()
-                            //.Debug("send")
-                            .FindResponse(Received)
-                            //.Debug("prase received")
-                            ;
+                        //.Debug("send")
+                        .FindResponse(Received)
+                    //.Debug("prase received")
+                    ;
             });
         }
 
@@ -87,10 +89,8 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
                 return await Task.FromResult(true).ConfigureAwait(false);
             }
-            else
-            {
-                return await Task.FromResult(false).ConfigureAwait(false);
-            }
+
+            return await Task.FromResult(false).ConfigureAwait(false);
         }
 
         public async Task<bool> SendAsync(byte[] bytes)
@@ -100,10 +100,8 @@ namespace Limxc.Tools.DeviceComm.Protocol
                 await _server.SendAsync(_clientIpPort, bytes).ConfigureAwait(false);
                 return await Task.FromResult(true).ConfigureAwait(false);
             }
-            else
-            {
-                return await Task.FromResult(false).ConfigureAwait(false);
-            }
+
+            return await Task.FromResult(false).ConfigureAwait(false);
         }
 
         public async Task<bool> OpenAsync()
@@ -118,15 +116,20 @@ namespace Limxc.Tools.DeviceComm.Protocol
             return Task.FromResult(true);
         }
 
+        public void Dispose()
+        {
+            // 不要更改此代码。请将清理代码放入“Dispose(bool disposing)”方法中
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
             {
                 if (disposing)
-                {
                     // TODO: 释放托管状态(托管对象)
                     _msg?.OnCompleted();
-                }
 
                 // TODO: 释放未托管的资源(未托管的对象)并替代终结器
                 _server?.Stop();
@@ -142,14 +145,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
         ~TcpServerProtocol_SST()
         {
             // 不要更改此代码。请将清理代码放入“Dispose(bool disposing)”方法中
-            Dispose(disposing: false);
-        }
-
-        public void Dispose()
-        {
-            // 不要更改此代码。请将清理代码放入“Dispose(bool disposing)”方法中
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
+            Dispose(false);
         }
     }
 }

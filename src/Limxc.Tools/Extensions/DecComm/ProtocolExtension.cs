@@ -1,6 +1,4 @@
-﻿using Limxc.Tools.DeviceComm.Protocol;
-using Limxc.Tools.Entities.DevComm;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,35 +8,38 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Limxc.Tools.DeviceComm.Protocol;
+using Limxc.Tools.Entities.DevComm;
 
 namespace Limxc.Tools.Extensions.DevComm
 {
     public static class ProtocolExtension
     {
         /// <summary>
-        /// 返回值匹配及解析
+        ///     返回值匹配及解析
         /// </summary>
         /// <param name="cmd"></param>
         /// <param name="resp"></param>
-        /// <param name="byteToStringConverter">默认:<see cref="DataConversionExtension.ToHexStr"/></param>
+        /// <param name="byteToStringConverter">默认:<see cref="DataConversionExtension.ToHexStr" /></param>
         /// <returns></returns>
-        public static IObservable<CPContext> FindResponse(this IObservable<CPContext> cmd, IObservable<byte[]> resp, Func<byte[], string> byteToStringConverter = null)
+        public static IObservable<CPContext> FindResponse(this IObservable<CPContext> cmd, IObservable<byte[]> resp,
+            Func<byte[], string> byteToStringConverter = null)
         {
             if (byteToStringConverter == null)
                 byteToStringConverter = DataConversionExtension.ToHexStr;
 
             return cmd
-                .SelectMany(p =>
-                {
-                    if (p.Timeout == 0 || string.IsNullOrWhiteSpace(p.Response.Template))
+                    .SelectMany(p =>
                     {
-                        p.State = CPContextState.NoNeed;
-                        return Observable.Return(p);
-                    }
+                        if (p.Timeout == 0 || string.IsNullOrWhiteSpace(p.Response.Template))
+                        {
+                            p.State = CPContextState.NoNeed;
+                            return Observable.Return(p);
+                        }
 
-                    var st = ((DateTime)p.SendTime).ToDateTimeOffset();
+                        var st = ((DateTime) p.SendTime).ToDateTimeOffset();
 
-                    return resp.Timestamp()
+                        return resp.Timestamp()
                                 .Select(d => new Timestamped<string>(byteToStringConverter(d.Value), d.Timestamp))
                                 .SkipUntil(st)
                                 .TakeUntil(st.AddMilliseconds(p.Timeout))
@@ -59,15 +60,15 @@ namespace Limxc.Tools.Extensions.DevComm
                                     return p;
                                 })
                                 .Retry()
-                                ;
-                })
+                            ;
+                    })
                 ;
         }
 
         #region 分包处理
 
         /// <summary>
-        /// 1包头1包尾分包
+        ///     1包头1包尾分包
         /// </summary>
         /// <param name="source"></param>
         /// <param name="bom"></param>
@@ -79,24 +80,25 @@ namespace Limxc.Tools.Extensions.DevComm
             {
                 return Observable.Defer
                 (() => s
-                        .SkipWhile(b => !b.Equals(bom))
-                        .Skip(1)
-                        .TakeWhile(b => !b.Equals(eom))
-                        .ToArray()
-                        .Where(p => p.Length > 0)
-                        .Repeat()
+                    .SkipWhile(b => !b.Equals(bom))
+                    .Skip(1)
+                    .TakeWhile(b => !b.Equals(eom))
+                    .ToArray()
+                    .Where(p => p.Length > 0)
+                    .Repeat()
                 );
             });
         }
 
         /// <summary>
-        /// 包头包尾分包
+        ///     包头包尾分包
         /// </summary>
         /// <param name="source"></param>
         /// <param name="bom"></param>
         /// <param name="eom"></param>
         /// <returns></returns>
-        public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T[] bom, T[] eom) where T : IEquatable<T>
+        public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T[] bom, T[] eom)
+            where T : IEquatable<T>
         {
             if (bom.Length == 0 || eom.Length == 0)
                 throw new ArgumentException("If bom or eom is empty, use SeparatorMessagePackParser.");
@@ -137,8 +139,8 @@ namespace Limxc.Tools.Extensions.DevComm
                                 eQueue.Clear();
 #else
                                 o.OnNext(list.Take(list.Count - el).ToArray());
-                                while (!bQueue.IsEmpty) { bQueue.TryDequeue(out _); }
-                                while (!eQueue.IsEmpty) { eQueue.TryDequeue(out _); }
+                                while (!bQueue.IsEmpty) bQueue.TryDequeue(out _);
+                                while (!eQueue.IsEmpty) eQueue.TryDequeue(out _);
 #endif
                                 list.Clear();
                                 findHeader = false;
@@ -164,13 +166,14 @@ namespace Limxc.Tools.Extensions.DevComm
         }
 
         /// <summary>
-        /// 分隔符分包
+        ///     分隔符分包
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source"></param>
         /// <param name="separator"></param>
         /// <returns></returns>
-        public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T[] separator) where T : IEquatable<T>
+        public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T[] separator)
+            where T : IEquatable<T>
         {
             var list = new List<T>();
             var queue = new ConcurrentQueue<T>();
@@ -191,7 +194,7 @@ namespace Limxc.Tools.Extensions.DevComm
                             queue.Clear();
 #else
                             o.OnNext(list.Take(list.Count - len).ToArray());
-                            while (!queue.IsEmpty) { queue.TryDequeue(out _); }
+                            while (!queue.IsEmpty) queue.TryDequeue(out _);
 #endif
                             list.Clear();
                         }
@@ -217,35 +220,33 @@ namespace Limxc.Tools.Extensions.DevComm
         #region 任务队列
 
         /// <summary>
-        /// Send解析任务完成通知
+        ///     Send解析任务完成通知
         /// </summary>
         /// <param name="protocol"></param>
         /// <param name="context"></param>
         /// <param name="schedulerRunTime">rx处理时间</param>
         /// <returns></returns>
-        public static async Task WaitingSendResult(this IProtocol protocol, CPTaskContext context, int schedulerRunTime = 100)
+        public static async Task WaitingSendResult(this IProtocol protocol, CPTaskContext context,
+            int schedulerRunTime = 100)
         {
-            var state = 0;//等待中..
+            var state = 0; //等待中..
 
             var dis = protocol
-                        .History
-                        .TakeUntil(DateTimeOffset.Now.AddMilliseconds(context.Timeout + schedulerRunTime))
-                        .FirstOrDefaultAsync(p => ((CPTaskContext)p).Id == context.Id)
-                        .ObserveOn(TaskPoolScheduler.Default)
-                        .Subscribe(p =>
-                        {
-                            if (p == null)
-                                state = 1;//返回值丢失
-                            else
-                                state = 2;//有返回值
-                        });
+                .History
+                .TakeUntil(DateTimeOffset.Now.AddMilliseconds(context.Timeout + schedulerRunTime))
+                .FirstOrDefaultAsync(p => ((CPTaskContext) p).Id == context.Id)
+                .ObserveOn(TaskPoolScheduler.Default)
+                .Subscribe(p =>
+                {
+                    if (p == null)
+                        state = 1; //返回值丢失
+                    else
+                        state = 2; //有返回值
+                });
 
             await protocol.SendAsync(context).ConfigureAwait(false);
 
-            while (state == 0)
-            {
-                await Task.Delay(10).ConfigureAwait(false);
-            }
+            while (state == 0) await Task.Delay(10).ConfigureAwait(false);
 
             dis.Dispose();
 
@@ -254,24 +255,23 @@ namespace Limxc.Tools.Extensions.DevComm
         }
 
         /// <summary>
-        /// 任务队列执行
+        ///     任务队列执行
         /// </summary>
         /// <param name="protocol"></param>
         /// <param name="queue"></param>
         /// <param name="token"></param>
         /// <param name="schedulerRunTime">rx处理时间</param>
         /// <returns></returns>
-        public static async Task ExecQueue(this IProtocol protocol, List<CPTaskContext> queue, CancellationToken token, int schedulerRunTime = 100)
+        public static async Task ExecQueue(this IProtocol protocol, List<CPTaskContext> queue, CancellationToken token,
+            int schedulerRunTime = 100)
         {
             foreach (var task in queue)
-            {
-                while (!token.IsCancellationRequested && task.State != CPContextState.Success && task.State != CPContextState.NoNeed && task.RemainTimes > 0)
+                while (!token.IsCancellationRequested && task.State != CPContextState.Success &&
+                       task.State != CPContextState.NoNeed && task.RemainTimes > 0)
                 {
                     task.RemainTimes--;
                     await protocol.WaitingSendResult(task, schedulerRunTime).ConfigureAwait(false);
                 }
-            }
-            return;
         }
 
         #endregion 任务队列

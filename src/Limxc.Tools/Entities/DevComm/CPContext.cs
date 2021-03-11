@@ -5,7 +5,7 @@ namespace Limxc.Tools.Entities.DevComm
     public class CPContext
     {
         /// <summary>
-        /// 无返回值
+        ///     无返回值
         /// </summary>
         /// <param name="cmdTemplate"></param>
         /// <param name="desc"></param>
@@ -18,7 +18,7 @@ namespace Limxc.Tools.Entities.DevComm
         }
 
         /// <summary>
-        /// 有返回值
+        ///     有返回值
         /// </summary>
         /// <param name="cmdTemplate"></param>
         /// <param name="respTemplate"></param>
@@ -38,13 +38,13 @@ namespace Limxc.Tools.Entities.DevComm
         public CPResponse Response { get; }
 
         /// <summary>
-        /// 响应时间(毫秒): 下位机处理并返回结果的时常
-        /// 0表明没有返回值
+        ///     响应时间(毫秒): 下位机处理并返回结果的时常
+        ///     0表明没有返回值
         /// </summary>
         public int Timeout { get; }
 
         /// <summary>
-        /// 解析状态
+        ///     解析状态
         /// </summary>
         public CPContextState State { get; internal set; } = CPContextState.Waiting;
 
@@ -53,7 +53,8 @@ namespace Limxc.Tools.Entities.DevComm
 
         public override string ToString()
         {
-            return $"{Desc} : {Command}    |    State:{State} Send@{SendTime:hh:mm:ss fff}  Receive@{ReceivedTime:hh:mm:ss fff}    |    {Response}";
+            return
+                $"{Desc} : {Command}    |    State:{State} Send@{SendTime:hh:mm:ss fff}  Receive@{ReceivedTime:hh:mm:ss fff}    |    {Response}";
         }
     }
 }

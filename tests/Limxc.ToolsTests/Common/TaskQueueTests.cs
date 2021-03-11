@@ -1,15 +1,15 @@
-﻿using FluentAssertions;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Xunit;
 
 namespace Limxc.Tools.Common.Tests
 {
     public class TaskQueueTests
     {
-        [Fact()]
+        [Fact]
         public async Task ExecTest()
         {
             var que = new TaskQueue<bool>();
@@ -18,7 +18,7 @@ namespace Limxc.Tools.Common.Tests
             que.Add(token => Run(500, false), 2, "cmd2");
             que.Add(token => Run(500), 0, "cmd3");
             await que.Exec();
-            que.History.Select(p => p.Result).Should().BeEquivalentTo(new bool[] { true, false, true });
+            que.History.Select(p => p.Result).Should().BeEquivalentTo(new[] {true, false, true});
 
             //固定超时
             que.Clear();

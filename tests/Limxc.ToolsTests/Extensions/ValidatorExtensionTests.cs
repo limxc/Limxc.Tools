@@ -5,7 +5,7 @@ namespace Limxc.Tools.Extensions.Tests
 {
     public class ValidatorExtensionTests
     {
-        [Fact()]
+        [Fact]
         public void CheckIpPortTest()
         {
             "0.0.0.0:0".CheckIpPort().Should().BeTrue();
@@ -21,7 +21,7 @@ namespace Limxc.Tools.Extensions.Tests
             "255.255 .255.255:65535".CheckIpPort().Should().BeFalse();
         }
 
-        [Fact()]
+        [Fact]
         public void CheckIpTest()
         {
             "0.0.0.0".CheckIp().Should().BeTrue();
@@ -37,7 +37,7 @@ namespace Limxc.Tools.Extensions.Tests
             "255.255 .255.255".CheckIp().Should().BeFalse();
         }
 
-        [Fact()]
+        [Fact]
         public void CheckPortTest()
         {
             "-1".CheckPort().Should().BeFalse();
@@ -49,7 +49,7 @@ namespace Limxc.Tools.Extensions.Tests
             "6625".CheckPort().Should().BeTrue();
         }
 
-        [Fact()]
+        [Fact]
         public void CheckEmailTest()
         {
             "xxx@asd.com".CheckEmail().Should().BeTrue();

@@ -1,26 +1,26 @@
-﻿using Limxc.Tools.Abstractions;
-using Limxc.Tools.Core.Utils;
-using System;
+﻿using System;
 using System.Collections;
 using System.IO;
 using System.Threading.Tasks;
+using FastReport.Export.Image;
+using FastReport.Export.Pdf;
+using FastReport.Utils;
+using Limxc.Tools.Abstractions;
+using Limxc.Tools.Core.Utils;
 
 namespace Limxc.Tools.Report
 {
     public class ReportService : IReportService
     {
-        private string ReportFolder() => EnvPath.ReportDir;
-
-        private string DefReportPath() => Path.Combine(EnvPath.ReportDir, "Default.frx");
-
         /// <summary>
-        /// 打印报告单,并保存pdf及png
+        ///     打印报告单,并保存pdf及png
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
         /// <param name="frxName"></param>
         /// <param name="outputFilePath">null不保存; 无后缀,自动存储为png及pdf</param>
-        public void Print<T>(T obj, string frxName, ReportOptionMode mode = ReportOptionMode.Design, string outputFilePath = null) where T : IEnumerable
+        public void Print<T>(T obj, string frxName, ReportOptionMode mode = ReportOptionMode.Design,
+            string outputFilePath = null) where T : IEnumerable
         {
             #region 汉化
 
@@ -28,8 +28,8 @@ namespace Limxc.Tools.Report
 
             if (File.Exists(file))
             {
-                FastReport.Utils.Res.LocaleFolder = ReportFolder();
-                FastReport.Utils.Res.LoadLocale(file);
+                Res.LocaleFolder = ReportFolder();
+                Res.LoadLocale(file);
             }
 
             #endregion 汉化
@@ -41,10 +41,7 @@ namespace Limxc.Tools.Report
 
             var frxPath = Path.Combine(ReportFolder(), frxName);
 
-            if (!File.Exists(frxPath))
-            {
-                File.Copy(DefReportPath(), frxPath);
-            }
+            if (!File.Exists(frxPath)) File.Copy(DefReportPath(), frxPath);
 
             #endregion File
 
@@ -72,7 +69,7 @@ namespace Limxc.Tools.Report
                     Directory.CreateDirectory(Path.GetDirectoryName(outputFilePath));
                     var pdfTask = Task.Run(() =>
                     {
-                        using (var pdfExport = new FastReport.Export.Pdf.PDFExport())
+                        using (var pdfExport = new PDFExport())
                         {
                             pdfExport.Compressed = true;
                             report.Export(pdfExport, outputFilePath + ".pdf");
@@ -80,19 +77,16 @@ namespace Limxc.Tools.Report
                     });
                     var pngTask = Task.Run(() =>
                     {
-                        using (var imgExport = new FastReport.Export.Image.ImageExport())
+                        using (var imgExport = new ImageExport())
                         {
                             imgExport.JpegQuality = 90;
-                            imgExport.ImageFormat = FastReport.Export.Image.ImageExportFormat.Png;
+                            imgExport.ImageFormat = ImageExportFormat.Png;
                             imgExport.Resolution = 200;
                             imgExport.SeparateFiles = false;
                             report.Export(imgExport, outputFilePath + ".png");
                         }
                     });
-                    Task.WhenAll(pdfTask, pngTask).ContinueWith(_ =>
-                    {
-                        report?.Dispose();
-                    });
+                    Task.WhenAll(pdfTask, pngTask).ContinueWith(_ => { report?.Dispose(); });
                 }
             }
             catch (Exception)
@@ -103,7 +97,7 @@ namespace Limxc.Tools.Report
         }
 
         /// <summary>
-        /// 获取Pdf文件
+        ///     获取Pdf文件
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
@@ -116,10 +110,7 @@ namespace Limxc.Tools.Report
                     frxName += ".frx";
                 var frxPath = Path.Combine(ReportFolder(), frxName);
 
-                if (!File.Exists(frxPath))
-                {
-                    return new byte[] { };
-                }
+                if (!File.Exists(frxPath)) return new byte[] { };
 
                 var report = new FastReport.Report();
                 //加载模板
@@ -129,7 +120,7 @@ namespace Limxc.Tools.Report
                 report.RegisterData(obj, "Data");
                 report.Prepare();
 
-                using (var pdfExport = new FastReport.Export.Pdf.PDFExport())
+                using (var pdfExport = new PDFExport())
                 {
                     pdfExport.Compressed = true;
                     using (var ms = new MemoryStream())
@@ -139,6 +130,16 @@ namespace Limxc.Tools.Report
                     }
                 }
             });
+        }
+
+        private string ReportFolder()
+        {
+            return EnvPath.ReportDir;
+        }
+
+        private string DefReportPath()
+        {
+            return Path.Combine(EnvPath.ReportDir, "Default.frx");
         }
     }
 }

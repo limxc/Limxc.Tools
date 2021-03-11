@@ -1,48 +1,26 @@
-﻿using Limxc.Tools.Extensions.DevComm;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Limxc.Tools.Extensions.DevComm;
 
 namespace Limxc.Tools.Entities.DevComm
 {
     /// <summary>
-    /// Communication Protocol Response
+    ///     Communication Protocol Response
     /// </summary>
     public class CPResponse
     {
-        #region 初始化
-
         /// <summary>
-        /// 初始化响应模板,占位符 $n n=1-9
+        ///     无返回值 返回new List<string>();
         /// </summary>
-        /// <param name="template"></param>
-        public CPResponse(string template = "")
+        /// <returns></returns>
+        public List<string> GetStrValues(bool checkPattern = true)
         {
-            Template = template.Replace(" ", "").ToUpper();
+            return GetStrValues(Value, checkPattern);
         }
 
         /// <summary>
-        /// 响应模板,占位符 $n n=1-9位 length=n*2
-        /// </summary>
-        public string Template { get; }
-
-        /// <summary>
-        /// 原始响应值
-        /// </summary>
-        public string Value { get; set; }
-
-        public int Length => Template.TemplateLength('$');
-
-        #endregion 初始化
-
-        /// <summary>
-        /// 无返回值 返回new List<string>();
-        /// </summary>
-        /// <returns></returns>
-        public List<string> GetStrValues(bool checkPattern = true) => GetStrValues(Value, checkPattern);
-
-        /// <summary>
-        /// 无返回值 返回new List<string>();
+        ///     无返回值 返回new List<string>();
         /// </summary>
         /// <returns></returns>
         public List<string> GetStrValues(string resp, bool checkPattern = true)
@@ -54,39 +32,43 @@ namespace Limxc.Tools.Entities.DevComm
 
             if (checkPattern && !Template.IsTemplateMatch(resp))
                 throw new FormatException($"Response Parse Error. Template:[{Template}] Value:{resp}");
-            else if (string.IsNullOrWhiteSpace(resp))
+            if (string.IsNullOrWhiteSpace(resp))
                 return values;
 
             resp = resp.Replace(" ", "");
 
             var arr = Template.ToCharArray();
-            int skipLen = 0;
+            var skipLen = 0;
 
-            for (int i = 0; i < arr.Length; i++)
-            {
+            for (var i = 0; i < arr.Length; i++)
                 if (arr[i] == '$' && i < arr.Length - 1)
                 {
                     var len = arr[i + 1].ToString().ToNInt();
-                    var tfv = new string(resp.Skip(i + (skipLen * 2)).Take(len * 2).ToArray());
+                    var tfv = new string(resp.Skip(i + skipLen * 2).Take(len * 2).ToArray());
                     skipLen += len > 1 ? len - 1 : 0;
                     values.Add(tfv);
                 }
-            }
 
             return values;
         }
 
         /// <summary>
-        /// 无返回值 返回new List<int>();
+        ///     无返回值 返回new List<int>();
         /// </summary>
         /// <returns></returns>
-        public List<int> GetIntValues(bool checkPattern = true) => GetIntValues(Value, checkPattern);
+        public List<int> GetIntValues(bool checkPattern = true)
+        {
+            return GetIntValues(Value, checkPattern);
+        }
 
         /// <summary>
-        /// 无返回值 返回new List<int>();
+        ///     无返回值 返回new List<int>();
         /// </summary>
         /// <returns></returns>
-        public List<int> GetIntValues(string resp, bool checkPattern = true) => GetStrValues(resp, checkPattern).ConvertAll(p => p.ToNInt());
+        public List<int> GetIntValues(string resp, bool checkPattern = true)
+        {
+            return GetStrValues(resp, checkPattern).ConvertAll(p => p.ToNInt());
+        }
 
         public override string ToString()
         {
@@ -99,6 +81,7 @@ namespace Limxc.Tools.Entities.DevComm
             {
                 strValue = e.Message;
             }
+
             try
             {
                 intValue = string.Join(",", GetIntValues(false));
@@ -107,7 +90,33 @@ namespace Limxc.Tools.Entities.DevComm
             {
                 intValue = e.Message;
             }
+
             return $"Response:[{Template}={Value?.HexStrFormat()}]  hex=({strValue})  int=({intValue})";
         }
+
+        #region 初始化
+
+        /// <summary>
+        ///     初始化响应模板,占位符 $n n=1-9
+        /// </summary>
+        /// <param name="template"></param>
+        public CPResponse(string template = "")
+        {
+            Template = template.Replace(" ", "").ToUpper();
+        }
+
+        /// <summary>
+        ///     响应模板,占位符 $n n=1-9位 length=n*2
+        /// </summary>
+        public string Template { get; }
+
+        /// <summary>
+        ///     原始响应值
+        /// </summary>
+        public string Value { get; set; }
+
+        public int Length => Template.TemplateLength();
+
+        #endregion 初始化
     }
 }

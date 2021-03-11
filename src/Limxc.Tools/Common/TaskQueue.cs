@@ -7,30 +7,66 @@ using System.Threading.Tasks;
 
 namespace Limxc.Tools.Common
 {
+    public class TaskBody<T>
+    {
+        public TaskBody(Func<CancellationToken, Task<T>> task, int retryCount, string id)
+        {
+            Task = task;
+            RetryCount = retryCount;
+            Id = id;
+        }
+
+        public Func<CancellationToken, Task<T>> Task { get; }
+        public int RetryCount { get; }
+        public string Id { get; }
+    }
+
+    public class TaskHistory<T>
+    {
+        public TaskHistory(DateTime execTime, string id, T result, string message)
+        {
+            ExecTime = execTime;
+            Id = id;
+            Result = result;
+            Message = message;
+        }
+
+        public DateTime ExecTime { get; }
+        public string Id { get; }
+        public T Result { get; }
+        public string Message { get; }
+
+        public override string ToString()
+        {
+            return $"@{ExecTime} {Id}: {Message} | {Result}";
+        }
+    }
+
     public class TaskQueue<TRet>
     {
-        /// <summary>Tasks</summary>
-        public List<(Func<CancellationToken, Task<TRet>> Task, int RetryCount, string Id)> Tasks { get; }
-
-        /// <summary>Execution History</summary>
-        public ObservableCollection<(DateTime ExecTime, string Id, TRet Result, string Msg)> History { get; }
-
-        /// <summary>Waiting For Execution</summary>
-        public IEnumerable<(Func<CancellationToken, Task<TRet>> Task, int RetryCount, string Id)> PendingQueue => queue.AsEnumerable();
-
-        private Queue<(Func<CancellationToken, Task<TRet>> Task, int RetryCount, string Id)> queue;
+        private readonly Queue<TaskBody<TRet>> _queue;
 
         public TaskQueue()
         {
-            Tasks = new List<(Func<CancellationToken, Task<TRet>> Task, int RetryCount, string Id)>();
-            History = new ObservableCollection<(DateTime ExecTime, string Id, TRet Result, string Msg)>();
+            Tasks = new List<TaskBody<TRet>>();
+            History = new List<TaskHistory<TRet>>();
 
-            queue = new Queue<(Func<CancellationToken, Task<TRet>> Task, int RetryCount, string Id)>();
+            _queue = new Queue<TaskBody<TRet>>();
         }
+
+        /// <summary>Tasks</summary>
+        public List<TaskBody<TRet>> Tasks { get; }
+
+
+        /// <summary>Execution History</summary>
+        public List<TaskHistory<TRet>> History { get; }
+
+        /// <summary>Waiting For Execution</summary>
+        public IEnumerable<TaskBody<TRet>> PendingQueue => _queue.AsEnumerable();
 
         private void BuildOnce()
         {
-            if (Tasks.Count > 0 && History.Count == 0 && queue.Count == 0)
+            if (Tasks.Count > 0 && History.Count == 0 && _queue.Count == 0)
                 Build();
         }
 
@@ -38,8 +74,8 @@ namespace Limxc.Tools.Common
         public void Build()
         {
             History.Clear();
-            queue.Clear();
-            Tasks.ForEach(task => queue.Enqueue(task));
+            _queue.Clear();
+            Tasks.ForEach(task => _queue.Enqueue(task));
         }
 
         /// <summary>Clear TaskQueue</summary>
@@ -47,34 +83,42 @@ namespace Limxc.Tools.Common
         {
             Tasks.Clear();
             History.Clear();
-            queue.Clear();
+            _queue.Clear();
         }
 
         /// <summary>
-        /// Add Task
+        ///     Add Task
         /// </summary>
         /// <param name="task">Task Func</param>
         /// <param name="retryCount">Execution times = RetryCount + 1</param>
         /// <param name="id">Task Id</param>
-        public void Add(Func<CancellationToken, Task<TRet>> task, int retryCount = 0, string id = null) => Tasks.Add((task, retryCount, id));
+        public void Add(Func<CancellationToken, Task<TRet>> task, int retryCount = 0, string id = null)
+        {
+            Tasks.Add(new TaskBody<TRet>(task, retryCount, id));
+        }
 
-        public Task Exec() => Exec(CancellationToken.None);
+        public Task Exec()
+        {
+            return Exec(CancellationToken.None);
+        }
 
-        public Task Exec(double timeoutSeconds) => Exec(new CancellationTokenSource((int)(timeoutSeconds * 1000)).Token);
+        public Task Exec(double timeoutSeconds)
+        {
+            return Exec(new CancellationTokenSource((int) (timeoutSeconds * 1000)).Token);
+        }
 
         public async Task Exec(CancellationToken token)
         {
             BuildOnce();
-            while (queue.Count > 0)
+            while (_queue.Count > 0)
             {
-                var item = queue.Peek();
+                var item = _queue.Peek();
 
-                int remainCount = 1 + (item.RetryCount < 0 ? 0 : item.RetryCount);
-                bool pass = false;
-                TRet res = default(TRet);
+                var remainCount = 1 + (item.RetryCount < 0 ? 0 : item.RetryCount);
+                var pass = false;
+                var res = default(TRet);
                 string error = null;
                 while (!pass && remainCount > 0)
-                {
                     try
                     {
                         token.ThrowIfCancellationRequested();
@@ -92,26 +136,25 @@ namespace Limxc.Tools.Common
                     }
                     finally
                     {
-                        History.Add((DateTime.Now, item.Id, res, $"RemainCount:{remainCount} State:{pass} {error}"));
+                        History.Add(new TaskHistory<TRet>(DateTime.Now, item.Id, res,
+                            $"RemainCount:{remainCount} State:{pass} {error}"));
                     }
-                }
+
                 if (!pass)
                     return;
-                queue.Dequeue();
+                _queue.Dequeue();
             }
         }
 
         /// <summary>
-        /// Combine Queues
+        ///     Combine Queues
         /// </summary>
         /// <param name="queues"></param>
         /// <returns></returns>
         public TaskQueue<TRet> Combine(params TaskQueue<TRet>[] queues)
         {
-            foreach (var queue in queues)
-            {
-                Tasks.AddRange(queue.Tasks);
-            }
+            foreach (var queue in queues) Tasks.AddRange(queue.Tasks);
+
             return this;
         }
     }

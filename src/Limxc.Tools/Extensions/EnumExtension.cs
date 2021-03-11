@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Reflection;
 
 namespace Limxc.Tools.Extensions
 {
@@ -9,13 +8,13 @@ namespace Limxc.Tools.Extensions
     {
         public static string Description(this Enum enumValue)
         {
-            string value = string.Empty;
-            FieldInfo field = enumValue.GetType().GetField(enumValue.ToString());
-            object[] objs = field.GetCustomAttributes(typeof(DescriptionAttribute), false);
+            var value = string.Empty;
+            var field = enumValue.GetType().GetField(enumValue.ToString());
+            var objs = field.GetCustomAttributes(typeof(DescriptionAttribute), false);
             if (objs == null || objs.Length == 0)
                 return value;
 
-            return ((DescriptionAttribute)objs[0]).Description;
+            return ((DescriptionAttribute) objs[0]).Description;
         }
 
         public static List<string> Names(this Enum e)
@@ -27,6 +26,7 @@ namespace Limxc.Tools.Extensions
 
                 rst.Add(name);
             }
+
             return rst;
         }
 
@@ -39,7 +39,7 @@ namespace Limxc.Tools.Extensions
         {
             if (!Enum.IsDefined(typeof(T), obj))
                 return default;
-            return (T)Enum.Parse(typeof(T), obj);
+            return (T) Enum.Parse(typeof(T), obj);
         }
     }
 }

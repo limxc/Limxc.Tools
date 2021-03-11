@@ -1,16 +1,16 @@
-﻿using Limxc.Tools.Extensions.DevComm;
-using System;
+﻿using System;
 using System.Linq;
+using Limxc.Tools.Extensions.DevComm;
 
 namespace Limxc.Tools.Entities.DevComm
 {
     /// <summary>
-    /// Communication Protocol Command
+    ///     Communication Protocol Command
     /// </summary>
     public class CPCommand
     {
         /// <summary>
-        /// 初始化指令模板,占位符 $n n=1-9位 length=n*2
+        ///     初始化指令模板,占位符 $n n=1-9位 length=n*2
         /// </summary>
         /// <param name="cmdTemplate"></param>
         /// <param name="respTemplate"></param>
@@ -19,18 +19,19 @@ namespace Limxc.Tools.Entities.DevComm
             Template = cmdTemplate.Replace(" ", "").ToUpper();
 
             //校验
-            if (Template.Length == 0 || Template.Length % 2 != 0) throw new FormatException($"Command Format Error.{Template}");
+            if (Template.Length == 0 || Template.Length % 2 != 0)
+                throw new FormatException($"Command Format Error.{Template}");
         }
 
         /// <summary>
-        /// 指令模板,占位符 $n n=1-9位 length=n*2
+        ///     指令模板,占位符 $n n=1-9位 length=n*2
         /// </summary>
         public string Template { get; }
 
-        public int Length => Template.TemplateLength('$');
+        public int Length => Template.TemplateLength();
 
         /// <summary>
-        /// 输出命令
+        ///     输出命令
         /// </summary>
         /// <param name="pars"></param>
         /// <returns></returns>
@@ -42,16 +43,14 @@ namespace Limxc.Tools.Entities.DevComm
                 var array = Template.ToStrArray(2);
 
                 //替换
-                int parsIndex = 0;
-                for (int i = 0; i < array.Length; i++)
-                {
+                var parsIndex = 0;
+                for (var i = 0; i < array.Length; i++)
                     if (array[i].StartsWith("$"))
                     {
                         var bit = Convert.ToInt32(array[i].Skip(1).FirstOrDefault().ToString());
                         array[i] = pars[parsIndex].ToHexStr(bit * 2);
                         parsIndex++;
                     }
-                }
 
                 //合并
                 var command = "";
@@ -65,7 +64,8 @@ namespace Limxc.Tools.Entities.DevComm
             }
             catch (Exception e)
             {
-                throw new FormatException($"Command Build Error. {Template}|{string.Join(",", pars)} | Exception:{e.Message}");
+                throw new FormatException(
+                    $"Command Build Error. {Template}|{string.Join(",", pars)} | Exception:{e.Message}");
             }
         }
 

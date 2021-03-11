@@ -1,5 +1,5 @@
-﻿using Limxc.Tools.Extensions;
-using System;
+﻿using System;
+using Limxc.Tools.Extensions;
 
 namespace Limxc.Tools.Entities.DevComm
 {
@@ -14,9 +14,15 @@ namespace Limxc.Tools.Entities.DevComm
 
         public string Id { get; protected set; }
 
-        public virtual string Desc() => string.Empty;
+        public virtual string Desc()
+        {
+            return string.Empty;
+        }
 
-        public virtual string ToCsv() => string.Empty;
+        public virtual string ToCsv()
+        {
+            return string.Empty;
+        }
 
         public override string ToString()
         {

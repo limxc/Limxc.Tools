@@ -1,26 +1,12 @@
-﻿using Limxc.Tools.Abstractions;
-using SharpConfig;
-using System;
+﻿using System;
 using System.IO;
+using Limxc.Tools.Abstractions;
+using SharpConfig;
 
 namespace Limxc.Tools.Core.Services
 {
     public class FileConfigService : IConfigService
     {
-        private string FilePath(string fileName)
-        {
-            if (string.IsNullOrWhiteSpace(fileName))
-                fileName = "Common.cfg";
-
-            var basePath = Path.Combine(Environment.CurrentDirectory, "Settings");
-
-            var path = Path.Combine(basePath, fileName);
-            Directory.CreateDirectory(basePath);
-            if (!File.Exists(path))
-                File.Create(path).Close();
-            return path;
-        }
-
         public void Set(string key, string value, string section = "", string fileName = "")
         {
             var fullPath = FilePath(fileName);
@@ -42,10 +28,8 @@ namespace Limxc.Tools.Core.Services
                 Set(key, "", section, fullPath);
                 return "";
             }
-            else
-            {
-                return config[section][key].StringValue;
-            }
+
+            return config[section][key].StringValue;
         }
 
         public void Set<T>(T obj, string fileName = "") where T : class, new()
@@ -64,13 +48,25 @@ namespace Limxc.Tools.Core.Services
             if (!config.Contains(typeof(T).FullName))
             {
                 var def = new T();
-                Set<T>(def, fullPath);
+                Set(def, fullPath);
                 return def;
             }
-            else
-            {
-                return config[typeof(T).FullName].ToObject<T>();
-            }
+
+            return config[typeof(T).FullName].ToObject<T>();
+        }
+
+        private string FilePath(string fileName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName))
+                fileName = "Common.cfg";
+
+            var basePath = Path.Combine(Environment.CurrentDirectory, "Settings");
+
+            var path = Path.Combine(basePath, fileName);
+            Directory.CreateDirectory(basePath);
+            if (!File.Exists(path))
+                File.Create(path).Close();
+            return path;
         }
     }
 }

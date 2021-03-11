@@ -5,13 +5,13 @@ namespace Limxc.Tools.Extensions.DevComm.Tests
 {
     public class TemplatePraseExtensionTests
     {
-        [Fact()]
+        [Fact]
         public void TemplateLengthTest()
         {
             "AA$123BD$3BB".TemplateLength().Should().Be(2 + 2 + 4 + 6 + 2);
         }
 
-        [Fact()]
+        [Fact]
         public void IsMatchTest()
         {
             "AA$1BB".IsTemplateMatch("AA02BB").Should().BeTrue();

@@ -1,16 +1,16 @@
-﻿using FluentAssertions;
-using Limxc.Tools.Core.CrcCSharp;
-using Limxc.Tools.Extensions.DevComm;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Text;
+using FluentAssertions;
+using Limxc.Tools.Core.CrcCSharp;
+using Limxc.Tools.Extensions.DevComm;
 using Xunit;
 
 namespace Limxc.Tools.CrcCSharp.Tests
 {
     public class CrcTests
     {
-        [Fact()]
+        [Fact]
         public void Test()
         {
             foreach (var p in CrcStdParams.StandartParameters.Values)
@@ -21,7 +21,7 @@ namespace Limxc.Tools.CrcCSharp.Tests
             }
         }
 
-        [Fact()]
+        [Fact]
         public void Crc16Test()
         {
             var bytes = Encoding.ASCII.GetBytes("AA0199BB");
@@ -40,7 +40,7 @@ namespace Limxc.Tools.CrcCSharp.Tests
         {
             ulong newValue = 0;
 
-            for (int i = valueLength - 1; i >= 0; i--)
+            for (var i = valueLength - 1; i >= 0; i--)
             {
                 newValue |= (ul & 1) << i;
                 ul >>= 1;
@@ -49,7 +49,7 @@ namespace Limxc.Tools.CrcCSharp.Tests
             return newValue;
         }
 
-        [Fact()]
+        [Fact]
         public void Crc32Test()
         {
             var bytes = Encoding.ASCII.GetBytes("AA0199BB");

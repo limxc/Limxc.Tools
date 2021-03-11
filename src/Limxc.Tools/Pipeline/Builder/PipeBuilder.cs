@@ -1,16 +1,18 @@
-﻿using Limxc.Tools.Pipeline.Context;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Limxc.Tools.Pipeline.Context;
 
 namespace Limxc.Tools.Pipeline.Builder
 {
     public class PipeBuilder<T> : IPipeBuilder<T> where T : class
     {
-        private readonly List<Func<PipeHandlerDel<T>, PipeHandlerDel<T>>> _handlers = new List<Func<PipeHandlerDel<T>, PipeHandlerDel<T>>>();
-        private PipeHandlerDel<T> finalHandler;
+        private readonly List<Func<PipeHandlerDel<T>, PipeHandlerDel<T>>> _handlers =
+            new List<Func<PipeHandlerDel<T>, PipeHandlerDel<T>>>();
+
         private Func<T, T> cloner;
+        private PipeHandlerDel<T> finalHandler;
 
         public PipeBuilder<T> Build()
         {
@@ -38,15 +40,16 @@ namespace Limxc.Tools.Pipeline.Builder
             Func<PipeHandlerDel<T>, PipeHandlerDel<T>> warp = next =>
             {
                 return async (context, token) =>
+                {
+                    if (handler != null && !token.IsCancellationRequested)
                     {
-                        if (handler != null && !token.IsCancellationRequested)
-                        {
-                            await handler(context.Body).ConfigureAwait(false);
-                            if (!string.IsNullOrWhiteSpace(descForSnapshot))
-                                context.AddSnapshot(descForSnapshot);
-                        }
-                        await next(context, token).ConfigureAwait(false);
-                    };
+                        await handler(context.Body).ConfigureAwait(false);
+                        if (!string.IsNullOrWhiteSpace(descForSnapshot))
+                            context.AddSnapshot(descForSnapshot);
+                    }
+
+                    await next(context, token).ConfigureAwait(false);
+                };
             };
 
             _handlers.Add(warp);
@@ -65,6 +68,7 @@ namespace Limxc.Tools.Pipeline.Builder
                         if (!string.IsNullOrWhiteSpace(descForSnapshot))
                             context.AddSnapshot(descForSnapshot);
                     }
+
                     await next(context, token).ConfigureAwait(false);
                 };
             };
@@ -85,6 +89,7 @@ namespace Limxc.Tools.Pipeline.Builder
                         if (!string.IsNullOrWhiteSpace(descForSnapshot) && !token.IsCancellationRequested)
                             context.AddSnapshot(descForSnapshot);
                     }
+
                     await next(context, token).ConfigureAwait(false);
                 };
             };
@@ -105,6 +110,7 @@ namespace Limxc.Tools.Pipeline.Builder
                         if (!string.IsNullOrWhiteSpace(descForSnapshot) && !token.IsCancellationRequested)
                             context.AddSnapshot(descForSnapshot);
                     }
+
                     await next(context, token).ConfigureAwait(false);
                 };
             };

@@ -7,16 +7,16 @@ namespace Limxc.Tools.Pipeline.Context
     {
         private readonly Func<T, T> cloner;
 
-        public T Body { get; }
-
-        public List<PipeContextSnapshot<T>> Snapshots { get; }
-
         public PipeContext(T body, Func<T, T> cloner)
         {
             Body = body;
             this.cloner = cloner;
             Snapshots = new List<PipeContextSnapshot<T>>();
         }
+
+        public T Body { get; }
+
+        public List<PipeContextSnapshot<T>> Snapshots { get; }
 
         public void AddSnapshot(string desc)
         {
