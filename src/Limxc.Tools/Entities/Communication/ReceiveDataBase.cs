@@ -1,13 +1,13 @@
 ﻿using System;
 using Limxc.Tools.Extensions;
 
-namespace Limxc.Tools.Entities.DevComm
+namespace Limxc.Tools.Entities.Communication
 {
-    public abstract class BaseReceiveData
+    public abstract class ReceiveDataBase
     {
-        protected BaseReceiveData(DateTime? receiveTime = null)
+        protected ReceiveDataBase(DateTime? receiveTime = null)
         {
-            ReceiveTime = receiveTime.HasValue ? receiveTime.Value.ToTimeStamp() : DateTime.Now.ToTimeStamp();
+            ReceiveTime = receiveTime?.ToTimeStamp() ?? DateTime.Now.ToTimeStamp();
         }
 
         public long ReceiveTime { get; protected set; }

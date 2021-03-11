@@ -1,4 +1,4 @@
-﻿namespace Limxc.Tools.Abstractions
+﻿namespace Limxc.Tools.Core.Abstractions
 {
     public interface IConfigService
     {

@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text;
 
-namespace Limxc.Tools.Extensions.DevComm
+namespace Limxc.Tools.Extensions.Communication
 {
     public static class DataConversionExtension
     {
@@ -285,6 +285,7 @@ namespace Limxc.Tools.Extensions.DevComm
         /// </summary>
         /// <param name="hexString"></param>
         /// <returns></returns>
+        // ReSharper disable once InconsistentNaming
         public static string HexToAscII(this string hexString)
         {
             var ca = hexString.ToNInts(2).Select(p => (char) p).ToArray();
@@ -296,6 +297,7 @@ namespace Limxc.Tools.Extensions.DevComm
         /// </summary>
         /// <param name="asciiString"></param>
         /// <returns></returns>
+        // ReSharper disable once InconsistentNaming
         public static string AscIIToHex(this string asciiString)
         {
             return Encoding.UTF8.GetBytes(asciiString).ToHexStr();

@@ -1,18 +1,18 @@
 ﻿using System;
 
-namespace Limxc.Tools.Entities.DevComm
+namespace Limxc.Tools.Entities.Communication
 {
-    public class CPContext
+    public class CommContext
     {
         /// <summary>
         ///     无返回值
         /// </summary>
         /// <param name="cmdTemplate"></param>
         /// <param name="desc"></param>
-        public CPContext(string cmdTemplate, string desc = "")
+        public CommContext(string cmdTemplate, string desc = "")
         {
-            Command = new CPCommand(cmdTemplate);
-            Response = new CPResponse();
+            Command = new CommCommand(cmdTemplate);
+            Response = new CommResponse();
             Timeout = 0;
             Desc = desc;
         }
@@ -24,18 +24,18 @@ namespace Limxc.Tools.Entities.DevComm
         /// <param name="respTemplate"></param>
         /// <param name="timeout"></param>
         /// <param name="desc"></param>
-        public CPContext(string cmdTemplate, string respTemplate, int timeout = 1000, string desc = "")
+        public CommContext(string cmdTemplate, string respTemplate, int timeout = 1000, string desc = "")
         {
-            Command = new CPCommand(cmdTemplate);
-            Response = new CPResponse(respTemplate);
+            Command = new CommCommand(cmdTemplate);
+            Response = new CommResponse(respTemplate);
             Timeout = timeout;
             Desc = desc;
         }
 
         public string Desc { get; }
 
-        public CPCommand Command { get; }
-        public CPResponse Response { get; }
+        public CommCommand Command { get; }
+        public CommResponse Response { get; }
 
         /// <summary>
         ///     响应时间(毫秒): 下位机处理并返回结果的时常
@@ -46,7 +46,7 @@ namespace Limxc.Tools.Entities.DevComm
         /// <summary>
         ///     解析状态
         /// </summary>
-        public CPContextState State { get; internal set; } = CPContextState.Waiting;
+        public CommContextState State { get; internal set; } = CommContextState.Waiting;
 
         public DateTime? SendTime { get; set; }
         public DateTime? ReceivedTime { get; set; }

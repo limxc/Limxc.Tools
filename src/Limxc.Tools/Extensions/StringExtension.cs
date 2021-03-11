@@ -14,12 +14,13 @@ namespace Limxc.Tools.Extensions
 
         public static bool Contains(this string value, IEnumerable<string> keys, bool ignoreCase = true)
         {
-            if (!keys.Any() || string.IsNullOrEmpty(value)) return false;
+            var array = keys as string[] ?? keys.ToArray();
+            if (!array.Any() || string.IsNullOrEmpty(value)) return false;
 
             if (ignoreCase)
-                return Regex.IsMatch(value, string.Join("|", keys.Select(Regex.Escape)), RegexOptions.IgnoreCase);
+                return Regex.IsMatch(value, string.Join("|", array.Select(Regex.Escape)), RegexOptions.IgnoreCase);
 
-            return Regex.IsMatch(value, string.Join("|", keys.Select(Regex.Escape)));
+            return Regex.IsMatch(value, string.Join("|", array.Select(Regex.Escape)));
         }
 
         public static string DeleteChineseWord(this string str)

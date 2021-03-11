@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Linq;
-using Limxc.Tools.Extensions.DevComm;
+using Limxc.Tools.Extensions.Communication;
 
-namespace Limxc.Tools.Entities.DevComm
+namespace Limxc.Tools.Entities.Communication
 {
     /// <summary>
     ///     Communication Protocol Command
     /// </summary>
-    public class CPCommand
+    public class CommCommand
     {
         /// <summary>
         ///     初始化指令模板,占位符 $n n=1-9位 length=n*2
         /// </summary>
         /// <param name="cmdTemplate"></param>
-        /// <param name="respTemplate"></param>
-        public CPCommand(string cmdTemplate)
+        public CommCommand(string cmdTemplate)
         {
             Template = cmdTemplate.Replace(" ", "").ToUpper();
 

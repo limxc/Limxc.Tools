@@ -6,10 +6,11 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Limxc.Tools.Extensions;
 using Microsoft.Reactive.Testing;
 using Xunit;
 
-namespace Limxc.Tools.Extensions.Tests
+namespace Limxc.ToolsTests.Extensions
 {
     public class RxExtensionTests
     {

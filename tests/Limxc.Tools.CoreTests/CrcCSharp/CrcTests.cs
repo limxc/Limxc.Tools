@@ -3,10 +3,10 @@ using System.Diagnostics;
 using System.Text;
 using FluentAssertions;
 using Limxc.Tools.Core.CrcCSharp;
-using Limxc.Tools.Extensions.DevComm;
+using Limxc.Tools.Extensions.Communication;
 using Xunit;
 
-namespace Limxc.Tools.CrcCSharp.Tests
+namespace Limxc.Tools.CoreTests.CrcCSharp
 {
     public class CrcTests
     {

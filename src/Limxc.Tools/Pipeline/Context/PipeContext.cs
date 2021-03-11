@@ -5,12 +5,12 @@ namespace Limxc.Tools.Pipeline.Context
 {
     public class PipeContext<T> where T : class
     {
-        private readonly Func<T, T> cloner;
+        private readonly Func<T, T> _cloner;
 
         public PipeContext(T body, Func<T, T> cloner)
         {
             Body = body;
-            this.cloner = cloner;
+            _cloner = cloner;
             Snapshots = new List<PipeContextSnapshot<T>>();
         }
 
@@ -20,7 +20,7 @@ namespace Limxc.Tools.Pipeline.Context
 
         public void AddSnapshot(string desc)
         {
-            var body = cloner?.Invoke(Body);
+            var body = _cloner?.Invoke(Body);
             if (body != null)
                 Snapshots.Add(new PipeContextSnapshot<T>(body, desc));
         }

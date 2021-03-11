@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Threading.Tasks;
 
-namespace Limxc.Tools.Abstractions
+namespace Limxc.Tools.Core.Abstractions
 {
     public interface IReportService
     {

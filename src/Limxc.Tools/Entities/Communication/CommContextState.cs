@@ -1,6 +1,6 @@
-﻿namespace Limxc.Tools.Entities.DevComm
+﻿namespace Limxc.Tools.Entities.Communication
 {
-    public enum CPContextState
+    public enum CommContextState
     {
         /// <summary>
         ///     等待解析

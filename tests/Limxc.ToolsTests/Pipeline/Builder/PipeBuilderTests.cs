@@ -3,10 +3,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Limxc.Tools.Pipeline.Builder;
 using Newtonsoft.Json;
 using Xunit;
 
-namespace Limxc.Tools.Pipeline.Builder.Tests
+namespace Limxc.ToolsTests.Pipeline.Builder
 {
     public class PipeBuilderTests
     {

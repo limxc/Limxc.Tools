@@ -6,7 +6,7 @@
             {
                 c.Msg += "_1";
                 c.Value += 1;
-            }, "¥¶¿Ì1")
+            }, "process1")
             .Use(async (c, t) =>//100ms
             {
                 await Task.Delay(1000);
@@ -14,7 +14,7 @@
                     return;
                 c.Msg += "_2";
                 c.Value += 2;
-            }, "¥¶¿Ì2")
+            }, "process2")
             .Use(c =>//1100ms
             {
                 c.Msg += "_3"; 
@@ -22,7 +22,7 @@
             }) 
             .Build();
     
-    //Result: Test_1_2_3    Snapshot: original ¥¶¿Ì1 ¥¶¿Ì2
+    //Result: Test_1_2_3    Snapshot: original process1 process2
     var rst = await pipe.RunAsync(new PipeTestContext("Test", 0), CancellationToken.None); 
     
     public class PipeTestContext
@@ -44,7 +44,7 @@
 ### Limxc.Tools.DeviceComm
 ##### 1.SerialPort 
 
-    IProtocol sp = new SerialPortProtocol();
+    var sp = new SerialPortProtocol();
     
     sp.Connect(SerialPort.GetPortNames()[0], 9600);
     
@@ -85,6 +85,10 @@
     
     simulator.CleanUp(); 
 
+### Schedule
+Test TcpClientProtocol  
+Test TcpServerProtocol
+
 ### Recommended Packages 
 ##### Communication
 [GodSharp.SerialPort](https://github.com/godsharp/GodSharp.SerialPort)  
@@ -107,6 +111,9 @@
 [Newtonsoft.Json](https://www.newtonsoft.com/json)  
 [Serilog](https://github.com/serilog/)  
 [SharpConfig](https://github.com/cemdervis/SharpConfig)  
+
+### Thanks to [JetBrains](https://jb.gg/OpenSource) ÔºÅ  
+<img src="https://www.jetbrains.com/shop/static/images/jetbrains-logo-inv.svg" height="100">     
 
 ### License
     MIT

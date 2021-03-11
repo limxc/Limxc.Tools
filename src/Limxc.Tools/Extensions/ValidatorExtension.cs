@@ -13,6 +13,7 @@ namespace Limxc.Tools.Extensions
             }
             catch
             {
+                // ignored
             }
 
             return suc;

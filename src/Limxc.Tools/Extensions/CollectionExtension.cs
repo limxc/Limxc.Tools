@@ -16,12 +16,13 @@ namespace Limxc.Tools.Extensions
         /// <returns></returns>
         public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> source, int size, bool strict = true)
         {
+            var array = source as T[] ?? source.ToArray();
             if (strict)
-                for (var i = 0; i < source.Count() / size; i++)
-                    yield return source.Skip(i * size).Take(size);
+                for (var i = 0; i < array.Count() / size; i++)
+                    yield return array.Skip(i * size).Take(size);
             else
-                for (var i = 0; i < (float) source.Count() / size; i++)
-                    yield return source.Skip(i * size).Take(size);
+                for (var i = 0; i < (float) array.Count() / size; i++)
+                    yield return array.Skip(i * size).Take(size);
         }
 
         public static Dictionary<TKey, TValue> AddOrUpdate<TKey, TValue>(this Dictionary<TKey, TValue> source, TKey key,
@@ -35,11 +36,20 @@ namespace Limxc.Tools.Extensions
             return source;
         }
 
-        public static ICollection<T> AddOrUpdate<T>(this ICollection<T> source, T value, Func<T, bool> condation)
+        public static TValue GetOrDefault<TKey, TValue>(this Dictionary<TKey, TValue> source, TKey key,
+            TValue defaultValue = default)
         {
-            var res = source.Where(condation);
-            if (res.Any())
-                foreach (var item in res.ToList())
+            if (!source.ContainsKey(key)) return defaultValue;
+
+            return source[key];
+        }
+
+        public static ICollection<T> AddOrUpdate<T>(this ICollection<T> source, Func<T, bool> condition, T value)
+        {
+            var res = source.Where(condition);
+            var array = res as T[] ?? res.ToArray();
+            if (array.Any())
+                foreach (var item in array.ToList())
                     source.Remove(item);
 
             source.Add(value);

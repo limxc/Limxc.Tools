@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
@@ -21,7 +20,7 @@ namespace Limxc.Tools.Extensions
         public static IObservable<T> Debug<T>(this IObservable<T> obs, string msg = "")
         {
             return obs.Do(p =>
-                System.Diagnostics.Debug.WriteLine(
+                Console.WriteLine(
                     $"****** {msg ?? "Rx"} @ {DateTime.Now:mm:ss fff} : {p} ******"));
         }
 
@@ -48,7 +47,7 @@ namespace Limxc.Tools.Extensions
                 var startFound = false;
                 var elapsedTime = 0;
 
-                var sub = obs.Subscribe(s =>
+                obs.Subscribe(s =>
                     {
                         elapsedTime = 0;
                         if (startFound || s.SequenceEqual(startWith))
@@ -93,7 +92,7 @@ namespace Limxc.Tools.Extensions
                 var startFound = false;
                 var elapsedTime = 0;
 
-                var sub = obs.Subscribe(s =>
+                obs.Subscribe(s =>
                     {
                         elapsedTime = 0;
                         if (startFound || s.SequenceEqual(startWith))
@@ -138,7 +137,7 @@ namespace Limxc.Tools.Extensions
                 var startFound = false;
                 var elapsedTime = 0;
 
-                var sub = obs.Subscribe(s =>
+                obs.Subscribe(s =>
                     {
                         elapsedTime = 0;
                         if (startFound || s.Equals(startWith))

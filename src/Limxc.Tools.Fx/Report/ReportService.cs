@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using FastReport.Export.Image;
 using FastReport.Export.Pdf;
 using FastReport.Utils;
-using Limxc.Tools.Abstractions;
+using Limxc.Tools.Core.Abstractions;
 using Limxc.Tools.Core.Utils;
 
 namespace Limxc.Tools.Report

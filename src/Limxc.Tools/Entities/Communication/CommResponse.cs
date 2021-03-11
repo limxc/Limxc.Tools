@@ -1,28 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Limxc.Tools.Extensions.DevComm;
+using Limxc.Tools.Extensions.Communication;
 
-namespace Limxc.Tools.Entities.DevComm
+namespace Limxc.Tools.Entities.Communication
 {
     /// <summary>
     ///     Communication Protocol Response
     /// </summary>
-    public class CPResponse
+    public class CommResponse
     {
-        /// <summary>
-        ///     无返回值 返回new List<string>();
-        /// </summary>
-        /// <returns></returns>
         public List<string> GetStrValues(bool checkPattern = true)
         {
             return GetStrValues(Value, checkPattern);
         }
 
-        /// <summary>
-        ///     无返回值 返回new List<string>();
-        /// </summary>
-        /// <returns></returns>
         public List<string> GetStrValues(string resp, bool checkPattern = true)
         {
             var values = new List<string>();
@@ -52,19 +44,11 @@ namespace Limxc.Tools.Entities.DevComm
             return values;
         }
 
-        /// <summary>
-        ///     无返回值 返回new List<int>();
-        /// </summary>
-        /// <returns></returns>
         public List<int> GetIntValues(bool checkPattern = true)
         {
             return GetIntValues(Value, checkPattern);
         }
 
-        /// <summary>
-        ///     无返回值 返回new List<int>();
-        /// </summary>
-        /// <returns></returns>
         public List<int> GetIntValues(string resp, bool checkPattern = true)
         {
             return GetStrValues(resp, checkPattern).ConvertAll(p => p.ToNInt());
@@ -100,7 +84,7 @@ namespace Limxc.Tools.Entities.DevComm
         ///     初始化响应模板,占位符 $n n=1-9
         /// </summary>
         /// <param name="template"></param>
-        public CPResponse(string template = "")
+        public CommResponse(string template = "")
         {
             Template = template.Replace(" ", "").ToUpper();
         }

@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Limxc.Tools.DeviceComm.Protocol;
-using Limxc.Tools.Entities.DevComm;
+using Limxc.Tools.Entities.Communication;
 
-namespace Limxc.Tools.Extensions.DevComm
+namespace Limxc.Tools.Extensions.Communication
 {
-    public static class ProtocolExtension
+    public static class CommunicationExtension
     {
         /// <summary>
         ///     返回值匹配及解析
@@ -22,21 +19,23 @@ namespace Limxc.Tools.Extensions.DevComm
         /// <param name="resp"></param>
         /// <param name="byteToStringConverter">默认:<see cref="DataConversionExtension.ToHexStr" /></param>
         /// <returns></returns>
-        public static IObservable<CPContext> FindResponse(this IObservable<CPContext> cmd, IObservable<byte[]> resp,
+        public static IObservable<CommContext> FindResponse(this IObservable<CommContext> cmd, IObservable<byte[]> resp,
             Func<byte[], string> byteToStringConverter = null)
         {
             if (byteToStringConverter == null)
                 byteToStringConverter = DataConversionExtension.ToHexStr;
 
             return cmd
+                    .Where(p => p.SendTime != null)
                     .SelectMany(p =>
                     {
                         if (p.Timeout == 0 || string.IsNullOrWhiteSpace(p.Response.Template))
                         {
-                            p.State = CPContextState.NoNeed;
+                            p.State = CommContextState.NoNeed;
                             return Observable.Return(p);
                         }
 
+                        Debug.Assert(p.SendTime != null, "CommContext.SendTime != null");
                         var st = ((DateTime) p.SendTime).ToDateTimeOffset();
 
                         return resp.Timestamp()
@@ -50,11 +49,11 @@ namespace Limxc.Tools.Extensions.DevComm
                                     {
                                         p.Response.Value = r.Value;
                                         p.ReceivedTime = r.Timestamp.LocalDateTime;
-                                        p.State = CPContextState.Success;
+                                        p.State = CommContextState.Success;
                                     }
                                     else
                                     {
-                                        p.State = CPContextState.Timeout;
+                                        p.State = CommContextState.Timeout;
                                     }
 
                                     return p;
@@ -151,7 +150,7 @@ namespace Limxc.Tools.Extensions.DevComm
                             }
                         }
                     }
-                }, () => o.OnCompleted());
+                }, o.OnCompleted);
 
                 return Disposable.Create(() =>
                 {
@@ -203,7 +202,7 @@ namespace Limxc.Tools.Extensions.DevComm
                             queue.TryDequeue(out _);
                         }
                     }
-                }, () => o.OnCompleted());
+                }, o.OnCompleted);
 
                 return Disposable.Create(() =>
                 {
@@ -216,64 +215,5 @@ namespace Limxc.Tools.Extensions.DevComm
         }
 
         #endregion 分包处理
-
-        #region 任务队列
-
-        /// <summary>
-        ///     Send解析任务完成通知
-        /// </summary>
-        /// <param name="protocol"></param>
-        /// <param name="context"></param>
-        /// <param name="schedulerRunTime">rx处理时间</param>
-        /// <returns></returns>
-        public static async Task WaitingSendResult(this IProtocol protocol, CPTaskContext context,
-            int schedulerRunTime = 100)
-        {
-            var state = 0; //等待中..
-
-            var dis = protocol
-                .History
-                .TakeUntil(DateTimeOffset.Now.AddMilliseconds(context.Timeout + schedulerRunTime))
-                .FirstOrDefaultAsync(p => ((CPTaskContext) p).Id == context.Id)
-                .ObserveOn(TaskPoolScheduler.Default)
-                .Subscribe(p =>
-                {
-                    if (p == null)
-                        state = 1; //返回值丢失
-                    else
-                        state = 2; //有返回值
-                });
-
-            await protocol.SendAsync(context).ConfigureAwait(false);
-
-            while (state == 0) await Task.Delay(10).ConfigureAwait(false);
-
-            dis.Dispose();
-
-            if (state == 1)
-                throw new Exception($"Send Result Lost. {nameof(CPTaskContext.Id)}:{context.Id}");
-        }
-
-        /// <summary>
-        ///     任务队列执行
-        /// </summary>
-        /// <param name="protocol"></param>
-        /// <param name="queue"></param>
-        /// <param name="token"></param>
-        /// <param name="schedulerRunTime">rx处理时间</param>
-        /// <returns></returns>
-        public static async Task ExecQueue(this IProtocol protocol, List<CPTaskContext> queue, CancellationToken token,
-            int schedulerRunTime = 100)
-        {
-            foreach (var task in queue)
-                while (!token.IsCancellationRequested && task.State != CPContextState.Success &&
-                       task.State != CPContextState.NoNeed && task.RemainTimes > 0)
-                {
-                    task.RemainTimes--;
-                    await protocol.WaitingSendResult(task, schedulerRunTime).ConfigureAwait(false);
-                }
-        }
-
-        #endregion 任务队列
     }
 }

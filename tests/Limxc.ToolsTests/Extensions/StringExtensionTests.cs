@@ -1,7 +1,8 @@
 ﻿using FluentAssertions;
+using Limxc.Tools.Extensions;
 using Xunit;
 
-namespace Limxc.Tools.Extensions.Tests
+namespace Limxc.ToolsTests.Extensions
 {
     public class StringExtensionTests
     {

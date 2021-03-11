@@ -1,9 +1,10 @@
 ﻿using FluentAssertions;
+using Limxc.Tools.Extensions.Communication;
 using Xunit;
 
-namespace Limxc.Tools.Extensions.DevComm.Tests
+namespace Limxc.ToolsTests.Extensions.Communication
 {
-    public class TemplatePraseExtensionTests
+    public class CommContextExtensionTests
     {
         [Fact]
         public void TemplateLengthTest()

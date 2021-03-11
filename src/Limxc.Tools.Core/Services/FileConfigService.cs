@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using Limxc.Tools.Abstractions;
+using Limxc.Tools.Core.Abstractions;
 using SharpConfig;
 
 namespace Limxc.Tools.Core.Services

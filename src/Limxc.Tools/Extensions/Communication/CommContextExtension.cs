@@ -1,13 +1,14 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace Limxc.Tools.Extensions.DevComm
+namespace Limxc.Tools.Extensions.Communication
 {
-    public static class CPContextExtension
+    public static class CommContextExtension
     {
         /// <summary>
         ///     计算指令长度,$n 0-9位
         /// </summary>
         /// <param name="cmd"></param>
+        /// <param name="sep"></param>
         public static int TemplateLength(this string cmd, char sep = '$')
         {
             try

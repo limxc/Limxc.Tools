@@ -11,13 +11,13 @@ namespace Limxc.Tools.Pipeline.Builder
         private readonly List<Func<PipeHandlerDel<T>, PipeHandlerDel<T>>> _handlers =
             new List<Func<PipeHandlerDel<T>, PipeHandlerDel<T>>>();
 
-        private Func<T, T> cloner;
-        private PipeHandlerDel<T> finalHandler;
+        private Func<T, T> _cloner;
+        private PipeHandlerDel<T> _finalHandler;
 
         public PipeBuilder<T> Build()
         {
             _handlers.Reverse();
-            finalHandler = (context, token) =>
+            _finalHandler = (context, token) =>
             {
                 PipeHandlerDel<T> next = (c, t) => Task.CompletedTask;
 
@@ -121,15 +121,15 @@ namespace Limxc.Tools.Pipeline.Builder
 
         public IPipeBuilder<T> UseSnapshotCloner(Func<T, T> cloner)
         {
-            this.cloner = cloner;
+            _cloner = cloner;
             return this;
         }
 
         public async Task<PipeContext<T>> RunAsync(T obj, CancellationToken token)
         {
-            var context = new PipeContext<T>(obj, cloner);
+            var context = new PipeContext<T>(obj, _cloner);
             context.AddSnapshot("original");
-            await finalHandler(context, token).ConfigureAwait(false);
+            await _finalHandler(context, token).ConfigureAwait(false);
             return context;
         }
 

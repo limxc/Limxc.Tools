@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Limxc.Tools.Abstractions
+namespace Limxc.Tools.DeviceComm.Abstractions
 {
     public interface ICommClientService
     {

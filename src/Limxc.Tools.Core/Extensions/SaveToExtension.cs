@@ -9,34 +9,26 @@ namespace Limxc.Tools.Core.Extensions
     {
         public static void SaveTo(this string msg, string path, string ext = ".txt")
         {
-            try
-            {
-                path = Path.Combine(EnvPath.OutputDir, path, ext);
+            path = Path.Combine(EnvPath.OutputDir, path, ext);
 
-                var folder = Path.GetDirectoryName(path);
-                if (!Directory.Exists(folder))
-                    Directory.CreateDirectory(folder);
-                File.AppendAllText(path, msg.Trim() + Environment.NewLine);
-            }
-            catch
-            {
-            }
+            var folder = Path.GetDirectoryName(path);
+            if (string.IsNullOrWhiteSpace(folder))
+                throw new ArgumentException($"Folder path is invalid. {folder}");
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+            File.AppendAllText(path, msg.Trim() + Environment.NewLine);
         }
 
         public static void SaveTo<T>(this T obj, string ext = ".json")
         {
-            try
-            {
-                var path = Path.Combine(EnvPath.OutputDir, $"{nameof(T)}-{DateTime.Now:yyyyMMddHHmmss}", ext);
-                var folder = Path.GetDirectoryName(path);
-                if (!Directory.Exists(folder))
-                    Directory.CreateDirectory(folder);
+            var path = Path.Combine(EnvPath.OutputDir, $"{nameof(T)}-{DateTime.Now:yyyyMMddHHmmss}", ext);
+            var folder = Path.GetDirectoryName(path);
+            if (string.IsNullOrWhiteSpace(folder))
+                throw new ArgumentException($"Folder path is invalid. {folder}");
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
 
-                File.AppendAllText(path, JsonConvert.SerializeObject(obj) + Environment.NewLine);
-            }
-            catch
-            {
-            }
+            File.AppendAllText(path, JsonConvert.SerializeObject(obj) + Environment.NewLine);
         }
     }
 }

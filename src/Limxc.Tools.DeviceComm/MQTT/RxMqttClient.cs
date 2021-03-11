@@ -3,7 +3,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Limxc.Tools.Abstractions;
+using Limxc.Tools.DeviceComm.Abstractions;
 using MQTTnet;
 using MQTTnet.Client.Options;
 using MQTTnet.Extensions.External.RxMQTT.Client;
@@ -18,13 +18,13 @@ namespace Limxc.Tools.DeviceComm.MQTT
 {
     public class RxMqttClient : ICommClientService
     {
-        private readonly IRxMqttClient client;
+        private readonly IRxMqttClient _client;
 
         public RxMqttClient()
         {
-            client = new MqttFactory().CreateRxMqttClient();
+            _client = new MqttFactory().CreateRxMqttClient();
 
-            Connected = client.Connected;
+            Connected = _client.Connected;
         }
 
         public IObservable<bool> Connected { get; }
@@ -48,17 +48,17 @@ namespace Limxc.Tools.DeviceComm.MQTT
                     .Build())
                 .Build();
 
-            return client.StartAsync(options);
+            return _client.StartAsync(options);
         }
 
         public Task Stop()
         {
-            return client.StopAsync();
+            return _client.StopAsync();
         }
 
         public void CleanUp()
         {
-            client.Dispose();
+            _client.Dispose();
         }
 
         #region string方法
@@ -72,7 +72,7 @@ namespace Limxc.Tools.DeviceComm.MQTT
         /// <returns></returns>
         public Task Pub(string topic, string payload, CancellationToken token)
         {
-            return client.PublishAsync(MqttMessageBuilder.CreateMsg(topic.ToLower(), payload), token);
+            return _client.PublishAsync(MqttMessageBuilder.CreateMsg(topic.ToLower(), payload), token);
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace Limxc.Tools.DeviceComm.MQTT
         /// <returns></returns>
         public IObservable<string> Sub(string topic)
         {
-            return client
+            return _client
                 .Connect(topic.ToLower())
                 .SelectPayload();
         }
@@ -105,7 +105,7 @@ namespace Limxc.Tools.DeviceComm.MQTT
             //    QualityOfServiceLevel = MqttQualityOfServiceLevel.ExactlyOnce
             //});
 
-            var rpcClient = new MqttRpcClient(client.InternalClient.InternalClient, rpcOption);
+            var rpcClient = new MqttRpcClient(_client.InternalClient.InternalClient, rpcOption);
 
             var response = await rpcClient
                 .ExecuteAsync(TimeSpan.FromSeconds(timeoutSeconds), methodName, msg,
@@ -123,7 +123,7 @@ namespace Limxc.Tools.DeviceComm.MQTT
         /// <returns></returns>
         public IDisposable RpcSub(string methodName, Func<string, Task<string>> action)
         {
-            return client
+            return _client
                 .Connect("MQTTnet.RPC/+/" + methodName)
                 .Subscribe(async p =>
                 {
@@ -132,7 +132,7 @@ namespace Limxc.Tools.DeviceComm.MQTT
                         msg = Encoding.UTF8.GetString(p.ApplicationMessage.Payload);
 
                     var resp = await action(msg).ConfigureAwait(false);
-                    await client
+                    await _client
                         .PublishAsync(MqttMessageBuilder.CreateMsg(p.ApplicationMessage.Topic + "/response", resp),
                             CancellationToken.None)
                         .ConfigureAwait(false);
@@ -152,7 +152,7 @@ namespace Limxc.Tools.DeviceComm.MQTT
         /// <returns></returns>
         public Task Pub<T>(string topic, T payload, CancellationToken token)
         {
-            return client.PublishAsync(
+            return _client.PublishAsync(
                 MqttMessageBuilder.CreateMsg(topic.ToLower(), JsonConvert.SerializeObject(payload)), token);
         }
 
@@ -164,7 +164,7 @@ namespace Limxc.Tools.DeviceComm.MQTT
         /// <returns></returns>
         public IObservable<T> Sub<T>(string topic)
         {
-            return client
+            return _client
                 .Connect(topic.ToLower())
                 .SelectPayload()
                 .Select(p => JsonConvert.DeserializeObject<T>(p));
@@ -187,7 +187,7 @@ namespace Limxc.Tools.DeviceComm.MQTT
             //    QualityOfServiceLevel = MqttQualityOfServiceLevel.ExactlyOnce
             //});
 
-            var rpcClient = new MqttRpcClient(client.InternalClient.InternalClient, rpcOption);
+            var rpcClient = new MqttRpcClient(_client.InternalClient.InternalClient, rpcOption);
 
             var response = await rpcClient
                 .ExecuteAsync(TimeSpan.FromSeconds(timeoutSeconds), methodName, JsonConvert.SerializeObject(msg),
@@ -205,7 +205,7 @@ namespace Limxc.Tools.DeviceComm.MQTT
         /// <returns></returns>
         public IDisposable RpcSub<TMsg, TRst>(string methodName, Func<TMsg, Task<TRst>> action)
         {
-            return client
+            return _client
                 .Connect("MQTTnet.RPC/+/" + methodName)
                 .Subscribe(async p =>
                 {
@@ -214,7 +214,7 @@ namespace Limxc.Tools.DeviceComm.MQTT
                         msg = Encoding.UTF8.GetString(p.ApplicationMessage.Payload);
 
                     var resp = await action(JsonConvert.DeserializeObject<TMsg>(msg)).ConfigureAwait(false);
-                    await client
+                    await _client
                         .PublishAsync(
                             MqttMessageBuilder.CreateMsg(p.ApplicationMessage.Topic + "/response",
                                 JsonConvert.SerializeObject(resp)), CancellationToken.None)

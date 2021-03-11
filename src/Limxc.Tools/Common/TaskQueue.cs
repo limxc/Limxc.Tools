@@ -1,57 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Limxc.Tools.Common
 {
-    public class TaskBody<T>
-    {
-        public TaskBody(Func<CancellationToken, Task<T>> task, int retryCount, string id)
-        {
-            Task = task;
-            RetryCount = retryCount;
-            Id = id;
-        }
-
-        public Func<CancellationToken, Task<T>> Task { get; }
-        public int RetryCount { get; }
-        public string Id { get; }
-    }
-
-    public class TaskHistory<T>
-    {
-        public TaskHistory(DateTime execTime, string id, T result, string message)
-        {
-            ExecTime = execTime;
-            Id = id;
-            Result = result;
-            Message = message;
-        }
-
-        public DateTime ExecTime { get; }
-        public string Id { get; }
-        public T Result { get; }
-        public string Message { get; }
-
-        public override string ToString()
-        {
-            return $"@{ExecTime} {Id}: {Message} | {Result}";
-        }
-    }
-
     public class TaskQueue<TRet>
     {
         private readonly Queue<TaskBody<TRet>> _queue;
 
         public TaskQueue()
         {
+            _queue = new Queue<TaskBody<TRet>>();
             Tasks = new List<TaskBody<TRet>>();
             History = new List<TaskHistory<TRet>>();
-
-            _queue = new Queue<TaskBody<TRet>>();
         }
 
         /// <summary>Tasks</summary>
@@ -156,6 +119,46 @@ namespace Limxc.Tools.Common
             foreach (var queue in queues) Tasks.AddRange(queue.Tasks);
 
             return this;
+        }
+    }
+
+    public class TaskBody<T>
+    {
+        public TaskBody(Func<CancellationToken, Task<T>> task, int retryCount, string id)
+        {
+            Task = task;
+            RetryCount = retryCount;
+            Id = id;
+        }
+
+        public Func<CancellationToken, Task<T>> Task { get; }
+
+        /// <summary>
+        ///     Execution times = RetryCount + 1
+        /// </summary>
+        public int RetryCount { get; }
+
+        public string Id { get; }
+    }
+
+    public class TaskHistory<T>
+    {
+        public TaskHistory(DateTime execTime, string id, T result, string message)
+        {
+            ExecTime = execTime;
+            Id = id;
+            Result = result;
+            Message = message;
+        }
+
+        public DateTime ExecTime { get; }
+        public string Id { get; }
+        public T Result { get; }
+        public string Message { get; }
+
+        public override string ToString()
+        {
+            return $"@{ExecTime} {Id}: {Message} | {Result}";
         }
     }
 }

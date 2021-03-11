@@ -7,14 +7,15 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Limxc.Tools.Entities.DevComm;
-using Limxc.Tools.Tests;
+using Limxc.Tools.DeviceComm.Protocol;
+using Limxc.Tools.Entities.Communication;
+using Limxc.Tools.Extensions.Communication;
 using Microsoft.Reactive.Testing;
 using Xunit;
 
-namespace Limxc.Tools.Extensions.DevComm.Tests
+namespace Limxc.ToolsTests.Extensions.Communication
 {
-    public class ProtocolExtensionTests
+    public class CommunicationExtensionTests
     {
         [Fact]
         public void B1E1ParsePackageTest()
@@ -310,31 +311,31 @@ namespace Limxc.Tools.Extensions.DevComm.Tests
         [Fact]
         public async Task FindResponseTest()
         {
-            var obsSend = Observable.Create<CPContext>(async o =>
+            var obsSend = Observable.Create<CommContext>(async o =>
                     {
                         //01  第1秒
                         await Task.Delay(1000);
-                        o.OnNext(new CPContext("AA01BB", "AA$1BB", 1000, "01") {SendTime = DateTime.Now});
+                        o.OnNext(new CommContext("AA01BB", "AA$1BB", 1000, "01") {SendTime = DateTime.Now});
 
                         //02  第2秒
                         await Task.Delay(1000);
-                        o.OnNext(new CPContext("AB02BB", "AB$1BB", 1000, "02") {SendTime = DateTime.Now});
+                        o.OnNext(new CommContext("AB02BB", "AB$1BB", 1000, "02") {SendTime = DateTime.Now});
 
                         //03  第3秒
                         await Task.Delay(1000);
-                        o.OnNext(new CPContext("AC03BB", "AC$1BB", 0, "03") {SendTime = DateTime.Now}); //不触发解析
+                        o.OnNext(new CommContext("AC03BB", "AC$1BB", 0, "03") {SendTime = DateTime.Now}); //不触发解析
 
                         //04  第4秒
                         await Task.Delay(1000);
-                        o.OnNext(new CPContext("AD04BB", "AD$1BB", 1000, "04") {SendTime = DateTime.Now});
+                        o.OnNext(new CommContext("AD04BB", "AD$1BB", 1000, "04") {SendTime = DateTime.Now});
 
                         //05  第5秒
                         await Task.Delay(1000);
-                        o.OnNext(new CPContext("AE05BB", "AE$1BB", 1000, "05") {SendTime = DateTime.Now});
+                        o.OnNext(new CommContext("AE05BB", "AE$1BB", 1000, "05") {SendTime = DateTime.Now});
 
                         //06  第6秒
                         await Task.Delay(1000);
-                        o.OnNext(new CPContext("AF06BB", "AF$1BB", 1000, "06") {SendTime = DateTime.Now});
+                        o.OnNext(new CommContext("AF06BB", "AF$1BB", 1000, "06") {SendTime = DateTime.Now});
 
                         o.OnCompleted();
                         return Disposable.Empty;
@@ -373,7 +374,7 @@ namespace Limxc.Tools.Extensions.DevComm.Tests
                 //.RefCount()
                 ;
 
-            var cpsr = new List<CPContext>();
+            var cpsr = new List<CommContext>();
 
             //obsSend.Select(p => p.ToString())
             //    .Merge(obsRecv.Select(p => p.ToHexStr()))
@@ -385,12 +386,12 @@ namespace Limxc.Tools.Extensions.DevComm.Tests
             var rc = obsRecv.Connect();
 
             await Task.Delay(8000);
-            cpsr[0].State.Should().Be(CPContextState.Timeout);
-            cpsr[1].State.Should().Be(CPContextState.Success);
-            cpsr[2].State.Should().Be(CPContextState.NoNeed);
-            cpsr[3].State.Should().Be(CPContextState.Timeout);
-            cpsr[4].State.Should().Be(CPContextState.Success);
-            cpsr[5].State.Should().Be(CPContextState.Success);
+            cpsr[0].State.Should().Be(CommContextState.Timeout);
+            cpsr[1].State.Should().Be(CommContextState.Success);
+            cpsr[2].State.Should().Be(CommContextState.NoNeed);
+            cpsr[3].State.Should().Be(CommContextState.Timeout);
+            cpsr[4].State.Should().Be(CommContextState.Success);
+            cpsr[5].State.Should().Be(CommContextState.Success);
 
             cpsr[1].Response.GetIntValues()[0].Should().Be(2);
             cpsr[4].Response.GetIntValues()[0].Should().Be(5);
@@ -407,7 +408,7 @@ namespace Limxc.Tools.Extensions.DevComm.Tests
         {
             var simulator = new ProtocolSimulator(0, 3000);
             var msg = new List<string>();
-            var rst = new List<CPContext>();
+            var rst = new List<CommContext>();
 
             simulator.Received.Select(p => $"@ {DateTime.Now:mm:ss fff} 接收 : {p.ToHexStr()}")
                 .Subscribe(p => msg.Add(p));
@@ -420,7 +421,7 @@ namespace Limxc.Tools.Extensions.DevComm.Tests
             await simulator.OpenAsync();
 
             //有返回值
-            var ctx1 = new CPTaskContext("1", "AA01BB", "AA$1BB", 1000 + 3000);
+            var ctx1 = new CommTaskContext("1", "AA01BB", "AA$1BB", 1000 + 3000);
 
             var begin = DateTime.Now;
             _ = simulator.SendAsync(ctx1);
@@ -429,15 +430,15 @@ namespace Limxc.Tools.Extensions.DevComm.Tests
 
             ctx1.Response.Value.Should().Be("AA01BB");
             (end - begin).TotalMilliseconds.Should().BeApproximately(3500, 500);
-            rst.TrueForAll(p => p.State == CPContextState.Success);
+            rst.TrueForAll(p => p.State == CommContextState.Success);
 
             rst.Clear();
 
             //无返回值
-            var ctx2 = new CPTaskContext("2", "000000");
+            var ctx2 = new CommTaskContext("2", "000000");
             _ = simulator.SendAsync(ctx2);
             await simulator.WaitingSendResult(ctx2, 3000 + 3000);
-            ctx2.State.Should().Be(CPContextState.NoNeed);
+            ctx2.State.Should().Be(CommContextState.NoNeed);
 
             await simulator.CloseAsync();
             simulator.Dispose();
@@ -448,7 +449,7 @@ namespace Limxc.Tools.Extensions.DevComm.Tests
         {
             var simulator = new ProtocolSimulator();
             var msg = new List<string>();
-            var history = new List<CPTaskContext>();
+            var history = new List<CommTaskContext>();
 
             simulator.Received.Select(p => $"@ {DateTime.Now:mm:ss fff} 接收 : {p.ToHexStr()}").Subscribe(p =>
             {
@@ -457,12 +458,12 @@ namespace Limxc.Tools.Extensions.DevComm.Tests
             simulator.History.Subscribe(p =>
             {
                 msg.Add($"@ {DateTime.Now:mm:ss fff} {p}");
-                history.Add(p as CPTaskContext);
+                history.Add(p as CommTaskContext);
             });
 
             await simulator.OpenAsync();
 
-            var tcList = new List<CPTaskContext>
+            var tcList = new List<CommTaskContext>
             {
                 new("id1", "AA01BB", "AA$1BB", 1000, 3),
                 new("id2", "AB01BB", "AB$1BB", 1000, 3),
@@ -476,13 +477,13 @@ namespace Limxc.Tools.Extensions.DevComm.Tests
             await simulator.CloseAsync();
             simulator.Dispose();
 
-            tcList.Count(p => p.State == CPContextState.Timeout).Should().Be(1);
-            tcList.Count(p => p.State == CPContextState.NoNeed).Should().Be(1);
-            tcList.Count(p => p.State == CPContextState.Success).Should().Be(3);
+            tcList.Count(p => p.State == CommContextState.Timeout).Should().Be(1);
+            tcList.Count(p => p.State == CommContextState.NoNeed).Should().Be(1);
+            tcList.Count(p => p.State == CommContextState.Success).Should().Be(3);
 
-            history.Count(p => p.State == CPContextState.NoNeed).Should().Be(1);
-            history.Count(p => p.State == CPContextState.Success).Should().Be(3);
-            history.Count(p => p.State == CPContextState.Timeout).Should().Be(3);
+            history.Count(p => p.State == CommContextState.NoNeed).Should().Be(1);
+            history.Count(p => p.State == CommContextState.Success).Should().Be(3);
+            history.Count(p => p.State == CommContextState.Timeout).Should().Be(3);
         }
     }
 }

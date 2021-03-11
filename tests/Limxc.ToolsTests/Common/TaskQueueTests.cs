@@ -3,9 +3,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Limxc.Tools.Common;
 using Xunit;
 
-namespace Limxc.Tools.Common.Tests
+namespace Limxc.ToolsTests.Common
 {
     public class TaskQueueTests
     {
@@ -14,9 +15,9 @@ namespace Limxc.Tools.Common.Tests
         {
             var que = new TaskQueue<bool>();
             //失败重试
-            que.Add(token => Run(1000), 0, "cmd1");
-            que.Add(token => Run(500, false), 2, "cmd2");
-            que.Add(token => Run(500), 0, "cmd3");
+            que.Add(_ => Run(1000), 0, "cmd1");
+            que.Add(_ => Run(500, false), 2, "cmd2");
+            que.Add(_ => Run(500), 0, "cmd3");
             await que.Exec();
             que.History.Select(p => p.Result).Should().BeEquivalentTo(new[] {true, false, true});
 

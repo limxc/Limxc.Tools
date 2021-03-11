@@ -5,7 +5,7 @@ namespace Limxc.Tools.Extensions
 {
     public static class DateTimeExtension
     {
-        private static readonly DateTime _epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         /// <summary>
         ///     TimeFromUnixTimestamp
@@ -15,7 +15,7 @@ namespace Limxc.Tools.Extensions
         public static DateTime ToDateTime(this long unixTimestamp)
         {
             var unixTimeStampInTicks = unixTimestamp * TimeSpan.TicksPerMillisecond;
-            return new DateTime(_epoch.Ticks + unixTimeStampInTicks);
+            return new DateTime(Epoch.Ticks + unixTimeStampInTicks);
         }
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace Limxc.Tools.Extensions
         /// <returns></returns>
         public static long ToTimeStamp(this DateTime dateTime)
         {
-            var unixTimestamp = dateTime.Ticks - _epoch.Ticks;
+            var unixTimestamp = dateTime.Ticks - Epoch.Ticks;
             unixTimestamp /= TimeSpan.TicksPerMillisecond;
             return unixTimestamp;
         }
@@ -45,18 +45,17 @@ namespace Limxc.Tools.Extensions
         /// <returns></returns>
         public static (int Year, int Month, int Day) Age(this DateTime begin, DateTime end)
         {
-            Dictionary<int, int> MonthDay;
-            var ts = end - begin;
-            int year = 0, month = 0, day = 0;
+            Dictionary<int, int> monthDay;
+            int year, month, day;
 
             if (end.Year % 4 == 0)
-                MonthDay = new Dictionary<int, int>
+                monthDay = new Dictionary<int, int>
                 {
                     {1, 31}, {2, 29}, {3, 31}, {4, 30}, {5, 31}, {6, 30}, {7, 31}, {8, 31}, {9, 30}, {10, 31}, {11, 30},
                     {12, 31}
                 };
             else
-                MonthDay = new Dictionary<int, int>
+                monthDay = new Dictionary<int, int>
                 {
                     {1, 31}, {2, 28}, {3, 31}, {4, 30}, {5, 31}, {6, 30}, {7, 31}, {8, 31}, {9, 30}, {10, 31}, {11, 30},
                     {12, 31}
@@ -83,7 +82,7 @@ namespace Limxc.Tools.Extensions
 
             //day
             if (end.Day < begin.Day)
-                day = end.Day + MonthDay[begin.Month] - begin.Day;
+                day = end.Day + monthDay[begin.Month] - begin.Day;
             else
                 day = end.Day - begin.Day;
 

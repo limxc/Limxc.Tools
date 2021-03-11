@@ -1,25 +1,25 @@
 ﻿using System;
-using System.Diagnostics;
 using FluentAssertions;
+using Limxc.Tools.Entities.Communication;
 using Xunit;
 
-namespace Limxc.Tools.Entities.DevComm.Tests
+namespace Limxc.ToolsTests.Entities.Communication
 {
-    public class CPContextTests
+    public class CommContextTests
     {
         [Fact]
         public void CommandTest()
         {
-            var context = new CPContext("AA 0A $1 0B $2 0C $3 BB");
+            var context = new CommContext("AA 0A $1 0B $2 0C $3 BB");
             context.Command.Length.Should().Be(2 + 2 + 2 + 2 + 4 + 2 + 6 + 2);
-            context.Command.Build(11, 222, 333).Should().Be("AA0A 0B 0B 00DE 0C 00014D BB".Replace(" ", ""));
-            Debug.WriteLine(context);
+            var cmd = context.Command.Build(11, 222, 333);
+            cmd.Should().Be("AA0A 0B 0B 00DE 0C 00014D BB".Replace(" ", ""));
         }
 
         [Fact]
         public void ResponseTest()
         {
-            var ctx1 = new CPContext("AA0A$10B$20C$3BB", "AA0A$10B$20C$3BB", 1000);
+            var ctx1 = new CommContext("AA0A$10B$20C$3BB", "AA0A$10B$20C$3BB", 1000);
             var intParams = new[] {11, 222, 333};
             ctx1.Response.GetIntValues(ctx1.Command.Build(intParams)).Should().BeEquivalentTo(intParams);
             ctx1.Response.GetStrValues(ctx1.Command.Build(intParams)).Should().BeEquivalentTo("0B", "00DE", "00014D");
@@ -29,10 +29,10 @@ namespace Limxc.Tools.Entities.DevComm.Tests
             ctx1.Response.GetIntValues().Should().BeEquivalentTo(intParams);
             ctx1.Response.GetStrValues().Should().BeEquivalentTo("0B", "00DE", "00014D");
 
-            var ctx2 = new CPContext("AA0A$10B$20C$3BB", "AA0A$10B$20C$3f", 1000);
+            var ctx2 = new CommContext("AA0A$10B$20C$3BB", "AA0A$10B$20C$3f", 1000);
             Assert.Throws(typeof(FormatException), () => ctx2.Response.GetStrValues(ctx2.Command.Build(intParams)));
-            ctx2.Response.GetStrValues(ctx2.Command.Build(intParams), false).Should()
-                .BeEquivalentTo("0B", "00DE", "00014D");
+            var values = ctx2.Response.GetStrValues(ctx2.Command.Build(intParams), false);
+            values.Should().BeEquivalentTo("0B", "00DE", "00014D");
         }
     }
 }

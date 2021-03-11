@@ -1,6 +1,6 @@
-﻿namespace Limxc.Tools.Entities.DevComm
+﻿namespace Limxc.Tools.Entities.Communication
 {
-    public class CPTaskContext : CPContext
+    public class CommTaskContext : CommContext
     {
         /// <summary>
         ///     无返回值
@@ -9,7 +9,7 @@
         /// <param name="cmdTemplate"></param>
         /// <param name="remainTimes">可执行次数=重试次数+1</param>
         /// <param name="desc"></param>
-        public CPTaskContext(string id, string cmdTemplate, int remainTimes = 1, string desc = "") : base(cmdTemplate,
+        public CommTaskContext(string id, string cmdTemplate, int remainTimes = 1, string desc = "") : base(cmdTemplate,
             desc)
         {
             Id = id;
@@ -25,7 +25,7 @@
         /// <param name="timeout">响应时间</param>
         /// <param name="remainTimes">可执行次数=重试次数+1</param>
         /// <param name="desc"></param>
-        public CPTaskContext(string id, string cmdTemplate, string respTemplate, int timeout = 1000,
+        public CommTaskContext(string id, string cmdTemplate, string respTemplate, int timeout = 1000,
             int remainTimes = 1, string desc = "") : base(cmdTemplate, respTemplate, timeout, desc)
         {
             Id = id;
@@ -40,7 +40,7 @@
         /// <summary>
         ///     执行次数
         /// </summary>
-        public int RemainTimes { get; internal set; }
+        public int RemainTimes { get; set; }
 
         public override string ToString()
         {
