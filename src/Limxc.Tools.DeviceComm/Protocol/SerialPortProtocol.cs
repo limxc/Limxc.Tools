@@ -15,6 +15,13 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
         public override bool IsConnected => _sp?.IsOpen ?? false;
 
+        public override void Init(params object[] pars)
+        {
+            var portName = (string) pars[0];
+            var baudRate = (int) pars[1];
+            Init(portName, baudRate);
+        }
+
         public void Init(string portName, int baudRate)
         {
             _disposables?.Dispose();
@@ -47,6 +54,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
                 .DisposeWith(_disposables);
         }
 
+
         public override Task<bool> SendAsync(CommContext context)
         {
             var cmdStr = context.Command.Build();
@@ -64,6 +72,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
             return Task.FromResult(true);
         }
+
 
         public override Task<bool> OpenAsync()
         {

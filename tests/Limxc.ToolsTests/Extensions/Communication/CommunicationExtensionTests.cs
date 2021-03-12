@@ -7,6 +7,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Limxc.Tools.DeviceComm.Extensions;
 using Limxc.Tools.DeviceComm.Protocol;
 using Limxc.Tools.Entities.Communication;
 using Limxc.Tools.Extensions.Communication;

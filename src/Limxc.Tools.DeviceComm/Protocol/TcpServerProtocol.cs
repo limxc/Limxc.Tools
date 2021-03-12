@@ -18,6 +18,13 @@ namespace Limxc.Tools.DeviceComm.Protocol
         private SimpleTcpServer _server;
         public override bool IsConnected => _server?.IsListening ?? false;
 
+        public override void Init(params object[] pars)
+        {
+            var ipPort = (string) pars[0];
+            var clientIpPort = (string) pars[1];
+            Init(ipPort, clientIpPort);
+        }
+
         public void Init(string ipPort, string clientIpPort)
         {
             _clientIpPort = clientIpPort;

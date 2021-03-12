@@ -20,6 +20,10 @@ namespace Limxc.Tools.DeviceComm.Protocol
             return Task.FromResult(false);
         }
 
+        public override void Init(params object[] pars)
+        {
+        }
+
         public override Task<bool> OpenAsync()
         {
             return Task.FromResult(false);

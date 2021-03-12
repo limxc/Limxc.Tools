@@ -1,13 +1,13 @@
 <Project>
-  <PropertyGroup>
-    <Company>Limxc</Company>
-    <Authors>Limxc</Authors>
-    <RepositoryUrl>https://github.com/limxc/Limxc.Tools.git</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/limxc/Limxc.Tools.git</PackageProjectUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Product>Limxc.Tools</Product>
-    
-    <Version>0.0.31</Version>
-    <!--<OutputPath>$(MSBuildThisFileDirectory)bin\$(Configuration)\</OutputPath>-->
-  </PropertyGroup>
+    <PropertyGroup>
+        <Company>Limxc</Company>
+        <Authors>Limxc</Authors>
+        <RepositoryUrl>https://github.com/limxc/Limxc.Tools.git</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/limxc/Limxc.Tools.git</PackageProjectUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Product>Limxc.Tools</Product>
+
+        <Version>0.0.32</Version>
+        <!--<OutputPath>$(MSBuildThisFileDirectory)bin\$(Configuration)\</OutputPath>-->
+    </PropertyGroup>
 </Project>
