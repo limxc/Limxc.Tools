@@ -38,9 +38,9 @@ namespace Limxc.Tools.DeviceCommTests.Protocol
 
             Observable.Merge
                 (
-                    sp.History.Select(p => $"{DateTime.Now:mm:ss fff} {p}"),
-                    sp.ConnectionState.Select(p => $"{DateTime.Now:mm:ss fff} 连接状态: {p}"),
-                    sp.Received.Select(p => $"{DateTime.Now:mm:ss fff} receive : {p}")
+                    sp.History.Select(p => $"History: {p}"),
+                    sp.ConnectionState.Select(p => $"ConnectionState: {p}"),
+                    sp.Received.Select(p => $"Received: {p}")
                 )
                 .Subscribe(p => { rst.Add(p); })
                 .DisposeWith(dis);
@@ -49,15 +49,15 @@ namespace Limxc.Tools.DeviceCommTests.Protocol
             await Task.Delay(1000);
             await sp.CloseAsync();
 
-            Assert.True(rst.Count == 5 && rst.Count(p => p.Contains("Error")) == 0);
+            if (rst.Count(p => p.StartsWith("Received")) > 0)
+                Assert.True(rst.Count == 5 && rst.Count(p => p.Contains("Error")) == 0);
 
             dis.Dispose();
-            dis = new CompositeDisposable();
 
             rst.ForEach(p => Debug.WriteLine(p));
             Debugger.Break();
-            rst.Clear();
 
+            rst.Clear();
             sp.Dispose();
         }
     }
