@@ -66,13 +66,10 @@ namespace Limxc.Tools.DeviceComm.Protocol
         {
             if (disposing)
             {
-                _connectionState.OnCompleted();
-                _connectionState.Dispose();
-                _history.OnCompleted();
-                _history.Dispose();
-                _received.OnCompleted();
-                _received.Dispose();
                 _disposables?.Dispose();
+                _history?.Dispose(); 
+                _connectionState?.Dispose(); 
+                _received?.Dispose(); 
             }
         }
 
