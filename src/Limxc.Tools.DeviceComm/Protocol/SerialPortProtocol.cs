@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO.Ports;
+using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -11,7 +13,42 @@ namespace Limxc.Tools.DeviceComm.Protocol
 {
     public class SerialPortProtocol : ProtocolBase
     {
+        private readonly IDisposable _autoConnectDisposable;
+        private int _baudRate;
+        private string _portName;
         private GodSerialPort _sp;
+
+        /// <summary>
+        ///     Manual Connect
+        /// </summary>
+        public SerialPortProtocol()
+        {
+        }
+
+        /// <summary>
+        ///     Auto Connect
+        /// </summary>
+        /// <param name="autoConnectInterval">Milliseconds</param>
+        public SerialPortProtocol(int autoConnectInterval = 1000)
+        {
+            var isConnecting = false;
+            _autoConnectDisposable = Observable
+                .Interval(TimeSpan.FromMilliseconds(autoConnectInterval))
+                .Where(_ => !string.IsNullOrWhiteSpace(_portName))
+                .Select(_ => SerialPort.GetPortNames())
+                .Select(ports => ports.Contains(_portName, StringComparer.CurrentCultureIgnoreCase)) //port found
+                .Where(p => p && !IsConnected) //need to try connect
+                .ObserveOn(NewThreadScheduler.Default)
+                .Subscribe(async _ =>
+                {
+                    if (!isConnecting)
+                    {
+                        isConnecting = true;
+                        await OpenAsync();
+                        isConnecting = false;
+                    }
+                });
+        }
 
         public override bool IsConnected => _sp?.IsOpen ?? false;
 
@@ -24,11 +61,14 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
         public void Init(string portName, int baudRate)
         {
+            _portName = portName;
+            _baudRate = baudRate;
+
             _disposables?.Dispose();
             _disposables = new CompositeDisposable();
 
             _sp?.Close();
-            _sp = new GodSerialPort(portName, baudRate, 0);
+            _sp = new GodSerialPort(_portName, _baudRate, 0);
 
             Observable
                 .Interval(TimeSpan.FromSeconds(0.1))
@@ -81,11 +121,12 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
         public override Task<bool> CloseAsync()
         {
-            return Task.FromResult(_sp.Close());
+            return Task.FromResult(_sp?.Close() ?? false);
         }
 
         protected override void Dispose(bool disposing)
         {
+            _autoConnectDisposable?.Dispose();
             _sp?.Close();
             base.Dispose(disposing);
         }

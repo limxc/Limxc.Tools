@@ -13,10 +13,10 @@ namespace Limxc.Tools.DeviceComm.Protocol
 {
     public abstract class ProtocolBase : IProtocol
     {
-        protected Subject<bool> _connectionState;
+        protected readonly Subject<bool> _connectionState;
+        protected readonly Subject<CommContext> _history;
+        protected readonly Subject<byte[]> _received;
         protected CompositeDisposable _disposables;
-        protected Subject<CommContext> _history;
-        protected Subject<byte[]> _received;
 
         protected ProtocolBase()
         {
@@ -67,9 +67,9 @@ namespace Limxc.Tools.DeviceComm.Protocol
             if (disposing)
             {
                 _disposables?.Dispose();
-                _history?.Dispose(); 
-                _connectionState?.Dispose(); 
-                _received?.Dispose(); 
+                _history?.Dispose();
+                _connectionState?.Dispose();
+                _received?.Dispose();
             }
         }
 
