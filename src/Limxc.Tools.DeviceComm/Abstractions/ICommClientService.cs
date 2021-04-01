@@ -6,7 +6,7 @@ namespace Limxc.Tools.DeviceComm.Abstractions
 {
     public interface ICommClientService
     {
-        IObservable<bool> Connected { get; }
+        IObservable<bool> ConnectionState { get; }
 
         Task Start(string clientId, string serverIp, int port);
 

@@ -24,10 +24,10 @@ namespace Limxc.Tools.DeviceComm.MQTT
         {
             _client = new MqttFactory().CreateRxMqttClient();
 
-            Connected = _client.Connected;
+            ConnectionState = _client.Connected;
         }
 
-        public IObservable<bool> Connected { get; }
+        public IObservable<bool> ConnectionState { get; }
 
         public Task Start(string clientId, string serverIp, int port)
         {
