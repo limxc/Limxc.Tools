@@ -9,7 +9,7 @@ namespace Limxc.Tools.Core.Services
     {
         public void Set(string key, string value, string section = "", string fileName = "")
         {
-            var fullPath = FilePath(fileName);
+            var fullPath = GetFilePath(fileName);
             if (string.IsNullOrWhiteSpace(section))
                 section = "Settings";
             var config = Configuration.LoadFromFile(fullPath);
@@ -19,7 +19,7 @@ namespace Limxc.Tools.Core.Services
 
         public string Get(string key, string section = "", string fileName = "")
         {
-            var fullPath = FilePath(fileName);
+            var fullPath = GetFilePath(fileName);
             if (string.IsNullOrWhiteSpace(section))
                 section = "Settings";
             var config = Configuration.LoadFromFile(fullPath);
@@ -34,7 +34,7 @@ namespace Limxc.Tools.Core.Services
 
         public void Set<T>(T obj, string fileName = "") where T : class, new()
         {
-            var fullPath = FilePath(fileName);
+            var fullPath = GetFilePath(fileName);
             var config = Configuration.LoadFromFile(fullPath);
             config.RemoveAllNamed(typeof(T).FullName);
             config.Add(Section.FromObject(typeof(T).FullName, obj));
@@ -43,7 +43,7 @@ namespace Limxc.Tools.Core.Services
 
         public T Get<T>(string fileName = "") where T : class, new()
         {
-            var fullPath = FilePath(fileName);
+            var fullPath = GetFilePath(fileName);
             var config = Configuration.LoadFromFile(fullPath);
             if (!config.Contains(typeof(T).FullName))
             {
@@ -55,7 +55,7 @@ namespace Limxc.Tools.Core.Services
             return config[typeof(T).FullName].ToObject<T>();
         }
 
-        private string FilePath(string fileName)
+        public string GetFilePath(string fileName)
         {
             if (string.IsNullOrWhiteSpace(fileName))
                 fileName = "Common.cfg";
