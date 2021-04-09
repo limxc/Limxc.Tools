@@ -31,6 +31,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Limxc.Tools.DeviceCommTests
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Limxc.ToolsTests", "tests\Limxc.ToolsTests\Limxc.ToolsTests.csproj", "{4BE4E99B-92EB-4A71-BDF7-29ABC03ED5C8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinformTester", "tests\WinformTester\WinformTester.csproj", "{B7797782-9958-4ABE-B2AB-8BDF274B1179}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -65,6 +67,10 @@ Global
 		{4BE4E99B-92EB-4A71-BDF7-29ABC03ED5C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4BE4E99B-92EB-4A71-BDF7-29ABC03ED5C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4BE4E99B-92EB-4A71-BDF7-29ABC03ED5C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7797782-9958-4ABE-B2AB-8BDF274B1179}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7797782-9958-4ABE-B2AB-8BDF274B1179}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7797782-9958-4ABE-B2AB-8BDF274B1179}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7797782-9958-4ABE-B2AB-8BDF274B1179}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -77,6 +83,7 @@ Global
 		{78F02767-7E66-420A-9DDE-7A9D8458F20D} = {8F3EC7F7-6D4C-41F2-822D-2F6DD0FC2892}
 		{55EBB938-1A93-47C0-97DA-2AC5A321795B} = {8F3EC7F7-6D4C-41F2-822D-2F6DD0FC2892}
 		{4BE4E99B-92EB-4A71-BDF7-29ABC03ED5C8} = {8F3EC7F7-6D4C-41F2-822D-2F6DD0FC2892}
+		{B7797782-9958-4ABE-B2AB-8BDF274B1179} = {8F3EC7F7-6D4C-41F2-822D-2F6DD0FC2892}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {331109E3-CBC8-42E6-AE35-8C5111AE53CD}

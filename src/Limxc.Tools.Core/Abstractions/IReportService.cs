@@ -1,17 +1,14 @@
-﻿using System.Collections;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace Limxc.Tools.Core.Abstractions
 {
     public interface IReportService
     {
-        Task<byte[]> GetPdf<T>(T obj, string frxName) where T : IEnumerable;
-
-        void Print<T>(T obj, string frxName, ReportOptionMode mode = ReportOptionMode.Design,
-            string outputFilePath = null) where T : IEnumerable;
+        Task<byte[]> PrintAsync<T>(T obj, string frxFullPath, ReportMode mode = ReportMode.Design,
+            string exportFilePath = null);
     }
 
-    public enum ReportOptionMode
+    public enum ReportMode
     {
         Design,
         Show,

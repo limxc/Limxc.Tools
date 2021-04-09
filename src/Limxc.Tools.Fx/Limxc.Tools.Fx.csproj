@@ -9,19 +9,16 @@
   </ItemGroup> 
 
   <ItemGroup>
-    <Reference Include="System.Windows.Forms" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Reference Include="FastReport">
-      <HintPath>~dlls\FastReport.dll</HintPath>
+      <HintPath>~dll\FastReport.dll</HintPath>
     </Reference>
     <Reference Include="FastReport.Bars">
-      <HintPath>~dlls\FastReport.Bars.dll</HintPath>
+      <HintPath>~dll\FastReport.Bars.dll</HintPath>
     </Reference>
     <Reference Include="FastReport.Editor">
-      <HintPath>~dlls\FastReport.Editor.dll</HintPath>
+      <HintPath>~dll\FastReport.Editor.dll</HintPath>
     </Reference>
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
 
   <ItemGroup>
