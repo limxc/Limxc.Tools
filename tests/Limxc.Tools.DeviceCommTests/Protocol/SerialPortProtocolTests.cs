@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+using System.Collections.Concurrent;
 using System.IO.Ports;
 using System.Linq;
 using System.Reactive.Linq;
@@ -8,6 +7,7 @@ using System.Threading.Tasks;
 using Limxc.Tools.DeviceComm.Abstractions;
 using Limxc.Tools.DeviceComm.Protocol;
 using Limxc.Tools.Entities.Communication;
+using Limxc.Tools.Extensions.Communication;
 using Xunit;
 
 namespace Limxc.Tools.DeviceCommTests.Protocol
@@ -24,46 +24,35 @@ namespace Limxc.Tools.DeviceCommTests.Protocol
 
             if (SerialPort.GetPortNames().Length == 0)
                 return;
-            var rst = new List<string>();
+            var rst = new ConcurrentBag<string>();
 
             #region Manual
 
             IProtocol manual = new SerialPortProtocol();
 
+            manual.History.Select(p => $"History: {p}").Subscribe(p => rst.Add(p));
+            manual.ConnectionState.Select(p => $"ConnectionState: {p}").Subscribe(p => rst.Add(p));
+            manual.Received.Select(p => $"Received: {p.ByteToHex()}").Subscribe(p => rst.Add(p));
+
             manual.Init(SerialPort.GetPortNames()[0], 9600);
 
-
             await manual.OpenAsync();
-
-            Observable.Merge
-                (
-                    manual.History.Select(p => $"History: {p}"),
-                    manual.ConnectionState.Select(p => $"ConnectionState: {p}"),
-                    manual.Received.Select(p => $"Received: {p.Length}")
-                )
-                .Subscribe(p => { rst.Add(p); });
-
-            await manual.SendAsync(new CommContext("AA00 0a10 afBB", "AA00$2$1BB", 256));
+            await Task.Delay(500);
+            await manual.SendAsync(new CommContext("AA00 0a10 afBB", "AA00$2$1BB", 200));
             await Task.Delay(1000);
-            await manual.CloseAsync();
 
             if (rst.Count(p => p.StartsWith("Received")) > 0)
                 Assert.True(rst.Count(p => p.Contains("Success")) == 1 && rst.Count(p => p.Contains("Error")) == 0);
 
+            await manual.CloseAsync();
             manual.Dispose();
-
-            rst.ForEach(p => Debug.WriteLine(p));
-            Debugger.Break();
             rst.Clear();
 
             #endregion
 
-
             #region Auto
 
             IProtocol auto = new SerialPortProtocol(1000);
-
-            auto.Init(SerialPort.GetPortNames()[0], 9600);
 
             Observable.Merge
                 (
@@ -73,20 +62,19 @@ namespace Limxc.Tools.DeviceCommTests.Protocol
                 )
                 .Subscribe(p => { rst.Add(p); });
 
+            auto.Init(SerialPort.GetPortNames()[0], 9600);
+            await Task.Delay(500);
             //send when connected
             auto.ConnectionState
                 .Where(p => p)
-                .Subscribe(_ => { auto.SendAsync(new CommContext("AA00 0888 44BB", "AA00$2$1BB", 256)); });
+                .Subscribe(async _ => { await auto.SendAsync(new CommContext("AA00 0888 44BB", "AA00$2$1BB", 200)); });
 
-            await Task.Delay(3000);
+            await Task.Delay(2000);
 
             if (rst.Count(p => p.StartsWith("Received")) > 0)
                 Assert.True(rst.Count(p => p.Contains("Success")) == 1 && rst.Count(p => p.Contains("Error")) == 0);
 
             auto.Dispose();
-
-            rst.ForEach(p => Debug.WriteLine(p));
-            Debugger.Break();
             rst.Clear();
 
             #endregion

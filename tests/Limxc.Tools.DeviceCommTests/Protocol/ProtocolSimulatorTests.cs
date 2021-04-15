@@ -38,7 +38,7 @@ namespace Limxc.Tools.DeviceCommTests.Protocol
             };
 
             _simulator.Received
-                .Select(p => $"@ {DateTime.Now:mm:ss fff} 接收 : {p.ToHexStr()}")
+                .Select(p => $"@ {DateTime.Now:mm:ss fff} 接收 : {p.ByteToHex()}")
                 .Subscribe(p => msg.Add(p));
 
             _simulator.History.Subscribe(p =>

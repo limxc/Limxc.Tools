@@ -25,54 +25,54 @@ namespace Limxc.ToolsTests.Extensions.Communication
         [Fact]
         public void HexStrFormatTest()
         {
-            "Ab Cde fG".HexStrFormat().Should().Be("0A BC DE FG");
-            "Ab Cde fG".HexStrFormat(false, "").Should().Be("0ABCDEFG");
+            "Ab Cde fG".HexFormat().Should().Be("0A BC DE FG");
+            "Ab Cde fG".HexFormat(false, "").Should().Be("0ABCDEFG");
         }
 
         [Fact]
         public void Int_HexStrTest()
         {
-            i1.ToHexStr(2).ToNInt().Should().Be(i1);
+            i1.IntToHex(2).HexToInt().Should().Be(i1);
 
-            "A".ToNInt().Should().Be(10);
+            "A".HexToInt().Should().Be(10);
 
-            26.ToHexStr(2).Should().Be("1a");
-            26.ToHexStr(4).Should().Be("001a");
+            26.IntToHex(2).Should().Be("1a");
+            26.IntToHex(4).Should().Be("001a");
 
-            i2.ToHexStr(8, true).ToNInt(true).Should().Be(i2.ToNInt(true));
+            i2.IntToHex(8, true).HexToInt(true).Should().Be(i2.ToNInt(true));
         }
 
         [Fact]
         public void Int_ByteTest()
         {
-            new byte[] {0, 1}.ToNInt().Should().Be(1);
-            new byte[] {0, 0, 0, 1}.ToNInt().Should().Be(1);
-            new byte[] {255, 255}.ToNInt().Should().Be(65535);
-            new byte[] {0, 0, 255, 255}.ToNInt().Should().Be(65535); //big endian
-            new byte[] {0, 1, 0, 0}.ToNInt().Should().Be(65536);
+            new byte[] {0, 1}.ByteToInt().Should().Be(1);
+            new byte[] {0, 0, 0, 1}.ByteToInt().Should().Be(1);
+            new byte[] {255, 255}.ByteToInt().Should().Be(65535);
+            new byte[] {0, 0, 255, 255}.ByteToInt().Should().Be(65535); //big endian
+            new byte[] {0, 1, 0, 0}.ByteToInt().Should().Be(65536);
 
-            i1.ToBytes(4).ToNInt().Should().Be(i1);
-            int.MaxValue.ToBytes(2).ToNInt(true).Should().Be(65535);
-            int.MinValue.ToBytes(2, true).ToNInt(true).Should().Be(0);
+            i1.IntToByte(4).ByteToInt().Should().Be(i1);
+            int.MaxValue.IntToByte(2).ByteToInt(true).Should().Be(65535);
+            int.MinValue.IntToByte(2, true).ByteToInt(true).Should().Be(0);
 
-            i1.ToBytes(2).ToNInt().Should().Be(i1);
-            i2.ToBytes(4, true).ToNInt(true).Should().Be(0);
-            65535.ToBytes(8).Should().BeEquivalentTo(new byte[] {0, 0, 0, 0, 0, 0, 255, 255});
+            i1.IntToByte(2).ByteToInt().Should().Be(i1);
+            i2.IntToByte(4, true).ByteToInt(true).Should().Be(0);
+            65535.IntToByte(8).Should().BeEquivalentTo(new byte[] {0, 0, 0, 0, 0, 0, 255, 255});
         }
 
         [Fact]
         public void ToIntArrayTest()
         {
-            new[] {"A", "1a"}.ToNInts().Should().BeEquivalentTo(new[] {10, 26});
-            "0A1a".ToNInts(2).Should().BeEquivalentTo(new[] {10, 26});
+            new[] {"A", "1a"}.HexToInt().Should().BeEquivalentTo(new[] {10, 26});
+            "0A1a".HexToInt(2).Should().BeEquivalentTo(new[] {10, 26});
         }
 
         [Fact]
         public void Hex_ByteTest()
         {
-            s2.ToByte().ToHexStr().ToLower().Should().Be(s2);
+            s2.HexToByte().ByteToHex().ToLower().Should().Be(s2);
 
-            "abcd".ToByte().Should().BeEquivalentTo(new byte[] {171, 205});
+            "abcd".HexToByte().Should().BeEquivalentTo(new byte[] {171, 205});
         }
 
         [Fact]
@@ -91,7 +91,7 @@ namespace Limxc.ToolsTests.Extensions.Communication
         public void HexStrMultiplyTest()
         {
             var i = 6;
-            i.ToHexStr(2).HexStrMultiply(3).ToNInt().Should().Be(18);
+            i.IntToHex(2).HexMultiply(3).HexToInt().Should().Be(18);
         }
 
         [Fact]

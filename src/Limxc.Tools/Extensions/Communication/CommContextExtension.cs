@@ -19,7 +19,7 @@ namespace Limxc.Tools.Extensions.Communication
                 for (var i = 0; i < arr.Length - 1; i++)
                     if (arr[i] == sep)
                     {
-                        var len = arr[i + 1].ToString().ToNInt();
+                        var len = arr[i + 1].ToString().HexToInt();
                         len = len > 1 ? len - 1 : 0;
                         totalLen += len * 2;
                     }
@@ -47,7 +47,7 @@ namespace Limxc.Tools.Extensions.Communication
 
             foreach (var item in template.ToStrArray(2))
                 if (item[0] == sep)
-                    regexStr += $"[0-9a-fA-F]{{{item[1].ToString().ToNInt() * 2}}}";
+                    regexStr += $"[0-9a-fA-F]{{{item[1].ToString().HexToInt() * 2}}}";
                 else
                     regexStr += item;
 

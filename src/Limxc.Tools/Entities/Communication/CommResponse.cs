@@ -35,7 +35,7 @@ namespace Limxc.Tools.Entities.Communication
             for (var i = 0; i < arr.Length; i++)
                 if (arr[i] == '$' && i < arr.Length - 1)
                 {
-                    var len = arr[i + 1].ToString().ToNInt();
+                    var len = arr[i + 1].ToString().HexToInt();
                     var tfv = new string(resp.Skip(i + skipLen * 2).Take(len * 2).ToArray());
                     skipLen += len > 1 ? len - 1 : 0;
                     values.Add(tfv);
@@ -51,7 +51,7 @@ namespace Limxc.Tools.Entities.Communication
 
         public List<int> GetIntValues(string resp, bool checkPattern = true)
         {
-            return GetStrValues(resp, checkPattern).ConvertAll(p => p.ToNInt());
+            return GetStrValues(resp, checkPattern).ConvertAll(p => p.HexToInt());
         }
 
         public override string ToString()
@@ -75,7 +75,7 @@ namespace Limxc.Tools.Entities.Communication
                 intValue = e.Message;
             }
 
-            return $"Response:[{Template}={Value?.HexStrFormat()}]  hex=({strValue})  int=({intValue})";
+            return $"Response:[{Template}={Value?.HexFormat()}]  hex=({strValue})  int=({intValue})";
         }
 
         #region 初始化

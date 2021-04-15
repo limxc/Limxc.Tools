@@ -9,19 +9,19 @@ namespace Limxc.Tools.Extensions.Communication
         #region Calculate
 
         /// <summary>
-        ///     hexstr * n to hexstr
+        ///     hex to natural int * n to hex
         /// </summary>
-        /// <param name="value">16进制原数值</param>
+        /// <param name="hex">16进制原数值</param>
         /// <param name="times">倍数</param>
         /// <param name="adjustRange"></param>
         /// <returns></returns>
-        public static string HexStrMultiply(this string value, int times, bool adjustRange = false)
+        public static string HexMultiply(this string hex, int times, bool adjustRange = false)
         {
-            var valueInt = value.ToNInt(adjustRange);
+            var value = hex.HexToInt(adjustRange);
 
-            valueInt *= times;
+            value *= times;
 
-            return valueInt.ToHexStr(value.Length, adjustRange);
+            return value.IntToHex(hex.Length, adjustRange);
         }
 
         #endregion Calculate
@@ -76,27 +76,27 @@ namespace Limxc.Tools.Extensions.Communication
         }
 
         /// <summary>
-        ///     hexstr format
+        ///     hex string format
         /// </summary>
-        /// <param name="hexStr"></param>
+        /// <param name="hex"></param>
         /// <param name="reverse"></param>
-        /// <param name="separtor"></param>
+        /// <param name="separator"></param>
         /// <returns></returns>
-        public static string HexStrFormat(this string hexStr, bool reverse = false, string separtor = " ")
+        public static string HexFormat(this string hex, bool reverse = false, string separator = " ")
         {
-            if (string.IsNullOrWhiteSpace(hexStr))
+            if (string.IsNullOrWhiteSpace(hex))
                 return string.Empty;
 
-            hexStr = hexStr.ToUpper().Replace(" ", "");
+            hex = hex.ToUpper().Replace(" ", "");
 
-            if (hexStr.Length % 2 == 1)
-                hexStr = "0" + hexStr;
+            if (hex.Length % 2 == 1)
+                hex = "0" + hex;
 
-            var arr = hexStr.ToStrArray(2);
+            var arr = hex.ToStrArray(2);
             if (reverse)
-                arr = hexStr.ToStrArray(2).Reverse().ToArray();
+                arr = hex.ToStrArray(2).Reverse().ToArray();
 
-            return string.Join(separtor, arr);
+            return string.Join(separator, arr);
         }
 
         /// <summary>
@@ -122,40 +122,29 @@ namespace Limxc.Tools.Extensions.Communication
 
         #endregion Format
 
-        #region Int HexStr
+        #region Int / Hex string
 
         /// <summary>
-        ///     hexstr to uint
+        ///     hex to uint
         /// </summary>
-        /// <param name="hexStr">
+        /// <param name="hex">
         /// </param>
         /// <returns></returns>
-        public static uint ToUInt(this string hexStr)
+        public static uint HexToUInt(this string hex)
         {
-            hexStr = hexStr.Replace(" ", "");
+            hex = hex.Replace(" ", "");
 
-            return Convert.ToUInt32(hexStr, 16);
+            return Convert.ToUInt32(hex, 16);
         }
 
         /// <summary>
-        ///     hexstr to natural int
-        /// </summary>
-        /// <param name="hexStr">
-        /// </param>
-        /// <returns></returns>
-        public static int ToNInt(this string hexStr, bool adjustRange = false)
-        {
-            return hexStr.ToUInt().ToNInt(adjustRange);
-        }
-
-        /// <summary>
-        ///     natural int to hexstr
+        ///     int to natural int to ascii
         /// </summary>
         /// <param name="value"></param>
         /// <param name="length">2/4/8</param>
         /// <param name="adjustRange"></param>
         /// <returns></returns>
-        public static string ToHexStr(this int value, int length, bool adjustRange = false)
+        public static string IntToHex(this int value, int length, bool adjustRange = false)
         {
             value = value.ToNInt(adjustRange);
 
@@ -172,37 +161,50 @@ namespace Limxc.Tools.Extensions.Communication
         }
 
         /// <summary>
-        ///     hexstr[] to natural int[]
+        ///     hex to uint to natural int
         /// </summary>
-        /// <param name="hexstrs"></param>
+        /// <param name="hex">
+        /// </param>
+        /// <param name="adjustRange"></param>
         /// <returns></returns>
-        public static int[] ToNInts(this string[] hexstrs)
+        public static int HexToInt(this string hex, bool adjustRange = false)
         {
-            return hexstrs.Select(p => p.ToNInt()).ToArray();
+            return hex.HexToUInt().ToNInt(adjustRange);
         }
 
         /// <summary>
-        ///     hexstr to hexstr[] to int[]
+        ///     hex[] to uint[] to natural int[]
         /// </summary>
-        /// <param name="hexStr"></param>
+        /// <param name="hex"></param>
+        /// <returns></returns>
+        public static int[] HexToInt(this string[] hex)
+        {
+            return hex.Select(p => p.HexToInt()).ToArray();
+        }
+
+        /// <summary>
+        ///     hex to hex[] to uint[] to natural int[]
+        /// </summary>
+        /// <param name="hex"></param>
         /// <param name="length">2/4/8</param>
         /// <returns></returns>
-        public static int[] ToNInts(this string hexStr, int length)
+        public static int[] HexToInt(this string hex, int length)
         {
-            return hexStr.ToStrArray(length).ToNInts().ToArray();
+            return hex.ToStrArray(length).HexToInt().ToArray();
         }
 
-        #endregion Int HexStr
+        #endregion
 
-        #region Int Bytes
+        #region Int / Byte
 
         /// <summary>
-        ///     natural int to byte[length]
+        ///     int to natural int to byte[length]
         /// </summary>
         /// <param name="value"></param>
         /// <param name="length">2/4</param>
+        /// <param name="adjustRange"></param>
         /// <returns></returns>
-        public static byte[] ToBytes(this int value, int length, bool adjustRange = false)
+        public static byte[] IntToByte(this int value, int length, bool adjustRange = false)
         {
             var bytes = BitConverter.GetBytes(value.ToNInt(adjustRange));
             if (BitConverter.IsLittleEndian)
@@ -215,8 +217,9 @@ namespace Limxc.Tools.Extensions.Communication
         ///     byte[n] to byte[4] to natural int
         /// </summary>
         /// <param name="bytes"></param>
+        /// <param name="adjustRange"></param>
         /// <returns></returns>
-        public static int ToNInt(this byte[] bytes, bool adjustRange = false)
+        public static int ByteToInt(this byte[] bytes, bool adjustRange = false)
         {
             bytes = bytes.ChangeLength(4);
             if (BitConverter.IsLittleEndian)
@@ -225,84 +228,82 @@ namespace Limxc.Tools.Extensions.Communication
             return BitConverter.ToUInt32(bytes, 0).ToNInt(adjustRange);
         }
 
-        #endregion Int Bytes
+        #endregion
 
-        #region HexStr Bytes
+        #region Hex / Byte
 
         /// <summary>
-        ///     byte[] to hexstr
+        ///     byte[] to ascii
         /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
-        public static string ToHexStr(this byte[] bytes)
+        public static string ByteToHex(this byte[] bytes)
         {
-            var returnStr = "";
+            var hex = "";
             if (bytes != null)
-                for (var i = 0; i < bytes.Length; i++)
-                    returnStr += bytes[i].ToString("X2");
-            return returnStr;
+                hex = bytes.Aggregate(hex, (current, b) => current + b.ToString("X2"));
+            return hex;
         }
 
         /// <summary>
-        ///     byte[](char) to hexstr
+        ///     byte[](char) to ascii
         /// </summary>
-        /// <param name="bytes"></param>
+        /// <param name="charBytes"></param>
         /// <returns></returns>
-        public static string ToHexStrFromChar(this byte[] bytes)
+        public static string ByteCharToHex(this byte[] charBytes)
         {
-            var returnStr = string.Empty;
-            if (bytes != null)
-                for (var i = 0; i < bytes.Length; i++)
-                    returnStr += (char) bytes[i];
-            return returnStr;
+            var hex = string.Empty;
+            if (charBytes != null)
+                hex = charBytes.Aggregate(hex, (current, b) => current + (char) b);
+            return hex;
         }
 
         /// <summary>
-        ///     hexstr to byte[]
+        ///     hex to byte[]
         /// </summary>
-        /// <param name="hexString"></param>
+        /// <param name="hex"></param>
         /// <returns></returns>
-        public static byte[] ToByte(this string hexString)
+        public static byte[] HexToByte(this string hex)
         {
-            hexString = hexString.Replace(" ", "");
-            if (hexString.Length % 2 != 0)
-                throw new FormatException($"Hex String Length Error : {hexString.Length}");
+            hex = hex.Replace(" ", "");
+            if (hex.Length % 2 != 0)
+                throw new FormatException($"Hex String Length Error : {hex.Length}");
 
-            var returnBytes = new byte[hexString.Length / 2];
+            var bytes = new byte[hex.Length / 2];
 
-            for (var i = 0; i < returnBytes.Length; i++)
-                returnBytes[i] = Convert.ToByte(hexString.Substring(i * 2, 2), 16);
+            for (var i = 0; i < bytes.Length; i++)
+                bytes[i] = Convert.ToByte(hex.Substring(i * 2, 2), 16);
 
-            return returnBytes;
+            return bytes;
         }
 
-        #endregion HexStr Bytes
+        #endregion
 
-        #region AscII HexStr
+        #region AscII / Hex
 
         /// <summary>
-        ///     hex string to ascii string
+        ///     hex to ascii
         /// </summary>
-        /// <param name="hexString"></param>
+        /// <param name="hex"></param>
         /// <returns></returns>
         // ReSharper disable once InconsistentNaming
-        public static string HexToAscII(this string hexString)
+        public static string HexToAscII(this string hex)
         {
-            var ca = hexString.ToNInts(2).Select(p => (char) p).ToArray();
-            return new string(ca);
+            var chars = hex.HexToInt(2).Select(p => (char) p).ToArray();
+            return new string(chars);
         }
 
         /// <summary>
-        ///     ascii string to hex string
+        ///     ascii to hex
         /// </summary>
-        /// <param name="asciiString"></param>
+        /// <param name="ascii"></param>
         /// <returns></returns>
         // ReSharper disable once InconsistentNaming
-        public static string AscIIToHex(this string asciiString)
+        public static string AscIIToHex(this string ascii)
         {
-            return Encoding.UTF8.GetBytes(asciiString).ToHexStr();
+            return Encoding.UTF8.GetBytes(ascii).ByteToHex();
         }
 
-        #endregion AscII HexStr
+        #endregion
     }
 }

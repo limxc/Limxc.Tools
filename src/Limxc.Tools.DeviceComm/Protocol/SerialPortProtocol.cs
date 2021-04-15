@@ -5,9 +5,9 @@ using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using GodSharp.SerialPort;
 using Limxc.Tools.Entities.Communication;
 using Limxc.Tools.Extensions;
+using Limxc.Tools.Extensions.Communication;
 
 namespace Limxc.Tools.DeviceComm.Protocol
 {
@@ -16,7 +16,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
         private readonly IDisposable _autoConnectDisposable;
         private int _baudRate;
         private string _portName;
-        private GodSerialPort _sp;
+        private SerialPort _sp;
 
         /// <summary>
         ///     Manual Connect
@@ -36,12 +36,11 @@ namespace Limxc.Tools.DeviceComm.Protocol
                 .Interval(TimeSpan.FromMilliseconds(autoConnectInterval))
                 .Where(_ => !string.IsNullOrWhiteSpace(_portName))
                 .Select(_ => SerialPort.GetPortNames())
-                .Select(ports => ports.Contains(_portName, StringComparer.CurrentCultureIgnoreCase)) //port found
-                .Where(p => p && !IsConnected) //need to try connect
+                .Where(ports => ports.Contains(_portName, StringComparer.CurrentCultureIgnoreCase)) //port found
                 .ObserveOn(NewThreadScheduler.Default)
                 .Subscribe(async _ =>
                 {
-                    if (!isConnecting)
+                    if (!isConnecting && !IsConnected)
                     {
                         isConnecting = true;
                         await OpenAsync();
@@ -68,7 +67,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
             _disposables = new CompositeDisposable();
 
             _sp?.Close();
-            _sp = new GodSerialPort(_portName, _baudRate, 0);
+            _sp = new SerialPort(_portName, _baudRate, 0); //{ReadTimeout = 500, WriteTimeout = 500};
 
             Observable
                 .Interval(TimeSpan.FromSeconds(0.1))
@@ -80,35 +79,36 @@ namespace Limxc.Tools.DeviceComm.Protocol
                 .DisposeWith(_disposables);
 
             Observable
-                .Create<byte[]>(x =>
-                {
-                    _sp.UseDataReceived(true, (gs, data) =>
-                    {
-                        if (data?.Length > 0)
-                            x.OnNext(data);
-                    });
-                    return Disposable.Empty;
-                })
+                .FromEventPattern(_sp, nameof(SerialPort.DataReceived))
                 .SubscribeOn(NewThreadScheduler.Default)
-                .Subscribe(b => _received.OnNext(b))
+                .Subscribe(b =>
+                {
+                    var bs = new byte[_sp.BytesToRead];
+                    _sp.Read(bs, 0, bs.Length);
+                    _received.OnNext(bs);
+                })
                 .DisposeWith(_disposables);
         }
 
 
-        public override Task<bool> SendAsync(CommContext context)
+        public override async Task<bool> SendAsync(CommContext context)
         {
             var cmdStr = context.Command.Build();
-            _sp.WriteHexString(cmdStr);
+            var bs = cmdStr.HexToByte();
 
             context.SendTime = DateTime.Now;
             _history.OnNext(context);
 
-            return Task.FromResult(true);
+            await Task.Delay(50);
+
+            _sp.Write(bs, 0, bs.Length);
+
+            return true;
         }
 
         public override Task<bool> SendAsync(byte[] bytes)
         {
-            _sp.Write(bytes);
+            _sp.Write(bytes, 0, bytes.Length);
 
             return Task.FromResult(true);
         }
@@ -116,12 +116,14 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
         public override Task<bool> OpenAsync()
         {
-            return Task.FromResult(_sp.Open());
+            _sp.Open();
+            return Task.FromResult(true);
         }
 
         public override Task<bool> CloseAsync()
         {
-            return Task.FromResult(_sp?.Close() ?? false);
+            _sp?.Close();
+            return Task.FromResult(true);
         }
 
         protected override void Dispose(bool disposing)

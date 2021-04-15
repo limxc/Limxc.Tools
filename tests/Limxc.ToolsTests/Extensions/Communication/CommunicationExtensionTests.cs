@@ -347,26 +347,26 @@ namespace Limxc.ToolsTests.Extensions.Communication
 
             var obsRecv = Observable.Create<byte[]>(async o =>
                     {
-                        o.OnNext("AC0000AC".ToByte());
+                        o.OnNext("AC0000AC".HexToByte());
                         await Task.Delay(500); //500响应时间
                         //01 丢失
                         //第2.5秒 ; 02 接收
                         await Task.Delay(2000);
-                        o.OnNext("AB02BB".ToByte());
+                        o.OnNext("AB02BB".HexToByte());
 
                         //第3.5秒 ; 03 不匹配
                         await Task.Delay(1000);
-                        o.OnNext("A003BB".ToByte());
+                        o.OnNext("A003BB".HexToByte());
 
                         //第5.5秒 ; 04 超时 ; 05 接收
                         await Task.Delay(2000);
-                        o.OnNext("AD04BB".ToByte());
-                        o.OnNext("AE05BB".ToByte());
+                        o.OnNext("AD04BB".HexToByte());
+                        o.OnNext("AE05BB".HexToByte());
 
                         //第6.5秒 ; 06接收第一个
                         await Task.Delay(1000);
-                        o.OnNext("AF16BB".ToByte());
-                        o.OnNext("AF26BB".ToByte());
+                        o.OnNext("AF16BB".HexToByte());
+                        o.OnNext("AF26BB".HexToByte());
 
                         o.OnCompleted();
                         return Disposable.Empty;
@@ -378,7 +378,7 @@ namespace Limxc.ToolsTests.Extensions.Communication
             var cpsr = new List<CommContext>();
 
             //obsSend.Select(p => p.ToString())
-            //    .Merge(obsRecv.Select(p => p.ToHexStr()))
+            //    .Merge(obsRecv.Select(p => p.ByteToHex()))
             //    .Subscribe(p => Debug.WriteLine($"@{DateTime.Now:mm:ss fff} | {p}"));
 
             obsSend.FindResponse(obsRecv).Subscribe(p => cpsr.Add(p));
@@ -411,7 +411,7 @@ namespace Limxc.ToolsTests.Extensions.Communication
             var msg = new List<string>();
             var rst = new List<CommContext>();
 
-            simulator.Received.Select(p => $"@ {DateTime.Now:mm:ss fff} 接收 : {p.ToHexStr()}")
+            simulator.Received.Select(p => $"@ {DateTime.Now:mm:ss fff} 接收 : {p.ByteToHex()}")
                 .Subscribe(p => msg.Add(p));
             simulator.History.Subscribe(p =>
             {
@@ -452,7 +452,7 @@ namespace Limxc.ToolsTests.Extensions.Communication
             var msg = new List<string>();
             var history = new List<CommTaskContext>();
 
-            simulator.Received.Select(p => $"@ {DateTime.Now:mm:ss fff} 接收 : {p.ToHexStr()}").Subscribe(p =>
+            simulator.Received.Select(p => $"@ {DateTime.Now:mm:ss fff} 接收 : {p.ByteToHex()}").Subscribe(p =>
             {
                 msg.Add(p);
             });

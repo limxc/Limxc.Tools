@@ -31,9 +31,9 @@ namespace Limxc.Tools.CoreTests.CrcCSharp
 
             var value = Convert.ToString(BitConverter.ToInt32(hash), 16);
 
-            value.HexStrFormat().Should().Be("C7 C0");
+            value.HexFormat().Should().Be("C7 C0");
 
-            value.HexStrFormat(true).Should().Be("C0 C7");
+            value.HexFormat(true).Should().Be("C0 C7");
         }
 
         public ulong ReverseBits(ulong ul, int valueLength)
@@ -59,7 +59,7 @@ namespace Limxc.Tools.CoreTests.CrcCSharp
 
             var value = Convert.ToString(BitConverter.ToInt32(hash), 16);
 
-            value.HexStrFormat().Should().Be("06 56 91 43");
+            value.HexFormat().Should().Be("06 56 91 43");
         }
     }
 }

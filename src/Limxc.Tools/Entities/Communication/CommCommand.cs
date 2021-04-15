@@ -30,7 +30,7 @@ namespace Limxc.Tools.Entities.Communication
         public int Length => Template.TemplateLength();
 
         /// <summary>
-        ///     输出命令
+        ///     输出命令 hex string
         /// </summary>
         /// <param name="pars"></param>
         /// <returns></returns>
@@ -47,7 +47,7 @@ namespace Limxc.Tools.Entities.Communication
                     if (array[i].StartsWith("$"))
                     {
                         var bit = Convert.ToInt32(array[i].Skip(1).FirstOrDefault().ToString());
-                        array[i] = pars[parsIndex].ToHexStr(bit * 2);
+                        array[i] = pars[parsIndex].IntToHex(bit * 2);
                         parsIndex++;
                     }
 
@@ -70,7 +70,7 @@ namespace Limxc.Tools.Entities.Communication
 
         public override string ToString()
         {
-            return $"Command:[{Template.HexStrFormat()}]";
+            return $"Command:[{Template.HexFormat()}]";
         }
     }
 }

@@ -44,7 +44,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
                 return true;
 
             await Task.Delay(_sendDelayMs);
-            _received.OnNext(context.Command.Build().ToByte()); //发什么回什么
+            _received.OnNext(context.Command.Build().HexToByte()); //发什么回什么
 
             return true;
         }

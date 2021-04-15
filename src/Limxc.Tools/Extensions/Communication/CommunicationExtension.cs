@@ -17,13 +17,13 @@ namespace Limxc.Tools.Extensions.Communication
         /// </summary>
         /// <param name="cmd"></param>
         /// <param name="resp"></param>
-        /// <param name="byteToStringConverter">默认:<see cref="DataConversionExtension.ToHexStr" /></param>
+        /// <param name="byteToStringConverter">默认:<see cref="DataConversionExtension.IntToHex" /></param>
         /// <returns></returns>
         public static IObservable<CommContext> FindResponse(this IObservable<CommContext> cmd, IObservable<byte[]> resp,
             Func<byte[], string> byteToStringConverter = null)
         {
             if (byteToStringConverter == null)
-                byteToStringConverter = DataConversionExtension.ToHexStr;
+                byteToStringConverter = DataConversionExtension.ByteToHex;
 
             return cmd
                     .Where(p => p.SendTime != null)
