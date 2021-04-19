@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Limxc.Tools.Extensions;
 using MQTTnet;
 using MQTTnet.Client.Options;
 using MQTTnet.Extensions.External.RxMQTT.Client;
@@ -16,14 +17,13 @@ using Newtonsoft.Json;
 
 namespace Limxc.Tools.DeviceComm.MQTT
 {
-    public class MQTTClient : IDisposable
+    public class RxMqttClient : IDisposable
     {
         private readonly IRxMqttClient _client;
 
-        private readonly ConcurrentDictionary<string, IDisposable> _subscriptions =
-            new ConcurrentDictionary<string, IDisposable>();
+        private CompositeDisposable _disposable = new CompositeDisposable();
 
-        public MQTTClient()
+        public RxMqttClient()
         {
             _client = new MqttFactory().CreateRxMqttClient();
 
@@ -34,11 +34,32 @@ namespace Limxc.Tools.DeviceComm.MQTT
 
         public void Dispose()
         {
-            foreach (var dis in _subscriptions.Values) dis.Dispose();
-
+            _disposable?.Dispose();
             _client?.Dispose();
         }
 
+        #region Payload Builder
+
+        private MqttApplicationMessage CreateMsg(string topic, string payload)
+        {
+            return new MqttApplicationMessageBuilder()
+                .WithTopic(topic)
+                .WithPayload(payload)
+                .WithExactlyOnceQoS()
+                .Build();
+        }
+
+        #endregion
+
+        #region Start Stop
+
+        /// <summary>
+        ///     Start Client
+        /// </summary>
+        /// <param name="clientId"></param>
+        /// <param name="serverIp"></param>
+        /// <param name="port"></param>
+        /// <returns></returns>
         public Task Start(string clientId, string serverIp, int port)
         {
             var options = new ManagedMqttClientOptionsBuilder()
@@ -61,24 +82,18 @@ namespace Limxc.Tools.DeviceComm.MQTT
             return _client.StartAsync(options);
         }
 
+        /// <summary>
+        ///     Clear RPC Subscriptions & Stop Client
+        /// </summary>
+        /// <returns></returns>
         public Task Stop()
         {
+            _disposable.Dispose();
+            _disposable = new CompositeDisposable();
             return _client.StopAsync();
         }
 
-        #region Payload Builder
-
-        private MqttApplicationMessage CreateMsg(string topic, string payload)
-        {
-            return new MqttApplicationMessageBuilder()
-                .WithTopic(topic)
-                .WithPayload(payload)
-                .WithExactlyOnceQoS()
-                .Build();
-        }
-
         #endregion
-
 
         #region Pub Sub
 
@@ -173,10 +188,8 @@ namespace Limxc.Tools.DeviceComm.MQTT
         public void RpcSub(string methodName, Func<string, Task<string>> action)
         {
             var topic = "MQTTnet.RPC/+/" + methodName;
-            if (_subscriptions.ContainsKey(topic))
-                _subscriptions[topic].Dispose();
 
-            var dis = _client
+            _client
                 .Connect(topic)
                 .Subscribe(async p =>
                 {
@@ -189,8 +202,7 @@ namespace Limxc.Tools.DeviceComm.MQTT
                         .PublishAsync(CreateMsg(p.ApplicationMessage.Topic + "/response", resp),
                             CancellationToken.None)
                         .ConfigureAwait(false);
-                });
-            _subscriptions.TryAdd(topic, dis);
+                }).DisposeWith(_disposable);
         }
 
         /// <summary>
