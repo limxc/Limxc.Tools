@@ -7,11 +7,11 @@ namespace Limxc.Tools.Extensions
     public static class DataCompleterExtension
     {
         /// <summary>
-        ///     线性补全
+        ///     插值法,线性补全
         /// </summary>
         /// <param name="source"></param>
         /// <returns></returns>
-        public static double[] MeanCompleter(this double?[] source)
+        public static double[] InterpolateCompleter(this double?[] source)
         {
             var rst = new double?[source.Length];
             Array.Copy(source, rst, source.Length);
