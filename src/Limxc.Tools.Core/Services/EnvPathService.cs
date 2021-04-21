@@ -1,16 +1,12 @@
 ﻿using System;
 using System.IO;
+using Limxc.Tools.Core.Abstractions;
 
-namespace Limxc.Tools.Core.Utils
+namespace Limxc.Tools.Core.Services
 {
-    public static class EnvPath
+    public class EnvPathService : IEnvPathService
     {
-        public static string OutputDir => Path.Combine(BaseDirectory, "Outputs");
-        public static string ReportDir => Path.Combine(BaseDirectory, "Reports");
-        public static string ResDir => Path.Combine(BaseDirectory, "Resources");
-        public static string DatabaseDir => Path.Combine(BaseDirectory, "Database");
-
-        public static string BaseDirectory
+        public string BaseDirectory
         {
             get
             {
@@ -41,5 +37,12 @@ namespace Limxc.Tools.Core.Utils
                 return dir;
             }
         }
+
+        public string DBFolder => Path.Combine(BaseDirectory, "Database");
+        public string ResFolder => Path.Combine(BaseDirectory, "Resources");
+        public string ReportFolder => Path.Combine(BaseDirectory, "Reports");
+        public string OutputFolder => Path.Combine(BaseDirectory, "Outputs");
+        public string SettingFolder => Path.Combine(BaseDirectory, "Settings");
+        public string ImageFolder => Path.Combine(BaseDirectory, "Images");
     }
 }
