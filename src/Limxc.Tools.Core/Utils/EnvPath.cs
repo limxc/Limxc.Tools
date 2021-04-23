@@ -8,7 +8,6 @@ namespace Limxc.Tools.Core.Utils
         private static readonly Lazy<EnvPath> Lazy = new Lazy<EnvPath>(() => new EnvPath());
         private Func<string> _baseDirectoryFactory;
 
-
         private EnvPath()
         {
             /*
@@ -37,7 +36,7 @@ namespace Limxc.Tools.Core.Utils
             _baseDirectoryFactory = () => AppDomain.CurrentDomain.BaseDirectory;
         }
 
-        public static EnvPath Instance => Lazy.Value;
+        public static EnvPath Default => Lazy.Value;
 
         /// <summary>
         ///     default: AppDomain.CurrentDomain.BaseDirectory
@@ -45,35 +44,87 @@ namespace Limxc.Tools.Core.Utils
         public string BaseDirectory => _baseDirectoryFactory();
 
         /// <summary>
-        ///     BaseDirectory/Database
+        ///     BaseDirectory/Databases
         /// </summary>
-        public string DbFolder => Path.Combine(_baseDirectoryFactory(), "Database");
+        /// <param name="name"></param>
+        /// <param name="baseFolder"></param>
+        /// <returns></returns>
+        public string DatabaseFolder(string name = "Databases", string baseFolder = null)
+        {
+            if (!Directory.Exists(baseFolder))
+                baseFolder = _baseDirectoryFactory();
+            return Path.Combine(baseFolder, name);
+        }
 
         /// <summary>
         ///     BaseDirectory/Resources
         /// </summary>
-        public string ResFolder => Path.Combine(_baseDirectoryFactory(), "Resources");
+        /// <param name="name"></param>
+        /// <param name="baseFolder"></param>
+        /// <returns></returns>
+        public string ResourceFolder(string name = "Resources", string baseFolder = null)
+        {
+            if (!Directory.Exists(baseFolder))
+                baseFolder = _baseDirectoryFactory();
+            return Path.Combine(baseFolder, name);
+        }
 
         /// <summary>
         ///     BaseDirectory/Reports
         /// </summary>
-        public string ReportFolder => Path.Combine(_baseDirectoryFactory(), "Reports");
+        /// <param name="name"></param>
+        /// <param name="baseFolder"></param>
+        /// <returns></returns>
+        public string ReportFolder(string name = "Reports", string baseFolder = null)
+        {
+            if (!Directory.Exists(baseFolder))
+                baseFolder = _baseDirectoryFactory();
+            return Path.Combine(baseFolder, name);
+        }
 
         /// <summary>
         ///     BaseDirectory/Outputs
         /// </summary>
-        public string OutputFolder => Path.Combine(_baseDirectoryFactory(), "Outputs");
+        /// <param name="name"></param>
+        /// <param name="baseFolder"></param>
+        /// <returns></returns>
+        public string OutputFolder(string name = "Outputs", string baseFolder = null)
+        {
+            if (!Directory.Exists(baseFolder))
+                baseFolder = _baseDirectoryFactory();
+            return Path.Combine(baseFolder, name);
+        }
 
         /// <summary>
         ///     BaseDirectory/Settings
         /// </summary>
-        public string SettingFolder => Path.Combine(_baseDirectoryFactory(), "Settings");
+        /// <param name="name"></param>
+        /// <param name="baseFolder"></param>
+        /// <returns></returns>
+        public string SettingFolder(string name = "Settings", string baseFolder = null)
+        {
+            if (!Directory.Exists(baseFolder))
+                baseFolder = _baseDirectoryFactory();
+            return Path.Combine(baseFolder, name);
+        }
 
         /// <summary>
         ///     BaseDirectory/Images
         /// </summary>
-        public string ImageFolder => Path.Combine(_baseDirectoryFactory(), "Images");
+        /// <param name="name"></param>
+        /// <param name="baseFolder"></param>
+        /// <returns></returns>
+        public string ImageFolder(string name = "Images", string baseFolder = null)
+        {
+            if (!Directory.Exists(baseFolder))
+                baseFolder = _baseDirectoryFactory();
+            return Path.Combine(baseFolder, name);
+        }
 
+        /// <summary>
+        /// 设置默认文件夹
+        /// </summary>
+        /// <param name="baseDirectoryFactory"></param>
         public void UseBaseDirectoryFactory(Func<string> baseDirectoryFactory)
         {
             _baseDirectoryFactory = baseDirectoryFactory;
