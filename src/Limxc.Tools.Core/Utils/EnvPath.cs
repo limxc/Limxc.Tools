@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Limxc.Tools.Core.Utils
 {
@@ -47,87 +49,107 @@ namespace Limxc.Tools.Core.Utils
         ///     BaseDirectory/Databases
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="baseFolder"></param>
+        /// <param name="paths"></param>
         /// <returns></returns>
-        public string DatabaseFolder(string name = "Databases", string baseFolder = null)
+        public string DatabaseFolder(string name = "Databases", params string[] paths)
         {
-            if (!Directory.Exists(baseFolder))
-                baseFolder = _baseDirectoryFactory();
-            return Path.Combine(baseFolder, name);
+            return Folder(name, paths);
         }
 
         /// <summary>
         ///     BaseDirectory/Resources
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="baseFolder"></param>
+        /// <param name="paths"></param>
         /// <returns></returns>
-        public string ResourceFolder(string name = "Resources", string baseFolder = null)
+        public string ResourceFolder(string name = "Resources", params string[] paths)
         {
-            if (!Directory.Exists(baseFolder))
-                baseFolder = _baseDirectoryFactory();
-            return Path.Combine(baseFolder, name);
+            return Folder(name, paths);
         }
 
         /// <summary>
         ///     BaseDirectory/Reports
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="baseFolder"></param>
+        /// <param name="paths"></param>
         /// <returns></returns>
-        public string ReportFolder(string name = "Reports", string baseFolder = null)
+        public string ReportFolder(string name = "Reports", params string[] paths)
         {
-            if (!Directory.Exists(baseFolder))
-                baseFolder = _baseDirectoryFactory();
-            return Path.Combine(baseFolder, name);
+            return Folder(name, paths);
         }
 
         /// <summary>
         ///     BaseDirectory/Outputs
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="baseFolder"></param>
+        /// <param name="paths"></param>
         /// <returns></returns>
-        public string OutputFolder(string name = "Outputs", string baseFolder = null)
+        public string OutputFolder(string name = "Outputs", params string[] paths)
         {
-            if (!Directory.Exists(baseFolder))
-                baseFolder = _baseDirectoryFactory();
-            return Path.Combine(baseFolder, name);
+            return Folder(name, paths);
         }
 
         /// <summary>
         ///     BaseDirectory/Settings
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="baseFolder"></param>
+        /// <param name="paths"></param>
         /// <returns></returns>
-        public string SettingFolder(string name = "Settings", string baseFolder = null)
+        public string SettingFolder(string name = "Settings", params string[] paths)
         {
-            if (!Directory.Exists(baseFolder))
-                baseFolder = _baseDirectoryFactory();
-            return Path.Combine(baseFolder, name);
+            return Folder(name, paths);
         }
 
         /// <summary>
         ///     BaseDirectory/Images
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="baseFolder"></param>
+        /// <param name="paths"></param>
         /// <returns></returns>
-        public string ImageFolder(string name = "Images", string baseFolder = null)
+        public string ImageFolder(string name = "Images", params string[] paths)
         {
-            if (!Directory.Exists(baseFolder))
-                baseFolder = _baseDirectoryFactory();
-            return Path.Combine(baseFolder, name);
+            return Folder(name, paths);
         }
 
         /// <summary>
-        /// 设置默认文件夹
+        ///     BaseDirectory/Images
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="paths"></param>
+        /// <returns></returns>
+        public string Folder(string name, params string[] paths)
+        {
+            return PathCreator(null, paths.Append(name).ToArray());
+        }
+
+        /// <summary>
+        ///     设置默认文件夹
         /// </summary>
         /// <param name="baseDirectoryFactory"></param>
         public void UseBaseDirectoryFactory(Func<string> baseDirectoryFactory)
         {
             _baseDirectoryFactory = baseDirectoryFactory;
+        }
+
+        /// <summary>
+        ///     创建路径
+        /// </summary>
+        /// <param name="baseFolder"></param>
+        /// <param name="paths"></param>
+        /// <returns></returns>
+        private string PathCreator(string baseFolder, params string[] paths)
+        {
+            if (!Directory.Exists(baseFolder))
+                baseFolder = _baseDirectoryFactory();
+
+            var list = new List<string> {baseFolder};
+            list.AddRange(paths);
+
+            var folder = Path.Combine(list.Where(p => p != null).ToArray());
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+
+            return folder;
         }
     }
 }

@@ -42,13 +42,15 @@ namespace Limxc.Tools.Extensions.Communication
                                 .Select(d => new Timestamped<string>(byteToStringConverter(d.Value), d.Timestamp))
                                 .SkipUntil(st)
                                 .TakeUntil(st.AddMilliseconds(p.Timeout))
-                                .FirstOrDefaultAsync(t => p.Response.Template.IsTemplateMatch(t.Value))
+                                .Select(r => r.Value)
+                                .Scan((acc, r) => acc + r)
+                                .FirstOrDefaultAsync(t => p.Response.Template.IsTemplateMatch(t, '$', false))
                                 .Select(r =>
                                 {
-                                    if (r.Value != null)
+                                    if (r != null)
                                     {
-                                        p.Response.Value = r.Value;
-                                        p.ReceivedTime = r.Timestamp.LocalDateTime;
+                                        p.Response.Value = p.Response.Template.TryGetTemplateMatchResult(r);
+                                        p.ReceivedTime = DateTime.Now;
                                         p.State = CommContextState.Success;
                                     }
                                     else

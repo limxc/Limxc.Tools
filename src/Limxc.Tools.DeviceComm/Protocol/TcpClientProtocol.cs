@@ -81,7 +81,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
         public override async Task<bool> SendAsync(byte[] bytes)
         {
             await _client.SendAsync(bytes).ConfigureAwait(false);
-
+            await Task.Delay(50);
             return await Task.FromResult(true).ConfigureAwait(false);
         }
 

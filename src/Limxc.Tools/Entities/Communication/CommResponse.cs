@@ -75,7 +75,7 @@ namespace Limxc.Tools.Entities.Communication
                 intValue = e.Message;
             }
 
-            return $"Response:[{Template}={Value?.HexFormat()}]  hex=({strValue})  int=({intValue})";
+            return $"Response:[{Template}=({Value?.HexFormat()})]  hex=({strValue})  int=({intValue})";
         }
 
         #region 初始化

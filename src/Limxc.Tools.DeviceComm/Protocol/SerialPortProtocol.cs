@@ -67,7 +67,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
             _disposables = new CompositeDisposable();
 
             _sp?.Close();
-            _sp = new SerialPort(_portName, _baudRate, 0); //{ReadTimeout = 500, WriteTimeout = 500};
+            _sp = new SerialPort(_portName, _baudRate, 0) {ReadTimeout = 500, WriteTimeout = 500};
 
             Observable
                 .Interval(TimeSpan.FromSeconds(0.1))
@@ -99,10 +99,8 @@ namespace Limxc.Tools.DeviceComm.Protocol
             context.SendTime = DateTime.Now;
             _history.OnNext(context);
 
-            await Task.Delay(50);
-
             _sp.Write(bs, 0, bs.Length);
-
+            await Task.Delay(50);
             return true;
         }
 
@@ -117,6 +115,8 @@ namespace Limxc.Tools.DeviceComm.Protocol
         public override Task<bool> OpenAsync()
         {
             _sp.Open();
+            _sp.DiscardInBuffer();
+            _sp.DiscardOutBuffer();
             return Task.FromResult(true);
         }
 

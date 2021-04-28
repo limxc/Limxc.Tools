@@ -9,61 +9,65 @@ namespace Limxc.Tools.Core.Services
     {
         public void Set(string key, string value, string section = "", string fileName = "")
         {
-            var fullPath = GetFilePath(fileName);
+            var filePath = GetFilePath(fileName);
             if (string.IsNullOrWhiteSpace(section))
                 section = "Settings";
-            var config = Load(fullPath);
-            config[section][key].StringValue = value;
-            config.SaveToFile(fileName);
+            var configuration = Load(filePath);
+            configuration[section][key].StringValue = value;
+            //configuration.SaveToFile(filePath);
+
+            using (var fileStream =
+                new FileStream(filePath, FileMode.Open, FileAccess.Write, FileShare.ReadWrite))
+            {
+                configuration.SaveToStream(fileStream);
+            }
         }
 
         public string Get(string key, string section = "", string fileName = "")
         {
-            var fullPath = GetFilePath(fileName);
+            var filePath = GetFilePath(fileName);
             if (string.IsNullOrWhiteSpace(section))
                 section = "Settings";
-            var config = Load(fullPath);
-            if (!config.Contains(section, key))
-            {
-                Set(key, "", section, fullPath);
-                return "";
-            }
-
-            return config[section][key].StringValue;
+            var configuration = Load(filePath);
+            if (configuration.Contains(section, key))
+                return configuration[section][key].StringValue;
+            Set(key, "", section, filePath);
+            return "";
         }
 
         public void Set<T>(T obj, string fileName = "") where T : class, new()
         {
-            var fullPath = GetFilePath(fileName);
-            var config = Load(fullPath);
-            config.RemoveAllNamed(typeof(T).FullName);
-            config.Add(Section.FromObject(typeof(T).FullName, obj));
-            config.SaveToFile(fullPath);
+            var filePath = GetFilePath(fileName);
+            var configuration = Load(filePath);
+            configuration.RemoveAllNamed(typeof(T).FullName);
+            configuration.Add(Section.FromObject(typeof(T).FullName, obj));
+            //configuration.SaveToFile(filePath);
+
+            using (var fileStream =
+                new FileStream(filePath, FileMode.Open, FileAccess.Write, FileShare.ReadWrite))
+            {
+                configuration.SaveToStream(fileStream);
+            }
         }
 
         public T Get<T>(string fileName = "") where T : class, new()
         {
-            var fullPath = GetFilePath(fileName);
-            var config = Load(fullPath);
-            if (!config.Contains(typeof(T).FullName))
-            {
-                var def = new T();
-                Set(def, fullPath);
-                return def;
-            }
-
-            return config[typeof(T).FullName].ToObject<T>();
+            var filePath = GetFilePath(fileName);
+            var configuration = Load(filePath);
+            if (configuration.Contains(typeof(T).FullName))
+                return configuration[typeof(T).FullName].ToObject<T>();
+            var obj = new T();
+            Set(obj, filePath);
+            return obj;
         }
 
         public string GetFilePath(string fileName)
         {
             if (string.IsNullOrWhiteSpace(fileName))
                 fileName = "Common.cfg";
-
-            var basePath = Path.Combine(Environment.CurrentDirectory, "Settings");
-
-            var path = Path.Combine(basePath, fileName);
-            Directory.CreateDirectory(basePath);
+            var str = Path.Combine(Environment.CurrentDirectory, "Settings");
+            var path = Path.Combine(str, fileName);
+            Directory.CreateDirectory(str);
             if (!File.Exists(path))
                 File.Create(path).Close();
             return path;
@@ -71,11 +75,14 @@ namespace Limxc.Tools.Core.Services
 
         private Configuration Load(string fullPath)
         {
-            using (var fs = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            //return Configuration.LoadFromFile(fullPath);
+
+            using (var fileStream =
+                new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
-                using (var sr = new StreamReader(fs))
+                using (var streamReader = new StreamReader(fileStream))
                 {
-                    return Configuration.LoadFromString(sr.ReadToEnd());
+                    return Configuration.LoadFromString(streamReader.ReadToEnd());
                 }
             }
         }

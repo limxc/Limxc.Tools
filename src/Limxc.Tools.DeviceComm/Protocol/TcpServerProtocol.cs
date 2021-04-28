@@ -91,6 +91,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
             if (_clientIpPort.CheckIpPort())
             {
                 await _server.SendAsync(_clientIpPort, bytes).ConfigureAwait(false);
+                await Task.Delay(50);
                 return await Task.FromResult(true).ConfigureAwait(false);
             }
 

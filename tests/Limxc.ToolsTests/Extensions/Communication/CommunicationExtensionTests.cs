@@ -316,11 +316,11 @@ namespace Limxc.ToolsTests.Extensions.Communication
                     {
                         //01  第1秒
                         await Task.Delay(1000);
-                        o.OnNext(new CommContext("AA01BB", "AA$1BB", 1000, "01") {SendTime = DateTime.Now});
+                        o.OnNext(new CommContext("AA01BB", "AA$1BB", 800, "01") {SendTime = DateTime.Now});
 
                         //02  第2秒
                         await Task.Delay(1000);
-                        o.OnNext(new CommContext("AB02BB", "AB$1BB", 1000, "02") {SendTime = DateTime.Now});
+                        o.OnNext(new CommContext("AB02BB", "AB$1BB", 800, "02") {SendTime = DateTime.Now});
 
                         //03  第3秒
                         await Task.Delay(1000);
@@ -328,15 +328,15 @@ namespace Limxc.ToolsTests.Extensions.Communication
 
                         //04  第4秒
                         await Task.Delay(1000);
-                        o.OnNext(new CommContext("AD04BB", "AD$1BB", 1000, "04") {SendTime = DateTime.Now});
+                        o.OnNext(new CommContext("AD04BB", "AD$1BB", 800, "04") {SendTime = DateTime.Now});
 
                         //05  第5秒
                         await Task.Delay(1000);
-                        o.OnNext(new CommContext("AE05BB", "AE$1BB", 1000, "05") {SendTime = DateTime.Now});
+                        o.OnNext(new CommContext("AE05BB", "AE$1BB", 800, "05") {SendTime = DateTime.Now});
 
                         //06  第6秒
                         await Task.Delay(1000);
-                        o.OnNext(new CommContext("AF06BB", "AF$1BB", 1000, "06") {SendTime = DateTime.Now});
+                        o.OnNext(new CommContext("AF06BB", "AF$1BB", 800, "06") {SendTime = DateTime.Now});
 
                         o.OnCompleted();
                         return Disposable.Empty;
