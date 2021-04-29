@@ -2,6 +2,7 @@
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Limxc.Tools.Extensions;
@@ -13,7 +14,6 @@ using MQTTnet.Extensions.Rpc;
 using MQTTnet.Extensions.Rpc.Options;
 using MQTTnet.Formatter;
 using MQTTnet.Protocol;
-using Newtonsoft.Json;
 
 namespace Limxc.Tools.DeviceComm.MQTT
 {
@@ -36,6 +36,16 @@ namespace Limxc.Tools.DeviceComm.MQTT
         {
             _disposable?.Dispose();
             _client?.Dispose();
+        }
+
+        private string Serialize<T>(T obj)
+        {
+            return JsonSerializer.Serialize(obj);
+        }
+
+        private T Deserialize<T>(string obj)
+        {
+            return JsonSerializer.Deserialize<T>(obj);
         }
 
         #region Payload Builder
@@ -118,7 +128,7 @@ namespace Limxc.Tools.DeviceComm.MQTT
         /// <returns></returns>
         public Task Pub<T>(string topic, T payload, CancellationToken token)
         {
-            return Pub(topic, JsonConvert.SerializeObject(payload), token);
+            return Pub(topic, Serialize(payload), token);
         }
 
 
@@ -142,7 +152,7 @@ namespace Limxc.Tools.DeviceComm.MQTT
         /// <returns></returns>
         public IObservable<T> Sub<T>(string topic)
         {
-            return Sub(topic).Select(JsonConvert.DeserializeObject<T>);
+            return Sub(topic).Select(Deserialize<T>);
         }
 
 
@@ -174,8 +184,8 @@ namespace Limxc.Tools.DeviceComm.MQTT
         /// <returns></returns>
         public async Task<TRst> RpcPub<TMsg, TRst>(string methodName, TMsg msg, int timeoutSeconds = 15)
         {
-            return JsonConvert.DeserializeObject<TRst>(
-                await RpcPub(methodName, JsonConvert.SerializeObject(msg), timeoutSeconds).ConfigureAwait(false));
+            return Deserialize<TRst>(
+                await RpcPub(methodName, Serialize(msg), timeoutSeconds).ConfigureAwait(false));
         }
 
 
@@ -217,9 +227,9 @@ namespace Limxc.Tools.DeviceComm.MQTT
             {
                 try
                 {
-                    var msg = JsonConvert.DeserializeObject<TMsg>(t);
+                    var msg = Deserialize<TMsg>(t);
                     var res = await action(msg);
-                    return JsonConvert.SerializeObject(res);
+                    return Serialize(res);
                 }
                 catch (Exception e)
                 {
