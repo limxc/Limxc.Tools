@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Events;
@@ -11,6 +11,7 @@ namespace Limxc.Tools.Core.Extensions
         ///     Log.Logger = new LoggerConfiguration().Default().CreateLogger();
         /// </summary>
         /// <param name="configuration"></param>
+        /// <param name="filePath"></param>
         /// <returns></returns>
         public static LoggerConfiguration Default(this LoggerConfiguration configuration,
             string filePath = "Serilog.json")
@@ -18,7 +19,7 @@ namespace Limxc.Tools.Core.Extensions
             if (File.Exists(filePath))
             {
                 var cfg = new ConfigurationBuilder()
-                    //.SetBasePath(EnvPath.BaseDirectory)
+                    //.SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
                     .AddJsonFile(filePath, true, true)
                     .Build();
                 return configuration.ReadFrom.Configuration(cfg);

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using Limxc.Tools.Core.Abstractions;
 using SharpConfig;
@@ -14,13 +14,7 @@ namespace Limxc.Tools.Core.Services
                 section = "Settings";
             var configuration = Load(filePath);
             configuration[section][key].StringValue = value;
-            //configuration.SaveToFile(filePath);
-
-            using (var fileStream =
-                new FileStream(filePath, FileMode.Open, FileAccess.Write, FileShare.ReadWrite))
-            {
-                configuration.SaveToStream(fileStream);
-            }
+            Save(filePath, configuration);
         }
 
         public string Get(string key, string section = "", string fileName = "")
@@ -41,13 +35,7 @@ namespace Limxc.Tools.Core.Services
             var configuration = Load(filePath);
             configuration.RemoveAllNamed(typeof(T).FullName);
             configuration.Add(Section.FromObject(typeof(T).FullName, obj));
-            //configuration.SaveToFile(filePath);
-
-            using (var fileStream =
-                new FileStream(filePath, FileMode.Open, FileAccess.Write, FileShare.ReadWrite))
-            {
-                configuration.SaveToStream(fileStream);
-            }
+            Save(filePath, configuration);
         }
 
         public T Get<T>(string fileName = "") where T : class, new()
@@ -78,12 +66,21 @@ namespace Limxc.Tools.Core.Services
             //return Configuration.LoadFromFile(fullPath);
 
             using (var fileStream =
-                new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                new FileStream(fullPath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite))
             {
-                using (var streamReader = new StreamReader(fileStream))
-                {
-                    return Configuration.LoadFromString(streamReader.ReadToEnd());
-                }
+                return Configuration.LoadFromStream(fileStream);
+            }
+        }
+
+        private void Save(string fullPath, Configuration configuration)
+        {
+            //configuration.SaveToFile(filePath);
+
+            using (var fs = new FileStream(fullPath, FileMode.OpenOrCreate, FileAccess.ReadWrite,
+                FileShare.ReadWrite))
+            {
+                fs.SetLength(0);
+                configuration.SaveToStream(fs);
             }
         }
     }
