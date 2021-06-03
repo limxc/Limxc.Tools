@@ -77,32 +77,38 @@ namespace Limxc.Tools.Common
             {
                 var item = _queue.Peek();
 
-                var remainCount = 1 + (item.RetryCount < 0 ? 0 : item.RetryCount);
+                var remainingAttempts = 1 + (item.RetryCount < 0 ? 0 : item.RetryCount);
                 var pass = false;
                 var res = default(TRet);
                 string error = null;
-                while (!pass && remainCount > 0)
+                while (!pass && remainingAttempts > 0)
                     try
                     {
+                        error = null;
                         token.ThrowIfCancellationRequested();
 
-                        remainCount--;
+                        remainingAttempts--;
 
                         res = await item.Task(token);
                         pass = true;
                     }
+                    catch (OperationCanceledException)
+                    {
+                        throw;
+                    }
                     catch (Exception ex)
                     {
-                        error = $"Error:{ex.Message})";
+                        error = $"Exception({ex.Message})";
                         pass = false;
-                        throw;
+                        if (remainingAttempts == 0)
+                            throw;
                     }
                     finally
                     {
                         History.Add(new TaskHistory<TRet>(DateTime.Now, item.Id, res,
-                            $"RemainCount:{remainCount} State:{pass} {error}"));
+                            $"RemainingAttempts:{remainingAttempts} State:{(pass ? "Success" : error ?? "Exception")} Progress:{Tasks.Count - PendingQueue.Count() + 1}/{Tasks.Count}"));
                     }
-
+                 
                 if (!pass)
                     return;
                 _queue.Dequeue();
