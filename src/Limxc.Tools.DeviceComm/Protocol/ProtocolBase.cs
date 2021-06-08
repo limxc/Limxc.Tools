@@ -8,8 +8,7 @@ using Limxc.Tools.DeviceComm.Abstractions;
 using Limxc.Tools.Entities.Communication;
 using Limxc.Tools.Extensions.Communication;
 
-// ReSharper disable InconsistentNaming
-
+// ReSharper disable InconsistentNaming 
 namespace Limxc.Tools.DeviceComm.Protocol
 {
     public abstract class ProtocolBase : IProtocol
@@ -42,23 +41,13 @@ namespace Limxc.Tools.DeviceComm.Protocol
         public IObservable<CommContext> History { get; protected set; }
         public abstract void Init(params object[] pars);
 
-        public virtual Task<bool> OpenAsync()
-        {
-            throw new NotImplementedException();
-        }
+        public abstract Task<bool> OpenAsync();
 
-        public virtual Task<bool> CloseAsync()
-        {
-            throw new NotImplementedException();
-        }
+        public abstract Task<bool> CloseAsync();
+
+        public abstract Task<bool> SendAsync(byte[] bytes);
 
         public virtual Task<bool> SendAsync(CommContext context)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public virtual Task<bool> SendAsync(byte[] bytes)
         {
             throw new NotImplementedException();
         }

@@ -28,8 +28,8 @@ namespace Limxc.Tools.DeviceComm.Protocol
         /// <summary>
         ///     Auto Connect
         /// </summary>
-        /// <param name="autoConnectInterval">Milliseconds</param>
-        public SerialPortProtocol(int autoConnectInterval = 1000)
+        /// <param name="autoConnectInterval">50~1000ms</param>
+        public SerialPortProtocol(int autoConnectInterval)
         {
             var isConnecting = false;
             _autoConnectDisposable = Observable
@@ -43,7 +43,15 @@ namespace Limxc.Tools.DeviceComm.Protocol
                     if (!isConnecting && !IsConnected)
                     {
                         isConnecting = true;
-                        await OpenAsync();
+                        try
+                        {
+                            await OpenAsync();
+                        }
+                        catch
+                        {
+                            // ignored
+                        }
+
                         isConnecting = false;
                     }
                 });
