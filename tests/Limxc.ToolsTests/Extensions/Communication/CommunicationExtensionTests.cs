@@ -408,16 +408,19 @@ namespace Limxc.ToolsTests.Extensions.Communication
         public async Task WaitingSendResultTest()
         {
             var simulator = new ProtocolSimulator(0, 3000);
+            var disposables = new CompositeDisposable();
             var msg = new List<string>();
             var rst = new List<CommContext>();
 
             simulator.Received.Select(p => $"@ {DateTime.Now:mm:ss fff} 接收 : {p.ByteToHex()}")
-                .Subscribe(p => msg.Add(p));
+                .Subscribe(p => msg.Add(p))
+                .DisposeWith(disposables);
             simulator.History.Subscribe(p =>
-            {
-                msg.Add($"@ {DateTime.Now:mm:ss fff} {p}");
-                rst.Add(p);
-            });
+                {
+                    msg.Add($"@ {DateTime.Now:mm:ss fff} {p}");
+                    rst.Add(p);
+                })
+                .DisposeWith(disposables);
 
             await simulator.OpenAsync();
 
@@ -443,24 +446,27 @@ namespace Limxc.ToolsTests.Extensions.Communication
 
             await simulator.CloseAsync();
             simulator.Dispose();
+            disposables.Dispose();
         }
 
         [Fact]
         public async Task ExecQueueTest()
         {
             var simulator = new ProtocolSimulator();
+            var disposables = new CompositeDisposable();
             var msg = new List<string>();
             var history = new List<CommTaskContext>();
 
             simulator.Received.Select(p => $"@ {DateTime.Now:mm:ss fff} 接收 : {p.ByteToHex()}").Subscribe(p =>
-            {
-                msg.Add(p);
-            });
+                {
+                    msg.Add(p);
+                })
+                .DisposeWith(disposables);
             simulator.History.Subscribe(p =>
             {
                 msg.Add($"@ {DateTime.Now:mm:ss fff} {p}");
                 history.Add(p as CommTaskContext);
-            });
+            }).DisposeWith(disposables);
 
             await simulator.OpenAsync();
 
@@ -477,6 +483,7 @@ namespace Limxc.ToolsTests.Extensions.Communication
 
             await simulator.CloseAsync();
             simulator.Dispose();
+            disposables.Dispose();
 
             tcList.Count(p => p.State == CommContextState.Timeout).Should().Be(1);
             tcList.Count(p => p.State == CommContextState.NoNeed).Should().Be(1);

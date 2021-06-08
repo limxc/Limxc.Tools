@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -15,16 +15,63 @@ namespace Limxc.Tools.DeviceCommTests.Protocol
 {
     public class ProtocolSimulatorTests
     {
-        private readonly ProtocolSimulator _simulator;
-
-        public ProtocolSimulatorTests()
+        [Fact]
+        public async void Test()
         {
-            _simulator = new ProtocolSimulator(); //每5秒丢失一个
+            var simulator = new ProtocolSimulator(); //不丢失;
+            var disposables = new CompositeDisposable();
+            var msg = new List<string>();
+            var rst = new List<CommContext>();
+
+            var sendList = new List<CommContext>
+            {
+                new("AA01BB", "AA$1BB", 1000, "01"),
+                new("AB02BB", "AB$1BB", 1000, "02"),
+                new("AC03BB", "AC$1BB", 1000, "03"),
+                new("AD04BB", "AD$1BB", 1000, "04"),
+                new("AE05BB", "AE$1BB", 1000, "05"),
+                new("AF06BB", "AF$1BB", 1000, "06")
+            };
+
+            simulator.History.Subscribe(p =>
+            {
+                msg.Add($"History@ {DateTime.Now:mm:ss fff} {p}");
+                rst.Add(p.DeepClone());
+            }).DisposeWith(disposables);
+
+            simulator.Received
+                .Delay(TimeSpan.FromMilliseconds(100)) //美观
+                .Select(p => $"Received@ {DateTime.Now:mm:ss fff} 接收 : {p.ByteToHex()}")
+                .Subscribe(p => msg.Add(p))
+                .DisposeWith(disposables);
+
+            await simulator.OpenAsync();
+
+            await simulator.SendAsync(new CommContext("000000"));
+
+            var loop = 2;
+            for (var i = 0; i < loop; i++)
+                foreach (var context in sendList)
+                    await simulator.SendAsync(context);
+
+            await simulator.SendAsync(new CommContext("BB06BB", "CC$1BB", 1000, "06"));
+
+            await Task.Delay(1000);
+            await simulator.CloseAsync();
+            simulator.Dispose();
+            disposables.Dispose();
+
+            msg.Count.Should().Be(2 + 2 * sendList.Count * loop + 2);
+            rst.Count(p => p.State == CommContextState.Success).Should().Be(rst.Count - 1 - 1);
+            rst.Count(p => p.State == CommContextState.NoNeed).Should().Be(1);
+            rst.Count(p => p.State == CommContextState.Timeout).Should().Be(1);
         }
 
         [Fact]
-        public async Task Test()
+        public async void LostMsgTest()
         {
+            var simulator = new ProtocolSimulator(3); //3丢1;
+            var disposables = new CompositeDisposable();
             var msg = new List<string>();
             var rst = new List<CommContext>();
             var sendList = new List<CommContext>
@@ -37,41 +84,30 @@ namespace Limxc.Tools.DeviceCommTests.Protocol
                 new("AF06BB", "AF$1BB", 1000, "06")
             };
 
-            _simulator.Received
-                .Select(p => $"@ {DateTime.Now:mm:ss fff} 接收 : {p.ByteToHex()}")
-                .Subscribe(p => msg.Add(p));
-
-            _simulator.History.Subscribe(p =>
+            simulator.History.Subscribe(p =>
             {
-                msg.Add($"@ {DateTime.Now:mm:ss fff} {p}");
+                msg.Add($"History@ {DateTime.Now:mm:ss fff} {p}");
                 rst.Add(p.DeepClone());
-            });
+            }).DisposeWith(disposables);
 
-            await _simulator.OpenAsync();
+            simulator.Received
+                .Delay(TimeSpan.FromMilliseconds(100)) //美观
+                .Select(p => $"Received@ {DateTime.Now:mm:ss fff} 接收 : {p.ByteToHex()}")
+                .Subscribe(p => msg.Add(p))
+                .DisposeWith(disposables);
 
-            await _simulator.SendAsync(new CommContext("000000"));
+            await simulator.OpenAsync();
 
-            var loop = 2;
-            for (var i = 0; i < loop; i++)
-                foreach (var context in sendList)
-                    await _simulator.SendAsync(context);
+            foreach (var context in sendList)
+                await simulator.SendAsync(context);
 
-            //await simulator.SendAsync(new CommContext("AA01BB", "AA$1BB", "01") { Timeout = 1000 });
-            //await simulator.SendAsync(new CommContext("AB02BB", "AA$1BB", "02") { Timeout = 1000 });//解析失败
-            //await simulator.SendAsync(new CommContext("AC03BB", "AA$1BB", "03") { Timeout = 1000 });//解析失败
-            //await simulator.SendAsync(new CommContext("AD04BB", "AD$1BB", "04") { Timeout = 1000 });
-            //await simulator.SendAsync(new CommContext("AE05BB", "AE$1BB", "05") { Timeout = 1000 });
-            //await simulator.SendAsync(new CommContext("AF06BB", "AF$1BB", "06") { Timeout = 1000 });
+            await Task.Delay(2000);
+            await simulator.CloseAsync();
+            simulator.Dispose();
+            disposables.Dispose();
 
-            //await Task.Delay(1000 * loop);
-            await _simulator.CloseAsync();
-            _simulator.Dispose();
-
-            msg.Count.Should().Be(2 + 2 * sendList.Count * loop);
-            rst.Count(p => p.State == CommContextState.Success).Should().Be(rst.Count - 1);
-            rst.Count(p => p.State == CommContextState.NoNeed).Should().Be(1);
-
-            Debugger.Break();
+            msg.Count.Should().Be(2 * sendList.Count - 2);
+            rst.Count(p => p.State == CommContextState.Success).Should().Be(rst.Count - 2);
         }
     }
 }

@@ -15,6 +15,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
         /// <summary>
         ///     解析返回值
         /// </summary>
+        /// <param name="protocol"></param>
         /// <param name="bytes"></param>
         /// <param name="waitMs"></param>
         /// <returns></returns>
@@ -29,6 +30,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
         /// <summary>
         ///     Send解析任务完成通知
         /// </summary>
+        /// <param name="protocol"></param>
         /// <param name="context"></param>
         /// <param name="schedulerRunTime">rx处理时间</param>
         /// <returns></returns>
@@ -56,6 +58,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
         /// <summary>
         ///     任务队列执行
         /// </summary>
+        /// <param name="protocol"></param>
         /// <param name="queue"></param>
         /// <param name="token"></param>
         /// <param name="schedulerRunTime">rx处理时间</param>

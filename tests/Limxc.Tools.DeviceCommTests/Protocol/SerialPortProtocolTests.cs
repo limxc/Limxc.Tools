@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO.Ports;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Limxc.Tools.DeviceComm.Protocol;
@@ -27,7 +28,7 @@ namespace Limxc.Tools.DeviceCommTests.Protocol
             //else
             //    await AutoTest();
 
-            //await ManualTest();
+            await ManualTest();
             await AutoTest();
         }
 
@@ -43,10 +44,13 @@ namespace Limxc.Tools.DeviceCommTests.Protocol
             var rst = new ConcurrentBag<string>();
 
             var manual = new SerialPortProtocol();
+            var disposables = new CompositeDisposable();
 
-            manual.History.Select(p => $"History: {p}").Subscribe(p => rst.Add(p));
-            manual.ConnectionState.Select(p => $"ConnectionState: {p}").Subscribe(p => rst.Add(p));
-            manual.Received.Select(p => $"Received: {p.ByteToHex()}").Subscribe(p => rst.Add(p));
+            manual.History.Select(p => $"History: {p}").Subscribe(p => rst.Add(p)).DisposeWith(disposables);
+            manual.ConnectionState.Select(p => $"ConnectionState: {p}").Subscribe(p => rst.Add(p))
+                .DisposeWith(disposables);
+            manual.Received.Select(p => $"Received: {p.ByteToHex()}").Subscribe(p => rst.Add(p))
+                .DisposeWith(disposables);
 
             manual.Init(SerialPort.GetPortNames()[0], 9600);
 
@@ -63,6 +67,7 @@ namespace Limxc.Tools.DeviceCommTests.Protocol
 
             await manual.CloseAsync();
             manual.Dispose();
+            disposables.Dispose();
             rst.Clear();
         }
 
@@ -79,6 +84,7 @@ namespace Limxc.Tools.DeviceCommTests.Protocol
 
 
             var auto = new SerialPortProtocol(1000);
+            var disposables = new CompositeDisposable();
 
             Observable.Merge
                 (
@@ -86,7 +92,8 @@ namespace Limxc.Tools.DeviceCommTests.Protocol
                     auto.ConnectionState.Select(p => $"ConnectionState: {p}"),
                     auto.Received.Select(p => $"Received: {p.ByteToHex()}")
                 )
-                .Subscribe(p => { rst.Add(p); });
+                .Subscribe(p => { rst.Add(p); })
+                .DisposeWith(disposables);
 
             auto.Init(SerialPort.GetPortNames()[0], 115200);
             await Task.Delay(100);
@@ -109,6 +116,7 @@ namespace Limxc.Tools.DeviceCommTests.Protocol
             }
 
             auto.Dispose();
+            disposables.Dispose();
             rst.Clear();
         }
     }

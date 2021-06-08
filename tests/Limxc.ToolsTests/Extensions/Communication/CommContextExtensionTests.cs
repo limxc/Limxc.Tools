@@ -56,5 +56,15 @@ namespace Limxc.ToolsTests.Extensions.Communication
             template.TryGetTemplateMatchResult("123" + resp).Should().Be("AA00088844BB");
             template.TryGetTemplateMatchResult("123" + resp + "123").Should().Be("AA00088844BB");
         }
+
+        [Fact]
+        public void SimulateResponseTest()
+        {
+            var template = "AA00$2$1BB";
+            var resp = template.SimulateResponse();
+            template.IsTemplateMatch(resp).Should().BeTrue();
+
+            "".SimulateResponse().Should().BeEmpty();
+        }
     }
 }

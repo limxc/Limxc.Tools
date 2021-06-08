@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Limxc.Tools.Extensions.Communication
 {
@@ -74,6 +76,28 @@ namespace Limxc.Tools.Extensions.Communication
                     regexStr += item;
 
             return Regex.Match(resp, regexStr, RegexOptions.IgnoreCase).Value;
+        }
+
+        public static string SimulateResponse(this string template, char sep = '$')
+        {
+            if (string.IsNullOrWhiteSpace(template))
+                return string.Empty;
+
+            var keys = new List<string>
+                {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"};
+            var rnd = new Random(Guid.NewGuid().GetHashCode());
+
+            template = template.Replace(" ", "");
+            var resp = string.Empty;
+
+            foreach (var item in template.ToStrArray(2))
+                if (item[0] == sep && int.TryParse(item[1].ToString(), out var len))
+                    for (var i = 0; i < len * 2; i++)
+                        resp += keys[rnd.Next(keys.Count)];
+                else
+                    resp += item;
+
+            return resp;
         }
     }
 }

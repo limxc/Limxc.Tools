@@ -108,7 +108,7 @@ namespace Limxc.Tools.Common
                         History.Add(new TaskHistory<TRet>(DateTime.Now, item.Id, res,
                             $"RemainingAttempts:{remainingAttempts} State:{(pass ? "Success" : error ?? "Exception")} Progress:{Tasks.Count - PendingQueue.Count() + 1}/{Tasks.Count}"));
                     }
-                 
+
                 if (!pass)
                     return;
                 _queue.Dequeue();
