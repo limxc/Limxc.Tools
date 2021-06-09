@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
@@ -21,10 +22,21 @@ namespace Limxc.Tools.DeviceComm.Extensions
         /// <returns></returns>
         public static async Task<byte[]> SendAsync(this IProtocol protocol, byte[] bytes, int waitMs)
         {
-            var now = DateTimeOffset.Now;
-            if (await protocol.SendAsync(bytes))
-                return await protocol.Received.SkipUntil(now).TakeUntil(now.AddMilliseconds(waitMs)).ToTask();
-            return new byte[0];
+            try
+            {
+                var now = DateTimeOffset.Now;
+                var tRcv = protocol.Received
+                    .SkipUntil(now).TakeUntil(now.AddMilliseconds(waitMs))
+                    .Aggregate((x, y) => x.Concat(y).ToArray())
+                    .ToTask();
+                var tSend = protocol.SendAsync(bytes);
+                await Task.WhenAll(tSend, tRcv).ConfigureAwait(false);
+                return await tRcv.ConfigureAwait(false);
+            }
+            catch
+            {
+                return new byte[0];
+            }
         }
 
         /// <summary>
