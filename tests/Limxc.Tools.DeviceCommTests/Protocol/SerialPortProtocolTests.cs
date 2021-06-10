@@ -13,6 +13,7 @@ using Xunit;
 
 namespace Limxc.Tools.DeviceCommTests.Protocol
 {
+    [Collection("SerialPort")]
     public class SerialPortProtocolTests
     {
         [Fact]
@@ -103,7 +104,9 @@ namespace Limxc.Tools.DeviceCommTests.Protocol
                 .Delay(TimeSpan.FromSeconds(0.5))
                 .Subscribe(async _ =>
                 {
+                    // ReSharper disable once AccessToDisposedClosure
                     await auto.SendAsync(new CommContext("AA00 0888 44BB", "AA00$2$1BB", 200));
+                    // ReSharper disable once AccessToDisposedClosure
                     await auto.SendAsync(new CommContext("CC00 1111 DD", "CC00$2DD", 200));
                 });
 
@@ -115,8 +118,8 @@ namespace Limxc.Tools.DeviceCommTests.Protocol
                 Assert.True(rst.Count(p => p.Contains("Success")) == 2 && rst.Count(p => p.Contains("Error")) == 0);
             }
 
-            auto.Dispose();
             disposables.Dispose();
+            auto.Dispose();
             rst.Clear();
         }
     }

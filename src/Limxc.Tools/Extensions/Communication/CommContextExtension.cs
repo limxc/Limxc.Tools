@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Limxc.Tools.Extensions.Communication
@@ -98,6 +99,33 @@ namespace Limxc.Tools.Extensions.Communication
                     resp += item;
 
             return resp;
+        }
+
+        public static List<string> GetValues(this string source, string template)
+        {
+            var values = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(template) || string.IsNullOrWhiteSpace(source))
+                return values;
+
+            if (!template.IsTemplateMatch(source))
+                throw new FormatException($"Parse Error: Source[{source}] Template[{template}]");
+
+            source = source.Replace(" ", "");
+
+            var arr = template.ToCharArray();
+            var skipLen = 0;
+
+            for (var i = 0; i < arr.Length; i++)
+                if (arr[i] == '$' && i < arr.Length - 1)
+                {
+                    var len = arr[i + 1].ToString().HexToInt();
+                    var tfv = new string(source.Skip(i + skipLen * 2).Take(len * 2).ToArray());
+                    skipLen += len > 1 ? len - 1 : 0;
+                    values.Add(tfv);
+                }
+
+            return values;
         }
     }
 }

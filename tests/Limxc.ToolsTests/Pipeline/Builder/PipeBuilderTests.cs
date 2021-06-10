@@ -76,7 +76,7 @@ namespace Limxc.ToolsTests.Pipeline.Builder
             //800ms _1_2
             var rst800 = await pipe.RunAsync(new PipeTestContext("Test", 0), new CancellationTokenSource(800).Token);
 
-            var rst800CreateTimes = rst800.Snapshots.Select(p => p.CreateTime);
+            var rst800CreateTimes = rst800.Snapshots.Select(p => p.CreateTime).ToList();
             (rst800CreateTimes.Max() - rst800CreateTimes.Min()).TotalMilliseconds.Should()
                 .BeGreaterThan(800); //进入方法前不足800ms, 执行完毕后超过800ms, 快照间隔也超过了800ms
 
@@ -86,7 +86,7 @@ namespace Limxc.ToolsTests.Pipeline.Builder
             //2100ms _1_2_3(第三步执行中断, 因此快照与数据不符)
             var rst1500 = await pipe.RunAsync(new PipeTestContext("Test", 0), new CancellationTokenSource(1500).Token);
 
-            var rst1500CreateTimes = rst1500.Snapshots.Select(p => p.CreateTime);
+            var rst1500CreateTimes = rst1500.Snapshots.Select(p => p.CreateTime).ToList();
             (rst1500CreateTimes.Max() - rst1500CreateTimes.Min()).TotalMilliseconds.Should().BeLessThan(1500);
 
             rst1500.Body.Msg.Should().Be("Test_1_2_3");
@@ -100,7 +100,7 @@ namespace Limxc.ToolsTests.Pipeline.Builder
             public PipeTestContext(string msg, double value)
             {
                 Msg = msg;
-                //Value = value;
+                Value = value;
             }
 
             public PipeTestContext()

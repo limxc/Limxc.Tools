@@ -19,6 +19,8 @@ namespace Limxc.Tools.DeviceComm.Protocol
         private readonly Subject<byte[]> _received;
         private readonly int _sendDelayMs;
 
+        private int _sendIndex;
+
         /// <summary>
         /// </summary>
         /// <param name="lostInterval">每n个丢失一个</param>
@@ -61,8 +63,6 @@ namespace Limxc.Tools.DeviceComm.Protocol
         {
             return Task.FromResult(true);
         }
-
-        private int _sendIndex;
 
         public async Task<bool> SendAsync(CommContext context)
         {

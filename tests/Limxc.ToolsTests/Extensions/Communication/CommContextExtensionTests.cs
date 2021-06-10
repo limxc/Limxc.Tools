@@ -1,4 +1,6 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.Collections.Generic;
+using FluentAssertions;
 using Limxc.Tools.Extensions.Communication;
 using Xunit;
 
@@ -37,7 +39,7 @@ namespace Limxc.ToolsTests.Extensions.Communication
             "AA0000220000BB".IsTemplateMatch("123AA0000220000BB").Should().BeFalse();
             "AA0000220000BB".IsTemplateMatch("123AA0000220000BB123").Should().BeFalse();
 
-            string s = null;
+            var s = string.Empty;
             s.IsTemplateMatch("1").Should().BeFalse();
             s.IsTemplateMatch("").Should().BeTrue();
 
@@ -65,6 +67,15 @@ namespace Limxc.ToolsTests.Extensions.Communication
             template.IsTemplateMatch(resp).Should().BeTrue();
 
             "".SimulateResponse().Should().BeEmpty();
+        }
+
+        [Fact]
+        public void GetValuesTest()
+        {
+            var template = "AA$1$2BB";
+            "AA010203BB".GetValues(template).Should().BeEquivalentTo("01", "0203");
+            Func<List<string>> act = () => "0000".GetValues(template);
+            act.Should().Throw<FormatException>();
         }
     }
 }

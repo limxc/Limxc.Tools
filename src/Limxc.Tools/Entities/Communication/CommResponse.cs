@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Limxc.Tools.Extensions.Communication;
 
 namespace Limxc.Tools.Entities.Communication
@@ -10,48 +9,14 @@ namespace Limxc.Tools.Entities.Communication
     /// </summary>
     public class CommResponse
     {
-        public List<string> GetStrValues(bool checkPattern = true)
+        public List<string> GetStrValues()
         {
-            return GetStrValues(Value, checkPattern);
+            return Value.GetValues(Template);
         }
 
-        public List<string> GetStrValues(string resp, bool checkPattern = true)
+        public List<int> GetIntValues()
         {
-            var values = new List<string>();
-
-            if (string.IsNullOrWhiteSpace(Template))
-                return values;
-
-            if (checkPattern && !Template.IsTemplateMatch(resp))
-                throw new FormatException($"Response Parse Error. Template:[{Template}] Value:{resp}");
-            if (string.IsNullOrWhiteSpace(resp))
-                return values;
-
-            resp = resp.Replace(" ", "");
-
-            var arr = Template.ToCharArray();
-            var skipLen = 0;
-
-            for (var i = 0; i < arr.Length; i++)
-                if (arr[i] == '$' && i < arr.Length - 1)
-                {
-                    var len = arr[i + 1].ToString().HexToInt();
-                    var tfv = new string(resp.Skip(i + skipLen * 2).Take(len * 2).ToArray());
-                    skipLen += len > 1 ? len - 1 : 0;
-                    values.Add(tfv);
-                }
-
-            return values;
-        }
-
-        public List<int> GetIntValues(bool checkPattern = true)
-        {
-            return GetIntValues(Value, checkPattern);
-        }
-
-        public List<int> GetIntValues(string resp, bool checkPattern = true)
-        {
-            return GetStrValues(resp, checkPattern).ConvertAll(p => p.HexToInt());
+            return Value.GetValues(Template).ConvertAll(p => p.HexToInt());
         }
 
         public override string ToString()
@@ -59,7 +24,7 @@ namespace Limxc.Tools.Entities.Communication
             string strValue, intValue;
             try
             {
-                strValue = string.Join(",", GetStrValues(false));
+                strValue = string.Join(",", GetStrValues());
             }
             catch (Exception e)
             {
@@ -68,7 +33,7 @@ namespace Limxc.Tools.Entities.Communication
 
             try
             {
-                intValue = string.Join(",", GetIntValues(false));
+                intValue = string.Join(",", GetIntValues());
             }
             catch (Exception e)
             {

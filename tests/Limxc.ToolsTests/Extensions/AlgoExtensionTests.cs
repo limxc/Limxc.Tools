@@ -48,19 +48,16 @@ namespace Limxc.ToolsTests.Extensions
                 return source.ToArray();
             }
 
-            var indexes = GetIndexes(5);
-            var source = GetTestData(indexes);
-
             //测试
             void Test(int count)
             {
-                var idx = GetIndexes(5);
-                var data = GetTestData(idx);
+                var indexes = GetIndexes(count);
+                var testData = GetTestData(indexes);
 
-                var r1 = data.Locate<byte>(pattern);
-                var r2 = data.Locate(pattern);
+                var r1 = testData.Locate<byte>(pattern);
+                var r2 = testData.Locate(pattern);
                 r1.Should().BeEquivalentTo(r2);
-                r1.Should().BeEquivalentTo(idx);
+                r1.Should().BeEquivalentTo(indexes);
             }
 
             for (var i = 0; i < 1000; i++) Test(i);
@@ -82,7 +79,7 @@ namespace Limxc.ToolsTests.Extensions
             var data = GetTestData(idx);
             var t0 = PerformanceTest(() => data.Locate<byte>(pattern));
             var t1 = PerformanceTest(() => data.Locate(pattern));
-
+            Debug.WriteLine($"泛型/int 性能 : {t0} / {t1}");
             Debugger.Break();
         }
 
@@ -131,6 +128,7 @@ namespace Limxc.ToolsTests.Extensions
 
             var t0 = PerformanceTest(() => source.ToCharArray().Locate(pattern.ToCharArray()));
             var t1 = PerformanceTest(() => source.Locate(pattern));
+            Debug.WriteLine($"char/string 性能 : {t0} / {t1}");
 
             Debugger.Break();
         }
@@ -147,7 +145,7 @@ namespace Limxc.ToolsTests.Extensions
             Assert.Throws<ArgumentException>(() => { new[] {-1}.LocateToPack(datas); });
 
             var r1 = new[] {9}.LocateToPack(datas);
-            r1.pack.Should().BeEquivalentTo(new List<byte[]>().ToArray());
+            r1.pack.Should().BeEquivalentTo();
             r1.remain.Should().BeEquivalentTo(new byte[] {9});
 
             new[] {0}.LocateToPack(datas).Should().BeEquivalentTo((
