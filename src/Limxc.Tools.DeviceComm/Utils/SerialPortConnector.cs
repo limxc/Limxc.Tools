@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO.Ports;
 using System.Linq;
 using System.Reactive.Concurrency;
@@ -23,36 +24,38 @@ namespace Limxc.Tools.DeviceComm.Utils
         private readonly int _sendInterval;
         private int _baudRate;
         private CompositeDisposable _disposables = new CompositeDisposable();
+        private bool _isBusy;
         private string _portName;
         private SerialPort _sp;
 
         public SerialPortConnector(int autoConnectInterval = 100, int sendInterval = 50)
         {
             _sendInterval = sendInterval;
-            var isConnecting = false;
+
             _autoConnectDisposable = Observable
                 .Interval(TimeSpan.FromMilliseconds(autoConnectInterval))
                 .Where(_ => !string.IsNullOrWhiteSpace(_portName))
                 .Select(_ => SerialPort.GetPortNames())
                 .Where(ports => ports.Contains(_portName, StringComparer.CurrentCultureIgnoreCase)) //port found
-                .ObserveOn(NewThreadScheduler.Default)
+                .Where(_ => _sp?.IsOpen == false)
+                .SubscribeOn(NewThreadScheduler.Default)
                 .Subscribe(_ =>
                 {
-                    if (!isConnecting && !IsConnected)
+                    if (!_isBusy)
                     {
-                        isConnecting = true;
+                        _isBusy = true;
                         try
                         {
-                            _sp.Open();
-                            _sp.DiscardInBuffer();
-                            _sp.DiscardOutBuffer();
+                            _sp?.Open();
+                            _sp?.DiscardInBuffer();
+                            _sp?.DiscardOutBuffer();
                         }
-                        catch
+                        catch (Exception e)
                         {
-                            // ignored
+                            Debug.WriteLine(e.Message);
                         }
 
-                        isConnecting = false;
+                        _isBusy = false;
                     }
                 });
 
@@ -75,11 +78,16 @@ namespace Limxc.Tools.DeviceComm.Utils
             _portName = portName;
             _baudRate = baudRate;
 
+            _isBusy = true;
+
             _disposables?.Dispose();
             _disposables = new CompositeDisposable();
 
             _sp?.Close();
+            _sp?.Dispose();
             _sp = new SerialPort(_portName, _baudRate, 0) {ReadTimeout = 500, WriteTimeout = 500};
+
+            _isBusy = false;
 
             Observable
                 .FromEventPattern(_sp, nameof(SerialPort.DataReceived))
