@@ -6,45 +6,48 @@ using System.Threading.Tasks;
 
 namespace Limxc.Tools.Common
 {
-    public class TaskQueue<TRet>
+    public class TaskFlow
     {
-        private readonly Queue<TaskBody<TRet>> _queue;
+        private readonly Queue<TaskNode> _queue;
 
-        public TaskQueue()
+        public TaskFlow(object inputs)
         {
-            _queue = new Queue<TaskBody<TRet>>();
-            Tasks = new List<TaskBody<TRet>>();
-            History = new List<TaskHistory<TRet>>();
+            Inputs = inputs;
+            _queue = new Queue<TaskNode>();
+            Nodes = new List<TaskNode>();
+            History = new List<TaskNodeHistory>();
         }
 
-        /// <summary>Tasks</summary>
-        public List<TaskBody<TRet>> Tasks { get; }
+        public object Inputs { get; set; }
+        public object Outputs { get; set; }
 
+        /// <summary>All Nodes</summary>
+        public List<TaskNode> Nodes { get; }
 
         /// <summary>Execution History</summary>
-        public List<TaskHistory<TRet>> History { get; }
+        public List<TaskNodeHistory> History { get; }
 
         /// <summary>Waiting For Execution</summary>
-        public IEnumerable<TaskBody<TRet>> PendingQueue => _queue.AsEnumerable();
+        public IEnumerable<TaskNode> PendingNodes => _queue.AsEnumerable();
 
         private void BuildOnce()
         {
-            if (Tasks.Count > 0 && History.Count == 0 && _queue.Count == 0)
+            if (Nodes.Count > 0 && History.Count == 0 && _queue.Count == 0)
                 Build();
         }
 
-        /// <summary>Build Queue From Tasks.</summary>
+        /// <summary>Build Nodes</summary>
         public void Build()
         {
             History.Clear();
             _queue.Clear();
-            Tasks.ForEach(task => _queue.Enqueue(task));
+            Nodes.ForEach(task => _queue.Enqueue(task));
         }
 
-        /// <summary>Clear TaskQueue</summary>
+        /// <summary>Clear TaskFlow</summary>
         public void Clear()
         {
-            Tasks.Clear();
+            Nodes.Clear();
             History.Clear();
             _queue.Clear();
         }
@@ -55,9 +58,9 @@ namespace Limxc.Tools.Common
         /// <param name="task">Task Func</param>
         /// <param name="retryCount">Execution times = RetryCount + 1</param>
         /// <param name="id">Task Id</param>
-        public void Add(Func<CancellationToken, Task<TRet>> task, int retryCount = 0, string id = null)
+        public void Add(Func<object, CancellationToken, Task<object>> task, int retryCount = 0, string id = null)
         {
-            Tasks.Add(new TaskBody<TRet>(task, retryCount, id));
+            Nodes.Add(new TaskNode(task, retryCount, id));
         }
 
         public Task Exec()
@@ -75,11 +78,11 @@ namespace Limxc.Tools.Common
             BuildOnce();
             while (_queue.Count > 0)
             {
+                Outputs = null;
                 var item = _queue.Peek();
 
                 var remainingAttempts = 1 + (item.RetryCount < 0 ? 0 : item.RetryCount);
                 var pass = false;
-                var res = default(TRet);
                 string error = null;
                 while (!pass && remainingAttempts > 0)
                     try
@@ -89,7 +92,7 @@ namespace Limxc.Tools.Common
 
                         remainingAttempts--;
 
-                        res = await item.Task(token);
+                        Outputs = await item.Task(Inputs, token);
                         pass = true;
                     }
                     catch (OperationCanceledException)
@@ -106,39 +109,43 @@ namespace Limxc.Tools.Common
                     }
                     finally
                     {
-                        History.Add(new TaskHistory<TRet>(DateTime.Now, item.Id, res,
-                            $"RemainingAttempts:{remainingAttempts} State:{(pass ? "Success" : error ?? "Exception")} Progress:{Tasks.Count - PendingQueue.Count() + 1}/{Tasks.Count}"));
+                        History.Add(new TaskNodeHistory(DateTime.Now, item.Id,
+                            $"RemainingAttempts:{remainingAttempts} State:{(pass ? "Success" : error ?? "Exception")} Progress:{Nodes.Count - PendingNodes.Count() + 1}/{Nodes.Count}"
+                            , Inputs, Outputs));
                     }
 
                 if (!pass)
                     return;
                 _queue.Dequeue();
+
+                if (_queue.Count > 0)
+                    Inputs = Outputs;
             }
         }
 
         /// <summary>
-        ///     Combine Queues
+        ///     Combine TaskFlows
         /// </summary>
         /// <param name="queues"></param>
         /// <returns></returns>
-        public TaskQueue<TRet> Combine(params TaskQueue<TRet>[] queues)
+        public TaskFlow Combine(params TaskFlow[] queues)
         {
-            foreach (var queue in queues) Tasks.AddRange(queue.Tasks);
+            foreach (var queue in queues) Nodes.AddRange(queue.Nodes);
 
             return this;
         }
     }
 
-    public class TaskBody<T>
+    public class TaskNode
     {
-        public TaskBody(Func<CancellationToken, Task<T>> task, int retryCount, string id)
+        public TaskNode(Func<object, CancellationToken, Task<object>> task, int retryCount, string id)
         {
             Task = task;
             RetryCount = retryCount;
             Id = id;
         }
 
-        public Func<CancellationToken, Task<T>> Task { get; }
+        public Func<object, CancellationToken, Task<object>> Task { get; }
 
         /// <summary>
         ///     Execution times = RetryCount + 1
@@ -148,24 +155,26 @@ namespace Limxc.Tools.Common
         public string Id { get; }
     }
 
-    public class TaskHistory<T>
+    public class TaskNodeHistory
     {
-        public TaskHistory(DateTime execTime, string id, T result, string message)
+        public TaskNodeHistory(DateTime execTime, string id, string message, object inputs, object outputs)
         {
             ExecTime = execTime;
             Id = id;
-            Result = result;
             Message = message;
+            Inputs = inputs;
+            Outputs = outputs;
         }
 
         public DateTime ExecTime { get; }
         public string Id { get; }
-        public T Result { get; }
+        public object Inputs { get; }
+        public object Outputs { get; }
         public string Message { get; }
 
         public override string ToString()
         {
-            return $"@{ExecTime} {Id}: {Message} | {Result}";
+            return $"@{ExecTime} {Id}: {Message}";
         }
     }
 }
