@@ -19,47 +19,48 @@ namespace Limxc.Tools.DeviceComm.Utils
     public class SerialPortConnector : IDisposable
     {
         private readonly IDisposable _autoConnectDisposable;
+        private readonly int _autoConnectInterval;
         private readonly Subject<bool> _connectionState = new Subject<bool>();
         private readonly Subject<byte[]> _received = new Subject<byte[]>();
-        private readonly int _sendInterval;
+        private readonly int _sendDelay;
         private int _baudRate;
         private CompositeDisposable _disposables = new CompositeDisposable();
         private bool _isBusy;
         private string _portName;
         private SerialPort _sp;
 
-        public SerialPortConnector(int autoConnectInterval = 100, int sendInterval = 50)
+        public SerialPortConnector(int autoConnectInterval = 100, int sendDelay = 50)
         {
-            _sendInterval = sendInterval;
+            _autoConnectInterval = autoConnectInterval;
+            _sendDelay = sendDelay;
 
             _autoConnectDisposable = Observable
-                .Interval(TimeSpan.FromMilliseconds(autoConnectInterval))
+                .Interval(TimeSpan.FromMilliseconds(_autoConnectInterval))
                 .Where(_ => !string.IsNullOrWhiteSpace(_portName))
                 .Select(_ => SerialPort.GetPortNames())
                 .Where(ports => ports.Contains(_portName, StringComparer.CurrentCultureIgnoreCase)) //port found
-                .Where(_ => _sp?.IsOpen == false)
+                .Where(_ => _sp?.IsOpen == false && !_isBusy)
                 .SubscribeOn(NewThreadScheduler.Default)
                 .Subscribe(_ =>
                 {
-                    if (!_isBusy)
+                    _isBusy = true;
+                    try
                     {
-                        _isBusy = true;
-                        try
-                        {
-                            _sp?.Open();
-                            _sp?.DiscardInBuffer();
-                            _sp?.DiscardOutBuffer();
-                        }
-                        catch (Exception e)
-                        {
-                            Debug.WriteLine(e.Message);
-                        }
-
-                        _isBusy = false;
+                        _sp?.Open();
+                        _sp?.DiscardInBuffer();
+                        _sp?.DiscardOutBuffer();
                     }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine(e.Message);
+                    }
+
+                    _isBusy = false;
                 });
 
-            ConnectionState = Observable.Defer(() => _connectionState.AsObservable().Publish().RefCount());
+
+            ConnectionState = Observable.Defer(() =>
+                _connectionState.StartWith(false).DistinctUntilChanged().AsObservable().Publish().RefCount());
             Received = Observable.Defer(() => _received.AsObservable().Publish().RefCount());
         }
 
@@ -75,10 +76,10 @@ namespace Limxc.Tools.DeviceComm.Utils
 
         public void Init(string portName, int baudRate)
         {
+            _isBusy = true;
+
             _portName = portName;
             _baudRate = baudRate;
-
-            _isBusy = true;
 
             _disposables?.Dispose();
             _disposables = new CompositeDisposable();
@@ -86,8 +87,6 @@ namespace Limxc.Tools.DeviceComm.Utils
             _sp?.Close();
             _sp?.Dispose();
             _sp = new SerialPort(_portName, _baudRate, 0) {ReadTimeout = 500, WriteTimeout = 500};
-
-            _isBusy = false;
 
             Observable
                 .FromEventPattern(_sp, nameof(SerialPort.DataReceived))
@@ -101,13 +100,13 @@ namespace Limxc.Tools.DeviceComm.Utils
                 .DisposeWith(_disposables);
 
             Observable
-                .Interval(TimeSpan.FromSeconds(0.1))
+                .Interval(TimeSpan.FromMilliseconds(_autoConnectInterval))
                 .Select(_ => IsConnected)
-                .StartWith(false)
-                .DistinctUntilChanged()
                 .SubscribeOn(NewThreadScheduler.Default)
                 .Subscribe(s => _connectionState.OnNext(s))
                 .DisposeWith(_disposables);
+
+            _isBusy = false;
         }
 
         /// <summary>
@@ -117,7 +116,7 @@ namespace Limxc.Tools.DeviceComm.Utils
         /// <returns></returns>
         public async Task SendAsync(string hex)
         {
-            await Task.Delay(_sendInterval);
+            await Task.Delay(_sendDelay);
 
             var bytes = hex.HexToByte();
             _sp.Write(bytes, 0, bytes.Length);
@@ -127,20 +126,20 @@ namespace Limxc.Tools.DeviceComm.Utils
         ///     在超时时长内,根据模板自动截取返回值
         /// </summary>
         /// <param name="hex"></param>
-        /// <param name="timeOut"></param>
+        /// <param name="timeout">ms</param>
         /// <param name="template"></param>
         /// <param name="sep"></param>
         /// <returns></returns>
-        public async Task<string> SendAsync(string hex, int timeOut, string template, char sep = '$')
+        public async Task<string> SendAsync(string hex, int timeout, string template, char sep = '$')
         {
             try
             {
-                await Task.Delay(_sendInterval);
+                await Task.Delay(_sendDelay);
 
                 var now = DateTimeOffset.Now;
                 var task = _received
                     .SkipUntil(now)
-                    .TakeUntil(now.AddMilliseconds(timeOut))
+                    .TakeUntil(now.AddMilliseconds(timeout))
                     .Select(d => d.ByteToHex())
                     .Scan((acc, r) => acc + r)
                     .FirstOrDefaultAsync(r => template.IsTemplateMatch(r, sep, false))
@@ -168,7 +167,7 @@ namespace Limxc.Tools.DeviceComm.Utils
         {
             try
             {
-                await Task.Delay(_sendInterval);
+                await Task.Delay(_sendDelay);
 
                 var now = DateTimeOffset.Now;
                 var task = _received.SkipUntil(now).TakeUntil(now.AddMilliseconds(waitMs))

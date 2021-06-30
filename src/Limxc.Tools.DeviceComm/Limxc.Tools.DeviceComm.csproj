@@ -1,20 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
-		<Description>Device communication library, and usercontrols for testing.</Description>
-	</PropertyGroup>
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+        <Description>Device communication library, and usercontrols for testing.</Description>
+    </PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="SuperSimpleTcp" Version="2.4.0" />
-		<PackageReference Include="System.IO.Ports" Version="5.0.1" />
-		<PackageReference Include="System.Management" Version="5.0.0" />
+    <ItemGroup>
+        <PackageReference Include="SuperSimpleTcp" Version="2.4.0" />
+        <PackageReference Include="System.IO.Ports" Version="5.0.1" />
+        <PackageReference Include="System.Management" Version="5.0.0" />
         <PackageReference Include="MQTTnet.Extensions.External.RxMQTT.Client" Version="1.1.55" />
         <PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.15" />
         <PackageReference Include="System.Text.Json" Version="5.0.2" />
-	</ItemGroup>
+    </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\Limxc.Tools\Limxc.Tools.csproj" />
-	</ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Limxc.Tools\Limxc.Tools.csproj" />
+    </ItemGroup>
 </Project>

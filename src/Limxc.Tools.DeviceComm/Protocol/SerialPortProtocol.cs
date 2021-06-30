@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO.Ports;
 using System.Linq;
 using System.Reactive.Concurrency;
@@ -14,7 +15,10 @@ namespace Limxc.Tools.DeviceComm.Protocol
     public class SerialPortProtocol : ProtocolBase
     {
         private readonly IDisposable _autoConnectDisposable;
+        private readonly int _autoConnectInterval;
+        private readonly int _sendDelay;
         private int _baudRate;
+        private bool _isBusy;
         private string _portName;
         private SerialPort _sp;
 
@@ -29,31 +33,32 @@ namespace Limxc.Tools.DeviceComm.Protocol
         ///     Auto Connect
         /// </summary>
         /// <param name="autoConnectInterval">50~1000ms</param>
-        public SerialPortProtocol(int autoConnectInterval)
+        /// <param name="sendDelay">10+</param>
+        public SerialPortProtocol(int autoConnectInterval = 100, int sendDelay = 50)
         {
-            var isConnecting = false;
+            _autoConnectInterval = autoConnectInterval;
+            _sendDelay = sendDelay;
+
             _autoConnectDisposable = Observable
-                .Interval(TimeSpan.FromMilliseconds(autoConnectInterval))
+                .Interval(TimeSpan.FromMilliseconds(_autoConnectInterval))
                 .Where(_ => !string.IsNullOrWhiteSpace(_portName))
                 .Select(_ => SerialPort.GetPortNames())
                 .Where(ports => ports.Contains(_portName, StringComparer.CurrentCultureIgnoreCase)) //port found
-                .ObserveOn(NewThreadScheduler.Default)
+                .Where(_ => _sp?.IsOpen == false && !_isBusy)
+                .SubscribeOn(NewThreadScheduler.Default)
                 .Subscribe(async _ =>
                 {
-                    if (!isConnecting && !IsConnected)
+                    _isBusy = true;
+                    try
                     {
-                        isConnecting = true;
-                        try
-                        {
-                            await OpenAsync();
-                        }
-                        catch
-                        {
-                            // ignored
-                        }
-
-                        isConnecting = false;
+                        await OpenAsync();
                     }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine(e.Message);
+                    }
+
+                    _isBusy = false;
                 });
         }
 
@@ -68,6 +73,8 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
         public void Init(string portName, int baudRate)
         {
+            _isBusy = true;
+
             _portName = portName;
             _baudRate = baudRate;
 
@@ -78,10 +85,8 @@ namespace Limxc.Tools.DeviceComm.Protocol
             _sp = new SerialPort(_portName, _baudRate, 0) {ReadTimeout = 500, WriteTimeout = 500};
 
             Observable
-                .Interval(TimeSpan.FromSeconds(0.1))
-                .Select(_ => _sp?.IsOpen ?? false)
-                .StartWith(false)
-                .DistinctUntilChanged()
+                .Interval(TimeSpan.FromMilliseconds(_autoConnectInterval))
+                .Select(_ => IsConnected)
                 .SubscribeOn(NewThreadScheduler.Default)
                 .Subscribe(s => _connectionState.OnNext(s))
                 .DisposeWith(_disposables);
@@ -96,11 +101,15 @@ namespace Limxc.Tools.DeviceComm.Protocol
                     _received.OnNext(bs);
                 })
                 .DisposeWith(_disposables);
+
+            _isBusy = false;
         }
 
 
         public override async Task<bool> SendAsync(CommContext context)
         {
+            await Task.Delay(_sendDelay);
+
             var cmdStr = context.Command.Build();
             var bs = cmdStr.HexToByte();
 
@@ -108,15 +117,17 @@ namespace Limxc.Tools.DeviceComm.Protocol
             _history.OnNext(context);
 
             _sp.Write(bs, 0, bs.Length);
-            await Task.Delay(50);
+
             return true;
         }
 
-        public override Task<bool> SendAsync(byte[] bytes)
+        public override async Task<bool> SendAsync(byte[] bytes)
         {
+            await Task.Delay(_sendDelay);
+
             _sp.Write(bytes, 0, bytes.Length);
 
-            return Task.FromResult(true);
+            return true;
         }
 
 

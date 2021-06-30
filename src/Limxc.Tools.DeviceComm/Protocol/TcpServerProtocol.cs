@@ -49,16 +49,12 @@ namespace Limxc.Tools.DeviceComm.Protocol
                     h => _server.Events.ClientDisconnected -= h)
                 .Select(p => (p.EventArgs.IpPort, false));
 
-
             connect
                 .Merge(disconnect)
                 .Select(p => p.Item2)
-                .StartWith(false)
-                .DistinctUntilChanged()
                 .SubscribeOn(NewThreadScheduler.Default)
                 .Subscribe(s => _connectionState.OnNext(s))
                 .DisposeWith(_disposables);
-
 
             Observable
                 .FromEventPattern<DataReceivedEventArgs>(h => _server.Events.DataReceived += h,

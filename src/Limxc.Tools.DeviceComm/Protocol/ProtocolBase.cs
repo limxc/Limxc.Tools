@@ -26,7 +26,8 @@ namespace Limxc.Tools.DeviceComm.Protocol
             _received = new Subject<byte[]>();
             _history = new Subject<CommContext>();
 
-            ConnectionState = Observable.Defer(() => _connectionState.AsObservable().Publish().RefCount());
+            ConnectionState = Observable.Defer(() =>
+                _connectionState.StartWith(false).DistinctUntilChanged().AsObservable().Publish().RefCount());
             Received = Observable.Defer(() => _received.AsObservable().Publish().RefCount());
             History = Observable.Defer(() =>
                 _history.AsObservable().FindResponse(Received).ObserveOn(NewThreadScheduler.Default)

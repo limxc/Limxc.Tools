@@ -33,7 +33,6 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
             _client?.Dispose();
 
-
             _client = new SimpleTcpClient(serverIpPort);
 
             var connect = Observable
@@ -47,15 +46,11 @@ namespace Limxc.Tools.DeviceComm.Protocol
                     h => _client.Events.Disconnected -= h)
                 .Select(_ => false);
 
-
             connect
                 .Merge(disconnect)
-                .StartWith(false)
-                .DistinctUntilChanged()
                 .SubscribeOn(NewThreadScheduler.Default)
                 .Subscribe(s => _connectionState.OnNext(s))
                 .DisposeWith(_disposables);
-
 
             Observable
                 .FromEventPattern<DataReceivedEventArgs>(h => _client.Events.DataReceived += h,
