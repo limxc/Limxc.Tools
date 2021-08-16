@@ -35,7 +35,6 @@ namespace Limxc.ToolsTests.Extensions
         private enum TestEnum
         {
             [Description("a")] A,
-
             B
         }
     }

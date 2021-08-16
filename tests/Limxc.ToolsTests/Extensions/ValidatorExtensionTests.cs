@@ -56,10 +56,22 @@ namespace Limxc.ToolsTests.Extensions
             "xxx@asd.com".CheckEmail().Should().BeTrue();
 
             " xxx@asd.com ".CheckEmail().Should().BeFalse();
-
             "xxx.asd.com".CheckEmail().Should().BeFalse();
             "xxx.asd@com".CheckEmail().Should().BeFalse();
             "xxxasd.com".CheckEmail().Should().BeFalse();
+        }
+
+        [Fact]
+        public void CheckUrlTest()
+        {
+            "http://www.163.com".CheckUrl().Should().BeTrue();
+            "Https://12.sub.163.com/url?a=1".CheckUrl().Should().BeTrue();
+            "www.163.com/url?a=1".CheckUrl().Should().BeTrue();
+
+            " http://www.163.com ".CheckUrl().Should().BeTrue();
+
+            "http://".CheckUrl().Should().BeFalse();
+            "123asd".CheckUrl().Should().BeFalse();
         }
     }
 }
