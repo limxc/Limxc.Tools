@@ -16,9 +16,20 @@ namespace Limxc.Tools.Extensions
         public const string EmailPattern =
             @"^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$";
 
-        public const string UrlPattern =
-            @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?";
-
+        public const string UrlPattern = @"^((https?|ftp|file):\/\/)?" + // protocol
+                                         @"(([a-z0-9$_\.\+!\*\'\(\),;\?&=-]|%[0-9a-f]{2})+" + // username
+                                         @"(:([a-z0-9$_\.\+!\*\'\(\),;\?&=-]|%[0-9a-f]{2})+)?" + // password
+                                         @"@)?(?#" + // auth requires @
+                                         @")((([a-z0-9]\.|[a-z0-9][a-z0-9-_]*[a-z0-9]\.)*" + // domain segments AND
+                                         @"[a-z][a-z0-9-]*[a-z0-9]" + // top level domain  OR
+                                         @"|((\d|[1-9]\d|1\d{2}|2[0-4][0-9]|25[0-5])\.){3}" +
+                                         @"(\d|[1-9]\d|1\d{2}|2[0-4][0-9]|25[0-5])" + // IP address
+                                         @")(:\d+)?" + // port
+                                         @")(((\/+([a-z0-9$_\.\+!\*\'\(\),;:@&=-]|%[0-9a-f]{2})*)*" + // path
+                                         @"(\?([a-z0-9$_\.\+!\*\'\(\),;:@&=-]|%[0-9a-f]{2})*)" + // query string
+                                         @"?)?)?" + // path and query string optional
+                                         @"(#([a-z0-9$_\.\+!\*\'\(\),;:@&=-]|%[0-9a-f]{2})*)?" + // fragment
+                                         @"$";
 
         public static bool CheckIp(this string source)
         {
@@ -42,7 +53,7 @@ namespace Limxc.Tools.Extensions
 
         public static bool CheckUrl(this string source)
         {
-            return Regex.IsMatch(source, UrlPattern);
+            return Regex.IsMatch(source, UrlPattern, RegexOptions.IgnoreCase);
         }
     }
 }

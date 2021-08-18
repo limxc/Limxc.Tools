@@ -64,14 +64,31 @@ namespace Limxc.ToolsTests.Extensions
         [Fact]
         public void CheckUrlTest()
         {
-            "http://www.163.com".CheckUrl().Should().BeTrue();
-            "Https://12.sub.163.com/url?a=1".CheckUrl().Should().BeTrue();
-            "www.163.com/url?a=1".CheckUrl().Should().BeTrue();
+            string[] pass = {
+                "a.cn",
+                "w_2.a_b.cn/ur_l",
+                "http://www.163.com:80",
+                "Https://12.sub.163.com/url?a=1",
+                "ftp://www.test.net",
+                "http://10.10.10.90:8080/upload_result",
+                "10.10.10.90:8080/url?", 
+            };
 
-            " http://www.163.com ".CheckUrl().Should().BeTrue();
+            string[] fail = { 
+                "http:// ",
+                "123asd",
+                "http://10.10.10",
+            };
 
-            "http://".CheckUrl().Should().BeFalse();
-            "123asd".CheckUrl().Should().BeFalse();
+            foreach (var s in pass)
+            {
+                s.CheckUrl().Should().BeTrue(); 
+            }
+
+            foreach (var s in fail)
+            {
+                s.CheckUrl().Should().BeFalse();
+            } 
         }
     }
 }
