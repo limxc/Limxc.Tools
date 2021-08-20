@@ -52,5 +52,36 @@ namespace Limxc.Tools.DeviceCommTests.Utils
             disposables.Dispose();
             sp.Dispose();
         }
+
+        [Fact]
+        public async Task ConnectionEnabledTest()
+        {
+            if (SerialPort.GetPortNames().Length == 0)
+                return;
+
+            var portName = SerialPort.GetPortNames().First();
+            var baudRate = 9600;
+
+            var disposables = new CompositeDisposable();
+
+            var sp = new SerialPortConnector();
+            sp.IsConnected.Should().BeFalse();
+
+            sp.ConnectionEnabled = false;
+            sp.Init(portName, baudRate);
+            await Task.Delay(1000);
+            sp.IsConnected.Should().BeFalse();
+
+            sp.ConnectionEnabled = true;
+            await Task.Delay(1000);
+            sp.IsConnected.Should().BeTrue();
+
+            sp.ConnectionEnabled = false;
+            await Task.Delay(1000);
+            sp.IsConnected.Should().BeFalse();
+
+            disposables.Dispose();
+            sp.Dispose();
+        }
     }
 }

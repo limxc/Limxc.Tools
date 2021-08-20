@@ -39,16 +39,26 @@ namespace Limxc.Tools.DeviceComm.Utils
                 .Where(_ => !string.IsNullOrWhiteSpace(_portName))
                 .Select(_ => SerialPort.GetPortNames())
                 .Where(ports => ports.Contains(_portName, StringComparer.CurrentCultureIgnoreCase)) //port found
-                .Where(_ => _sp?.IsOpen == false && !_isBusy)
+                .Where(_ => !_isBusy)
                 .SubscribeOn(NewThreadScheduler.Default)
                 .Subscribe(_ =>
                 {
                     _isBusy = true;
                     try
                     {
-                        _sp?.Open();
-                        _sp?.DiscardInBuffer();
-                        _sp?.DiscardOutBuffer();
+                        if (ConnectionEnabled)
+                        {
+                            if (!IsConnected)
+                            {
+                                _sp?.Open();
+                                _sp?.DiscardInBuffer();
+                                _sp?.DiscardOutBuffer();
+                            }
+                        }
+                        else
+                        {
+                            _sp?.Close();
+                        }
                     }
                     catch (Exception e)
                     {
@@ -67,6 +77,7 @@ namespace Limxc.Tools.DeviceComm.Utils
         public bool IsConnected => _sp?.IsOpen ?? false;
         public IObservable<bool> ConnectionState { get; }
         public IObservable<byte[]> Received { get; }
+        public bool ConnectionEnabled { get; set; } = true;
 
         public void Dispose()
         {
