@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -69,9 +70,9 @@ namespace Limxc.ToolsTests.Pipeline.Builder
             rst.Snapshots[3].Body.Value.Should().Be(6);
 
             var dt = rst.Snapshots[0].CreateTime;
-            rst.Snapshots[1].CreateTime.Should().BeCloseTo(dt, 100);
-            rst.Snapshots[2].CreateTime.Should().BeCloseTo(dt.AddSeconds(1), 100);
-            rst.Snapshots[3].CreateTime.Should().BeCloseTo(dt.AddSeconds(2), 100);
+            rst.Snapshots[1].CreateTime.Should().BeCloseTo(dt, TimeSpan.FromSeconds(0.1));
+            rst.Snapshots[2].CreateTime.Should().BeCloseTo(dt.AddSeconds(1), TimeSpan.FromSeconds(0.1));
+            rst.Snapshots[3].CreateTime.Should().BeCloseTo(dt.AddSeconds(2), TimeSpan.FromSeconds(0.1));
 
             //800ms _1_2
             var rst800 = await pipe.RunAsync(new PipeTestContext("Test", 0), new CancellationTokenSource(800).Token);

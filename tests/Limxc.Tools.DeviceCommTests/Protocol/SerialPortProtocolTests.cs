@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Limxc.Tools.DeviceComm.Protocol;
 using Limxc.Tools.Entities.Communication;
 using Limxc.Tools.Extensions.Communication;
+using Microsoft.Reactive.Testing;
 using Xunit;
 
 namespace Limxc.Tools.DeviceCommTests.Protocol
@@ -101,14 +102,15 @@ namespace Limxc.Tools.DeviceCommTests.Protocol
             //send when connected
             auto.ConnectionState
                 .Where(p => p)
-                .Delay(TimeSpan.FromSeconds(0.5))
+                .Delay(TimeSpan.FromSeconds(0.5)) 
                 .Subscribe(async _ =>
                 {
                     // ReSharper disable once AccessToDisposedClosure
                     await auto.SendAsync(new CommContext("AA00 0888 44BB", "AA00$2$1BB", 200));
                     // ReSharper disable once AccessToDisposedClosure
                     await auto.SendAsync(new CommContext("CC00 1111 DD", "CC00$2DD", 200));
-                });
+                })
+                .DisposeWith(disposables);
 
             await Task.Delay(2000);
 

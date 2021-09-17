@@ -6,11 +6,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="SuperSimpleTcp" Version="2.4.0" />
+        <PackageReference Include="SuperSimpleTcp" Version="2.4.1.1" />
         <PackageReference Include="System.IO.Ports" Version="5.0.1" />
         <PackageReference Include="System.Management" Version="5.0.0" />
-        <PackageReference Include="MQTTnet.Extensions.External.RxMQTT.Client" Version="1.1.55" />
-        <PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.15" />
+        <PackageReference Include="MQTTnet.Extensions.External.RxMQTT.Client" Version="1.1.70" />
+        <PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.16" />
         <PackageReference Include="System.Text.Json" Version="5.0.2" />
     </ItemGroup>
 

@@ -9,14 +9,14 @@ namespace Limxc.ToolsTests.Extensions
         [Fact]
         public void ContainsTest()
         {
-            "中文English!@#".Contains(new[] {"天"}).Should().BeFalse();
-            "中文English!@#".Contains(new[] {"天", "中1"}).Should().BeFalse();
-            "中文English!@#".Contains(new[] {"天", "En1"}).Should().BeFalse();
+            "中文English!@#".Contains(new[] { "天" }).Should().BeFalse();
+            "中文English!@#".Contains(new[] { "天", "中1" }).Should().BeFalse();
+            "中文English!@#".Contains(new[] { "天", "En1" }).Should().BeFalse();
 
-            "中文English!@#".Contains(new[] {"天", "中"}).Should().BeTrue();
-            "中文English!@#".Contains(new[] {"天", "En"}).Should().BeTrue();
+            "中文English!@#".Contains(new[] { "天", "中" }).Should().BeTrue();
+            "中文English!@#".Contains(new[] { "天", "En" }).Should().BeTrue();
 
-            "中文English!@#".Contains(new[] {"天", "en"}, false).Should().BeFalse();
+            "中文English!@#".Contains(new[] { "天", "en" }, false).Should().BeFalse();
         }
 
         [Fact]
@@ -34,7 +34,7 @@ namespace Limxc.ToolsTests.Extensions
         [Fact]
         public void NumbersTest()
         {
-            "身高:166,体重:55.55,年龄:22".Numbers().Should().BeEquivalentTo(166, 55.55, 22);
+            "身高:166,体重:55.55,年龄:22".Numbers().Should().BeEquivalentTo(new[] { 166, 55.55, 22 });
         }
     }
 }
