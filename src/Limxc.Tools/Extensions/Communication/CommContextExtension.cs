@@ -85,7 +85,7 @@ namespace Limxc.Tools.Extensions.Communication
                 return string.Empty;
 
             var keys = new List<string>
-                {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"};
+                { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F" };
             var rnd = new Random(Guid.NewGuid().GetHashCode());
 
             template = template.Replace(" ", "");

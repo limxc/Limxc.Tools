@@ -31,14 +31,26 @@ namespace TestHost
         {
             this.btnLoadFile = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.btnRead3s = new System.Windows.Forms.Button();
+            this.btnWrite3s = new System.Windows.Forms.Button();
             this.rtbTxt = new System.Windows.Forms.RichTextBox();
             this.btnLoadFileAsync = new System.Windows.Forms.Button();
             this.btnSaveFileAsync = new System.Windows.Forms.Button();
             this.cbFileAppend = new System.Windows.Forms.CheckBox();
             this.btnSaveFile = new System.Windows.Forms.Button();
-            this.btnWrite3s = new System.Windows.Forms.Button();
-            this.btnRead3s = new System.Windows.Forms.Button();
+            this.tbMessage = new System.Windows.Forms.TextBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.dtpTime = new System.Windows.Forms.DateTimePicker();
+            this.btnRefresh = new System.Windows.Forms.Button();
+            this.nudValue = new System.Windows.Forms.NumericUpDown();
+            this.dgvInner = new System.Windows.Forms.DataGridView();
+            this.Key = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.rtbBindingLog = new System.Windows.Forms.RichTextBox();
+            this.dtpTimeNull = new System.Windows.Forms.DateTimePicker();
             this.groupBox1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudValue)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvInner)).BeginInit();
             this.SuspendLayout();
             // 
             // btnLoadFile
@@ -67,6 +79,26 @@ namespace TestHost
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "文件读写";
+            // 
+            // btnRead3s
+            // 
+            this.btnRead3s.Location = new System.Drawing.Point(227, 235);
+            this.btnRead3s.Name = "btnRead3s";
+            this.btnRead3s.Size = new System.Drawing.Size(88, 23);
+            this.btnRead3s.TabIndex = 7;
+            this.btnRead3s.Text = "Read3s";
+            this.btnRead3s.UseVisualStyleBackColor = true;
+            this.btnRead3s.Click += new System.EventHandler(this.btnRead3s_Click);
+            // 
+            // btnWrite3s
+            // 
+            this.btnWrite3s.Location = new System.Drawing.Point(227, 193);
+            this.btnWrite3s.Name = "btnWrite3s";
+            this.btnWrite3s.Size = new System.Drawing.Size(88, 23);
+            this.btnWrite3s.TabIndex = 6;
+            this.btnWrite3s.Text = "Write3s";
+            this.btnWrite3s.UseVisualStyleBackColor = true;
+            this.btnWrite3s.Click += new System.EventHandler(this.btnWrite3s_Click);
             // 
             // rtbTxt
             // 
@@ -116,36 +148,100 @@ namespace TestHost
             this.btnSaveFile.UseVisualStyleBackColor = true;
             this.btnSaveFile.Click += new System.EventHandler(this.btnSaveFile_Click);
             // 
-            // btnWrite3s
+            // tbMessage
             // 
-            this.btnWrite3s.Location = new System.Drawing.Point(227, 193);
-            this.btnWrite3s.Name = "btnWrite3s";
-            this.btnWrite3s.Size = new System.Drawing.Size(88, 23);
-            this.btnWrite3s.TabIndex = 6;
-            this.btnWrite3s.Text = "Write3s";
-            this.btnWrite3s.UseVisualStyleBackColor = true;
-            this.btnWrite3s.Click += new System.EventHandler(this.btnWrite3s_Click);
+            this.tbMessage.Location = new System.Drawing.Point(6, 22);
+            this.tbMessage.Name = "tbMessage";
+            this.tbMessage.Size = new System.Drawing.Size(100, 23);
+            this.tbMessage.TabIndex = 2;
             // 
-            // btnRead3s
+            // groupBox2
             // 
-            this.btnRead3s.Location = new System.Drawing.Point(227, 235);
-            this.btnRead3s.Name = "btnRead3s";
-            this.btnRead3s.Size = new System.Drawing.Size(88, 23);
-            this.btnRead3s.TabIndex = 7;
-            this.btnRead3s.Text = "Read3s";
-            this.btnRead3s.UseVisualStyleBackColor = true;
-            this.btnRead3s.Click += new System.EventHandler(this.btnRead3s_Click);
+            this.groupBox2.Controls.Add(this.dtpTimeNull);
+            this.groupBox2.Controls.Add(this.dtpTime);
+            this.groupBox2.Controls.Add(this.btnRefresh);
+            this.groupBox2.Controls.Add(this.nudValue);
+            this.groupBox2.Controls.Add(this.dgvInner);
+            this.groupBox2.Controls.Add(this.rtbBindingLog);
+            this.groupBox2.Controls.Add(this.tbMessage);
+            this.groupBox2.Location = new System.Drawing.Point(363, 12);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(432, 325);
+            this.groupBox2.TabIndex = 4;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Binding";
             // 
-            // Form1
+            // dtpTime
+            // 
+            this.dtpTime.Location = new System.Drawing.Point(281, 23);
+            this.dtpTime.Name = "dtpTime";
+            this.dtpTime.Size = new System.Drawing.Size(145, 23);
+            this.dtpTime.TabIndex = 8;
+            // 
+            // btnRefresh
+            // 
+            this.btnRefresh.Location = new System.Drawing.Point(281, 166);
+            this.btnRefresh.Name = "btnRefresh";
+            this.btnRefresh.Size = new System.Drawing.Size(75, 28);
+            this.btnRefresh.TabIndex = 7;
+            this.btnRefresh.Text = "Refresh";
+            this.btnRefresh.UseVisualStyleBackColor = true;
+            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
+            // 
+            // nudValue
+            // 
+            this.nudValue.Location = new System.Drawing.Point(122, 23);
+            this.nudValue.Name = "nudValue";
+            this.nudValue.Size = new System.Drawing.Size(120, 23);
+            this.nudValue.TabIndex = 6;
+            // 
+            // dgvInner
+            // 
+            this.dgvInner.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvInner.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.Key});
+            this.dgvInner.Location = new System.Drawing.Point(7, 52);
+            this.dgvInner.Name = "dgvInner";
+            this.dgvInner.RowTemplate.Height = 25;
+            this.dgvInner.Size = new System.Drawing.Size(165, 150);
+            this.dgvInner.TabIndex = 4;
+            // 
+            // Key
+            // 
+            this.Key.DataPropertyName = "Key";
+            this.Key.HeaderText = "Key";
+            this.Key.Name = "Key";
+            // 
+            // rtbBindingLog
+            // 
+            this.rtbBindingLog.Location = new System.Drawing.Point(7, 208);
+            this.rtbBindingLog.Name = "rtbBindingLog";
+            this.rtbBindingLog.Size = new System.Drawing.Size(419, 111);
+            this.rtbBindingLog.TabIndex = 3;
+            this.rtbBindingLog.Text = "";
+            // 
+            // dtpTimeNull
+            // 
+            this.dtpTimeNull.Location = new System.Drawing.Point(281, 63);
+            this.dtpTimeNull.Name = "dtpTimeNull";
+            this.dtpTimeNull.Size = new System.Drawing.Size(145, 23);
+            this.dtpTimeNull.TabIndex = 9;
+            // 
+            // FileTesterFrm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(807, 478);
+            this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
-            this.Name = "Form1";
+            this.Name = "FileTesterFrm";
             this.Text = "Form1";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudValue)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvInner)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -161,6 +257,15 @@ namespace TestHost
         private System.Windows.Forms.RichTextBox rtbTxt;
         private System.Windows.Forms.Button btnRead3s;
         private System.Windows.Forms.Button btnWrite3s;
+        private System.Windows.Forms.TextBox tbMessage;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.DataGridView dgvInner;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Key;
+        private System.Windows.Forms.RichTextBox rtbBindingLog;
+        private System.Windows.Forms.NumericUpDown nudValue;
+        private System.Windows.Forms.Button btnRefresh;
+        private System.Windows.Forms.DateTimePicker dtpTime;
+        private System.Windows.Forms.DateTimePicker dtpTimeNull;
     }
 }
 

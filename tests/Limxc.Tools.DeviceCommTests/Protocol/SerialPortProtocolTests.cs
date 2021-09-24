@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Limxc.Tools.DeviceComm.Protocol;
 using Limxc.Tools.Entities.Communication;
 using Limxc.Tools.Extensions.Communication;
-using Microsoft.Reactive.Testing;
 using Xunit;
 
 namespace Limxc.Tools.DeviceCommTests.Protocol
@@ -102,7 +101,7 @@ namespace Limxc.Tools.DeviceCommTests.Protocol
             //send when connected
             auto.ConnectionState
                 .Where(p => p)
-                .Delay(TimeSpan.FromSeconds(0.5)) 
+                .Delay(TimeSpan.FromSeconds(0.5))
                 .Subscribe(async _ =>
                 {
                     // ReSharper disable once AccessToDisposedClosure

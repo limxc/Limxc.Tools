@@ -1,9 +1,13 @@
 using System;
 using System.IO;
+using System.Reactive.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Limxc.Tools.Core.Extensions;
+using Limxc.Tools.Extensions;
+using Limxc.Tools.Utils;
 
 namespace TestHost
 {
@@ -11,9 +15,43 @@ namespace TestHost
     {
         private const string FilePath = "testfile.txt";
 
+        private readonly BindingEntity _entity = new();
+
         public FileTesterFrm()
         {
             InitializeComponent();
+
+            Bindings.Error += obj => { obj.Debug(); };
+            Bindings.Create(() => tbMessage.Text == _entity.Message);
+            Bindings.Create(() => nudValue.Value == _entity.Value);
+            Bindings.Create(() => dgvInner.DataSource == _entity.Inners);
+            Bindings.Create(() => dtpTime.Value == _entity.Time);
+            Bindings.Create(() => dtpTimeNull.Value == _entity.TimeNull);
+
+            Bindings.Create(() =>
+                rtbBindingLog.Text == _entity.Message + //需要一个属性触发更新
+                _entity);
+
+
+            Observable
+                .Interval(TimeSpan.FromSeconds(1))
+                .Take(6)
+                .Delay(TimeSpan.FromSeconds(1))
+                .ObserveOn(SynchronizationContext.Current)
+                .Subscribe(p =>
+                {
+                    _entity.Message = DateTime.Now.ToLongTimeString();
+                    _entity.Value++;
+                    _entity.Time = DateTime.Now.AddDays((int)_entity.Value);
+                    _entity.TimeNull = DateTime.Now.AddDays((int)_entity.Value);
+                    _entity.Inners.Add(new Inner { Key = DateTime.Now.ToLongTimeString() });
+                    Bindings.InvalidateMember(() => _entity.Message);
+                });
+        }
+
+        private void btnRefresh_Click(object sender, EventArgs e)
+        {
+            rtbBindingLog.Text = _entity.ToString();
         }
 
         private void btnSaveFile_Click(object sender, EventArgs e)

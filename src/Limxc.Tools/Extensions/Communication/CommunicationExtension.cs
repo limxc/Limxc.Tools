@@ -36,7 +36,7 @@ namespace Limxc.Tools.Extensions.Communication
                         }
 
                         Debug.Assert(p.SendTime != null, "CommContext.SendTime != null");
-                        var st = ((DateTime) p.SendTime).ToDateTimeOffset();
+                        var st = ((DateTime)p.SendTime).ToDateTimeOffset();
 
                         return resp.Timestamp()
                                 .Select(d => new Timestamped<string>(byteToStringConverter(d.Value), d.Timestamp))

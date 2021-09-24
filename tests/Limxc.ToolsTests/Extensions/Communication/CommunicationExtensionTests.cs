@@ -39,9 +39,9 @@ namespace Limxc.ToolsTests.Extensions.Communication
             ts.AdvanceTo(source.Length);
             var expect = new List<byte[]>
             {
-                new byte[] {0},
-                new byte[] {1, 1},
-                new byte[] {2, 2, 2}
+                new byte[] { 0 },
+                new byte[] { 1, 1 },
+                new byte[] { 2, 2, 2 }
             };
             rst.Should().BeEquivalentTo(expect);
         }
@@ -65,15 +65,15 @@ namespace Limxc.ToolsTests.Extensions.Communication
             };
             var rst1 = new List<byte[]>();
             source1.ToObservable(ts)
-                .ParsePackage(new byte[] {254}, new byte[] {255})
+                .ParsePackage(new byte[] { 254 }, new byte[] { 255 })
                 .Subscribe(p => rst1.Add(p));
 
             ts.AdvanceBy(source1.Length);
             var expect1 = new List<byte[]>
             {
-                new byte[] {0},
-                new byte[] {1, 1},
-                new byte[] {2, 2, 2}
+                new byte[] { 0 },
+                new byte[] { 1, 1 },
+                new byte[] { 2, 2, 2 }
             };
             rst1.Should().BeEquivalentTo(expect1);
 
@@ -94,15 +94,15 @@ namespace Limxc.ToolsTests.Extensions.Communication
             };
             var rst2 = new List<byte[]>();
             source2.ToObservable(ts)
-                .ParsePackage(new byte[] {99, 254}, new byte[] {99, 255})
+                .ParsePackage(new byte[] { 99, 254 }, new byte[] { 99, 255 })
                 .Subscribe(p => rst2.Add(p));
 
             ts.AdvanceBy(source2.Length);
             var expect2 = new List<byte[]>
             {
-                new byte[] {0},
-                new byte[] {1, 1},
-                new byte[] {2, 2, 2}
+                new byte[] { 0 },
+                new byte[] { 1, 1 },
+                new byte[] { 2, 2, 2 }
             };
             rst2.Should().BeEquivalentTo(expect2);
 
@@ -125,15 +125,15 @@ namespace Limxc.ToolsTests.Extensions.Communication
             };
             var rst3 = new List<byte[]>();
             source3.ToObservable(ts)
-                .ParsePackage(new byte[] {88, 99, 254}, new byte[] {88, 99, 255})
+                .ParsePackage(new byte[] { 88, 99, 254 }, new byte[] { 88, 99, 255 })
                 .Subscribe(p => rst3.Add(p));
 
             ts.AdvanceBy(source3.Length);
             var expect3 = new List<byte[]>
             {
-                new byte[] {0},
-                new byte[] {1, 1},
-                new byte[] {2, 2, 2}
+                new byte[] { 0 },
+                new byte[] { 1, 1 },
+                new byte[] { 2, 2, 2 }
             };
             rst3.Should().BeEquivalentTo(expect3);
 
@@ -149,15 +149,15 @@ namespace Limxc.ToolsTests.Extensions.Communication
             };
             var rstSep = new List<byte[]>();
             sourceSep.ToObservable(ts)
-                .ParsePackage(new byte[] {97, 97}, new byte[] {98, 98})
+                .ParsePackage(new byte[] { 97, 97 }, new byte[] { 98, 98 })
                 .Subscribe(p => rstSep.Add(p));
 
             ts.AdvanceBy(sourceSep.Length);
             var expectSep = new List<byte[]>
             {
-                new byte[] {0},
-                new byte[] {1, 1},
-                new byte[] {2, 2, 2}
+                new byte[] { 0 },
+                new byte[] { 1, 1 },
+                new byte[] { 2, 2, 2 }
             };
             rstSep.Should().BeEquivalentTo(expectSep);
             //separator 结果:  new byte[]{ 2,41, 97,97,0,98,98, 62, 97,97,1,1, }, new byte[] { 2, 2, 2 }
@@ -243,37 +243,37 @@ namespace Limxc.ToolsTests.Extensions.Communication
             var rst = new List<byte[]>();
             //d1
             d1.ToObservable(ts)
-                .ParsePackage(new byte[] {0, 0})
+                .ParsePackage(new byte[] { 0, 0 })
                 .Subscribe(p => rst.Add(p));
             ts.AdvanceBy(d1.Length);
             rst.Should().BeEquivalentTo(new List<byte[]>
             {
-                new byte[] {1, 0, 8},
-                new byte[] {11, 52, 55}
+                new byte[] { 1, 0, 8 },
+                new byte[] { 11, 52, 55 }
             });
             rst.Clear();
 
             //d2
             d2.ToObservable(ts)
-                .ParsePackage(new byte[] {0, 0, 0})
+                .ParsePackage(new byte[] { 0, 0, 0 })
                 .Subscribe(p => rst.Add(p));
             ts.AdvanceBy(d2.Length);
             rst.Should().BeEquivalentTo(new List<byte[]>
             {
-                new byte[] {0, 11, 254, 0, 255, 254},
-                new byte[] {255, 22, 254}
+                new byte[] { 0, 11, 254, 0, 255, 254 },
+                new byte[] { 255, 22, 254 }
             });
             rst.Clear();
 
             //d3
             d3.ToObservable(ts)
-                .ParsePackage(new byte[] {98, 98, 97, 97})
+                .ParsePackage(new byte[] { 98, 98, 97, 97 })
                 .Subscribe(p => rst.Add(p));
             ts.AdvanceBy(d3.Length);
             rst.Should().BeEquivalentTo(new List<byte[]>
             {
-                new byte[] {2, 41, 97, 97, 0, 98, 98, 62, 97, 97, 1, 1},
-                new byte[] {2, 2, 2}
+                new byte[] { 2, 41, 97, 97, 0, 98, 98, 62, 97, 97, 1, 1 },
+                new byte[] { 2, 2, 2 }
             });
             rst.Clear();
         }
@@ -312,27 +312,27 @@ namespace Limxc.ToolsTests.Extensions.Communication
                     {
                         //01  第1秒
                         await Task.Delay(1000);
-                        o.OnNext(new CommContext("AA01BB", "AA$1BB", 800, "01") {SendTime = DateTime.Now});
+                        o.OnNext(new CommContext("AA01BB", "AA$1BB", 800, "01") { SendTime = DateTime.Now });
 
                         //02  第2秒
                         await Task.Delay(1000);
-                        o.OnNext(new CommContext("AB02BB", "AB$1BB", 800, "02") {SendTime = DateTime.Now});
+                        o.OnNext(new CommContext("AB02BB", "AB$1BB", 800, "02") { SendTime = DateTime.Now });
 
                         //03  第3秒
                         await Task.Delay(1000);
-                        o.OnNext(new CommContext("AC03BB", "AC$1BB", 0, "03") {SendTime = DateTime.Now}); //不触发解析
+                        o.OnNext(new CommContext("AC03BB", "AC$1BB", 0, "03") { SendTime = DateTime.Now }); //不触发解析
 
                         //04  第4秒
                         await Task.Delay(1000);
-                        o.OnNext(new CommContext("AD04BB", "AD$1BB", 800, "04") {SendTime = DateTime.Now});
+                        o.OnNext(new CommContext("AD04BB", "AD$1BB", 800, "04") { SendTime = DateTime.Now });
 
                         //05  第5秒
                         await Task.Delay(1000);
-                        o.OnNext(new CommContext("AE05BB", "AE$1BB", 800, "05") {SendTime = DateTime.Now});
+                        o.OnNext(new CommContext("AE05BB", "AE$1BB", 800, "05") { SendTime = DateTime.Now });
 
                         //06  第6秒
                         await Task.Delay(1000);
-                        o.OnNext(new CommContext("AF06BB", "AF$1BB", 800, "06") {SendTime = DateTime.Now});
+                        o.OnNext(new CommContext("AF06BB", "AF$1BB", 800, "06") { SendTime = DateTime.Now });
 
                         o.OnCompleted();
                         return Disposable.Empty;
