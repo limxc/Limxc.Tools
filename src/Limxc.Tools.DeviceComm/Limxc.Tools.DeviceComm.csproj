@@ -10,8 +10,7 @@
         <PackageReference Include="System.IO.Ports" Version="5.0.1" />
         <PackageReference Include="System.Management" Version="5.0.0" />
         <PackageReference Include="MQTTnet.Extensions.External.RxMQTT.Client" Version="1.1.70" />
-        <PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.16" />
-        <PackageReference Include="System.Text.Json" Version="5.0.2" />
+        <PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.0.16" /> 
     </ItemGroup>
 
     <ItemGroup>

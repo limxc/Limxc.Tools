@@ -27,6 +27,7 @@ namespace TestHost
             Bindings.Create(() => dgvInner.DataSource == _entity.Inners);
             Bindings.Create(() => dtpTime.Value == _entity.Time);
             Bindings.Create(() => dtpTimeNull.Value == _entity.TimeNull);
+            Bindings.Create(() => tbIntValue.Text == _entity.IntValue + "");
 
             Bindings.Create(() =>
                 rtbBindingLog.Text == _entity.Message + //需要一个属性触发更新
@@ -45,6 +46,7 @@ namespace TestHost
                     _entity.Time = DateTime.Now.AddDays((int)_entity.Value);
                     _entity.TimeNull = DateTime.Now.AddDays((int)_entity.Value);
                     _entity.Inners.Add(new Inner { Key = DateTime.Now.ToLongTimeString() });
+                    _entity.IntValue++;
                     Bindings.InvalidateMember(() => _entity.Message);
                 });
         }

@@ -10,6 +10,7 @@ namespace TestHost
         private DateTime _time = DateTime.Now;
         private DateTime? _timeNull;
         private decimal _value;
+        private int _intValue;
         public string Message { get; set; }
 
         public decimal Value
@@ -42,6 +43,16 @@ namespace TestHost
             }
         }
 
+        public int IntValue
+        {
+            get => _intValue;
+            set
+            {
+                _intValue = value;
+                OnPropertyChanged();
+            }
+        }
+
         public BindingList<Inner> Inners { get; set; } = new();
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -54,7 +65,7 @@ namespace TestHost
 
         public override string ToString()
         {
-            return $"{Message} {Value} {Time} {TimeNull} {string.Join(',', Inners)}";
+            return $"{Message} {Value} {Time} {TimeNull} {IntValue} {string.Join(',', Inners)}";
         }
     }
 

@@ -199,20 +199,20 @@ namespace Limxc.Tools.DeviceComm.MQTT
         {
             var topic = "MQTTnet.RPC/+/" + methodName;
 
+            async void OnNext(MqttApplicationMessageReceivedEventArgs p)
+            {
+                var msg = string.Empty;
+                if (p.ApplicationMessage.Payload != null) msg = Encoding.UTF8.GetString(p.ApplicationMessage.Payload);
+
+                var resp = await action(msg).ConfigureAwait(false);
+                await _client.PublishAsync(CreateMsg(p.ApplicationMessage.Topic + "/response", resp),
+                        CancellationToken.None)
+                    .ConfigureAwait(false);
+            }
+
             _client
                 .Connect(topic)
-                .Subscribe(async p =>
-                {
-                    var msg = string.Empty;
-                    if (p.ApplicationMessage.Payload != null)
-                        msg = Encoding.UTF8.GetString(p.ApplicationMessage.Payload);
-
-                    var resp = await action(msg).ConfigureAwait(false);
-                    await _client
-                        .PublishAsync(CreateMsg(p.ApplicationMessage.Topic + "/response", resp),
-                            CancellationToken.None)
-                        .ConfigureAwait(false);
-                }).DisposeWith(_disposable);
+                .Subscribe(OnNext).DisposeWith(_disposable);
         }
 
         /// <summary>
