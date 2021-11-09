@@ -50,32 +50,6 @@ namespace Limxc.Tools.Extensions.Communication
         }
 
         /// <summary>
-        ///     natural int (0 ~ int.MaxValue)
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="adjustRange"></param>
-        /// <returns></returns>
-        public static int ToNInt(this uint value, bool adjustRange)
-        {
-            if (!adjustRange && value > int.MaxValue)
-                throw new ArgumentOutOfRangeException($"{value} is bigger than {int.MaxValue}");
-            return value > int.MaxValue ? int.MaxValue : (int)value;
-        }
-
-        /// <summary>
-        ///     natural int (0 ~ int.MaxValue)
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="adjustRange"></param>
-        /// <returns></returns>
-        public static int ToNInt(this int value, bool adjustRange)
-        {
-            if (!adjustRange && value < 0)
-                throw new ArgumentOutOfRangeException($"{value} is less than {0}");
-            return value < 0 ? 0 : value;
-        }
-
-        /// <summary>
         ///     hex string format
         /// </summary>
         /// <param name="hex"></param>
@@ -100,6 +74,31 @@ namespace Limxc.Tools.Extensions.Communication
         }
 
         /// <summary>
+        ///     natural int (0 ~ int.MaxValue)
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="adjustRange"></param>
+        /// <returns></returns>
+        public static int ToNInt(this uint value, bool adjustRange)
+        {
+            if (!adjustRange && value > int.MaxValue)
+                throw new ArgumentOutOfRangeException($"{value} is bigger than {int.MaxValue}");
+            return value > int.MaxValue ? int.MaxValue : (int)value;
+        }
+
+        /// <summary>
+        ///     natural int (0 ~ int.MaxValue)
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="adjustRange"></param>
+        /// <returns></returns>
+        public static int ToNInt(this int value, bool adjustRange)
+        {
+            if (!adjustRange && value < 0)
+                throw new ArgumentOutOfRangeException($"{value} is less than {0}");
+            return value < 0 ? 0 : value;
+        }
+        /// <summary>
         ///     string to string[]
         /// </summary>
         /// <param name="hexStr"></param>
@@ -123,6 +122,39 @@ namespace Limxc.Tools.Extensions.Communication
         #endregion Format
 
         #region Int / Hex string
+
+        /// <summary>
+        ///     hex to uint to natural int
+        /// </summary>
+        /// <param name="hex">
+        /// </param>
+        /// <param name="adjustRange"></param>
+        /// <returns></returns>
+        public static int HexToInt(this string hex, bool adjustRange = false)
+        {
+            return hex.HexToUInt().ToNInt(adjustRange);
+        }
+
+        /// <summary>
+        ///     hex[] to uint[] to natural int[]
+        /// </summary>
+        /// <param name="hex"></param>
+        /// <returns></returns>
+        public static int[] HexToInt(this string[] hex)
+        {
+            return hex.Select(p => p.HexToInt()).ToArray();
+        }
+
+        /// <summary>
+        ///     hex to hex[] to uint[] to natural int[]
+        /// </summary>
+        /// <param name="hex"></param>
+        /// <param name="length">2/4/8</param>
+        /// <returns></returns>
+        public static int[] HexToInt(this string hex, int length)
+        {
+            return hex.ToStrArray(length).HexToInt().ToArray();
+        }
 
         /// <summary>
         ///     hex to uint
@@ -159,59 +191,9 @@ namespace Limxc.Tools.Extensions.Communication
 
             return result;
         }
-
-        /// <summary>
-        ///     hex to uint to natural int
-        /// </summary>
-        /// <param name="hex">
-        /// </param>
-        /// <param name="adjustRange"></param>
-        /// <returns></returns>
-        public static int HexToInt(this string hex, bool adjustRange = false)
-        {
-            return hex.HexToUInt().ToNInt(adjustRange);
-        }
-
-        /// <summary>
-        ///     hex[] to uint[] to natural int[]
-        /// </summary>
-        /// <param name="hex"></param>
-        /// <returns></returns>
-        public static int[] HexToInt(this string[] hex)
-        {
-            return hex.Select(p => p.HexToInt()).ToArray();
-        }
-
-        /// <summary>
-        ///     hex to hex[] to uint[] to natural int[]
-        /// </summary>
-        /// <param name="hex"></param>
-        /// <param name="length">2/4/8</param>
-        /// <returns></returns>
-        public static int[] HexToInt(this string hex, int length)
-        {
-            return hex.ToStrArray(length).HexToInt().ToArray();
-        }
-
         #endregion
 
         #region Int / Byte
-
-        /// <summary>
-        ///     int to natural int to byte[length]
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="length">2/4</param>
-        /// <param name="adjustRange"></param>
-        /// <returns></returns>
-        public static byte[] IntToByte(this int value, int length, bool adjustRange = false)
-        {
-            var bytes = BitConverter.GetBytes(value.ToNInt(adjustRange));
-            if (BitConverter.IsLittleEndian)
-                Array.Reverse(bytes);
-
-            return bytes.ChangeLength(length);
-        }
 
         /// <summary>
         ///     byte[n] to byte[4] to natural int
@@ -228,22 +210,24 @@ namespace Limxc.Tools.Extensions.Communication
             return BitConverter.ToUInt32(bytes, 0).ToNInt(adjustRange);
         }
 
+        /// <summary>
+        ///     int to natural int to byte[length]
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="length">2/4</param>
+        /// <param name="adjustRange"></param>
+        /// <returns></returns>
+        public static byte[] IntToByte(this int value, int length, bool adjustRange = false)
+        {
+            var bytes = BitConverter.GetBytes(value.ToNInt(adjustRange));
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(bytes);
+
+            return bytes.ChangeLength(length);
+        }
         #endregion
 
         #region Hex / Byte
-
-        /// <summary>
-        ///     byte[] to ascii
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <returns></returns>
-        public static string ByteToHex(this byte[] bytes)
-        {
-            var hex = "";
-            if (bytes != null)
-                hex = bytes.Aggregate(hex, (current, b) => current + b.ToString("X2"));
-            return hex;
-        }
 
         /// <summary>
         ///     byte[](char) to ascii
@@ -258,6 +242,18 @@ namespace Limxc.Tools.Extensions.Communication
             return hex;
         }
 
+        /// <summary>
+        ///     byte[] to ascii
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        public static string ByteToHex(this byte[] bytes)
+        {
+            var hex = "";
+            if (bytes != null)
+                hex = bytes.Aggregate(hex, (current, b) => current + b.ToString("X2"));
+            return hex;
+        }
         /// <summary>
         ///     hex to byte[]
         /// </summary>
@@ -282,18 +278,6 @@ namespace Limxc.Tools.Extensions.Communication
         #region AscII / Hex
 
         /// <summary>
-        ///     hex to ascii
-        /// </summary>
-        /// <param name="hex"></param>
-        /// <returns></returns>
-        // ReSharper disable once InconsistentNaming
-        public static string HexToAscII(this string hex)
-        {
-            var chars = hex.HexToInt(2).Select(p => (char)p).ToArray();
-            return new string(chars);
-        }
-
-        /// <summary>
         ///     ascii to hex
         /// </summary>
         /// <param name="ascii"></param>
@@ -304,6 +288,17 @@ namespace Limxc.Tools.Extensions.Communication
             return Encoding.UTF8.GetBytes(ascii).ByteToHex();
         }
 
+        /// <summary>
+        ///     hex to ascii
+        /// </summary>
+        /// <param name="hex"></param>
+        /// <returns></returns>
+        // ReSharper disable once InconsistentNaming
+        public static string HexToAscII(this string hex)
+        {
+            var chars = hex.HexToInt(2).Select(p => (char)p).ToArray();
+            return new string(chars);
+        }
         #endregion
     }
 }

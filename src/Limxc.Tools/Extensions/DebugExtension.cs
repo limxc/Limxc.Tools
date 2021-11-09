@@ -1,4 +1,5 @@
-﻿using System;
+﻿#define DEBUG
+using System;
 using System.Text.Json;
 
 namespace Limxc.Tools.Extensions
