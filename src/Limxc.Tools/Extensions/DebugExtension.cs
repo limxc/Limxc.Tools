@@ -1,10 +1,12 @@
-﻿using System;
+﻿#define DEBUG  
+using System;
 using System.Text.Json;
 
 namespace Limxc.Tools.Extensions
 {
     public static class DebugExtension
     {
+ 
         public static void Debug(this Exception e, bool console = false)
         {
             if (console)
