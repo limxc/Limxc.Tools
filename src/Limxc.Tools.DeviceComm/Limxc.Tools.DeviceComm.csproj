@@ -8,9 +8,7 @@
     <ItemGroup>
         <PackageReference Include="SuperSimpleTcp" Version="2.4.1.2" />
         <PackageReference Include="System.IO.Ports" Version="6.0.0" />
-        <PackageReference Include="System.Management" Version="6.0.0" />
-        <PackageReference Include="MQTTnet.Extensions.External.RxMQTT.Client" Version="1.1.77" />
-        <PackageReference Include="MQTTnet.Extensions.Rpc" Version="3.1.0" /> 
+        <PackageReference Include="System.Management" Version="6.0.0" /> 
     </ItemGroup>
 
     <ItemGroup>

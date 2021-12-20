@@ -20,7 +20,7 @@ namespace TestHost
         public FileTesterFrm()
         {
             InitializeComponent();
-
+            
             Bindings.Error += obj => { obj.Debug(); };
             Bindings.Create(() => tbMessage.Text == _entity.Message);
             Bindings.Create(() => nudValue.Value == _entity.Value);
@@ -28,9 +28,10 @@ namespace TestHost
             Bindings.Create(() => dtpTime.Value == _entity.Time);
             Bindings.Create(() => dtpTimeNull.Value == _entity.TimeNull);
             Bindings.Create(() => tbIntValue.Text == _entity.IntValue + "");
+            Bindings.Create(() => tbInnerValue.Text == _entity.Inner.Value + "");
 
             Bindings.Create(() =>
-                rtbBindingLog.Text == _entity.Message + //需要一个属性触发更新
+                rtbBindingLog.Text == _entity.Message+" | " + //需要一个属性触发更新
                 _entity);
 
 
@@ -44,10 +45,12 @@ namespace TestHost
                     _entity.Message = DateTime.Now.ToLongTimeString();
                     _entity.Value++;
                     _entity.Time = DateTime.Now.AddDays((int)_entity.Value);
-                    _entity.TimeNull = DateTime.Now.AddDays((int)_entity.Value);
-                    _entity.Inners.Add(new Inner { Key = DateTime.Now.ToLongTimeString() });
-                    _entity.IntValue++;
-                    Bindings.InvalidateMember(() => _entity.Message);
+                    _entity.TimeNull = DateTime.Now.AddDays((int)_entity.Value*2);
+                    _entity.Inners.Add(new Inner { Key = Random.Shared.Next().ToString(),Value = Random.Shared.NextDouble().ToString() });
+                    _entity.Inner = new Inner
+                        {Key = Random.Shared.Next().ToString(), Value = Random.Shared.NextDouble().ToString()};
+                    _entity.IntValue+=10;
+                    //Bindings.InvalidateMember(() => _entity.Message);
                 });
         }
 

@@ -96,7 +96,8 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
         public override async Task<bool> OpenAsync()
         {
-            await _server.StartAsync().ConfigureAwait(false);
+            _server.Start();
+            //await _server.StartAsync().ConfigureAwait(false);//截止到2.4.1.2有bug
             return await Task.FromResult(true).ConfigureAwait(false);
         }
 
