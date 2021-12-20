@@ -70,5 +70,15 @@ namespace Limxc.Tools.Extensions
         {
             return DateTime.TryParse(str, out var result) ? result : def;
         }
+
+        /// <summary>
+        ///     "\u4E2D\u6587" => "中文"
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static string Unescape(this string str)
+        {
+            return Regex.Unescape(str);
+        }
     }
 }

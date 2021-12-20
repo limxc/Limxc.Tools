@@ -1,5 +1,6 @@
 ﻿#define DEBUG
 using System;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 
 namespace Limxc.Tools.Extensions
@@ -28,9 +29,11 @@ namespace Limxc.Tools.Extensions
             var msg = JsonSerializer.Serialize(obj, new JsonSerializerOptions
             {
                 WriteIndented = true,
-                IncludeFields = true
+                IncludeFields = true,
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping //方法1,允许不安全字符
+                //Encoder = JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All)
             });
-
+            //msg = System.Text.RegularExpressions.Regex.Unescape(msg);//方法2,转义
             var name = typeof(T).FullName;
 
             if (console)
