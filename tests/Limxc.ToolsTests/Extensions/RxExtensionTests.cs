@@ -136,11 +136,11 @@ namespace Limxc.ToolsTests.Extensions
                 .ToList();
             rst.Should().BeEquivalentTo(new List<IEnumerable<long>>
             {
-                new long[] { 0 },
-                new long[] { 0, 1 },
-                new long[] { 1, 2 },
-                new long[] { 2, 3 },
-                new long[] { 3, 4 }
+                new long[] {0},
+                new long[] {0, 1},
+                new long[] {1, 2},
+                new long[] {2, 3},
+                new long[] {3, 4}
             });
 
             //time bucket
@@ -157,10 +157,10 @@ namespace Limxc.ToolsTests.Extensions
             tbList.Should().BeEquivalentTo(new List<IEnumerable<long>>
             {
                 new long[] { },
-                new long[] { 0 },
-                new long[] { 0, 1 },
-                new long[] { 0, 1, 2 },
-                new long[] { 1, 2, 3 }
+                new long[] {0},
+                new long[] {0, 1},
+                new long[] {0, 1, 2},
+                new long[] {1, 2, 3}
             });
         }
     }

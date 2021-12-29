@@ -22,7 +22,7 @@ namespace Limxc.Tools.Extensions
                 .Select(p => new
                 {
                     p.index,
-                    value = (double)p.value
+                    value = (double) p.value
                 })
                 .ToArray();
             if (kv.Length > 2)
@@ -67,7 +67,7 @@ namespace Limxc.Tools.Extensions
             return rst.Select(p =>
             {
                 Debug.Assert(p != null, nameof(p) + " != null");
-                return (double)p;
+                return (double) p;
             }).ToArray();
         }
     }

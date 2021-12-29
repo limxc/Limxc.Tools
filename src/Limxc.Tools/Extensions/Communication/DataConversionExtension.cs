@@ -83,7 +83,7 @@ namespace Limxc.Tools.Extensions.Communication
         {
             if (!adjustRange && value > int.MaxValue)
                 throw new ArgumentOutOfRangeException($"{value} is bigger than {int.MaxValue}");
-            return value > int.MaxValue ? int.MaxValue : (int)value;
+            return value > int.MaxValue ? int.MaxValue : (int) value;
         }
 
         /// <summary>
@@ -98,6 +98,7 @@ namespace Limxc.Tools.Extensions.Communication
                 throw new ArgumentOutOfRangeException($"{value} is less than {0}");
             return value < 0 ? 0 : value;
         }
+
         /// <summary>
         ///     string to string[]
         /// </summary>
@@ -191,6 +192,7 @@ namespace Limxc.Tools.Extensions.Communication
 
             return result;
         }
+
         #endregion
 
         #region Int / Byte
@@ -225,6 +227,7 @@ namespace Limxc.Tools.Extensions.Communication
 
             return bytes.ChangeLength(length);
         }
+
         #endregion
 
         #region Hex / Byte
@@ -238,7 +241,7 @@ namespace Limxc.Tools.Extensions.Communication
         {
             var hex = string.Empty;
             if (charBytes != null)
-                hex = charBytes.Aggregate(hex, (current, b) => current + (char)b);
+                hex = charBytes.Aggregate(hex, (current, b) => current + (char) b);
             return hex;
         }
 
@@ -254,6 +257,7 @@ namespace Limxc.Tools.Extensions.Communication
                 hex = bytes.Aggregate(hex, (current, b) => current + b.ToString("X2"));
             return hex;
         }
+
         /// <summary>
         ///     hex to byte[]
         /// </summary>
@@ -296,9 +300,10 @@ namespace Limxc.Tools.Extensions.Communication
         // ReSharper disable once InconsistentNaming
         public static string HexToAscII(this string hex)
         {
-            var chars = hex.HexToInt(2).Select(p => (char)p).ToArray();
+            var chars = hex.HexToInt(2).Select(p => (char) p).ToArray();
             return new string(chars);
         }
+
         #endregion
     }
 }

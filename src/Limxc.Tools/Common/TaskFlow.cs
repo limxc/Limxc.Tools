@@ -70,7 +70,7 @@ namespace Limxc.Tools.Common
 
         public Task Exec(double timeoutSeconds)
         {
-            return Exec(new CancellationTokenSource((int)(timeoutSeconds * 1000)).Token);
+            return Exec(new CancellationTokenSource((int) (timeoutSeconds * 1000)).Token);
         }
 
         public async Task Exec(CancellationToken token)

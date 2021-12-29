@@ -40,6 +40,7 @@ namespace TestHost
             this.btnSaveFile = new System.Windows.Forms.Button();
             this.tbMessage = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.tbInnerValue = new System.Windows.Forms.TextBox();
             this.tbIntValue = new System.Windows.Forms.TextBox();
             this.dtpTimeNull = new System.Windows.Forms.DateTimePicker();
             this.dtpTime = new System.Windows.Forms.DateTimePicker();
@@ -48,7 +49,7 @@ namespace TestHost
             this.dgvInner = new System.Windows.Forms.DataGridView();
             this.Key = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.rtbBindingLog = new System.Windows.Forms.RichTextBox();
-            this.tbInnerValue = new System.Windows.Forms.TextBox();
+            this.button1 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudValue)).BeginInit();
@@ -159,6 +160,7 @@ namespace TestHost
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.button1);
             this.groupBox2.Controls.Add(this.tbInnerValue);
             this.groupBox2.Controls.Add(this.tbIntValue);
             this.groupBox2.Controls.Add(this.dtpTimeNull);
@@ -174,6 +176,13 @@ namespace TestHost
             this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Binding";
+            // 
+            // tbInnerValue
+            // 
+            this.tbInnerValue.Location = new System.Drawing.Point(281, 137);
+            this.tbInnerValue.Name = "tbInnerValue";
+            this.tbInnerValue.Size = new System.Drawing.Size(100, 23);
+            this.tbInnerValue.TabIndex = 11;
             // 
             // tbIntValue
             // 
@@ -238,12 +247,15 @@ namespace TestHost
             this.rtbBindingLog.TabIndex = 3;
             this.rtbBindingLog.Text = "";
             // 
-            // tbInnerValue
+            // button1
             // 
-            this.tbInnerValue.Location = new System.Drawing.Point(281, 137);
-            this.tbInnerValue.Name = "tbInnerValue";
-            this.tbInnerValue.Size = new System.Drawing.Size(100, 23);
-            this.tbInnerValue.TabIndex = 11;
+            this.button1.Location = new System.Drawing.Point(377, 166);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(49, 28);
+            this.button1.TabIndex = 12;
+            this.button1.Text = "New";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // FileTesterFrm
             // 
@@ -286,6 +298,7 @@ namespace TestHost
         private System.Windows.Forms.DateTimePicker dtpTimeNull;
         private System.Windows.Forms.TextBox tbIntValue;
         private System.Windows.Forms.TextBox tbInnerValue;
+        private System.Windows.Forms.Button button1;
     }
 }
 

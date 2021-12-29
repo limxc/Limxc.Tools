@@ -19,7 +19,7 @@ namespace Limxc.ToolsTests.Common
             que.Add(_ => Run(500, false), 2, "cmd2");
             que.Add(_ => Run(500), 0, "cmd3");
             await que.Exec();
-            que.History.Select(p => p.Result).Should().BeEquivalentTo(new[] { true, false, true });
+            que.History.Select(p => p.Result).Should().BeEquivalentTo(new[] {true, false, true});
 
             //固定超时
             que.Clear();

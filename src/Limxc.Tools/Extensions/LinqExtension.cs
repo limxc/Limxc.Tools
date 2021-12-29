@@ -29,7 +29,9 @@ namespace Limxc.Tools.Extensions
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (size <= 0) throw new ArgumentOutOfRangeException(nameof(size));
 
-            return _(); IEnumerable<IEnumerable<T>> _()
+            return _();
+
+            IEnumerable<IEnumerable<T>> _()
             {
                 using (var iter = source.GetEnumerator())
                 {

@@ -25,7 +25,7 @@ namespace Limxc.Tools.Entities.Communication
         /// <summary>
         ///     指令模板,占位符 $n n=1-9位 length=n*2
         /// </summary>
-        public string Template { get; } 
+        public string Template { get; }
 
         public int Length => Template.TemplateLength();
 

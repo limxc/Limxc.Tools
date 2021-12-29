@@ -1,7 +1,7 @@
-using Limxc.Tools.Core.Abstractions;
-using SharpConfig;
 using System;
 using System.IO;
+using Limxc.Tools.Core.Abstractions;
+using SharpConfig;
 
 namespace Limxc.Tools.Core.Services
 {
@@ -66,7 +66,7 @@ namespace Limxc.Tools.Core.Services
             //return Configuration.LoadFromFile(fullPath);
 
             using (var fileStream =
-                new FileStream(fullPath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite))
+                   new FileStream(fullPath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite))
             {
                 return Configuration.LoadFromStream(fileStream);
             }
@@ -77,7 +77,7 @@ namespace Limxc.Tools.Core.Services
             //configuration.SaveToFile(filePath);
 
             using (var fs = new FileStream(fullPath, FileMode.OpenOrCreate, FileAccess.ReadWrite,
-                FileShare.ReadWrite))
+                       FileShare.ReadWrite))
             {
                 fs.SetLength(0);
                 configuration.SaveToStream(fs);

@@ -100,13 +100,13 @@ namespace TestHost;
 //}
 
 public class BindingEntity : INotifyPropertyChanged
-{ 
+{
+    private Inner _inner = new();
     private int _intValue;
     private string _message;
     private DateTime _time = new(1970, 1, 1);
     private DateTime? _timeNull;
     private decimal _value;
-    private Inner _inner = new();
 
     public string Message
     {

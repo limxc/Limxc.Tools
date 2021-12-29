@@ -25,7 +25,7 @@ namespace Limxc.ToolsTests.Entities.Communication
 
             ctx.Response.Value.Should().BeNull();
 
-            var strPars = new[] { "0B", "00DE", "00014D" };
+            var strPars = new[] {"0B", "00DE", "00014D"};
             var intPars = strPars.Select(p => p.HexToInt()).ToArray();
 
             ctx.Response.Value = ctx.Command.Build(intPars);
@@ -33,7 +33,7 @@ namespace Limxc.ToolsTests.Entities.Communication
             ctx.Response.GetIntValues().Should().BeEquivalentTo(intPars);
             ctx.Response.GetStrValues().Should().BeEquivalentTo(strPars);
 
-            var resp = new CommResponse("AA0A$10B$20C$3BB") { Value = "AA000000BB" };
+            var resp = new CommResponse("AA0A$10B$20C$3BB") {Value = "AA000000BB"};
             Assert.Throws(typeof(FormatException), () => resp.GetStrValues());
         }
     }

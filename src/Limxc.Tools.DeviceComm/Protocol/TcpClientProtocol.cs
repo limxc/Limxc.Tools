@@ -19,7 +19,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
         public override void Init(params object[] pars)
         {
-            var serverIpPort = (string)pars[0];
+            var serverIpPort = (string) pars[0];
             Init(serverIpPort);
         }
 

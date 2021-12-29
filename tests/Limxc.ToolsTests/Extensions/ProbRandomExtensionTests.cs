@@ -9,9 +9,9 @@ namespace Limxc.ToolsTests.Extensions
         [Fact]
         public void RandomIndexTest()
         {
-            new[] { 1 }.RandomIndex().Should().Be(0);
-            new[] { 1d }.RandomIndex().Should().Be(0);
-            new[] { 1f }.RandomIndex().Should().Be(0);
+            new[] {1}.RandomIndex().Should().Be(0);
+            new[] {1d}.RandomIndex().Should().Be(0);
+            new[] {1f}.RandomIndex().Should().Be(0);
         }
     }
 }

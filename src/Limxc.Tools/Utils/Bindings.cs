@@ -57,7 +57,7 @@ namespace Limxc.Tools.Utils
             //
             if (expr.NodeType == ExpressionType.AndAlso)
             {
-                var b = (BinaryExpression)expr;
+                var b = (BinaryExpression) expr;
 
                 var parts = new List<Expression>();
 
@@ -67,7 +67,7 @@ namespace Limxc.Tools.Utils
                     parts.Add(b.Right);
                     if (l.NodeType == ExpressionType.AndAlso)
                     {
-                        b = (BinaryExpression)l;
+                        b = (BinaryExpression) l;
                     }
                     else
                     {
@@ -87,7 +87,7 @@ namespace Limxc.Tools.Utils
             //
             if (expr.NodeType == ExpressionType.Equal)
             {
-                var b = (BinaryExpression)expr;
+                var b = (BinaryExpression) expr;
 
                 return new EqualityBindings(b.Left, b.Right);
             }
@@ -102,7 +102,7 @@ namespace Limxc.Tools.Utils
         {
             if (expr.NodeType == ExpressionType.MemberAccess)
             {
-                var m = (MemberExpression)expr;
+                var m = (MemberExpression) expr;
                 var mem = m.Member;
 
                 var target = Evaluator.EvalExpression(m.Expression);
@@ -189,7 +189,7 @@ namespace Limxc.Tools.Utils
                             .IsAssignableFrom(ev.EventHandlerType.GetTypeInfo());
 
                         _eventHandler = isClassicHandler
-                            ? (EventHandler)HandleAnyEvent
+                            ? (EventHandler) HandleAnyEvent
                             : CreateGenericEventHandler(ev, () => HandleAnyEvent(null, EventArgs.Empty));
 
                         ev.AddEventHandler(_target, _eventHandler);
@@ -342,7 +342,7 @@ namespace Limxc.Tools.Utils
             var body = lambdaExpr.Body;
             if (body.NodeType == ExpressionType.MemberAccess)
             {
-                var m = (MemberExpression)body;
+                var m = (MemberExpression) body;
                 var obj = Evaluator.EvalExpression(m.Expression);
                 InvalidateMember(obj, m.Member);
             }
@@ -390,7 +390,7 @@ namespace Limxc.Tools.Utils
         /// <param name="expr">The expression.</param>
         public static object EvalExpression(Expression expr)
         {
-            if (expr.NodeType == ExpressionType.Constant) return ((ConstantExpression)expr).Value;
+            if (expr.NodeType == ExpressionType.Constant) return ((ConstantExpression) expr).Value;
 
             var lambda = Expression.Lambda(expr, Enumerable.Empty<ParameterExpression>());
             return lambda.Compile().DynamicInvoke();
@@ -458,7 +458,7 @@ namespace Limxc.Tools.Utils
 
             if (v == null && _value != null ||
                 v != null && _value == null ||
-                v is IComparable && ((IComparable)v).CompareTo(_value) != 0)
+                v is IComparable && ((IComparable) v).CompareTo(_value) != 0)
             {
                 _value = v;
 
@@ -486,9 +486,9 @@ namespace Limxc.Tools.Utils
         {
             if (s.NodeType == ExpressionType.MemberAccess)
             {
-                var m = (MemberExpression)s;
+                var m = (MemberExpression) s;
                 CollectTriggers(m.Expression, triggers);
-                var t = new Trigger { Expression = m.Expression, Member = m.Member };
+                var t = new Trigger {Expression = m.Expression, Member = m.Member};
                 triggers.Add(t);
             }
             else

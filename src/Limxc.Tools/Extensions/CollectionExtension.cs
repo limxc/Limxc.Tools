@@ -21,7 +21,7 @@ namespace Limxc.Tools.Extensions
                 for (var i = 0; i < array.Count() / size; i++)
                     yield return array.Skip(i * size).Take(size);
             else
-                for (var i = 0; i < (float)array.Count() / size; i++)
+                for (var i = 0; i < (float) array.Count() / size; i++)
                     yield return array.Skip(i * size).Take(size);
         }
 

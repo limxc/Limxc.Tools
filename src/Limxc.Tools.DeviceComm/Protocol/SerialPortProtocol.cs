@@ -66,8 +66,8 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
         public override void Init(params object[] pars)
         {
-            var portName = (string)pars[0];
-            var baudRate = (int)pars[1];
+            var portName = (string) pars[0];
+            var baudRate = (int) pars[1];
             Init(portName, baudRate);
         }
 
@@ -82,7 +82,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
             _disposables = new CompositeDisposable();
 
             _sp?.Close();
-            _sp = new SerialPort(_portName, _baudRate, 0) { ReadTimeout = 500, WriteTimeout = 500 };
+            _sp = new SerialPort(_portName, _baudRate, 0) {ReadTimeout = 500, WriteTimeout = 500};
 
             Observable
                 .Interval(TimeSpan.FromMilliseconds(_autoConnectInterval))

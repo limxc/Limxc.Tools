@@ -99,7 +99,7 @@ namespace Limxc.Tools.Core.CrcCSharp
 
         private ulong CreateTableEntry(int index)
         {
-            var r = (ulong)index;
+            var r = (ulong) index;
 
             if (Parameters.RefIn)
                 r = CrcHelper.ReverseBits(r, HashSize);

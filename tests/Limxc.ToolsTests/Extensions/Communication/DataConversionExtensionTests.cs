@@ -45,11 +45,11 @@ namespace Limxc.ToolsTests.Extensions.Communication
         [Fact]
         public void Int_ByteTest()
         {
-            new byte[] { 0, 1 }.ByteToInt().Should().Be(1);
-            new byte[] { 0, 0, 0, 1 }.ByteToInt().Should().Be(1);
-            new byte[] { 255, 255 }.ByteToInt().Should().Be(65535);
-            new byte[] { 0, 0, 255, 255 }.ByteToInt().Should().Be(65535); //big endian
-            new byte[] { 0, 1, 0, 0 }.ByteToInt().Should().Be(65536);
+            new byte[] {0, 1}.ByteToInt().Should().Be(1);
+            new byte[] {0, 0, 0, 1}.ByteToInt().Should().Be(1);
+            new byte[] {255, 255}.ByteToInt().Should().Be(65535);
+            new byte[] {0, 0, 255, 255}.ByteToInt().Should().Be(65535); //big endian
+            new byte[] {0, 1, 0, 0}.ByteToInt().Should().Be(65536);
 
             i1.IntToByte(4).ByteToInt().Should().Be(i1);
             int.MaxValue.IntToByte(2).ByteToInt(true).Should().Be(65535);
@@ -57,14 +57,14 @@ namespace Limxc.ToolsTests.Extensions.Communication
 
             i1.IntToByte(2).ByteToInt().Should().Be(i1);
             i2.IntToByte(4, true).ByteToInt(true).Should().Be(0);
-            65535.IntToByte(8).Should().BeEquivalentTo(new byte[] { 0, 0, 0, 0, 0, 0, 255, 255 });
+            65535.IntToByte(8).Should().BeEquivalentTo(new byte[] {0, 0, 0, 0, 0, 0, 255, 255});
         }
 
         [Fact]
         public void ToIntArrayTest()
         {
-            new[] { "A", "1a" }.HexToInt().Should().BeEquivalentTo(new[] { 10, 26 });
-            "0A1a".HexToInt(2).Should().BeEquivalentTo(new[] { 10, 26 });
+            new[] {"A", "1a"}.HexToInt().Should().BeEquivalentTo(new[] {10, 26});
+            "0A1a".HexToInt(2).Should().BeEquivalentTo(new[] {10, 26});
         }
 
         [Fact]
@@ -72,7 +72,7 @@ namespace Limxc.ToolsTests.Extensions.Communication
         {
             s2.HexToByte().ByteToHex().ToLower().Should().Be(s2);
 
-            "abcd".HexToByte().Should().BeEquivalentTo(new byte[] { 171, 205 });
+            "abcd".HexToByte().Should().BeEquivalentTo(new byte[] {171, 205});
         }
 
         [Fact]
@@ -101,9 +101,9 @@ namespace Limxc.ToolsTests.Extensions.Communication
 
             for (var i = 0; i < 100; i++)
             {
-                var from = new byte[rnd.Next(1, 9) - 1].Concat(new byte[] { 55 }).ToArray();
+                var from = new byte[rnd.Next(1, 9) - 1].Concat(new byte[] {55}).ToArray();
                 var toLen = rnd.Next(1, 9);
-                var to = new byte[toLen - 1].Concat(new byte[] { 55 }).ToArray();
+                var to = new byte[toLen - 1].Concat(new byte[] {55}).ToArray();
                 from.ChangeLength(toLen).Should().BeEquivalentTo(to);
             }
 

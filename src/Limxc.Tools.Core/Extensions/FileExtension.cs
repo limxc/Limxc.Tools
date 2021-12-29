@@ -18,11 +18,11 @@ namespace Limxc.Tools.Core.Extensions
 
             if (append)
                 using (var fs = new FileStream(fullPath,
-                    FileMode.Append,
-                    FileAccess.Write,
-                    FileShare.ReadWrite,
-                    4096,
-                    FileOptions.Asynchronous))
+                           FileMode.Append,
+                           FileAccess.Write,
+                           FileShare.ReadWrite,
+                           4096,
+                           FileOptions.Asynchronous))
                 using (var sr = new StreamWriter(fs, encoding ?? Encoding.Default))
                 {
                     await sr.WriteAsync(msg);
@@ -30,11 +30,11 @@ namespace Limxc.Tools.Core.Extensions
                 }
             else
                 using (var fs = new FileStream(fullPath,
-                    FileMode.OpenOrCreate,
-                    FileAccess.ReadWrite,
-                    FileShare.ReadWrite,
-                    4096,
-                    FileOptions.Asynchronous))
+                           FileMode.OpenOrCreate,
+                           FileAccess.ReadWrite,
+                           FileShare.ReadWrite,
+                           4096,
+                           FileOptions.Asynchronous))
                 {
                     fs.SetLength(0);
 
@@ -55,18 +55,18 @@ namespace Limxc.Tools.Core.Extensions
 
             if (append)
                 using (var fs = new FileStream(fullPath,
-                    FileMode.Append,
-                    FileAccess.Write,
-                    FileShare.ReadWrite))
+                           FileMode.Append,
+                           FileAccess.Write,
+                           FileShare.ReadWrite))
                 using (var sr = new StreamWriter(fs, encoding ?? Encoding.Default))
                 {
                     sr.Write(msg);
                 }
             else
                 using (var fs = new FileStream(fullPath,
-                    FileMode.OpenOrCreate,
-                    FileAccess.ReadWrite,
-                    FileShare.ReadWrite))
+                           FileMode.OpenOrCreate,
+                           FileAccess.ReadWrite,
+                           FileShare.ReadWrite))
                 {
                     fs.SetLength(0);
 
@@ -83,9 +83,9 @@ namespace Limxc.Tools.Core.Extensions
                 return string.Empty;
 
             using (var fs = new FileStream(fullPath,
-                FileMode.OpenOrCreate,
-                FileAccess.Read,
-                FileShare.ReadWrite))
+                       FileMode.OpenOrCreate,
+                       FileAccess.Read,
+                       FileShare.ReadWrite))
             using (var sr = new StreamReader(fs, encoding ?? Encoding.Default))
             {
                 return sr.ReadToEnd();
@@ -98,11 +98,11 @@ namespace Limxc.Tools.Core.Extensions
                 return string.Empty;
 
             using (var fs = new FileStream(fullPath,
-                FileMode.OpenOrCreate,
-                FileAccess.Read,
-                FileShare.ReadWrite,
-                4096,
-                FileOptions.Asynchronous))
+                       FileMode.OpenOrCreate,
+                       FileAccess.Read,
+                       FileShare.ReadWrite,
+                       4096,
+                       FileOptions.Asynchronous))
             {
                 using (var sr = new StreamReader(fs, encoding ?? Encoding.Default))
                 {

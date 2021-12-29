@@ -97,7 +97,7 @@ namespace Limxc.Tools.DeviceComm.Utils
 
             _sp?.Close();
             _sp?.Dispose();
-            _sp = new SerialPort(_portName, _baudRate, 0) { ReadTimeout = 500, WriteTimeout = 500 };
+            _sp = new SerialPort(_portName, _baudRate, 0) {ReadTimeout = 500, WriteTimeout = 500};
 
             Observable
                 .FromEventPattern(_sp, nameof(SerialPort.DataReceived))
