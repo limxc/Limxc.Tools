@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -7,27 +8,72 @@ namespace Limxc.Tools.Extensions
 {
     public static class MockExtension
     {
-        public static void MockIt(this object source)
+        /// <summary>
+        ///     基本类型:Enum,string,bool,int,float,double,decimal
+        ///     列表:Array,List<>
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="innerCount">列表填充数</param>
+        public static void Mock(this object source, int innerCount = 2)
         {
             var sourceType = source.GetType();
+
             if (sourceType.IsClass)
                 foreach (var prop in sourceType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
                 {
                     var type = prop.PropertyType;
+
                     if (type == typeof(string) || type.IsValueType)
                     {
-                        var value = MockValue(type);
-                        prop.SetValue(source, value);
+                        prop.SetValue(source, MockValue(type));
                     }
-                    else if (!prop.PropertyType.IsValueType)
+                    else if (typeof(IEnumerable).IsAssignableFrom(type))
                     {
-                        var subObj = Activator.CreateInstance(type);
-                        MockIt(subObj);
-                        prop.SetValue(source, subObj);
+                        if (type.IsArray)
+                        {
+                            var subType = type.GetElementType();
+
+                            if (subType != null)
+                            {
+                                var arr = Array.CreateInstance(subType, innerCount);
+                                for (var i = 0; i < innerCount; i++)
+                                {
+                                    var tmp = Activator.CreateInstance(subType);
+                                    Mock(tmp);
+                                    arr.SetValue(tmp, i);
+                                }
+
+                                prop.SetValue(source, arr);
+                            }
+                        }
+
+                        if (type.IsGenericType)
+                        {
+                            var subType = type.GenericTypeArguments.FirstOrDefault();
+
+                            if (subType != null)
+                            {
+                                var arr = Array.CreateInstance(subType, innerCount);
+                                for (var i = 0; i < innerCount; i++)
+                                {
+                                    var tmp = Activator.CreateInstance(subType);
+                                    Mock(tmp);
+                                    arr.SetValue(tmp, i);
+                                }
+
+                                var list = Activator.CreateInstance(type, arr);
+                                prop.SetValue(source, list);
+                            }
+                        }
+                    }
+                    else if (!type.IsValueType)
+                    {
+                        var obj = Activator.CreateInstance(type);
+                        Mock(obj);
+                        prop.SetValue(source, obj);
                     }
                 }
-
-            if (sourceType.IsValueType) source = MockValue(sourceType);
+            else if (sourceType.IsValueType) MockValue(sourceType);
         }
 
         private static object MockValue(Type type)
@@ -49,19 +95,19 @@ namespace Limxc.Tools.Extensions
             }
 
             if (type == typeof(bool) || type == typeof(bool?))
-                return r.NextDouble() > 0.5 + 0.001d;
+                return r.NextDouble() > 0.5;
 
             if (type == typeof(int) || type == typeof(int?))
-                return r.Next(100, 10000);
+                return r.Next(1, 10000);
 
             if (type == typeof(float) || type == typeof(float?))
-                return (float) (r.NextDouble() * 101 + 1);
+                return (float) (r.NextDouble() * 10 + 1);
 
             if (type == typeof(double) || type == typeof(double?))
-                return r.NextDouble() * 1000 + 1;
+                return r.NextDouble() * 100 + 1;
 
             if (type == typeof(decimal) || type == typeof(decimal?))
-                return (decimal) (r.NextDouble() * 101 + 1);
+                return (decimal) (r.NextDouble() * 1000 + 1);
 
             return null;
         }

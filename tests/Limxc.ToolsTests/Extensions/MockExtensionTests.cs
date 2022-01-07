@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Collections.Generic;
+using FluentAssertions;
 using Limxc.Tools.Extensions;
 using Xunit;
 
@@ -16,10 +17,10 @@ namespace Limxc.ToolsTests.Extensions
         public void MockItTest()
         {
             var obj = new OuterTestObj();
-            obj.MockIt();
+            obj.Mock();
 
             var obj2 = new OuterTestObj();
-            obj2.MockIt();
+            obj2.Mock();
 
             obj.Should().NotBeEquivalentTo(obj2);
 
@@ -52,6 +53,8 @@ namespace Limxc.ToolsTests.Extensions
         public class OuterTestObj : TestObj
         {
             public TestObj TestObj { get; set; }
+            public List<TestObj> Inners { get; set; }
+            public TestObj[] InnerArrs { get; set; }
         }
     }
 }
