@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Limxc.Tools.Extensions;
 using Xunit;
 
@@ -7,19 +6,13 @@ namespace Limxc.ToolsTests.Extensions
 {
     public class MockExtensionTests
     {
-        public enum Foo
-        {
-            zoo,
-            keep
-        }
-
         [Fact]
         public void MockItTest()
         {
-            var obj = new OuterTestObj();
+            var obj = new ComplexTestEntity();
             obj.Mock();
 
-            var obj2 = new OuterTestObj();
+            var obj2 = new ComplexTestEntity();
             obj2.Mock();
 
             obj.Should().NotBeEquivalentTo(obj2);
@@ -31,30 +24,12 @@ namespace Limxc.ToolsTests.Extensions
             obj.DoubleValue.Should().NotBe(0);
             obj.DecimalValue.Should().NotBe(0);
 
-            obj.TestObj.StrValue.Should().NotBeNullOrWhiteSpace();
-            obj.TestObj.BoolValue.Should().NotBeNull();
-            obj.TestObj.IntValue.Should().NotBe(0);
-            obj.TestObj.FloatValue.Should().NotBe(0);
-            obj.TestObj.DoubleValue.Should().NotBe(0);
-            obj.TestObj.DecimalValue.Should().NotBe(0);
-        }
-
-        public class TestObj
-        {
-            public Foo EnumValue { get; set; }
-            public string StrValue { get; set; }
-            public bool? BoolValue { get; set; }
-            public int IntValue { get; set; }
-            public float FloatValue { get; set; }
-            public double? DoubleValue { get; set; }
-            public decimal DecimalValue { get; set; }
-        }
-
-        public class OuterTestObj : TestObj
-        {
-            public TestObj TestObj { get; set; }
-            public List<TestObj> Inners { get; set; }
-            public TestObj[] InnerArrs { get; set; }
+            obj.TestEntity.StrValue.Should().NotBeNullOrWhiteSpace();
+            obj.TestEntity.BoolValue.Should().NotBeNull();
+            obj.TestEntity.IntValue.Should().NotBe(0);
+            obj.TestEntity.FloatValue.Should().NotBe(0);
+            obj.TestEntity.DoubleValue.Should().NotBe(0);
+            obj.TestEntity.DecimalValue.Should().NotBe(0);
         }
     }
 }

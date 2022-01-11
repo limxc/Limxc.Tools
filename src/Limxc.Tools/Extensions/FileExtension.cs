@@ -1,12 +1,66 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Limxc.Tools.Core.Extensions
+namespace Limxc.Tools.Extensions
 {
     public static class FileExtension
     {
+        public static void Save<T>(this T obj, string fullPath)
+        {
+            var json = JsonSerializer.Serialize(obj, new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping //方法1,允许不安全字符
+                //Encoder = JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All)
+            });
+            Save(json, fullPath, false);
+        }
+
+        public static T Load<T>(this string fullPath)
+        {
+            if (!File.Exists(fullPath))
+                return default;
+
+            var str = Load(fullPath);
+            return JsonSerializer.Deserialize<T>(str);
+        }
+
+        public static void Save(this string msg, string fullPath, bool append = false, Encoding encoding = null)
+        {
+            if (string.IsNullOrWhiteSpace(fullPath))
+                throw new ArgumentException($"FullPath is invalid. {fullPath}");
+            var folder = Path.GetDirectoryName(fullPath);
+            if (!Directory.Exists(folder) && !string.IsNullOrWhiteSpace(folder))
+                Directory.CreateDirectory(folder);
+
+            if (append)
+                using (var fs = new FileStream(fullPath,
+                           FileMode.Append,
+                           FileAccess.Write,
+                           FileShare.ReadWrite))
+                using (var sr = new StreamWriter(fs, encoding ?? Encoding.Default))
+                {
+                    sr.Write(msg);
+                }
+            else
+                using (var fs = new FileStream(fullPath,
+                           FileMode.OpenOrCreate,
+                           FileAccess.ReadWrite,
+                           FileShare.ReadWrite))
+                {
+                    fs.SetLength(0);
+
+                    using (var sr = new StreamWriter(fs, encoding ?? Encoding.Default))
+                    {
+                        sr.Write(msg);
+                    }
+                }
+        }
+
         public static async Task SaveAsync(this string msg, string fullPath, bool append = false,
             Encoding encoding = null)
         {
@@ -41,38 +95,6 @@ namespace Limxc.Tools.Core.Extensions
                     using (var sr = new StreamWriter(fs, encoding ?? Encoding.Default))
                     {
                         await sr.WriteAsync(msg);
-                    }
-                }
-        }
-
-        public static void Save(this string msg, string fullPath, bool append = false, Encoding encoding = null)
-        {
-            if (string.IsNullOrWhiteSpace(fullPath))
-                throw new ArgumentException($"FullPath is invalid. {fullPath}");
-            var folder = Path.GetDirectoryName(fullPath);
-            if (!Directory.Exists(folder) && !string.IsNullOrWhiteSpace(folder))
-                Directory.CreateDirectory(folder);
-
-            if (append)
-                using (var fs = new FileStream(fullPath,
-                           FileMode.Append,
-                           FileAccess.Write,
-                           FileShare.ReadWrite))
-                using (var sr = new StreamWriter(fs, encoding ?? Encoding.Default))
-                {
-                    sr.Write(msg);
-                }
-            else
-                using (var fs = new FileStream(fullPath,
-                           FileMode.OpenOrCreate,
-                           FileAccess.ReadWrite,
-                           FileShare.ReadWrite))
-                {
-                    fs.SetLength(0);
-
-                    using (var sr = new StreamWriter(fs, encoding ?? Encoding.Default))
-                    {
-                        sr.Write(msg);
                     }
                 }
         }

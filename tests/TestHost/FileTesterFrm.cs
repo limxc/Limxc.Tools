@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Limxc.Tools.Core.Extensions;
 using Limxc.Tools.Extensions;
 using Limxc.Tools.Utils;
 
