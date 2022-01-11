@@ -21,10 +21,10 @@ namespace Limxc.ToolsTests.Common
             var pr = new ProbRandom(probs);
 
             var res = new long[probs.Length];
-            var iter = 100000;
+            var count = 100000;
 
             //act  
-            for (var i = 0; i < iter; i++)
+            for (var i = 0; i < count; i++)
             {
                 var idx = pr.NextIndex();
                 res[idx]++;
@@ -36,7 +36,7 @@ namespace Limxc.ToolsTests.Common
                 var assert = probs[i] / probs.Sum();
                 var actual = res[i] / (float) res.Sum();
 
-                var accuracy = (float) (1 / Math.Pow(10, (int) (Math.Log10(iter) * 0.6)));
+                var accuracy = 0.5f / 100; //error<0.5%
                 Debug.WriteLine(
                     $"assert:{assert} - actual:{actual} = {Math.Abs(assert - actual)} | accuracy:{accuracy}");
 

@@ -27,6 +27,8 @@ namespace Limxc.ToolsTests.Extensions
             load.DoubleValue.Should().Be(obj.DoubleValue);
             load.DecimalValue.Should().Be(obj.DecimalValue);
             load.EnumValue.Should().Be(obj.EnumValue);
+
+            Path.GetTempFileName().Load<ComplexTestEntity>().Should().BeNull();
         }
 
         [Fact]
@@ -39,6 +41,8 @@ namespace Limxc.ToolsTests.Extensions
             File.Exists(filePath).Should().BeTrue();
             var load = filePath.Load();
             load.Should().Be(dt);
+
+            Path.GetTempFileName().Load().Should().BeNullOrWhiteSpace();
         }
 
         [Fact]
@@ -51,6 +55,8 @@ namespace Limxc.ToolsTests.Extensions
             File.Exists(filePath).Should().BeTrue();
             var load = await filePath.LoadAsync();
             load.Should().Be(dt);
+
+            (await Path.GetTempFileName().LoadAsync()).Should().BeNullOrWhiteSpace();
         }
     }
 }

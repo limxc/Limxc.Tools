@@ -25,8 +25,14 @@ namespace Limxc.Tools.Extensions
             if (!File.Exists(fullPath))
                 return default;
 
-            var str = Load(fullPath);
-            return JsonSerializer.Deserialize<T>(str);
+            try
+            {
+                return JsonSerializer.Deserialize<T>(Load(fullPath));
+            }
+            catch
+            {
+                return default;
+            }
         }
 
         public static void Save(this string msg, string fullPath, bool append = false, Encoding encoding = null)
