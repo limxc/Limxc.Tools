@@ -60,7 +60,7 @@ namespace Limxc.ToolsTests.Extensions
                 r1.Should().BeEquivalentTo(indexes);
             }
 
-            for (var i = 0; i < 1000; i++) Test(i);
+            for (var i = 0; i < 10; i++) Test(i);
 
             //性能测试
             float PerformanceTest(Action action)

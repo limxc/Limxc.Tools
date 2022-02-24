@@ -4,8 +4,8 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Limxc.Tools.Entities.Communication;
-using Limxc.Tools.Extensions;
-using SimpleTcp;
+using Limxc.Tools.Extensions; 
+using SuperSimpleTcp;
 
 namespace Limxc.Tools.DeviceComm.Protocol
 {
@@ -36,13 +36,13 @@ namespace Limxc.Tools.DeviceComm.Protocol
             _client = new SimpleTcpClient(serverIpPort);
 
             var connect = Observable
-                    .FromEventPattern<ClientConnectedEventArgs>(h => _client.Events.Connected += h,
+                    .FromEventPattern<ConnectionEventArgs>(h => _client.Events.Connected += h,
                         h => _client.Events.Connected -= h)
                     .Select(_ => true)
                 ;
 
             var disconnect = Observable
-                .FromEventPattern<ClientDisconnectedEventArgs>(h => _client.Events.Disconnected += h,
+                .FromEventPattern<ConnectionEventArgs>(h => _client.Events.Disconnected += h,
                     h => _client.Events.Disconnected -= h)
                 .Select(_ => false);
 
