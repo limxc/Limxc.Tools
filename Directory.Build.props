@@ -7,7 +7,7 @@
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Product>Limxc.Tools</Product>
 
-        <Version>0.0.74</Version>
+        <Version>0.0.75</Version>
         <!--<OutputPath>$(MSBuildThisFileDirectory)bin\$(Configuration)\</OutputPath>-->
     </PropertyGroup>
 </Project>

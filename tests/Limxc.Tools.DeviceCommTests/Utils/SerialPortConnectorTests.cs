@@ -43,6 +43,9 @@ namespace Limxc.Tools.DeviceCommTests.Utils
             var rst2 = await sp.SendAsync("AA010203BB", 1000, "AA$1$2BB");
             rst2.Should().Be("AA010203BB");
 
+            var rst3 = await sp.SendAsync("AA 11 22 FF", 1000, "AA1122FF");
+            rst3.Should().Be("AA1122FF");
+            
             var t1 = sp.SendAsync("00AA01", 3000, "AA$1$2BB");
             await Task.Delay(10);
             var t2 = sp.SendAsync("0203BB0000");

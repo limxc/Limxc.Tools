@@ -62,5 +62,50 @@ namespace Limxc.Tools.Extensions
                 }
             }
         }
+
+        public static IEnumerable<T> TakeUntil<T>(this IEnumerable<T> source,
+            Func<T, bool> predicate)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (predicate == null) throw new ArgumentNullException(nameof(predicate));
+
+            return _();
+
+            IEnumerable<T> _()
+            {
+                foreach (var item in source)
+                {
+                    yield return item;
+                    if (predicate(item))
+                        yield break;
+                }
+            }
+        }
+
+        public static IEnumerable<T> SkipUntil<T>(this IEnumerable<T> source,
+            Func<T, bool> predicate)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (predicate == null) throw new ArgumentNullException(nameof(predicate));
+
+            return _();
+
+            IEnumerable<T> _()
+            {
+                using (var enumerator = source.GetEnumerator())
+                {
+                    do
+                    {
+                        if (!enumerator.MoveNext())
+                            yield break;
+                    } while (!predicate(enumerator.Current));
+
+                    do
+                    {
+                        yield return enumerator.Current;
+                    } while (enumerator.MoveNext());
+                }
+            }
+        }
     }
 }
