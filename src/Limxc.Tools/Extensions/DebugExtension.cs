@@ -2,6 +2,7 @@
 using System;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Json.Serialization; 
 
 namespace Limxc.Tools.Extensions
 {
@@ -30,8 +31,9 @@ namespace Limxc.Tools.Extensions
             {
                 WriteIndented = true,
                 IncludeFields = true,
-                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping //方法1,允许不安全字符
-                //Encoder = JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All)
+                ReferenceHandler = ReferenceHandler.IgnoreCycles,
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping //方法1,允许不安全字符(含html)  
+                //Encoder = JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All) // 方法1,允许不安全字符(不含html) 
             });
             //msg = System.Text.RegularExpressions.Regex.Unescape(msg);//方法2,转义
             var name = typeof(T).FullName;
