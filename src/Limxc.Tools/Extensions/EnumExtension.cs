@@ -14,7 +14,7 @@ namespace Limxc.Tools.Extensions
             if (objs.Length == 0)
                 return value;
 
-            return ((DescriptionAttribute) objs[0]).Description;
+            return ((DescriptionAttribute)objs[0]).Description;
         }
 
         public static List<string> Names(this Enum e)
@@ -39,7 +39,7 @@ namespace Limxc.Tools.Extensions
         {
             if (!Enum.IsDefined(typeof(T), obj))
                 return default;
-            return (T) Enum.Parse(typeof(T), obj);
+            return (T)Enum.Parse(typeof(T), obj);
         }
     }
 }

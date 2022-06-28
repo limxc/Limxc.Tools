@@ -27,6 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Limxc.Tools.Contract\Limxc.Tools.Contract.csproj" />
         <ProjectReference Include="..\Limxc.Tools\Limxc.Tools.csproj" />
     </ItemGroup>
 </Project>

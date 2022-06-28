@@ -88,7 +88,7 @@ namespace Limxc.Tools.Extensions
 
             if (type == typeof(string))
             {
-                var az = Enumerable.Range('a', 'z' - 'a' + 1).Select(i => (char) i).ToArray();
+                var az = Enumerable.Range('a', 'z' - 'a' + 1).Select(i => (char)i).ToArray();
                 var cl = new List<char>();
                 for (var i = 0; i < 8; i++) cl.Add(az[r.Next(0, az.Length)]);
                 return new string(cl.ToArray());
@@ -101,13 +101,13 @@ namespace Limxc.Tools.Extensions
                 return r.Next(1, 10000);
 
             if (type == typeof(float) || type == typeof(float?))
-                return (float) (r.NextDouble() * 10 + 1);
+                return (float)(r.NextDouble() * 10 + 1);
 
             if (type == typeof(double) || type == typeof(double?))
                 return r.NextDouble() * 100 + 1;
 
             if (type == typeof(decimal) || type == typeof(decimal?))
-                return (decimal) (r.NextDouble() * 1000 + 1);
+                return (decimal)(r.NextDouble() * 1000 + 1);
 
             return null;
         }

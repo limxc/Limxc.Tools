@@ -49,7 +49,7 @@ namespace Limxc.Tools.Extensions
             value = value > max ? max : value;
 
             if (digits >= 0)
-                value = (float) Math.Round(value, digits, MidpointRounding.AwayFromZero);
+                value = (float)Math.Round(value, digits, MidpointRounding.AwayFromZero);
 
             return value;
         }

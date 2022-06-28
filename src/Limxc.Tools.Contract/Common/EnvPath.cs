@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Limxc.Tools.Core.Utils
+namespace Limxc.Tools.Contract.Common
 {
     public class EnvPath
     {
@@ -142,7 +142,7 @@ namespace Limxc.Tools.Core.Utils
             if (!Directory.Exists(baseFolder))
                 baseFolder = _baseDirectoryFactory();
 
-            var list = new List<string> {baseFolder};
+            var list = new List<string> { baseFolder };
             list.AddRange(paths);
 
             var folder = Path.Combine(list.Where(p => p != null).ToArray());

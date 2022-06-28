@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30711.63
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Limxc.Tools", "src\Limxc.Tools\Limxc.Tools.csproj", "{7F72063E-6783-4B30-A438-88AD1B101591}"
 EndProject
@@ -29,7 +29,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Limxc.Tools.DeviceCommTests
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Limxc.ToolsTests", "tests\Limxc.ToolsTests\Limxc.ToolsTests.csproj", "{4BE4E99B-92EB-4A71-BDF7-29ABC03ED5C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestHost", "tests\TestHost\TestHost.csproj", "{FEA7E13C-A5E8-4095-9348-F844BD951BE1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestHost", "tests\TestHost\TestHost.csproj", "{FEA7E13C-A5E8-4095-9348-F844BD951BE1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Limxc.Tools.Contract", "src\Limxc.Tools.Contract\Limxc.Tools.Contract.csproj", "{B73078EF-2B2F-46BE-9B76-364738C0A03F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,6 +67,10 @@ Global
 		{FEA7E13C-A5E8-4095-9348-F844BD951BE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FEA7E13C-A5E8-4095-9348-F844BD951BE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FEA7E13C-A5E8-4095-9348-F844BD951BE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B73078EF-2B2F-46BE-9B76-364738C0A03F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B73078EF-2B2F-46BE-9B76-364738C0A03F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B73078EF-2B2F-46BE-9B76-364738C0A03F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B73078EF-2B2F-46BE-9B76-364738C0A03F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -77,6 +83,7 @@ Global
 		{55EBB938-1A93-47C0-97DA-2AC5A321795B} = {8F3EC7F7-6D4C-41F2-822D-2F6DD0FC2892}
 		{4BE4E99B-92EB-4A71-BDF7-29ABC03ED5C8} = {8F3EC7F7-6D4C-41F2-822D-2F6DD0FC2892}
 		{FEA7E13C-A5E8-4095-9348-F844BD951BE1} = {8F3EC7F7-6D4C-41F2-822D-2F6DD0FC2892}
+		{B73078EF-2B2F-46BE-9B76-364738C0A03F} = {7F1779AD-20F8-4797-BF4A-79AD3D746FC3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {331109E3-CBC8-42E6-AE35-8C5111AE53CD}

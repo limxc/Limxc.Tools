@@ -4,7 +4,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Limxc.Tools.Entities.Communication;
-using Limxc.Tools.Extensions; 
+using Limxc.Tools.Extensions;
 using SuperSimpleTcp;
 
 namespace Limxc.Tools.DeviceComm.Protocol
@@ -19,7 +19,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
         public override void Init(params object[] pars)
         {
-            var serverIpPort = (string) pars[0];
+            var serverIpPort = (string)pars[0];
             Init(serverIpPort);
         }
 

@@ -34,12 +34,12 @@ public partial class FileTesterFrm : Form
             {
                 _entity.Message = DateTime.Now.ToLongTimeString();
                 _entity.Value++;
-                _entity.Time = DateTime.Now.AddDays((int) _entity.Value);
-                _entity.TimeNull = DateTime.Now.AddDays((int) _entity.Value * 2);
+                _entity.Time = DateTime.Now.AddDays((int)_entity.Value);
+                _entity.TimeNull = DateTime.Now.AddDays((int)_entity.Value * 2);
                 _entity.Inners.Add(new Inner
-                    {Key = Random.Shared.Next().ToString(), Value = Random.Shared.NextDouble().ToString()});
+                    { Key = Random.Shared.Next().ToString(), Value = Random.Shared.NextDouble().ToString() });
                 _entity.Inner = new Inner
-                    {Key = Random.Shared.Next().ToString(), Value = Random.Shared.NextDouble().ToString()};
+                    { Key = Random.Shared.Next().ToString(), Value = Random.Shared.NextDouble().ToString() };
                 _entity.IntValue += 10;
                 //Bindings.InvalidateMember(() => _entity.Message);
             });
