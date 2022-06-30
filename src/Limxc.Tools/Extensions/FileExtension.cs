@@ -1,8 +1,6 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Text.Encodings.Web;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Limxc.Tools.Extensions
@@ -11,12 +9,7 @@ namespace Limxc.Tools.Extensions
     {
         public static void Save<T>(this T obj, string fullPath)
         {
-            var json = JsonSerializer.Serialize(obj, new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping //方法1,允许不安全字符
-                //Encoder = JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All)
-            });
+            var json = obj.ToJson();
             Save(json, fullPath, false);
         }
 
@@ -27,7 +20,7 @@ namespace Limxc.Tools.Extensions
 
             try
             {
-                return JsonSerializer.Deserialize<T>(Load(fullPath));
+                return Load(fullPath).JsonTo<T>();
             }
             catch
             {

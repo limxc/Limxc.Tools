@@ -1,6 +1,6 @@
 {
     "Serilog": {
-        //ÈÕÖ¾µÈ¼¶ÓÉĞ¡µ½´ó£ºVerbose->Debug->Information->Warning->Error->Fatal
+        //æ—¥å¿—ç­‰çº§ç”±å°åˆ°å¤§ï¼šVerbose->Debug->Information->Warning->Error->Fatal
         "Using": [
             "Serilog.Sinks.File",
             "Serilog.Sinks.Console",
@@ -16,8 +16,8 @@
         "MinimumLevel": {
             "Default": "Debug",
             "Override": {
-                //"Microsoft": "Debug", //½«MicrosoftÇ°×ºµÄÈÕÖ¾µÄ×îĞ¡Êä³ö¼¶±ğ¸Ä³ÉInformation
-                //"System": "Debug", //½«SystemÇ°×ºµÄÈÕÖ¾µÄ×îĞ¡Êä³ö¼¶±ğ¸Ä³ÉInformation,
+                //"Microsoft": "Debug", //å°†Microsoftå‰ç¼€çš„æ—¥å¿—çš„æœ€å°è¾“å‡ºçº§åˆ«æ”¹æˆInformation
+                //"System": "Debug", //å°†Systemå‰ç¼€çš„æ—¥å¿—çš„æœ€å°è¾“å‡ºçº§åˆ«æ”¹æˆInformation,
                 "ReactiveUI": "Error",
                 "Splat": "Error"
             }
@@ -40,16 +40,16 @@
             {
                 "Name": "File",
                 "Args": {
-                    "path": "Logs\\.log", //ÈÕÖ¾±£´æÂ·¾¶
+                    "path": "Logs\\.log", //æ—¥å¿—ä¿å­˜è·¯å¾„
                     "restrictedToMinimumLevel": "Information",
                     "outputTemplate":
-                        "{Timestamp:yyyy-MM-dd HH:mm:ss,fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}", //Êä³ö¸ñÊ½
-                    "fileSizeLimitBytes": 5242880, //µ¥¸öÈÕÖ¾ÎÄ¼ş´óĞ¡
-                    "buffered": false, //ÊÇ·ñÒÔÁ÷µÄĞÎÊ½Ğ´ÎÄ¼ş
-                    "shared": true, //ÊÇ·ñÔÊĞíÎÄ¼ş¶à½ø³Ì¹²Ïí(buffered:trueÊ±,²»¿É¹²Ïí)
+                        "{Timestamp:yyyy-MM-dd HH:mm:ss,fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}", //è¾“å‡ºæ ¼å¼
+                    "fileSizeLimitBytes": 5242880, //å•ä¸ªæ—¥å¿—æ–‡ä»¶å¤§å°
+                    "buffered": false, //æ˜¯å¦ä»¥æµçš„å½¢å¼å†™æ–‡ä»¶
+                    "shared": true, //æ˜¯å¦å…è®¸æ–‡ä»¶å¤šè¿›ç¨‹å…±äº«(buffered:trueæ—¶,ä¸å¯å…±äº«)
                     "rollingInterval": "Day",
                     "rollOnFileSizeLimit": true,
-                    "retainedFileCountLimit": 10 //ÈÕÖ¾±£Áô×î´óÊıÁ¿
+                    "retainedFileCountLimit": 10 //æ—¥å¿—ä¿ç•™æœ€å¤§æ•°é‡
                 }
             }
         ]

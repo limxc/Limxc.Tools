@@ -41,12 +41,12 @@
 
 //        private string Serialize<T>(T obj)
 //        {
-//            return JsonSerializer.Serialize(obj);
+//            return obj.ToJson();
 //        }
 
 //        private T Deserialize<T>(string obj)
 //        {
-//            return JsonSerializer.Deserialize<T>(obj);
+//            return obj.JsonTo<T>();
 //        }
 
 //        #region Payload Builder
