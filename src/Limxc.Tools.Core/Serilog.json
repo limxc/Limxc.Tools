@@ -3,8 +3,7 @@
         //日志等级由小到大：Verbose->Debug->Information->Warning->Error->Fatal
         "Using": [
             "Serilog.Sinks.File",
-            "Serilog.Sinks.Console",
-            "Serilog.Sinks.Debug"
+            "Serilog.Sinks.Console"
         ],
 
         "Enrich": [
@@ -24,14 +23,8 @@
         },
 
         "WriteTo": [
-            //{
-            //  "Name": "Console",
-            //  "Args": {
-            //    "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss,fff} [{Level}] [{SourceContext}] {Message:lj}{NewLine}{Exception}"
-            //  }
-            //},
             {
-                "Name": "Debug",
+                "Name": "Console",
                 "Args": {
                     "outputTemplate":
                         "{Timestamp:yyyy-MM-dd HH:mm:ss,fff} [{Level}] [{SourceContext}] {Message:lj}{NewLine}{Exception}"
@@ -53,6 +46,5 @@
                 }
             }
         ]
-    },
-    "AllowedHosts": "*"
+    }
 }

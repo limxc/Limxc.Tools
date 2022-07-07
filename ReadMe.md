@@ -91,10 +91,7 @@ Test TcpServerProtocol
 
 ### Recommended Packages 
 ##### Communication
-[GodSharp.SerialPort](https://github.com/godsharp/GodSharp.SerialPort)  
-[SerialPortStream](https://github.com/jcurl/serialportstream)  
-[SuperSimpleTcp](https://github.com/jchristn/simpletcp)  
-[MQTTnet](https://github.com/chkr1011/MQTTnet)  
+[SuperSimpleTcp](https://github.com/jchristn/simpletcp)   
 ##### Http
 [Flurl](https://flurl.dev/)  
 [Refit](https://reactiveui.github.io/refit/)  

@@ -29,8 +29,6 @@ namespace Limxc.Tools.Core.Extensions
                     .Enrich.FromLogContext()
                     .WriteTo.Console(LogEventLevel.Debug,
                         "{Timestamp:yyyy-MM-dd HH:mm:ss,fff} [{Level}] [{SourceContext}] {Message:lj}{NewLine}{Exception}")
-                    .WriteTo.Debug(LogEventLevel.Debug,
-                        "{Timestamp:yyyy-MM-dd HH:mm:ss,fff} [{Level}] [{SourceContext}] {Message:lj}{NewLine}{Exception}")
                     .WriteTo.File
                     (
                         "Logs\\.log",

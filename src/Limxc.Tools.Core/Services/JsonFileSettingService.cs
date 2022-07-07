@@ -51,7 +51,7 @@ namespace Limxc.Tools.Core.Services
         public string FileName => $"{Name}.Setting.json";
 
         public string BackUpPath =>
-            Path.Combine(Folder, $"{Name}_Bk_{DateTime.Now:yyyyMMddHHmmss}.ini");
+            Path.Combine(Folder, $"{Name}.{DateTime.Now:yyyyMMddHHmmss}.Setting.json");
 
         public string FullPath => Path.Combine(Folder, FileName);
 

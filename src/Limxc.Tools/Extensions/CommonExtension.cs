@@ -12,6 +12,8 @@ namespace Limxc.Tools.Extensions
             {
                 WriteIndented = readable,
                 ReferenceHandler = ReferenceHandler.IgnoreCycles,
+                ReadCommentHandling = JsonCommentHandling.Skip,
+                AllowTrailingCommas = true,
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping //方法1,允许不安全字符(含html)  
                 //Encoder = JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All) // 方法1,允许不安全字符(不含html) 
             });
@@ -20,7 +22,14 @@ namespace Limxc.Tools.Extensions
 
         public static T JsonTo<T>(this string json)
         {
-            return JsonSerializer.Deserialize<T>(json);
+            return JsonSerializer.Deserialize<T>(json, new JsonSerializerOptions
+            {
+                ReferenceHandler = ReferenceHandler.IgnoreCycles,
+                ReadCommentHandling = JsonCommentHandling.Skip,
+                AllowTrailingCommas = true,
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping //方法1,允许不安全字符(含html)  
+                //Encoder = JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All) // 方法1,允许不安全字符(不含html) 
+            });
         }
     }
 }
