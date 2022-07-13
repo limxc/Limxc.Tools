@@ -13,19 +13,19 @@ public class TcpProtocolTests
     [Fact]
     public async Task Test()
     {
-        var serverAddr = "127.0.0.1:12345";
-        var clientAddr = "127.0.0.1:12346 ";
+        var serverIpPort = "127.0.0.1:12345";
+        var clientIpPort = "127.0.0.1:12346 ";
 
         var server = new TcpServerProtocol();
         var client = new TcpClientProtocol();
 
-        server.Init(serverAddr, clientAddr);
+        server.Init(serverIpPort, clientIpPort);
         await server.OpenAsync();
 
-        client.Init(serverAddr);
+        client.Init(serverIpPort);
         await client.OpenAsync();
 
-        var bytes = Encoding.UTF8.GetBytes("testmessage");
+        var bytes = Encoding.UTF8.GetBytes("test message");
 
         var rec = Array.Empty<byte>();
         var obs = server.Received.Subscribe(b => rec = rec.Concat(b).ToArray());

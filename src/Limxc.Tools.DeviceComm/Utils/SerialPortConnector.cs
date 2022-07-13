@@ -191,7 +191,7 @@ namespace Limxc.Tools.DeviceComm.Utils
             }
             catch
             {
-                return new byte[0];
+                return Array.Empty<byte>();
             }
         }
 
