@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
-		<Description>Basic utils, extensions, abstractions.</Description>
-	</PropertyGroup>
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+        <Description>Basic utils, extensions, abstractions.</Description>
+    </PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="System.Reactive" Version="5.0.0" />
-		<PackageReference Include="System.Text.Json" Version="6.0.5" />
-	</ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="System.Reactive" Version="5.0.0" />
+        <PackageReference Include="System.Text.Json" Version="6.0.5" />
+    </ItemGroup>
 </Project>

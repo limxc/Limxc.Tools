@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -55,7 +56,11 @@ namespace Limxc.Tools.DeviceComm.Protocol
             Observable
                 .FromEventPattern<DataReceivedEventArgs>(h => _client.Events.DataReceived += h,
                     h => _client.Events.DataReceived -= h)
-                .Select(p => p.EventArgs.Data)
+                .Select(p =>
+                {
+                    var d = p.EventArgs.Data;
+                    return (d.Array ?? Array.Empty<byte>()).Skip(d.Offset).Take(d.Count).ToArray();
+                })
                 .SubscribeOn(NewThreadScheduler.Default)
                 .Subscribe(b => _received.OnNext(b))
                 .DisposeWith(_disposables);
