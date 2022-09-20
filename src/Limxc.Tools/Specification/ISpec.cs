@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace Limxc.Tools.Contract.Domain.Specification
+namespace Limxc.Tools.Specification
 {
     public interface ISpec<T>
     {

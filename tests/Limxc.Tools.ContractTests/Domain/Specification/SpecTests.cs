@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using FluentAssertions;
-using Limxc.Tools.Contract.Domain.Specification;
 using Xunit;
 
 namespace Limxc.Tools.ContractTests.Domain.Specification;
