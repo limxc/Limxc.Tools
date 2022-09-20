@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
+// ReSharper disable PartialTypeWithSinglePart
+
 namespace Limxc.Tools.Contract.Domain.Common
 {
-    public abstract class BaseEntity<TId>
+    public abstract partial class BaseEntity<TId>
     {
         private readonly List<BaseDomainEvent> _domainEvents = new List<BaseDomainEvent>();
 
@@ -30,7 +32,7 @@ namespace Limxc.Tools.Contract.Domain.Common
         }
     }
 
-    public abstract class BaseEntity : BaseEntity<Guid>
+    public abstract partial class BaseEntity : BaseEntity<Guid>
     {
     }
 }

@@ -1,8 +1,10 @@
 ﻿using System;
 
+// ReSharper disable PartialTypeWithSinglePart
+
 namespace Limxc.Tools.Contract.Domain.Common
 {
-    public abstract class AuditableBaseEntity<TId> : BaseEntity<TId>
+    public abstract partial class AuditableBaseEntity<TId> : BaseEntity<TId>
     {
         public DateTime Created { get; set; }
 
@@ -13,7 +15,7 @@ namespace Limxc.Tools.Contract.Domain.Common
         public string LastModifiedBy { get; set; }
     }
 
-    public abstract class AuditableBaseEntity : AuditableBaseEntity<Guid>
+    public abstract partial class AuditableBaseEntity : AuditableBaseEntity<Guid>
     {
     }
 }

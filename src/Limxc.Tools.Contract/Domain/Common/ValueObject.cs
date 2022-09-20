@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
+// ReSharper disable PartialTypeWithSinglePart
+
 namespace Limxc.Tools.Contract.Domain.Common
 {
     // Learn more: https://docs.microsoft.com/en-us/dotnet/standard/microservices-architecture/microservice-ddd-cqrs-patterns/implement-value-objects
-    public abstract class ValueObject
+    public abstract partial class ValueObject
     {
         protected static bool EqualOperator(ValueObject left, ValueObject right)
         {

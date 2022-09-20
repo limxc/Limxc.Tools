@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Linq.Expressions;
 
+// ReSharper disable PartialTypeWithSinglePart
+
 namespace Limxc.Tools.Contract.Domain.Specification
 {
-    public class Spec<T> : ISpec<T>
+    public partial class Spec<T> : ISpec<T>
     {
         public Spec(Expression<Func<T, bool>> isSatisfiedBy)
         {

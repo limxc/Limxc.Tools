@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace Limxc.Tools.Contract.Domain.Specification
 {
-    public static class Extension
+    public static class SpecExtension
     {
         public static ISpec<T> And<T>(this ISpec<T> left, ISpec<T> right)
         {
