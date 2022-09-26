@@ -46,80 +46,80 @@ namespace Limxc.Tools.Contract.Common
         public string BaseDirectory => _baseDirectoryFactory();
 
         /// <summary>
-        ///     BaseDirectory/Databases
+        ///     BaseDirectory/preFolders/Databases
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="paths"></param>
+        /// <param name="folderName"></param>
+        /// <param name="preFolders"></param>
         /// <returns></returns>
-        public string DatabaseFolder(string name = "Databases", params string[] paths)
+        public string DatabaseFolder(string folderName = "Databases", params string[] preFolders)
         {
-            return Folder(name, paths);
+            return Folder(folderName, preFolders);
         }
 
         /// <summary>
-        ///     BaseDirectory/Resources
+        ///     BaseDirectory/preFolders/Resources
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="paths"></param>
+        /// <param name="folderName"></param>
+        /// <param name="preFolders"></param>
         /// <returns></returns>
-        public string ResourceFolder(string name = "Resources", params string[] paths)
+        public string ResourceFolder(string folderName = "Resources", params string[] preFolders)
         {
-            return Folder(name, paths);
+            return Folder(folderName, preFolders);
         }
 
         /// <summary>
-        ///     BaseDirectory/Reports
+        ///     BaseDirectory/preFolders/Reports
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="paths"></param>
+        /// <param name="folderName"></param>
+        /// <param name="preFolders"></param>
         /// <returns></returns>
-        public string ReportFolder(string name = "Reports", params string[] paths)
+        public string ReportFolder(string folderName = "Reports", params string[] preFolders)
         {
-            return Folder(name, paths);
+            return Folder(folderName, preFolders);
         }
 
         /// <summary>
-        ///     BaseDirectory/Outputs
+        ///     BaseDirectory/preFolders/Outputs
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="paths"></param>
+        /// <param name="folderName"></param>
+        /// <param name="preFolders"></param>
         /// <returns></returns>
-        public string OutputFolder(string name = "Outputs", params string[] paths)
+        public string OutputFolder(string folderName = "Outputs", params string[] preFolders)
         {
-            return Folder(name, paths);
+            return Folder(folderName, preFolders);
         }
 
         /// <summary>
-        ///     BaseDirectory/Settings
+        ///     BaseDirectory/preFolders/Settings
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="paths"></param>
+        /// <param name="folderName"></param>
+        /// <param name="preFolders"></param>
         /// <returns></returns>
-        public string SettingFolder(string name = "Settings", params string[] paths)
+        public string SettingFolder(string folderName = "Settings", params string[] preFolders)
         {
-            return Folder(name, paths);
+            return Folder(folderName, preFolders);
         }
 
         /// <summary>
-        ///     BaseDirectory/Images
+        ///     BaseDirectory/preFolders/Images
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="paths"></param>
+        /// <param name="folderName"></param>
+        /// <param name="preFolders"></param>
         /// <returns></returns>
-        public string ImageFolder(string name = "Images", params string[] paths)
+        public string ImageFolder(string folderName = "Images", params string[] preFolders)
         {
-            return Folder(name, paths);
+            return Folder(folderName, preFolders);
         }
 
         /// <summary>
-        ///     BaseDirectory/Images
+        ///     BaseDirectory/preFolders/folderName
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="paths"></param>
+        /// <param name="folderName"></param>
+        /// <param name="preFolders"></param>
         /// <returns></returns>
-        public string Folder(string name, params string[] paths)
+        public string Folder(string folderName, params string[] preFolders)
         {
-            return PathCreator(null, paths.Append(name).ToArray());
+            return PathCreator(preFolders.Append(folderName).ToArray());
         }
 
         /// <summary>
@@ -134,16 +134,12 @@ namespace Limxc.Tools.Contract.Common
         /// <summary>
         ///     创建路径
         /// </summary>
-        /// <param name="baseFolder"></param>
-        /// <param name="paths"></param>
+        /// <param name="folders"></param>
         /// <returns></returns>
-        private string PathCreator(string baseFolder, params string[] paths)
+        private string PathCreator(params string[] folders)
         {
-            if (!Directory.Exists(baseFolder))
-                baseFolder = _baseDirectoryFactory();
-
-            var list = new List<string> { baseFolder };
-            list.AddRange(paths);
+            var list = new List<string> { _baseDirectoryFactory() };
+            list.AddRange(folders);
 
             var folder = Path.Combine(list.Where(p => p != null).ToArray());
             if (!Directory.Exists(folder))
