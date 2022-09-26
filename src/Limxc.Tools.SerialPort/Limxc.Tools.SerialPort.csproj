@@ -2,13 +2,11 @@
 
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
-        <Description>Device communication library, and usercontrols for testing.</Description>
+        <Description>Abstract Serial Port Service, utils etc.</Description>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="SuperSimpleTcp" Version="3.0.0.2" />
         <PackageReference Include="System.IO.Ports" Version="6.0.0" />
-        <PackageReference Include="System.Management" Version="6.0.0" /> 
     </ItemGroup>
 
     <ItemGroup>

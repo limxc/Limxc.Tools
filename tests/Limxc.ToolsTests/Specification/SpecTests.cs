@@ -1,8 +1,9 @@
 ﻿using System.Linq;
 using FluentAssertions;
+using Limxc.Tools.Specification;
 using Xunit;
 
-namespace Limxc.Tools.ContractTests.Domain.Specification;
+namespace Limxc.ToolsTests.Specification;
 
 public class SpecTests
 {

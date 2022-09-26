@@ -35,6 +35,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Limxc.Tools.Contract", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Limxc.Tools.ContractTests", "tests\Limxc.Tools.ContractTests\Limxc.Tools.ContractTests.csproj", "{2ED340EF-C350-42DD-BADA-08159D631C48}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Limxc.Tools.SerialPort", "src\Limxc.Tools.SerialPort\Limxc.Tools.SerialPort.csproj", "{0320F485-8102-4FB2-A052-D34F02F47A84}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Limxc.Tools.SerialPortTests", "tests\Limxc.Tools.SerialPortTests\Limxc.Tools.SerialPortTests.csproj", "{CAFAFF53-FA8B-406F-8F2D-ABC4D50B8A77}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,6 +81,14 @@ Global
 		{2ED340EF-C350-42DD-BADA-08159D631C48}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2ED340EF-C350-42DD-BADA-08159D631C48}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2ED340EF-C350-42DD-BADA-08159D631C48}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0320F485-8102-4FB2-A052-D34F02F47A84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0320F485-8102-4FB2-A052-D34F02F47A84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0320F485-8102-4FB2-A052-D34F02F47A84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0320F485-8102-4FB2-A052-D34F02F47A84}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAFAFF53-FA8B-406F-8F2D-ABC4D50B8A77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAFAFF53-FA8B-406F-8F2D-ABC4D50B8A77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAFAFF53-FA8B-406F-8F2D-ABC4D50B8A77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAFAFF53-FA8B-406F-8F2D-ABC4D50B8A77}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -91,6 +103,8 @@ Global
 		{FEA7E13C-A5E8-4095-9348-F844BD951BE1} = {8F3EC7F7-6D4C-41F2-822D-2F6DD0FC2892}
 		{B73078EF-2B2F-46BE-9B76-364738C0A03F} = {7F1779AD-20F8-4797-BF4A-79AD3D746FC3}
 		{2ED340EF-C350-42DD-BADA-08159D631C48} = {8F3EC7F7-6D4C-41F2-822D-2F6DD0FC2892}
+		{0320F485-8102-4FB2-A052-D34F02F47A84} = {7F1779AD-20F8-4797-BF4A-79AD3D746FC3}
+		{CAFAFF53-FA8B-406F-8F2D-ABC4D50B8A77} = {8F3EC7F7-6D4C-41F2-822D-2F6DD0FC2892}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {331109E3-CBC8-42E6-AE35-8C5111AE53CD}
