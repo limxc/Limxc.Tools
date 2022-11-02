@@ -26,6 +26,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Limxc.Tools.SerialPort\Limxc.Tools.SerialPort.csproj" /> 
+        <ProjectReference Include="..\..\src\Limxc.Tools.SerialPort\Limxc.Tools.SerialPort.csproj" />
     </ItemGroup>
 </Project>

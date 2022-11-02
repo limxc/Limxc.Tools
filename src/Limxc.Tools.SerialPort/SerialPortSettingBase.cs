@@ -11,6 +11,8 @@ namespace Limxc.Tools.SerialPort
         protected SerialPortSettingBase(string portName, int baudRate, int autoConnectInterval = 1000,
             int sendDelay = 50)
         {
+            if (string.IsNullOrWhiteSpace(portName))
+                throw new Exception("串口名未设置");
             PortName = portName.Trim().ToUpper();
             if (!Regex.IsMatch(PortName, @"(?i)^(COM)[1-9][0-9]{0,1}$"))
                 throw new Exception($"串口名错误:{PortName}");
@@ -40,19 +42,6 @@ namespace Limxc.Tools.SerialPort
 
         #region Equality
 
-        protected static bool EqualOperator(SerialPortSettingBase left, SerialPortSettingBase right)
-        {
-            if (left is null ^ right is null) return false;
-
-            return left?.Equals(right) != false;
-        }
-
-        protected static bool NotEqualOperator(SerialPortSettingBase left, SerialPortSettingBase right)
-        {
-            return !EqualOperator(left, right);
-        }
-
-
         private IEnumerable<object> GetEqualityComponents()
         {
             yield return PortName;
@@ -60,9 +49,6 @@ namespace Limxc.Tools.SerialPort
             yield return Parity;
             yield return DataBits;
             yield return StopBits;
-
-            yield return AutoConnectInterval;
-            yield return SendDelay;
         }
 
         public override bool Equals(object obj)

@@ -112,6 +112,7 @@ namespace Limxc.Tools.Extensions.Communication
                 throw new FormatException($"Parse Error: Source[{source}] Template[{template}]");
 
             source = source.Replace(" ", "");
+            template = template.Replace(" ", "");
 
             var arr = template.ToCharArray();
             var skipLen = 0;
