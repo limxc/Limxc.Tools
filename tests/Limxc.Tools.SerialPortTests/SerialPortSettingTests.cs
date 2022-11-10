@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Limxc.Tools.SerialPortTests;
 
-public class SerialPortSettingBaseTests
+public class SerialPortSettingTests
 {
     [Fact]
     public void CtorTest()
@@ -26,11 +26,13 @@ public class SerialPortSettingBaseTests
         (s1 == s4).Should().BeFalse();
     }
 
-    private class Sps : SerialPortSettingBase
+    private class Sps : SerialPortSetting
     {
         public Sps(string portName, int baudRate, int autoConnectInterval = 1000, int sendDelay = 50) : base(portName,
             baudRate, autoConnectInterval, sendDelay)
         {
         }
+
+        public string Prop { get; set; }
     }
 }

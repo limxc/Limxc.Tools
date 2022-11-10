@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Limxc.Tools.Extensions.Communication;
 using Limxc.Tools.SerialPort;
-using Limxc.Tools.SerialPort.Interfaces;
 using Xunit;
 
 namespace Limxc.Tools.SerialPortTests;
@@ -23,7 +22,7 @@ public class SerialPortServiceSimulatorTests
         sps.Received.Subscribe(s => { received = s; }).DisposeWith(dis);
 
         state.Should().BeFalse();
-        sps.Start();
+        sps.Start(null);
         await Task.Delay(1200);
         state.Should().BeTrue();
 

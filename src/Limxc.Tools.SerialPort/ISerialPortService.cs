@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Limxc.Tools.SerialPort.Interfaces
+namespace Limxc.Tools.SerialPort
 {
     public interface ISerialPortService : IDisposable
     {
@@ -9,7 +9,7 @@ namespace Limxc.Tools.SerialPort.Interfaces
         IObservable<bool> ConnectionState { get; }
         IObservable<byte[]> Received { get; }
         IObservable<string> Log { get; }
-        void Start();
+        void Start(SerialPortSetting setting);
         void Stop();
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿namespace Limxc.Tools.SerialPort.Enums
+﻿namespace Limxc.Tools.SerialPort
 {
     public enum BaudRateEnum
     {

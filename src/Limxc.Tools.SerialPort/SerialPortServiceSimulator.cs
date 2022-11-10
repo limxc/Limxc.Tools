@@ -6,7 +6,6 @@ using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using Limxc.Tools.Extensions;
 using Limxc.Tools.Extensions.Communication;
-using Limxc.Tools.SerialPort.Interfaces;
 
 namespace Limxc.Tools.SerialPort
 {
@@ -45,13 +44,13 @@ namespace Limxc.Tools.SerialPort
         public IObservable<byte[]> Received { get; }
         public IObservable<string> Log { get; }
 
-        public void Start()
+        public void Start(SerialPortSetting setting)
         {
             _log.OnNext("Start");
             Stop();
 
             IsConnected = true;
-        }
+        } 
 
         public void Stop()
         {

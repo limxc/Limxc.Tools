@@ -9,8 +9,7 @@ using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using Limxc.Tools.Extensions;
 using Limxc.Tools.Extensions.Communication;
-using Limxc.Tools.SerialPort.Interfaces;
-using Ports = System.IO.Ports.SerialPort;
+using SP = System.IO.Ports.SerialPort;
 
 namespace Limxc.Tools.SerialPort
 {
@@ -22,30 +21,12 @@ namespace Limxc.Tools.SerialPort
         private readonly Subject<byte[]> _received = new Subject<byte[]>();
 
         private CompositeDisposable _controlDisposables = new CompositeDisposable();
-        private SerialPortSettingBase _serialPortSettingBase;
+        private SerialPortSetting _serialPortSetting;
 
-        private Ports _sp;
+        private SP _sp;
 
-        protected SerialPortService(IObservable<SerialPortSettingBase> serialPortSetting)
+        protected SerialPortService()
         {
-            serialPortSetting
-                .DistinctUntilChanged()
-                .Throttle(TimeSpan.FromSeconds(1))
-                //.Where(p => GetPortNames().Contains(p.PortName))
-                .SubscribeOn(NewThreadScheduler.Default)
-                .Subscribe(p =>
-                {
-                    try
-                    {
-                        _serialPortSettingBase = p;
-                        Start();
-                    }
-                    catch (Exception e)
-                    {
-                        _log.OnNext(e.Message);
-                    }
-                }).DisposeWith(_initDisposables);
-
             Observable
                 .Interval(TimeSpan.FromSeconds(1))
                 .Select(_ => IsConnected)
@@ -74,56 +55,6 @@ namespace Limxc.Tools.SerialPort
             Stop();
         }
 
-        public void Start()
-        {
-            Stop();
-
-            if (_serialPortSettingBase == default)
-                return;
-
-            _controlDisposables = new CompositeDisposable();
-
-            _sp = new Ports(_serialPortSettingBase.PortName, _serialPortSettingBase.BaudRate,
-                    _serialPortSettingBase.Parity, _serialPortSettingBase.DataBits, _serialPortSettingBase.StopBits)
-                { ReadTimeout = 500, WriteTimeout = 500 };
-
-            Observable
-                .FromEventPattern(_sp, nameof(Ports.DataReceived))
-                .SubscribeOn(NewThreadScheduler.Default)
-                .Subscribe(b =>
-                {
-                    var bs = new byte[_sp.BytesToRead];
-                    _sp.Read(bs, 0, bs.Length);
-                    _received.OnNext(bs);
-                })
-                .DisposeWith(_controlDisposables);
-
-            Observable
-                .Interval(TimeSpan.FromMilliseconds(_serialPortSettingBase.AutoConnectInterval))
-                .Where(_ => !IsConnected)
-                .SubscribeOn(NewThreadScheduler.Default)
-                .Subscribe(s =>
-                {
-                    try
-                    {
-                        _sp.Open();
-                    }
-                    catch (FileNotFoundException)
-                    {
-                        _log.OnNext($"找不到串口{_sp.PortName}.");
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        _log.OnNext($"串口{_sp.PortName}已占用.");
-                    }
-                    catch (Exception e)
-                    {
-                        _log.OnNext(e.Message);
-                    }
-                })
-                .DisposeWith(_controlDisposables);
-        }
-
         public void Stop()
         {
             _controlDisposables?.Dispose();
@@ -139,7 +70,7 @@ namespace Limxc.Tools.SerialPort
         /// <returns></returns>
         public async Task SendAsync(string hex)
         {
-            await Task.Delay(_serialPortSettingBase.SendDelay);
+            await Task.Delay(_serialPortSetting.SendDelay);
 
             var bytes = hex.HexToByte();
             _sp.Write(bytes, 0, bytes.Length);
@@ -157,7 +88,7 @@ namespace Limxc.Tools.SerialPort
         {
             try
             {
-                await Task.Delay(_serialPortSettingBase.SendDelay);
+                await Task.Delay(_serialPortSetting.SendDelay);
 
                 var now = DateTimeOffset.Now;
                 var task = _received
@@ -190,7 +121,7 @@ namespace Limxc.Tools.SerialPort
         {
             try
             {
-                await Task.Delay(_serialPortSettingBase.SendDelay);
+                await Task.Delay(_serialPortSetting.SendDelay);
 
                 var now = DateTimeOffset.Now;
                 var task = _received.SkipUntil(now).TakeUntil(now.AddMilliseconds(waitMs))
@@ -207,9 +138,64 @@ namespace Limxc.Tools.SerialPort
             }
         }
 
+        public void Start(SerialPortSetting setting)
+        {
+            _serialPortSetting = setting;
+
+            Stop();
+
+            if (_serialPortSetting == default)
+                return;
+
+            if (!_serialPortSetting.Enable)
+                return;
+
+            _controlDisposables = new CompositeDisposable();
+
+            _sp = new SP(_serialPortSetting.PortName, _serialPortSetting.BaudRate,
+                    _serialPortSetting.Parity, _serialPortSetting.DataBits, _serialPortSetting.StopBits)
+                { ReadTimeout = 500, WriteTimeout = 500 };
+
+            Observable
+                .FromEventPattern(_sp, nameof(SP.DataReceived))
+                .SubscribeOn(NewThreadScheduler.Default)
+                .Subscribe(b =>
+                {
+                    var bs = new byte[_sp.BytesToRead];
+                    _sp.Read(bs, 0, bs.Length);
+                    _received.OnNext(bs);
+                })
+                .DisposeWith(_controlDisposables);
+
+            Observable
+                .Interval(TimeSpan.FromMilliseconds(_serialPortSetting.AutoConnectInterval))
+                .Where(_ => !IsConnected)
+                .SubscribeOn(NewThreadScheduler.Default)
+                .Subscribe(s =>
+                {
+                    try
+                    {
+                        _sp.Open();
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        _log.OnNext($"找不到串口{_sp.PortName}.");
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        _log.OnNext($"串口{_sp.PortName}已占用.");
+                    }
+                    catch (Exception e)
+                    {
+                        _log.OnNext(e.Message);
+                    }
+                })
+                .DisposeWith(_controlDisposables);
+        }
+
         public string[] GetPortNames()
         {
-            return Ports.GetPortNames();
+            return SP.GetPortNames();
         }
     }
 }

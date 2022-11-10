@@ -6,9 +6,13 @@ using System.Text.RegularExpressions;
 
 namespace Limxc.Tools.SerialPort
 {
-    public abstract class SerialPortSettingBase
+    public class SerialPortSetting
     {
-        protected SerialPortSettingBase(string portName, int baudRate, int autoConnectInterval = 1000,
+        public SerialPortSetting()
+        {
+        }
+
+        public SerialPortSetting(string portName, int baudRate, int autoConnectInterval = 1000,
             int sendDelay = 50)
         {
             if (string.IsNullOrWhiteSpace(portName))
@@ -31,14 +35,19 @@ namespace Limxc.Tools.SerialPort
         public StopBits StopBits { get; set; } = StopBits.One;
 
         /// <summary>
-        ///     interval ms
+        ///     Try Connect Interval ms
         /// </summary>
-        public int AutoConnectInterval { get; set; }
+        public int AutoConnectInterval { get; set; } = 1000;
 
         /// <summary>
-        ///     delay ms
+        ///     Delay ms
         /// </summary>
-        public int SendDelay { get; set; }
+        public int SendDelay { get; set; } = 50;
+
+        /// <summary>
+        ///     Is Enabled
+        /// </summary>
+        public bool Enable { get; set; } = true;
 
         #region Equality
 
@@ -55,16 +64,16 @@ namespace Limxc.Tools.SerialPort
         {
             if (obj == null || obj.GetType() != GetType()) return false;
 
-            var other = (SerialPortSettingBase)obj;
+            var other = (SerialPortSetting)obj;
             return GetEqualityComponents().SequenceEqual(other.GetEqualityComponents());
         }
 
-        public static bool operator ==(SerialPortSettingBase one, SerialPortSettingBase two)
+        public static bool operator ==(SerialPortSetting one, SerialPortSetting two)
         {
             return Equals(one, two);
         }
 
-        public static bool operator !=(SerialPortSettingBase one, SerialPortSettingBase two)
+        public static bool operator !=(SerialPortSetting one, SerialPortSetting two)
         {
             return !Equals(one, two);
         }
