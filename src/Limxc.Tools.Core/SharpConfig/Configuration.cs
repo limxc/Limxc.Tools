@@ -1,16 +1,17 @@
 ﻿// Copyright (c) 2013-2018 Cemalettin Dervis, MIT License.
 // https://github.com/cemdervis/SharpConfig
 
+
+// ReSharper disable EmptyEmbeddedStatement
+// ReSharper disable RedundantAssignment 
+// ReSharper disable InconsistentNaming
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
-
-// ReSharper disable EmptyEmbeddedStatement
-// ReSharper disable RedundantAssignment 
-// ReSharper disable InconsistentNaming
 
 namespace Limxc.Tools.Core.SharpConfig
 {

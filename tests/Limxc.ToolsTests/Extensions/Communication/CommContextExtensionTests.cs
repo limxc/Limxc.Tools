@@ -50,12 +50,12 @@ public class CommContextExtensionTests
     public void TryGetTemplateMatchResultTest()
     {
         var template = "AA00$2$1BB";
-        var resp = "AA00 0888 44BB";
-        template.TryGetTemplateMatchResult("A1A00 0888 44BB").Should().BeNullOrEmpty();
-        template.TryGetTemplateMatchResult(resp).Should().Be("AA00088844BB");
-        template.TryGetTemplateMatchResult(resp + "123").Should().Be("AA00088844BB");
-        template.TryGetTemplateMatchResult("123" + resp).Should().Be("AA00088844BB");
-        template.TryGetTemplateMatchResult("123" + resp + "123").Should().Be("AA00088844BB");
+        var resp = "AA00 0805 44BB".Replace(" ", "");
+        template.TryGetTemplateMatchResult("A1A00 0805 44BB").Should().BeNullOrEmpty();
+        template.TryGetTemplateMatchResult(resp).Should().Be(resp);
+        template.TryGetTemplateMatchResult(resp + "123").Should().Be(resp);
+        template.TryGetTemplateMatchResult("123" + resp).Should().Be(resp);
+        template.TryGetTemplateMatchResult("123" + resp + "123").Should().Be(resp);
     }
 
     [Fact]

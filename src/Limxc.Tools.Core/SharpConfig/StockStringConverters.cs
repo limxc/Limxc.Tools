@@ -1,8 +1,8 @@
-﻿using System;
+﻿// ReSharper disable AssignNullToNotNullAttribute 
+
+using System;
 using System.ComponentModel;
 using System.Globalization;
-
-// ReSharper disable AssignNullToNotNullAttribute 
 
 namespace Limxc.Tools.Core.SharpConfig
 {

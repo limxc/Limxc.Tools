@@ -35,7 +35,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Limxc.Tools.Contract", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Limxc.Tools.ContractTests", "tests\Limxc.Tools.ContractTests\Limxc.Tools.ContractTests.csproj", "{2ED340EF-C350-42DD-BADA-08159D631C48}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Limxc.Tools.SerialPort", "src\Limxc.Tools.SerialPort\Limxc.Tools.SerialPort.csproj", "{0320F485-8102-4FB2-A052-D34F02F47A84}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Limxc.Tools.SerialPort", "src\Limxc.Tools.SerialPort\Limxc.Tools.SerialPort.csproj", "{0320F485-8102-4FB2-A052-D34F02F47A84}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Limxc.Tools.SerialPortTests", "tests\Limxc.Tools.SerialPortTests\Limxc.Tools.SerialPortTests.csproj", "{CAFAFF53-FA8B-406F-8F2D-ABC4D50B8A77}"
 EndProject

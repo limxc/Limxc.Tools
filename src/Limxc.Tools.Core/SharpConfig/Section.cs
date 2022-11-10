@@ -1,15 +1,16 @@
 ﻿// Copyright (c) 2013-2018 Cemalettin Dervis, MIT License.
 // https://github.com/cemdervis/SharpConfig
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
 
 // ReSharper disable PossibleNullReferenceException
 // ReSharper disable AssignNullToNotNullAttribute
 // ReSharper disable EmptyEmbeddedStatement
 // ReSharper disable InconsistentNaming 
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace Limxc.Tools.Core.SharpConfig
 {

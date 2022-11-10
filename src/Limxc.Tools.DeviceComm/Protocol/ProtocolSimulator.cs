@@ -46,13 +46,24 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
         public bool IsConnected => true;
 
+        public IObservable<bool> ConnectionState { get; }
+        public IObservable<byte[]> Received { get; }
+        public IObservable<CommContext> History { get; }
+
         public void Init(params object[] pars)
         {
         }
 
-        public IObservable<bool> ConnectionState { get; }
-        public IObservable<byte[]> Received { get; }
-        public IObservable<CommContext> History { get; }
+        #region Dispose
+
+        public void Dispose()
+        {
+            _connectionState?.Dispose();
+            _history?.Dispose();
+            _received?.Dispose();
+        }
+
+        #endregion
 
         public Task<bool> OpenAsync()
         {
@@ -94,16 +105,5 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
             return true;
         }
-
-        #region Dispose
-
-        public void Dispose()
-        {
-            _connectionState?.Dispose();
-            _history?.Dispose();
-            _received?.Dispose();
-        }
-
-        #endregion
     }
 }

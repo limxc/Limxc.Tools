@@ -1,10 +1,11 @@
 ﻿// Copyright (c) 2013-2018 Cemalettin Dervis, MIT License.
 // https://github.com/cemdervis/SharpConfig
 
-using System;
-using System.Text;
 
 // ReSharper disable InconsistentNaming 
+
+using System;
+using System.Text;
 
 namespace Limxc.Tools.Core.SharpConfig
 {

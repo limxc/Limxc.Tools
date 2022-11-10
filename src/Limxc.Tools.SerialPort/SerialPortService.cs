@@ -9,11 +9,12 @@ using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using Limxc.Tools.Extensions;
 using Limxc.Tools.Extensions.Communication;
+using Limxc.Tools.SerialPort.Interfaces;
 using Ports = System.IO.Ports.SerialPort;
 
 namespace Limxc.Tools.SerialPort
 {
-    public abstract class SerialPortServiceBase : IDisposable
+    public class SerialPortService : ISerialPortService
     {
         private readonly Subject<bool> _connectionState = new Subject<bool>();
         private readonly CompositeDisposable _initDisposables = new CompositeDisposable();
@@ -25,7 +26,7 @@ namespace Limxc.Tools.SerialPort
 
         private Ports _sp;
 
-        protected SerialPortServiceBase(IObservable<SerialPortSettingBase> serialPortSetting)
+        protected SerialPortService(IObservable<SerialPortSettingBase> serialPortSetting)
         {
             serialPortSetting
                 .DistinctUntilChanged()
@@ -71,11 +72,6 @@ namespace Limxc.Tools.SerialPort
             _log?.Dispose();
 
             Stop();
-        }
-
-        public string[] GetPortNames()
-        {
-            return Ports.GetPortNames();
         }
 
         public void Start()
@@ -153,11 +149,11 @@ namespace Limxc.Tools.SerialPort
         ///     在超时时长内,根据模板自动截取返回值
         /// </summary>
         /// <param name="hex"></param>
-        /// <param name="timeout">ms</param>
+        /// <param name="timeoutMs">ms</param>
         /// <param name="template"></param>
         /// <param name="sep"></param>
         /// <returns></returns>
-        public async Task<string> SendAsync(string hex, int timeout, string template, char sep = '$')
+        public async Task<string> SendAsync(string hex, int timeoutMs, string template, char sep = '$')
         {
             try
             {
@@ -166,7 +162,7 @@ namespace Limxc.Tools.SerialPort
                 var now = DateTimeOffset.Now;
                 var task = _received
                     .SkipUntil(now)
-                    .TakeUntil(now.AddMilliseconds(timeout))
+                    .TakeUntil(now.AddMilliseconds(timeoutMs))
                     .Select(d => d.ByteToHex())
                     .Scan((acc, r) => acc + r)
                     .FirstOrDefaultAsync(r => template.IsTemplateMatch(r, sep, false))
@@ -209,6 +205,11 @@ namespace Limxc.Tools.SerialPort
             {
                 return Array.Empty<byte>();
             }
+        }
+
+        public string[] GetPortNames()
+        {
+            return Ports.GetPortNames();
         }
     }
 }
