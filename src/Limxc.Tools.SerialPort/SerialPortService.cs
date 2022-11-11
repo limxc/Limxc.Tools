@@ -25,7 +25,7 @@ namespace Limxc.Tools.SerialPort
 
         private SP _sp;
 
-        protected SerialPortService()
+        public SerialPortService()
         {
             Observable
                 .Interval(TimeSpan.FromSeconds(1))
