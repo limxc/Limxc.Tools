@@ -50,7 +50,7 @@ namespace Limxc.Tools.SerialPort
             Stop();
 
             IsConnected = true;
-        } 
+        }
 
         public void Stop()
         {
