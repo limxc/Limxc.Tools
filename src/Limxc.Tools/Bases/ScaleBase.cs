@@ -7,7 +7,7 @@ using Limxc.Tools.Extensions;
 
 // ReSharper disable VirtualMemberCallInConstructor
 
-namespace Limxc.Tools.Entities
+namespace Limxc.Tools.Bases
 {
     public abstract class ScaleBase
     {

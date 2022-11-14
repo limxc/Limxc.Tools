@@ -1,4 +1,4 @@
-﻿namespace Limxc.Tools.Entities.Communication
+﻿namespace Limxc.Tools.Bases.Communication
 {
     public class CommTaskContext : CommContext
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Limxc.Tools.Entities.Communication
+namespace Limxc.Tools.Bases.Communication
 {
     public class CommContext
     {

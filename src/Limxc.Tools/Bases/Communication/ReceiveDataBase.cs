@@ -1,7 +1,7 @@
 ﻿using System;
 using Limxc.Tools.Extensions;
 
-namespace Limxc.Tools.Entities.Communication
+namespace Limxc.Tools.Bases.Communication
 {
     public abstract class ReceiveDataBase
     {

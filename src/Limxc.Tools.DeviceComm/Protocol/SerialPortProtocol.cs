@@ -6,7 +6,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using Limxc.Tools.Entities.Communication;
+using Limxc.Tools.Bases.Communication;
 using Limxc.Tools.Extensions;
 using Limxc.Tools.Extensions.Communication;
 

@@ -6,8 +6,8 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Force.DeepCloner;
+using Limxc.Tools.Bases.Communication;
 using Limxc.Tools.DeviceComm.Protocol;
-using Limxc.Tools.Entities.Communication;
 using Limxc.Tools.Extensions.Communication;
 using Xunit;
 

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using Limxc.Tools.Entities.Communication;
+using Limxc.Tools.Bases.Communication;
 
 namespace Limxc.Tools.Extensions.Communication
 {

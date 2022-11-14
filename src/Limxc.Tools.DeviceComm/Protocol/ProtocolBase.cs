@@ -4,8 +4,8 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using Limxc.Tools.Bases.Communication;
 using Limxc.Tools.DeviceComm.Abstractions;
-using Limxc.Tools.Entities.Communication;
 using Limxc.Tools.Extensions.Communication;
 
 // ReSharper disable InconsistentNaming 

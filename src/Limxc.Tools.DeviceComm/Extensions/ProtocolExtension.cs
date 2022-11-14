@@ -6,8 +6,8 @@ using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
+using Limxc.Tools.Bases.Communication;
 using Limxc.Tools.DeviceComm.Abstractions;
-using Limxc.Tools.Entities.Communication;
 
 namespace Limxc.Tools.DeviceComm.Extensions
 {

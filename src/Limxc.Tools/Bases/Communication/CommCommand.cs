@@ -2,7 +2,7 @@
 using System.Linq;
 using Limxc.Tools.Extensions.Communication;
 
-namespace Limxc.Tools.Entities.Communication
+namespace Limxc.Tools.Bases.Communication
 {
     /// <summary>
     ///     Communication Protocol Command
