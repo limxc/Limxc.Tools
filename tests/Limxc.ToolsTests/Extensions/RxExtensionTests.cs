@@ -146,13 +146,13 @@ public class RxExtensionTests
         //time bucket
         var tbList = new List<long[]>();
         Observable
-            .Interval(TimeSpan.FromSeconds(1))
+            .Interval(TimeSpan.FromSeconds(0.1))
             .Take(5)
-            .Delay(TimeSpan.FromSeconds(0.9))
-            .Bucket(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(1))
+            .Delay(TimeSpan.FromSeconds(0.05))
+            .Bucket(TimeSpan.FromSeconds(0.3), TimeSpan.FromSeconds(0.1))
             .Subscribe(p => tbList.Add(p));
 
-        await Task.Delay(6000);
+        await Task.Delay(1000);
 
         tbList.Should().BeEquivalentTo(new List<IEnumerable<long>>
         {
@@ -162,5 +162,18 @@ public class RxExtensionTests
             new long[] { 0, 1, 2 },
             new long[] { 1, 2, 3 }
         });
+
+        //time bucket serial
+        var tbLists = new List<DateTime[]>();
+        Observable
+            .Interval(TimeSpan.FromSeconds(0.1))
+            .Take(10)
+            .Select(p => DateTime.Now)
+            .Bucket(TimeSpan.FromSeconds(0.3), TimeSpan.FromSeconds(0.1))
+            .Subscribe(p => tbLists.Add(p));
+
+        await Task.Delay(2000);
+
+        foreach (var list in tbLists) list.OrderBy(p => p).ToList().SequenceEqual(list).Should().BeTrue();
     }
 }

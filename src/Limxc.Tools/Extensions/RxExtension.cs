@@ -180,19 +180,23 @@ namespace Limxc.Tools.Extensions
             return Observable.Create<T[]>(o =>
             {
                 var dis = new CompositeDisposable();
-                var list = new ConcurrentBag<Timestamped<T>>();
+                var queue = new ConcurrentQueue<Timestamped<T>>();
 
                 source
                     .Timestamp()
-                    .Subscribe(s => list.Add(s), e => o.OnError(e), () => o.OnCompleted())
+                    .Subscribe(s => queue.Enqueue(s), o.OnError, o.OnCompleted)
                     .DisposeWith(dis);
 
                 Observable.Interval(shift).Subscribe(_ =>
                 {
-                    var res = list.Where(p => p.Timestamp > DateTimeOffset.UtcNow.Subtract(size))
+                    var startTime = DateTimeOffset.UtcNow.Subtract(size);
+
+                    var res = queue
+                        .Where(p => p.Timestamp >= startTime)
                         .Select(p => p.Value)
                         .ToArray();
-                    Array.Reverse(res);
+
+                    while (queue.Any(p => p.Timestamp < startTime)) queue.TryDequeue(out var _);
                     o.OnNext(res);
                 }).DisposeWith(dis);
 

@@ -61,7 +61,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
                     var d = p.EventArgs.Data;
                     return (d.Array ?? Array.Empty<byte>()).Skip(d.Offset).Take(d.Count).ToArray();
                 })
-                .SubscribeOn(NewThreadScheduler.Default)
+                .SubscribeOn(new EventLoopScheduler())
                 .Subscribe(b => _received.OnNext(b))
                 .DisposeWith(_disposables);
         }

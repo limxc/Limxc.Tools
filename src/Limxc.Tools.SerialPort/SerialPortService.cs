@@ -30,13 +30,14 @@ namespace Limxc.Tools.SerialPort
             Observable
                 .Interval(TimeSpan.FromSeconds(1))
                 .Select(_ => IsConnected)
-                .SubscribeOn(NewThreadScheduler.Default)
+                .SubscribeOn(TaskPoolScheduler.Default)
                 .Subscribe(s => _connectionState.OnNext(s))
                 .DisposeWith(_initDisposables);
 
             ConnectionState = Observable.Defer(() =>
                 _connectionState.StartWith(false).AsObservable().Publish().RefCount());
-            Received = Observable.Defer(() => _received.AsObservable().Publish().RefCount());
+            Received = Observable.Defer(() =>
+                _received.AsObservable().SubscribeOn(new EventLoopScheduler()).Publish().RefCount());
             Log = Observable.Defer(() => _log.AsObservable().Publish().RefCount());
         }
 
@@ -158,7 +159,7 @@ namespace Limxc.Tools.SerialPort
 
             Observable
                 .FromEventPattern(_sp, nameof(SP.DataReceived))
-                .SubscribeOn(NewThreadScheduler.Default)
+                .SubscribeOn(new EventLoopScheduler())
                 .Subscribe(b =>
                 {
                     var bs = new byte[_sp.BytesToRead];
@@ -170,7 +171,7 @@ namespace Limxc.Tools.SerialPort
             Observable
                 .Interval(TimeSpan.FromMilliseconds(_serialPortSetting.AutoConnectInterval))
                 .Where(_ => !IsConnected)
-                .SubscribeOn(NewThreadScheduler.Default)
+                .SubscribeOn(TaskPoolScheduler.Default)
                 .Subscribe(s =>
                 {
                     try

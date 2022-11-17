@@ -45,7 +45,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
                 .Select(_ => SerialPort.GetPortNames())
                 .Where(ports => ports.Contains(_portName, StringComparer.CurrentCultureIgnoreCase)) //port found
                 .Where(_ => _sp?.IsOpen == false && !_isBusy)
-                .SubscribeOn(NewThreadScheduler.Default)
+                .SubscribeOn(TaskPoolScheduler.Default)
                 .Subscribe(async _ =>
                 {
                     _isBusy = true;
@@ -87,13 +87,13 @@ namespace Limxc.Tools.DeviceComm.Protocol
             Observable
                 .Interval(TimeSpan.FromMilliseconds(_autoConnectInterval))
                 .Select(_ => IsConnected)
-                .SubscribeOn(NewThreadScheduler.Default)
+                .SubscribeOn(TaskPoolScheduler.Default)
                 .Subscribe(s => _connectionState.OnNext(s))
                 .DisposeWith(_disposables);
 
             Observable
                 .FromEventPattern(_sp, nameof(SerialPort.DataReceived))
-                .SubscribeOn(NewThreadScheduler.Default)
+                .SubscribeOn(new EventLoopScheduler())
                 .Subscribe(b =>
                 {
                     var bs = new byte[_sp.BytesToRead];

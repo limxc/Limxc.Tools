@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading;
@@ -54,7 +53,6 @@ namespace Limxc.Tools.DeviceComm.Extensions
             var dis = protocol.History
                 .TakeUntil(DateTimeOffset.Now.AddMilliseconds(context.Timeout + schedulerRunTime))
                 .FirstOrDefaultAsync(p => ((CommTaskContext)p).Id == context.Id)
-                .ObserveOn(TaskPoolScheduler.Default)
                 .Subscribe(p => { state = p == null ? 1 : 2; });
 
             await protocol.SendAsync(context).ConfigureAwait(false);

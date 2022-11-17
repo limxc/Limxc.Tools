@@ -28,9 +28,10 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
             ConnectionState = Observable.Defer(() =>
                 _connectionState.StartWith(false).DistinctUntilChanged().AsObservable().Publish().RefCount());
-            Received = Observable.Defer(() => _received.AsObservable().Publish().RefCount());
+            Received = Observable.Defer(() =>
+                _received.AsObservable().SubscribeOn(new EventLoopScheduler()).Publish().RefCount());
             History = Observable.Defer(() =>
-                _history.AsObservable().FindResponse(Received).ObserveOn(NewThreadScheduler.Default)
+                _history.AsObservable().FindResponse(Received).SubscribeOn(new EventLoopScheduler())
                     .Publish().RefCount());
         }
 

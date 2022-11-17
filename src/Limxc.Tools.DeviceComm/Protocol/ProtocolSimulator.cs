@@ -38,9 +38,9 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
             ConnectionState = _connectionState.StartWith(true).AsObservable().Publish().RefCount();
             Received =
-                _received.AsObservable().Publish().RefCount();
+                _received.AsObservable().SubscribeOn(new EventLoopScheduler()).Publish().RefCount();
             History =
-                _history.AsObservable().FindResponse(Received).ObserveOn(NewThreadScheduler.Default)
+                _history.AsObservable().FindResponse(Received).SubscribeOn(new EventLoopScheduler())
                     .Publish().RefCount();
         }
 
