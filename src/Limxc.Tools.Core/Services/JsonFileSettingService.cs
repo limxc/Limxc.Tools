@@ -46,8 +46,16 @@ namespace Limxc.Tools.Core.Services
                     SettingChanged?.Invoke(Load()));
         }
 
+        /// <summary>
+        ///     文件名前缀
+        /// </summary>
         public virtual string Name => typeof(T).Name;
+
         protected virtual string Folder => EnvPath.Default.SettingFolder();
+
+        /// <summary>
+        ///     文件名
+        /// </summary>
         public string FileName => $"{Name}.Setting.json";
 
         public string BackUpPath =>

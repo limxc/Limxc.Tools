@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using FluentAssertions;
-using Limxc.Tools.Entities.Communication;
+using Limxc.Tools.Bases.Communication;
 using Limxc.Tools.Extensions.Communication;
 using Xunit;
 
