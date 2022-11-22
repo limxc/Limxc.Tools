@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
@@ -38,10 +37,9 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
             ConnectionState = _connectionState.StartWith(true).AsObservable().Publish().RefCount();
             Received =
-                _received.AsObservable().SubscribeOn(new EventLoopScheduler()).Publish().RefCount();
+                _received.AsObservable().Publish().RefCount();
             History =
-                _history.AsObservable().FindResponse(Received).SubscribeOn(new EventLoopScheduler())
-                    .Publish().RefCount();
+                _history.AsObservable().FindResponse(Received).Publish().RefCount();
         }
 
         public bool IsConnected => true;

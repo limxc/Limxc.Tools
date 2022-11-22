@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -29,10 +28,9 @@ namespace Limxc.Tools.DeviceComm.Protocol
             ConnectionState = Observable.Defer(() =>
                 _connectionState.StartWith(false).DistinctUntilChanged().AsObservable().Publish().RefCount());
             Received = Observable.Defer(() =>
-                _received.AsObservable().SubscribeOn(new EventLoopScheduler()).Publish().RefCount());
+                _received.AsObservable().Publish().RefCount());
             History = Observable.Defer(() =>
-                _history.AsObservable().FindResponse(Received).SubscribeOn(new EventLoopScheduler())
-                    .Publish().RefCount());
+                _history.AsObservable().FindResponse(Received).Publish().RefCount());
         }
 
 

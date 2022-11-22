@@ -72,7 +72,7 @@ namespace Limxc.Tools.DeviceComm.Utils
             ConnectionState = Observable.Defer(() =>
                 _connectionState.StartWith(false).DistinctUntilChanged().AsObservable().Publish().RefCount());
             Received = Observable.Defer(() =>
-                _received.AsObservable().SubscribeOn(new EventLoopScheduler()).Publish().RefCount());
+                _received.AsObservable().Publish().RefCount());
         }
 
         public bool IsConnected => _sp?.IsOpen ?? false;

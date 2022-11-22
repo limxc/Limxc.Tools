@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
@@ -104,47 +103,56 @@ namespace Limxc.Tools.Extensions.Communication
             if (bom.Length == 0 || eom.Length == 0)
                 throw new ArgumentException("If bom or eom is empty, use SeparatorMessagePackParser.");
 
-            var list = new List<T>();
-            var bQueue = new ConcurrentQueue<T>();
-            var eQueue = new ConcurrentQueue<T>();
-            var bl = bom.Length;
-            var el = eom.Length;
-            var findHeader = false;
-
             return Observable.Create<T[]>(o =>
             {
+                var rst = new ConcurrentQueue<T>();
+                var bQueue = new ConcurrentQueue<T>();
+                var eQueue = new ConcurrentQueue<T>();
+                var bl = bom.Length;
+                var el = eom.Length;
+                var bomFound = false;
+
                 var dis = source.Subscribe(s =>
                 {
-                    if (!findHeader)
+                    if (!bomFound)
                     {
                         bQueue.Enqueue(s);
                         if (bQueue.Count == bl)
                         {
                             if (bQueue.AsEnumerable().SequenceEqual(bom))
-                                findHeader = true;
+                                bomFound = true;
                             else
                                 bQueue.TryDequeue(out _);
                         }
                     }
                     else
                     {
-                        list.Add(s);
+                        rst.Enqueue(s);
                         eQueue.Enqueue(s);
                         if (eQueue.Count == el)
                         {
                             if (eQueue.AsEnumerable().SequenceEqual(eom))
                             {
 #if NETSTANDARD2_1
-                                o.OnNext(list.SkipLast(el).ToArray());
+                                o.OnNext(rst.SkipLast(el).ToArray());
+                                rst.Clear();
                                 bQueue.Clear();
                                 eQueue.Clear();
 #else
-                                o.OnNext(list.Take(list.Count - el).ToArray());
-                                while (!bQueue.IsEmpty) bQueue.TryDequeue(out _);
-                                while (!eQueue.IsEmpty) eQueue.TryDequeue(out _);
+                                o.OnNext(rst.Take(rst.Count - el).ToArray());
+                                while (rst.TryDequeue(out _))
+                                {
+                                }
+
+                                while (bQueue.TryDequeue(out _))
+                                {
+                                }
+
+                                while (eQueue.TryDequeue(out _))
+                                {
+                                }
 #endif
-                                list.Clear();
-                                findHeader = false;
+                                bomFound = false;
                             }
                             else
                             {
@@ -158,8 +166,7 @@ namespace Limxc.Tools.Extensions.Communication
                 {
                     o.OnCompleted();
                     dis.Dispose();
-                    list.Clear();
-                    list = null;
+                    rst = null;
                     bQueue = null;
                     eQueue = null;
                 });
@@ -176,32 +183,38 @@ namespace Limxc.Tools.Extensions.Communication
         public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T[] separator)
             where T : IEquatable<T>
         {
-            var list = new List<T>();
-            var queue = new ConcurrentQueue<T>();
-            var len = separator.Length;
-
             return Observable.Create<T[]>(o =>
             {
+                var rst = new ConcurrentQueue<T>();
+                var tmp = new ConcurrentQueue<T>();
+                var len = separator.Length;
+
                 var dis = source.Subscribe(s =>
                 {
-                    list.Add(s);
-                    queue.Enqueue(s);
-                    if (queue.Count == len)
+                    rst.Enqueue(s);
+                    tmp.Enqueue(s);
+                    if (tmp.Count == len)
                     {
-                        if (queue.AsEnumerable().SequenceEqual(separator))
+                        if (tmp.AsEnumerable().SequenceEqual(separator))
                         {
 #if NETSTANDARD2_1
-                            o.OnNext(list.SkipLast(len).ToArray());
-                            queue.Clear();
+                            o.OnNext(rst.SkipLast(len).ToArray());
+                            rst.Clear();
+                            tmp.Clear();
 #else
-                            o.OnNext(list.Take(list.Count - len).ToArray());
-                            while (!queue.IsEmpty) queue.TryDequeue(out _);
+                            o.OnNext(rst.Take(rst.Count - len).ToArray());
+                            while (rst.TryDequeue(out _))
+                            {
+                            }
+
+                            while (tmp.TryDequeue(out _))
+                            {
+                            }
 #endif
-                            list.Clear();
                         }
                         else
                         {
-                            queue.TryDequeue(out _);
+                            tmp.TryDequeue(out _);
                         }
                     }
                 }, o.OnCompleted);
@@ -210,10 +223,52 @@ namespace Limxc.Tools.Extensions.Communication
                 {
                     o.OnCompleted();
                     dis.Dispose();
-                    list = null;
-                    queue = null;
+                    rst = null;
+                    tmp = null;
                 });
             }).Where(p => p.Length > 0);
+        }
+
+        /// <summary>
+        ///     一定时间后没有新数据则分包
+        ///     (精度不高,不适合时间间隔过小的情况)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obs"></param>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        public static IObservable<T[]> ParsePackage<T>(this IObservable<T> obs, TimeSpan time)
+        {
+            return Observable.Create<T[]>(o =>
+            {
+                var dis = new CompositeDisposable();
+                var rst = new ConcurrentQueue<T>();
+
+                obs.Throttle(time)
+                    .Subscribe(p =>
+                    {
+                        var arr = rst.ToArray();
+                        if (arr.Any())
+                        {
+                            o.OnNext(rst.ToArray());
+#if NETSTANDARD2_1
+                            rst.Clear();
+#else
+                            rst = new ConcurrentQueue<T>();
+#endif
+                        }
+                    }).DisposeWith(dis);
+
+                obs
+                    .Subscribe(p =>
+                    {
+                        //timer.Stop();
+                        rst.Enqueue(p);
+                        //timer.Start();
+                    }).DisposeWith(dis);
+
+                return dis;
+            });
         }
 
         #endregion 分包处理

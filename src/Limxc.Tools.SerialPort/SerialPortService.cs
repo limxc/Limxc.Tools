@@ -37,13 +37,18 @@ namespace Limxc.Tools.SerialPort
             ConnectionState = Observable.Defer(() =>
                 _connectionState.StartWith(false).AsObservable().Publish().RefCount());
             Received = Observable.Defer(() =>
-                _received.AsObservable().SubscribeOn(new EventLoopScheduler()).Publish().RefCount());
+                _received.AsObservable().Publish().RefCount());
             Log = Observable.Defer(() => _log.AsObservable().Publish().RefCount());
         }
 
         public bool IsConnected => _sp?.IsOpen ?? false;
         public IObservable<bool> ConnectionState { get; }
+
+        /// <summary>
+        ///     .SubscribeOn(new EventLoopScheduler())
+        /// </summary>
         public IObservable<byte[]> Received { get; }
+
         public IObservable<string> Log { get; }
 
         public void Dispose()

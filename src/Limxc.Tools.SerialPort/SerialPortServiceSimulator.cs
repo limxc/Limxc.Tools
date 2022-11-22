@@ -36,7 +36,7 @@ namespace Limxc.Tools.SerialPort
             ConnectionState = Observable.Defer(() =>
                 _connectionState.StartWith(false).AsObservable().Publish().RefCount());
             Received = Observable.Defer(() =>
-                _received.AsObservable().SubscribeOn(new EventLoopScheduler()).Publish().RefCount());
+                _received.AsObservable().Publish().RefCount());
             Log = Observable.Defer(() => _log.AsObservable().Publish().RefCount());
         }
 
