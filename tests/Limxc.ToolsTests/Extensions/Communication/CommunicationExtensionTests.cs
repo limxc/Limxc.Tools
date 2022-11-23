@@ -443,9 +443,77 @@ public class CommunicationExtensionTests
     }
 
     [Fact]
-    public async void TimeoutParsePackageTests()
+    public async void TimeoutBeginEndParsePackageTests()
     {
-        // 由于BufferUntilBeginEndState中Queue操作与Timer相关,无法使用TestScheduler
+        // 由于ParsePackageBeginEndTimeoutState中Queue操作与Timer相关,无法使用TestScheduler
+
+        var observable = Observable.Create<string>(async o =>
+        {
+            foreach (var b in new[] { "0a", "AA", "AA", "01" }) o.OnNext(b);
+
+            await Task.Delay(100);
+
+            foreach (var b in new[] { "BB", "BB", "0b", "AA", "AA", "02", "02", "BB" })
+            {
+                await Task.Delay(50);
+                o.OnNext(b);
+            }
+
+            await Task.Delay(300);
+
+            foreach (var b in new[] { "BB", "0c", "AA", "AA", "03", "BB", "BB", "0d" }) o.OnNext(b);
+
+            await Task.Delay(300);
+
+            o.OnCompleted();
+            return Disposable.Empty;
+        });
+
+        var rst1 = new List<string[]>();
+        observable.ParsePackage(new[] { "AA", "AA" }, new[] { "BB", "BB" }, 400)
+            .Subscribe(rst1.Add);
+
+        var rst2 = new List<string[]>();
+        observable.ParsePackage(new[] { "AA", "AA" }, new[] { "BB", "BB" }, 200)
+            .Subscribe(rst2.Add);
+
+        var rst3 = new List<string[]>();
+        observable.ParsePackage("AA", "BB", 200, true)
+            .Subscribe(rst3.Add);
+
+        await Task.Delay(1200);
+
+        rst1
+            .Should()
+            .BeEquivalentTo(new List<string[]>
+            {
+                new[] { "AA", "AA", "01", "BB", "BB" },
+                new[] { "AA", "AA", "02", "02", "BB", "BB" },
+                new[] { "AA", "AA", "03", "BB", "BB" }
+            });
+
+        rst2
+            .Should()
+            .BeEquivalentTo(new List<string[]>
+            {
+                new[] { "AA", "AA", "01", "BB", "BB" },
+                new[] { "AA", "AA", "03", "BB", "BB" }
+            });
+
+        rst3
+            .Should()
+            .BeEquivalentTo(new List<string[]>
+            {
+                new[] { "AA", "01", "BB" },
+                new[] { "AA", "02", "02", "BB" },
+                new[] { "AA", "03", "BB" }
+            });
+    }
+
+    [Fact]
+    public async void TimeoutBeginCountParsePackageTests()
+    {
+        // 由于ParsePackageBeginCountTimeoutState中Queue操作与Timer相关,无法使用TestScheduler
 
         var observable = Observable.Create<string>(async o =>
         {
@@ -481,6 +549,14 @@ public class CommunicationExtensionTests
         observable.ParsePackage("AA", 7, 400)
             .Subscribe(rst3.Add);
 
+        var rst4 = new List<string[]>();
+        observable.ParsePackage("AA", 5, 200, true)
+            .Subscribe(rst4.Add);
+
+        var rst5 = new List<string[]>();
+        observable.ParsePackage("AA", 5, 400, true)
+            .Subscribe(rst5.Add);
+
         await Task.Delay(1200);
 
         rst1
@@ -500,6 +576,23 @@ public class CommunicationExtensionTests
             {
                 new[] { "AA", "AA", "01", "BB", "BB", "0b", "AA" },
                 new[] { "AA", "AA", "02", "02", "BB", "BB", "0c" }
+            });
+
+        rst4
+            .Should()
+            .BeEquivalentTo(new List<string[]>
+            {
+                new[] { "AA", "01", "BB", "BB", "0b" },
+                new[] { "AA", "03", "BB", "BB", "0d" }
+            });
+
+        rst5
+            .Should()
+            .BeEquivalentTo(new List<string[]>
+            {
+                new[] { "AA", "01", "BB", "BB", "0b" },
+                new[] { "AA", "02", "02", "BB", "BB" },
+                new[] { "AA", "03", "BB", "BB", "0d" }
             });
     }
 }

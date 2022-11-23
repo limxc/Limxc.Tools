@@ -77,6 +77,9 @@ namespace Limxc.Tools.Extensions.Communication
         /// <returns></returns>
         public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T bom, T eom) where T : IEquatable<T>
         {
+            if (bom == null || eom == null)
+                throw new ArgumentException("bom or eom is null.");
+
             return source.Publish(s =>
             {
                 return Observable.Defer
@@ -184,6 +187,9 @@ namespace Limxc.Tools.Extensions.Communication
         public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T[] separator)
             where T : IEquatable<T>
         {
+            if (separator.Length == 0)
+                throw new ArgumentException("separator is empty.");
+
             return Observable.Create<T[]>(o =>
             {
                 var rst = new ConcurrentQueue<T>();
@@ -279,14 +285,16 @@ namespace Limxc.Tools.Extensions.Communication
         /// <param name="source"></param>
         /// <param name="bom"></param>
         /// <param name="eom"></param>
-        /// <param name="timeoutMs"></param>
+        /// <param name="timeoutMs">100ms+</param>
+        /// <param name="useLastBom"></param>
         /// <param name="def"></param>
         /// <returns></returns>
         public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T bom, T eom, int timeoutMs,
+            bool useLastBom = false,
             T[] def = null)
             where T : IEquatable<T>
         {
-            return source.ParsePackage(new[] { bom }, new[] { eom }, timeoutMs, def);
+            return source.ParsePackage(new[] { bom }, new[] { eom }, timeoutMs, useLastBom, def);
         }
 
         /// <summary>
@@ -296,22 +304,30 @@ namespace Limxc.Tools.Extensions.Communication
         /// <param name="source"></param>
         /// <param name="bom"></param>
         /// <param name="eom"></param>
-        /// <param name="timeoutMs"></param>
+        /// <param name="timeoutMs">100ms+</param>
+        /// <param name="useLastBom"></param>
         /// <param name="def"></param>
         /// <returns></returns>
         public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T[] bom, T[] eom, int timeoutMs,
+            bool useLastBom = false,
             T[] def = null)
             where T : IEquatable<T>
         {
-            return Observable.Using(() => new ParsePackageBeginEndTimoutState<T>(bom, eom, timeoutMs), r => source
-                .Scan(r,
-                    (bus, v) =>
-                    {
-                        bus.Add(v);
-                        return bus;
-                    })
-                .Select(p => p.Get() ?? def)
-                .Where(p => p != null));
+            if (bom.SequenceEqual(eom))
+                throw new ArgumentException("bom = eom is not allowed.");
+            if (bom.Length == 0 || eom.Length == 0)
+                throw new ArgumentException("bom or eom is empty.");
+
+            return Observable.Using(() => new ParsePackageBeginEndTimeoutState<T>(bom, eom, timeoutMs, useLastBom), r =>
+                source
+                    .Scan(r,
+                        (bus, v) =>
+                        {
+                            bus.Add(v);
+                            return bus;
+                        })
+                    .Select(p => p.Get() ?? def)
+                    .Where(p => p != null));
         }
 
         /// <summary>
@@ -321,14 +337,16 @@ namespace Limxc.Tools.Extensions.Communication
         /// <param name="source"></param>
         /// <param name="bom"></param>
         /// <param name="count"></param>
-        /// <param name="timeoutMs"></param>
+        /// <param name="timeoutMs">100ms+</param>
+        /// <param name="useLastBom"></param>
         /// <param name="def"></param>
         /// <returns></returns>
         public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T bom, int count, int timeoutMs,
+            bool useLastBom = false,
             T[] def = null)
             where T : IEquatable<T>
         {
-            return source.ParsePackage(new[] { bom }, count, timeoutMs, def);
+            return source.ParsePackage(new[] { bom }, count, timeoutMs, useLastBom, def);
         }
 
         /// <summary>
@@ -338,41 +356,49 @@ namespace Limxc.Tools.Extensions.Communication
         /// <param name="source"></param>
         /// <param name="bom"></param>
         /// <param name="count"></param>
-        /// <param name="timeoutMs"></param>
+        /// <param name="timeoutMs">100ms+</param>
+        /// <param name="useLastBom"></param>
         /// <param name="def"></param>
         /// <returns></returns>
         public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T[] bom, int count, int timeoutMs,
+            bool useLastBom = false,
             T[] def = null)
             where T : IEquatable<T>
         {
-            return Observable.Using(() => new BufferUntilBeginCountTimeoutState<T>(bom, count, timeoutMs), r => source
-                .Scan(r,
-                    (bus, v) =>
-                    {
-                        bus.Add(v);
-                        return bus;
-                    })
-                .Select(p => p.Get() ?? def)
-                .Where(p => p != null));
+            if (bom.Length == 0)
+                throw new ArgumentException("bom is empty.");
+
+            return Observable.Using(() => new ParsePackageBeginCountTimeoutState<T>(bom, count, timeoutMs, useLastBom),
+                r => source
+                    .Scan(r,
+                        (bus, v) =>
+                        {
+                            bus.Add(v);
+                            return bus;
+                        })
+                    .Select(p => p.Get() ?? def)
+                    .Where(p => p != null));
         }
 
         #endregion 分包处理
 
         #region Helpers
 
-        private sealed class ParsePackageBeginEndTimoutState<T> : IDisposable where T : IEquatable<T>
+        private sealed class ParsePackageBeginEndTimeoutState<T> : IDisposable where T : IEquatable<T>
         {
             private readonly T[] _bom;
             private readonly SerialDisposable _dis = new SerialDisposable();
             private readonly T[] _eom;
             private readonly Queue<T> _queue = new Queue<T>();
             private readonly int _timeoutMs;
+            private readonly bool _useLastBom;
 
-            public ParsePackageBeginEndTimoutState(T[] bom, T[] eom, int timeoutMs)
+            public ParsePackageBeginEndTimeoutState(T[] bom, T[] eom, int timeoutMs, bool useLastBom)
             {
                 _bom = bom;
                 _eom = eom;
                 _timeoutMs = timeoutMs;
+                _useLastBom = useLastBom;
             }
 
             public void Dispose()
@@ -406,24 +432,36 @@ namespace Limxc.Tools.Extensions.Communication
             public void Add(T obj)
             {
                 CreateTimer();
+
                 _queue.Enqueue(obj);
-                if (_queue.Count == _bom.Length && !_queue.SequenceEqual(_bom)) _queue.Dequeue();
+
+                var count = _queue.Count;
+                var length = _bom.Length;
+
+                if (count == length && !_queue.SequenceEqual(_bom)) _queue.Dequeue();
+
+                if (_useLastBom && count > length)
+                    if (_queue.Skip(count - length).Take(length).SequenceEqual(_bom))
+                        for (var i = 0; i < count - length; i++)
+                            _queue.Dequeue();
             }
         }
 
-        private sealed class BufferUntilBeginCountTimeoutState<T> : IDisposable where T : IEquatable<T>
+        private sealed class ParsePackageBeginCountTimeoutState<T> : IDisposable where T : IEquatable<T>
         {
             private readonly T[] _bom;
             private readonly int _count;
             private readonly SerialDisposable _dis = new SerialDisposable();
             private readonly Queue<T> _queue = new Queue<T>();
             private readonly int _timeoutMs;
+            private readonly bool _useLastBom;
 
-            public BufferUntilBeginCountTimeoutState(T[] bom, int count, int timeoutMs)
+            public ParsePackageBeginCountTimeoutState(T[] bom, int count, int timeoutMs, bool useLastBom)
             {
                 _bom = bom;
                 _count = count;
                 _timeoutMs = timeoutMs;
+                _useLastBom = useLastBom;
             }
 
             public void Dispose()
@@ -457,8 +495,18 @@ namespace Limxc.Tools.Extensions.Communication
             public void Add(T obj)
             {
                 CreateTimer();
+
                 _queue.Enqueue(obj);
-                if (_queue.Count == _bom.Length && !_queue.SequenceEqual(_bom)) _queue.Dequeue();
+
+                var count = _queue.Count;
+                var length = _bom.Length;
+
+                if (count == length && !_queue.SequenceEqual(_bom)) _queue.Dequeue();
+
+                if (_useLastBom && count > length)
+                    if (_queue.Skip(count - length).Take(length).SequenceEqual(_bom))
+                        for (var i = 0; i < count - length; i++)
+                            _queue.Dequeue();
             }
         }
 
