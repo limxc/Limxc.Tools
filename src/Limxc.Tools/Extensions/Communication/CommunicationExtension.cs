@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
@@ -271,6 +272,196 @@ namespace Limxc.Tools.Extensions.Communication
             });
         }
 
+        /// <summary>
+        ///     包头包尾+超时分包
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="bom"></param>
+        /// <param name="eom"></param>
+        /// <param name="timeoutMs"></param>
+        /// <param name="def"></param>
+        /// <returns></returns>
+        public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T bom, T eom, int timeoutMs,
+            T[] def = null)
+            where T : IEquatable<T>
+        {
+            return source.ParsePackage(new[] { bom }, new[] { eom }, timeoutMs, def);
+        }
+
+        /// <summary>
+        ///     包头包尾+超时分包
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="bom"></param>
+        /// <param name="eom"></param>
+        /// <param name="timeoutMs"></param>
+        /// <param name="def"></param>
+        /// <returns></returns>
+        public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T[] bom, T[] eom, int timeoutMs,
+            T[] def = null)
+            where T : IEquatable<T>
+        {
+            return Observable.Using(() => new ParsePackageBeginEndTimoutState<T>(bom, eom, timeoutMs), r => source
+                .Scan(r,
+                    (bus, v) =>
+                    {
+                        bus.Add(v);
+                        return bus;
+                    })
+                .Select(p => p.Get() ?? def)
+                .Where(p => p != null));
+        }
+
+        /// <summary>
+        ///     包头+固定长度(含包头)+超时分包
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="bom"></param>
+        /// <param name="count"></param>
+        /// <param name="timeoutMs"></param>
+        /// <param name="def"></param>
+        /// <returns></returns>
+        public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T bom, int count, int timeoutMs,
+            T[] def = null)
+            where T : IEquatable<T>
+        {
+            return source.ParsePackage(new[] { bom }, count, timeoutMs, def);
+        }
+
+        /// <summary>
+        ///     包头+固定长度(含包头)+超时分包
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="bom"></param>
+        /// <param name="count"></param>
+        /// <param name="timeoutMs"></param>
+        /// <param name="def"></param>
+        /// <returns></returns>
+        public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T[] bom, int count, int timeoutMs,
+            T[] def = null)
+            where T : IEquatable<T>
+        {
+            return Observable.Using(() => new BufferUntilBeginCountTimeoutState<T>(bom, count, timeoutMs), r => source
+                .Scan(r,
+                    (bus, v) =>
+                    {
+                        bus.Add(v);
+                        return bus;
+                    })
+                .Select(p => p.Get() ?? def)
+                .Where(p => p != null));
+        }
+
         #endregion 分包处理
+
+        #region Helpers
+
+        private sealed class ParsePackageBeginEndTimoutState<T> : IDisposable where T : IEquatable<T>
+        {
+            private readonly T[] _bom;
+            private readonly SerialDisposable _dis = new SerialDisposable();
+            private readonly T[] _eom;
+            private readonly Queue<T> _queue = new Queue<T>();
+            private readonly int _timeoutMs;
+
+            public ParsePackageBeginEndTimoutState(T[] bom, T[] eom, int timeoutMs)
+            {
+                _bom = bom;
+                _eom = eom;
+                _timeoutMs = timeoutMs;
+            }
+
+            public void Dispose()
+            {
+                _dis.Dispose();
+            }
+
+            private void CreateTimer()
+            {
+                _dis.Disposable = Observable.Interval(TimeSpan.FromMilliseconds(_timeoutMs))
+                    .Subscribe(_ =>
+                    {
+                        if (Get() == null)
+                            _queue.Clear();
+                    });
+            }
+
+            public T[] Get()
+            {
+                var arr = _queue.ToArray();
+                if (arr.Take(_bom.Length).SequenceEqual(_bom) &&
+                    arr.Skip(arr.Length - _eom.Length).SequenceEqual(_eom))
+                {
+                    _queue.Clear();
+                    return arr;
+                }
+
+                return null;
+            }
+
+            public void Add(T obj)
+            {
+                CreateTimer();
+                _queue.Enqueue(obj);
+                if (_queue.Count == _bom.Length && !_queue.SequenceEqual(_bom)) _queue.Dequeue();
+            }
+        }
+
+        private sealed class BufferUntilBeginCountTimeoutState<T> : IDisposable where T : IEquatable<T>
+        {
+            private readonly T[] _bom;
+            private readonly int _count;
+            private readonly SerialDisposable _dis = new SerialDisposable();
+            private readonly Queue<T> _queue = new Queue<T>();
+            private readonly int _timeoutMs;
+
+            public BufferUntilBeginCountTimeoutState(T[] bom, int count, int timeoutMs)
+            {
+                _bom = bom;
+                _count = count;
+                _timeoutMs = timeoutMs;
+            }
+
+            public void Dispose()
+            {
+                _dis.Dispose();
+            }
+
+            private void CreateTimer()
+            {
+                _dis.Disposable = Observable.Interval(TimeSpan.FromMilliseconds(_timeoutMs))
+                    .Subscribe(_ =>
+                    {
+                        if (Get() == null)
+                            _queue.Clear();
+                    });
+            }
+
+            public T[] Get()
+            {
+                var arr = _queue.ToArray();
+                if (arr.Take(_bom.Length).SequenceEqual(_bom) &&
+                    arr.Count() >= _count)
+                {
+                    _queue.Clear();
+                    return arr.Take(_count).ToArray();
+                }
+
+                return null;
+            }
+
+            public void Add(T obj)
+            {
+                CreateTimer();
+                _queue.Enqueue(obj);
+                if (_queue.Count == _bom.Length && !_queue.SequenceEqual(_bom)) _queue.Dequeue();
+            }
+        }
+
+        #endregion
     }
 }

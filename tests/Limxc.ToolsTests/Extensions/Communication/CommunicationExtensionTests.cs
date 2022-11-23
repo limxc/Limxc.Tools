@@ -303,9 +303,6 @@ public class CommunicationExtensionTests
         });
     }
 
-    /// <summary>
-    ///     todo: 使用TestScheduler重构
-    /// </summary>
     [Fact]
     public async Task FindResponseTest()
     {
@@ -443,5 +440,66 @@ public class CommunicationExtensionTests
         {
             a1, a2, a3
         });
+    }
+
+    [Fact]
+    public async void TimeoutParsePackageTests()
+    {
+        // 由于BufferUntilBeginEndState中Queue操作与Timer相关,无法使用TestScheduler
+
+        var observable = Observable.Create<string>(async o =>
+        {
+            foreach (var b in new[] { "0a", "AA", "AA", "01" }) o.OnNext(b);
+
+            await Task.Delay(100);
+
+            foreach (var b in new[] { "BB", "BB", "0b", "AA", "AA", "02", "02", "BB" })
+            {
+                await Task.Delay(50);
+                o.OnNext(b);
+            }
+
+            await Task.Delay(300);
+
+            foreach (var b in new[] { "BB", "0c", "AA", "AA", "03", "BB", "BB", "0d" }) o.OnNext(b);
+
+            await Task.Delay(300);
+
+            o.OnCompleted();
+            return Disposable.Empty;
+        });
+
+        var rst1 = new List<string[]>();
+        observable.ParsePackage(new[] { "AA", "AA" }, 13, 400)
+            .Subscribe(rst1.Add);
+
+        var rst2 = new List<string[]>();
+        observable.ParsePackage(new[] { "AA", "AA" }, 13, 200)
+            .Subscribe(rst2.Add);
+
+        var rst3 = new List<string[]>();
+        observable.ParsePackage("AA", 7, 400)
+            .Subscribe(rst3.Add);
+
+        await Task.Delay(1200);
+
+        rst1
+            .Should()
+            .BeEquivalentTo(new List<string[]>
+            {
+                new[] { "AA", "AA", "01", "BB", "BB", "0b", "AA", "AA", "02", "02", "BB", "BB", "0c" }
+            });
+
+        rst2
+            .Should()
+            .BeEmpty();
+
+        rst3
+            .Should()
+            .BeEquivalentTo(new List<string[]>
+            {
+                new[] { "AA", "AA", "01", "BB", "BB", "0b", "AA" },
+                new[] { "AA", "AA", "02", "02", "BB", "BB", "0c" }
+            });
     }
 }
