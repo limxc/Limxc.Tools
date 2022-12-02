@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Limxc.ToolsTests.Extensions.Communication;
 
-public class CommContextExtensionTests
+public class TemplateExtensionTests
 {
     [Fact]
     public void TemplateLengthTest()
@@ -38,12 +38,23 @@ public class CommContextExtensionTests
         "AA0000220000BB".IsTemplateMatch("123AA0000220000BB").Should().BeFalse();
         "AA0000220000BB".IsTemplateMatch("123AA0000220000BB123").Should().BeFalse();
 
+        "AA0000220000BB".IsTemplateMatch("123AA0000210000BB123", '$', false).Should().BeFalse();
+        "AA0000220000BB".IsTemplateMatch("123AA0000220000BB123", '$', false).Should().BeTrue();
+
         var s = string.Empty;
         s.IsTemplateMatch("1").Should().BeFalse();
         s.IsTemplateMatch("").Should().BeTrue();
 
         "2".IsTemplateMatch(s).Should().BeFalse();
         "".IsTemplateMatch(s).Should().BeTrue();
+
+        // sep []
+
+        "AA[1][2]BB".IsTemplateMatch("AA010203BB", '[', ']').Should().BeTrue();
+        "AA[1][2]BB".IsTemplateMatch("AA01020304BB", '[', ']').Should().BeFalse();
+
+        "AA[1][2]BB".IsTemplateMatch("01AA010203BB02", '[', ']').Should().BeFalse();
+        "AA[1][2]BB".IsTemplateMatch("01AA010203BB02", '[', ']', false).Should().BeTrue();
     }
 
     [Fact]
@@ -74,6 +85,11 @@ public class CommContextExtensionTests
         var template = "AA$1$2BB";
         "AA010203BB".GetValues(template).Should().BeEquivalentTo("01", "0203");
         var act = () => "0000".GetValues(template);
+        act.Should().Throw<FormatException>();
+
+        template = "AA[1][2]BB";
+        "AA010203BB".GetValues(template, '[', ']').Should().BeEquivalentTo("01", "0203");
+        act = () => "0000".GetValues(template, '[', ']');
         act.Should().Throw<FormatException>();
     }
 }

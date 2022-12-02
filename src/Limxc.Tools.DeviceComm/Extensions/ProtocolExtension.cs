@@ -34,7 +34,7 @@ namespace Limxc.Tools.DeviceComm.Extensions
             }
             catch
             {
-                return new byte[0];
+                return Array.Empty<byte>();
             }
         }
 
