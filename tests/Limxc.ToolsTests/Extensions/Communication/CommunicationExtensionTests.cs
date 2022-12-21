@@ -156,6 +156,39 @@ public class CommunicationExtensionTests
     }
 
     [Fact]
+    public void ParsePackagePatternTest()
+    {
+        var ts = new TestScheduler();
+        var ob = ts.CreateObserver<byte[]>();
+        var observable = Observable.Create<byte[]>(o =>
+        {
+            o.OnNext(new byte[] { 1, 2, 1, 2, 0, 0 });
+            o.OnNext(new byte[] { 1, 2, 3, 3 });
+            o.OnNext(new byte[] { 1, 2, 1, 2, 3, 4 });
+
+            o.OnCompleted();
+            return Disposable.Empty;
+        });
+
+        var pattern = new byte[] { 1, 2 };
+
+        observable.ParsePackage(pattern)
+            .Subscribe(ob);
+
+        ts.AdvanceTo(100);
+        ob.Messages
+            .Where(p => p.Value.HasValue)
+            .Select(p => p.Value.Value)
+            .ToList()
+            .Should()
+            .BeEquivalentTo(new List<byte[]>
+            {
+                new byte[] { 1, 2, 0, 0 },
+                new byte[] { 1, 2, 3, 3 }
+            });
+    }
+
+    [Fact]
     public void BeginEndParsePackageTests()
     {
         var ts = new TestScheduler();

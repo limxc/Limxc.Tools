@@ -6,7 +6,7 @@ namespace Limxc.Tools.Extensions
 {
     public static class AlgoExtension
     {
-        public static (T[][] pack, T[] remain) LocateToPack<T>(this int[] indexes, T[] datas)
+        public static (T[][] Pack, T[] Remain) LocateToPack<T>(this int[] indexes, T[] datas)
         {
             var list = new List<T[]>();
 
@@ -27,7 +27,7 @@ namespace Limxc.Tools.Extensions
             return (list.ToArray(), remain);
         }
 
-        public static (byte[][] pack, byte[] remain) LocateToPack(this byte[] datas, byte[] pattern)
+        public static (byte[][] Pack, byte[] Remain) LocateToPack(this byte[] datas, byte[] pattern)
         {
             var indexes = datas.Locate(pattern);
 

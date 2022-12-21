@@ -145,8 +145,8 @@ public class AlgoExtensionTests
         Assert.Throws<ArgumentException>(() => { new[] { -1 }.LocateToPack(datas); });
 
         var r1 = new[] { 9 }.LocateToPack(datas);
-        r1.pack.Should().BeEquivalentTo(new byte[] { });
-        r1.remain.Should().BeEquivalentTo(new byte[] { 9 });
+        r1.Pack.Should().BeEquivalentTo(new byte[] { });
+        r1.Remain.Should().BeEquivalentTo(new byte[] { 9 });
 
         new[] { 0 }.LocateToPack(datas).Should().BeEquivalentTo((
             new byte[][] { },
@@ -202,6 +202,15 @@ public class AlgoExtensionTests
                 {
                 },
                 new byte[] { 0xa, 0xb, 3, 4, 0xa, 6, 7, 8, 9 }
+            ));
+
+        new byte[] { 0, 1, 0xa, 0xb, 3, 4, 0xa, 0xb, 6, 7, 8, 9 }
+            .LocateToPack(pattern2).Should().BeEquivalentTo((
+                new[]
+                {
+                    new byte[] { 0xa, 0xb, 3, 4 }
+                },
+                new byte[] { 0xa, 0xb, 6, 7, 8, 9 }
             ));
     }
 }

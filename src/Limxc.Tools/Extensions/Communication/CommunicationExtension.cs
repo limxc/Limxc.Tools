@@ -111,6 +111,31 @@ namespace Limxc.Tools.Extensions.Communication
         }
 
         /// <summary>
+        ///     模式分包, 输出两pattern之间的数组
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="pattern"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static IObservable<byte[]> ParsePackage(this IObservable<byte[]> source, byte[] pattern)
+        {
+            if (pattern.Length == 0)
+                throw new ArgumentException("pattern is empty.");
+
+            return
+                source
+                    .Scan(new ParsePackageBytePatternState(pattern),
+                        (acc, v) =>
+                        {
+                            acc.Add(v);
+                            return acc;
+                        })
+                    .Select(p => p.Get())
+                    .SelectMany(p => p)
+                    .Where(p => p != null && p.Length > pattern.Length);
+        }
+
+        /// <summary>
         ///     包头包尾分包
         /// </summary>
         /// <param name="source"></param>
@@ -369,15 +394,11 @@ namespace Limxc.Tools.Extensions.Communication
             {
                 var arr = _queue.ToArray();
 
-                var count = _queue.Count;
-                var length = _separator.Length;
-                if (count >= length)
-                    if (_queue.Skip(count - length).Take(length).SequenceEqual(_separator))
-
-                    {
-                        _queue.Clear();
-                        return arr;
-                    }
+                if (_queue.Skip(arr.Length - _separator.Length).SequenceEqual(_separator))
+                {
+                    _queue.Clear();
+                    return arr;
+                }
 
                 return null;
             }
@@ -385,6 +406,33 @@ namespace Limxc.Tools.Extensions.Communication
             public void Add(T obj)
             {
                 _queue.Enqueue(obj);
+            }
+        }
+
+        /// <summary>
+        ///     高性能byte分包
+        /// </summary>
+        private sealed class ParsePackageBytePatternState
+        {
+            private readonly byte[] _separator;
+            private IEnumerable<byte> _remain = Array.Empty<byte>();
+
+            public ParsePackageBytePatternState(byte[] separator)
+            {
+                _separator = separator;
+            }
+
+            public byte[][] Get()
+            {
+                var r = _remain.ToArray().LocateToPack(_separator);
+                _remain = r.Remain;
+
+                return r.Pack;
+            }
+
+            public void Add(params byte[] obj)
+            {
+                _remain = _remain.Concat(obj);
             }
         }
 
@@ -479,9 +527,11 @@ namespace Limxc.Tools.Extensions.Communication
             private readonly T[] _bom;
             private readonly SerialDisposable _dis = new SerialDisposable();
             private readonly T[] _eom;
-            private readonly Queue<T> _queue = new Queue<T>();
             private readonly int _timeoutMs;
             private readonly bool _useLastBom;
+
+            // ReSharper disable once FieldCanBeMadeReadOnly.Local
+            private ConcurrentQueue<T> _queue = new ConcurrentQueue<T>();
 
             public ParsePackageBeginEndTimeoutState(T[] bom, T[] eom, int timeoutMs, bool useLastBom)
             {
@@ -502,7 +552,11 @@ namespace Limxc.Tools.Extensions.Communication
                     .Subscribe(_ =>
                     {
                         if (Get() == null)
+#if NETSTANDARD2_1
                             _queue.Clear();
+#else
+                            _queue = new ConcurrentQueue<T>();
+#endif
                     });
             }
 
@@ -512,7 +566,11 @@ namespace Limxc.Tools.Extensions.Communication
                 if (arr.Take(_bom.Length).SequenceEqual(_bom) &&
                     arr.Skip(arr.Length - _eom.Length).SequenceEqual(_eom))
                 {
+#if NETSTANDARD2_1
                     _queue.Clear();
+#else
+                    _queue = new ConcurrentQueue<T>();
+#endif
                     return arr;
                 }
 
@@ -528,12 +586,12 @@ namespace Limxc.Tools.Extensions.Communication
                 var count = _queue.Count;
                 var length = _bom.Length;
 
-                if (count == length && !_queue.SequenceEqual(_bom)) _queue.Dequeue();
+                if (count == length && !_queue.SequenceEqual(_bom)) _queue.TryDequeue(out _);
 
                 if (_useLastBom && count > length)
                     if (_queue.Skip(count - length).Take(length).SequenceEqual(_bom))
                         for (var i = 0; i < count - length; i++)
-                            _queue.Dequeue();
+                            _queue.TryDequeue(out _);
             }
         }
 
@@ -542,9 +600,11 @@ namespace Limxc.Tools.Extensions.Communication
             private readonly T[] _bom;
             private readonly int _count;
             private readonly SerialDisposable _dis = new SerialDisposable();
-            private readonly Queue<T> _queue = new Queue<T>();
             private readonly int _timeoutMs;
             private readonly bool _useLastBom;
+
+            // ReSharper disable once FieldCanBeMadeReadOnly.Local
+            private ConcurrentQueue<T> _queue = new ConcurrentQueue<T>();
 
             public ParsePackageBeginCountTimeoutState(T[] bom, int count, int timeoutMs, bool useLastBom)
             {
@@ -565,7 +625,11 @@ namespace Limxc.Tools.Extensions.Communication
                     .Subscribe(_ =>
                     {
                         if (Get() == null)
+#if NETSTANDARD2_1
                             _queue.Clear();
+#else
+                            _queue = new ConcurrentQueue<T>();
+#endif
                     });
             }
 
@@ -575,7 +639,11 @@ namespace Limxc.Tools.Extensions.Communication
                 if (arr.Take(_bom.Length).SequenceEqual(_bom) &&
                     arr.Count() >= _count)
                 {
+#if NETSTANDARD2_1
                     _queue.Clear();
+#else
+                    _queue = new ConcurrentQueue<T>();
+#endif
                     return arr.Take(_count).ToArray();
                 }
 
@@ -591,12 +659,12 @@ namespace Limxc.Tools.Extensions.Communication
                 var count = _queue.Count;
                 var length = _bom.Length;
 
-                if (count == length && !_queue.SequenceEqual(_bom)) _queue.Dequeue();
+                if (count == length && !_queue.SequenceEqual(_bom)) _queue.TryDequeue(out _);
 
                 if (_useLastBom && count > length)
                     if (_queue.Skip(count - length).Take(length).SequenceEqual(_bom))
                         for (var i = 0; i < count - length; i++)
-                            _queue.Dequeue();
+                            _queue.TryDequeue(out _);
             }
         }
 
