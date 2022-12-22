@@ -15,7 +15,7 @@ namespace Limxc.Tools.DeviceComm.Protocol
     /// </summary>
     public class TcpServerProtocol : ProtocolBase
     {
-        private string _clientIpPort = string.Empty;
+        private string _clientIp = string.Empty;
         private SimpleTcpServer _server;
         public override bool IsConnected => _server?.IsListening ?? false;
 
@@ -26,33 +26,37 @@ namespace Limxc.Tools.DeviceComm.Protocol
             Init(ipPort, clientIpPort);
         }
 
-        public void Init(string ipPort, string clientIpPort)
+        public void Init(string serverIpPort, string clientIp)
         {
-            _clientIpPort = clientIpPort;
+            if (!clientIp.CheckIp())
+                throw new ArgumentException($"ClientIp Error: {clientIp}");
 
-            if (!ipPort.CheckIpPort())
-                throw new ArgumentException($"IpPort Error : {ipPort}");
+            _clientIp = clientIp;
+
+            if (!serverIpPort.CheckIpPort())
+                throw new ArgumentException($"ServerIpPort Error : {serverIpPort}");
 
             _disposables?.Dispose();
             _disposables = new CompositeDisposable();
 
             _server?.Dispose();
 
-            _server = new SimpleTcpServer(ipPort);
+            _server = new SimpleTcpServer(serverIpPort);
 
             var connect = Observable
                 .FromEventPattern<ConnectionEventArgs>(h => _server.Events.ClientConnected += h,
                     h => _server.Events.ClientConnected -= h)
-                .Select(p => (p.EventArgs.IpPort, true));
+                .Where(p => p.EventArgs.IpPort.StartsWith(clientIp))
+                .Select(p => true);
 
             var disconnect = Observable
                 .FromEventPattern<ConnectionEventArgs>(h => _server.Events.ClientDisconnected += h,
                     h => _server.Events.ClientDisconnected -= h)
-                .Select(p => (p.EventArgs.IpPort, false));
+                .Where(p => p.EventArgs.IpPort.StartsWith(clientIp))
+                .Select(p => false);
 
             connect
                 .Merge(disconnect)
-                .Select(p => p.Item2)
                 .SubscribeOn(NewThreadScheduler.Default)
                 .Subscribe(s => _connectionState.OnNext(s))
                 .DisposeWith(_disposables);
@@ -72,11 +76,12 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
         public override async Task<bool> SendAsync(CommContext context)
         {
-            if (_clientIpPort.CheckIpPort())
+            var clientIpPort = _server.GetClients().FirstOrDefault(p => p.StartsWith(_clientIp));
+            if (!string.IsNullOrWhiteSpace(clientIpPort))
             {
                 var cmdStr = context.Command.Build();
 
-                await _server.SendAsync(_clientIpPort, cmdStr).ConfigureAwait(false);
+                await _server.SendAsync(clientIpPort, cmdStr).ConfigureAwait(false);
 
                 context.SendTime = DateTime.Now;
                 _history.OnNext(context);
@@ -89,9 +94,10 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
         public override async Task<bool> SendAsync(byte[] bytes)
         {
-            if (_clientIpPort.CheckIpPort())
+            var clientIpPort = _server.GetClients().FirstOrDefault(p => p.StartsWith(_clientIp));
+            if (!string.IsNullOrWhiteSpace(clientIpPort))
             {
-                await _server.SendAsync(_clientIpPort, bytes).ConfigureAwait(false);
+                await _server.SendAsync(clientIpPort, bytes).ConfigureAwait(false);
                 await Task.Delay(50);
                 return await Task.FromResult(true).ConfigureAwait(false);
             }
