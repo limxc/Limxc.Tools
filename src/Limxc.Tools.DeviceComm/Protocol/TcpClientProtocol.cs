@@ -26,6 +26,8 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
         public void Init(string serverIpPort)
         {
+            serverIpPort = serverIpPort.Trim();
+
             if (!serverIpPort.CheckIpPort())
                 throw new ArgumentException($"IpPort Error : {serverIpPort}");
 

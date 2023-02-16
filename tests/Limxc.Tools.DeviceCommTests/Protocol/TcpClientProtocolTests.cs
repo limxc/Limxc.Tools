@@ -14,7 +14,7 @@ public class TcpProtocolTests
     public async Task Test()
     {
         var serverIpPort = "127.0.0.1:12345";
-        var clientIpPort = "127.0.0.1:12346 ";
+        var clientIpPort = "127.0.0.1";
 
         var server = new TcpServerProtocol();
         var client = new TcpClientProtocol();

@@ -28,11 +28,12 @@ namespace Limxc.Tools.DeviceComm.Protocol
 
         public void Init(string serverIpPort, string clientIp)
         {
+            _clientIp = clientIp.Trim();
+
             if (!clientIp.CheckIp())
                 throw new ArgumentException($"ClientIp Error: {clientIp}");
 
-            _clientIp = clientIp;
-
+            serverIpPort = serverIpPort.Trim();
             if (!serverIpPort.CheckIpPort())
                 throw new ArgumentException($"ServerIpPort Error : {serverIpPort}");
 
