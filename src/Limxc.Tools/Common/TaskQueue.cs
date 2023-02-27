@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace Limxc.Tools.Common
 {
+    /// <summary>
+    ///     非线程安全
+    /// </summary>
+    /// <typeparam name="TRet"></typeparam>
     public class TaskQueue<TRet>
     {
         private readonly Queue<TaskBody<TRet>> _queue;

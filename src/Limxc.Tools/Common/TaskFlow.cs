@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Limxc.Tools.Common
 {
+    /// <summary>
+    ///     非线程安全
+    /// </summary>
     public class TaskFlow
     {
         private readonly Queue<TaskNode> _queue;

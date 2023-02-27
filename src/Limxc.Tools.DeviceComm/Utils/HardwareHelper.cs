@@ -52,9 +52,8 @@ namespace Limxc.Tools.DeviceComm.Utils
                 using (var searcher = new ManagementObjectSearcher("select * from " + hardType))
                 {
                     foreach (var hardInfo in searcher.Get())
-                        if (hardInfo.Properties[propKey].Value != null)
-                            if (hardInfo.Properties[propKey].Value.ToString().Contains(propValue))
-                                strs.Add(hardInfo.Properties[propKey].Value.ToString());
+                        if (hardInfo.Properties[propKey].Value.ToString().Contains(propValue))
+                            strs.Add(hardInfo.Properties[propKey].Value.ToString());
                 }
 
                 return strs.ToArray();
@@ -163,7 +162,7 @@ namespace Limxc.Tools.DeviceComm.Utils
     {
         FiveBits = 5,
         SixBits = 6,
-        SeventBits = 7,
+        SevenBits = 7,
         EightBits = 8
     }
 }

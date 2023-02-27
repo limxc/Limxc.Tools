@@ -7,6 +7,7 @@ using FluentAssertions;
 using Limxc.Tools.Pipeline.Builder;
 using Newtonsoft.Json;
 using Xunit;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Limxc.ToolsTests.Pipeline.Builder;
 
@@ -43,12 +44,7 @@ public class PipeBuilderTests
                 c.Msg += "_4";
                 c.Value += 4;
             })
-            .UseSnapshotCloner(t =>
-            {
-                var s = JsonConvert.SerializeObject(t);
-                var r = JsonConvert.DeserializeObject<PipeTestContext>(s);
-                return r;
-            })
+            .UseSnapshotCloner(s=>JsonSerializer.Deserialize<PipeTestContext>(JsonSerializer.Serialize(s)))
             .Build();
 
         //full

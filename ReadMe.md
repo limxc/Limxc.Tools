@@ -1,116 +1,88 @@
-### Limxc.Tools
-##### 1.Pipeline
+# Limxc.Tools
 
-    var pipe = new PipeBuilder<PipeTestContext>()
-            .Use(c =>
-            {
-                c.Msg += "_1";
-                c.Value += 1;
-            }, "process1")
-            .Use(async (c, t) =>//100ms
-            {
-                await Task.Delay(1000);
-                if (t.IsCancellationRequested) 
-                    return;
-                c.Msg += "_2";
-                c.Value += 2;
-            }, "process2")
-            .Use(c =>//1100ms
-            {
-                c.Msg += "_3"; 
-                c.Value += 3;
-            }) 
-            .Build();
-    
-    //Result: Test_1_2_3    Snapshot: original process1 process2
-    var rst = await pipe.RunAsync(new PipeTestContext("Test", 0), CancellationToken.None); 
-    
-    public class PipeTestContext
-    {
-        public string Msg { get; set; }
-        public double Value { get; set; }
-    
-        public PipeTestContext(string msg, double value)
-        {
-            Msg = msg;
-        }
-    
-        public override string ToString()
-        {
-            return $"{Msg} | {Value}";
-        }
-    }
+```
+├─Bases(基类)
+│ └─Communication(通讯对象封装)
+├─Common(概率随机,任务队列等)
+├─Extensions(通用扩展方法)
+│ └─Communication(通讯相关扩展方法)
+├─Pipeline(仿 ASP.NET Core Middleware)
+│ ├─Builder
+│ └─Context
+├─Specification(规约模式)
+└─Utils(集成 Frank A. Krueger 的绑定辅助类,内存文件映射)
+```
 
-### Limxc.Tools.DeviceComm
-##### 1.SerialPort 
+# Limxc.Tools.Contract
 
-    var sp = new SerialPortProtocol();
-    
-    sp.Connect(SerialPort.GetPortNames()[0], 9600);
-    
-    Observable.Merge
-        (
-            sp.History.Select(p => $"{DateTime.Now:mm:ss fff} {p}"),
-            sp.IsConnected.Select(p => $"{DateTime.Now:mm:ss fff} State: {p}"),
-            sp.Received.Select(p => $"{DateTime.Now:mm:ss fff} Receive : {p}")
-        )
-        .Subscribe(p =>
-        {
-            Console.WriteLine(p);
-        });
-    
-    Observable.Interval(TimeSpan.FromSeconds(3))
-        .Subscribe(async _ =>
-        {
-            await sp.SendAsync(new CPContext("AA00 0a10 afBB", "AA00$2$1BB", 256));
-        });
+```
+├─Common
+├─Interfaces
+```
 
-##### 2.ProtocolDeviceSimulator
+# Limxc.Tools.Core
 
-    var simulator = new ProtocolDeviceSimulator();
-    
-    simulator.ConnectionState.Select(p => $"@ {DateTime.Now:mm:ss fff} State : {p}").Subscribe(p => msg.Add(p));
-    simulator.Received.Select(p => $"@ {DateTime.Now:mm:ss fff} Receive : {p.ToHexStr()}").Subscribe(p => msg.Add(p));
-    simulator.History.Subscribe(p =>
-    {
-        msg.Add($"@ {DateTime.Now:mm:ss fff} {p}");
-        rst.Add(p);
-    });
-    
-    await simulator.OpenAsync();
-    await simulator.SendAsync(new CPContext("AA01BB", "AA$1BB", 1000, "01"));
-    await simulator.SendAsync(new CPContext("AB02BB", "AB$1BB", 1000, "02"));
-    await simulator.SendAsync(new CPContext("AC03BB", "AC$1BB", 1000, "03")); 
-    await simulator.CloseAsync();
-    
-    simulator.CleanUp(); 
+```
+├─CrcCSharp(集成meetanthony/crccsharp)
+├─Services(部分Limxc.Tools.Contract.Interfaces实现)
+└─SharpConfig(集成cemdervis/SharpConfig)
+```
 
-### Schedule
-Test TcpClientProtocol  
-Test TcpServerProtocol
+# Limxc.Tools.DeviceComm
 
-### Recommended Packages 
+```
+├─Abstractions
+├─Extensions
+├─MQTT
+├─Protocol
+└─Utils
+```
+
+# Limxc.Tools.SerialPort
+
+```
+│  ISerialPortService.cs
+│  SerialPortService.cs
+│  SerialPortServiceSimulator.cs
+│  SerialPortSetting.cs
+```
+
+### Recommended Packages
+
 ##### Communication
-[SuperSimpleTcp](https://github.com/jchristn/simpletcp)   
-##### Http
-[Flurl](https://flurl.dev/)  
-[Refit](https://reactiveui.github.io/refit/)  
-##### Mvvm
-[ReactiveUI](https://reactiveui.net/)  
-##### DeepCopy
-[DeepCloner](https://github.com/force-net/DeepCloner)  
-##### UnitTest
-[AutoBogus](https://github.com/nickdodd79/AutoBogus)  
-[FakeItEasy](https://fakeiteasy.github.io/)  
-[FluentAssertions](https://www.fluentassertions.com/)  
-[xunit](https://github.com/xunit/xunit)  
-##### others
-[Newtonsoft.Json](https://www.newtonsoft.com/json)  
-[Serilog](https://github.com/serilog/)  
-[SharpConfig](https://github.com/cemdervis/SharpConfig)  
 
-### Thanks to [JetBrains](https://jb.gg/OpenSource) ！  
-<img src="https://www.jetbrains.com/shop/static/images/jetbrains-logo-inv.svg" height="100">     
+[SuperSimpleTcp](https://github.com/jchristn/simpletcp)
+
+##### Http
+
+[Flurl](https://flurl.dev/)
+[Refit](https://reactiveui.github.io/refit/)
+
+##### Mvvm
+
+[ReactiveUI](https://reactiveui.net/)
+
+##### DeepCopy
+
+[DeepCloner](https://github.com/force-net/DeepCloner)
+
+##### UnitTest
+
+[AutoBogus](https://github.com/nickdodd79/AutoBogus)
+[FakeItEasy](https://fakeiteasy.github.io/)
+[FluentAssertions](https://www.fluentassertions.com/)
+[xunit](https://github.com/xunit/xunit)
+
+##### others
+
+[Newtonsoft.Json](https://www.newtonsoft.com/json)
+[Serilog](https://github.com/serilog/)
+[SharpConfig](https://github.com/cemdervis/SharpConfig)
+
+### Thanks to [JetBrains](https://jb.gg/OpenSource) ！
+
+<img src="https://www.jetbrains.com/shop/static/images/jetbrains-logo-inv.svg" height="100">
 
 ### License
+
     MIT
