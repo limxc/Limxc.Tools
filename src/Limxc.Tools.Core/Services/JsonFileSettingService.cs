@@ -6,8 +6,8 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Unicode;
-using Limxc.Tools.Contract.Common;
 using Limxc.Tools.Contract.Interfaces;
+using Limxc.Tools.Core.Common;
 using Limxc.Tools.Extensions;
 
 namespace Limxc.Tools.Core.Services

@@ -1,7 +1,7 @@
 # Limxc.Tools
 
 ```
-├─Bases(基类)
+├─Bases(常用基类)
 │ └─Communication(通讯对象封装)
 ├─Common(概率随机,任务队列等)
 ├─Extensions(通用扩展方法)
@@ -10,36 +10,36 @@
 │ ├─Builder
 │ └─Context
 ├─Specification(规约模式)
-└─Utils(集成 Frank A. Krueger 的绑定辅助类,内存文件映射)
+└─Utils(修改自"Frank A. Krueger"的绑定辅助类,内存文件映射)
 ```
 
-# Limxc.Tools.Contract
+# Limxc.Tools.Contract (常用服务契约)
 
 ```
-├─Common
-├─Interfaces
+├─Interfaces()
 ```
 
 # Limxc.Tools.Core
 
 ```
-├─CrcCSharp(集成meetanthony/crccsharp)
-├─Services(部分Limxc.Tools.Contract.Interfaces实现)
-└─SharpConfig(集成cemdervis/SharpConfig)
+├─Common(工具类)
+├─CrcCSharp(修改自"meetanthony/crccsharp")
+├─Services(Limxc.Tools.Contract.Interfaces的部分实现)
+└─SharpConfig(修改自"cemdervis/SharpConfig")
 ```
 
 # Limxc.Tools.DeviceComm
 
 ```
-├─Abstractions
+├─Abstractions(通用通讯接口, 见Limxc.Tools.Bases.Communication)
 ├─Extensions
-├─MQTT
-├─Protocol
-└─Utils
+├─MQTT(已移除, 待单独实现)
+├─Protocol(串口, 特殊模式下的TCP)
+└─Utils(简化版, 以被Limxc.Tools.SerialPort替代)
 ```
 
 # Limxc.Tools.SerialPort
-
+简化实现方式, 约定配置基类, 通过各种方式读取保存
 ```
 │  ISerialPortService.cs
 │  SerialPortService.cs
