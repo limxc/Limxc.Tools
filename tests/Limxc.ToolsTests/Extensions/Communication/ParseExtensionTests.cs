@@ -13,7 +13,7 @@ using Xunit;
 
 namespace Limxc.ToolsTests.Extensions.Communication;
 
-public class CommunicationExtensionTests
+public class ParseExtensionTests
 {
     [Fact]
     public async Task FindResponseTest()

@@ -10,7 +10,7 @@ using Limxc.Tools.Bases.Communication;
 
 namespace Limxc.Tools.Extensions.Communication
 {
-    public static class CommunicationExtension
+    public static class ParseExtension
     {
         /// <summary>
         ///     返回值匹配及解析

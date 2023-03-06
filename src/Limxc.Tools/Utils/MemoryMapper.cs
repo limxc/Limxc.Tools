@@ -28,9 +28,11 @@ namespace Limxc.Tools.Utils
             try
             {
                 _memoryMappedFile = MemoryMappedFile.CreateOrOpen(mapName, capacitySize);
-                using var mmvStream = _memoryMappedFile.CreateViewStream(0, 0);
-                using var jsonWriter = new Utf8JsonWriter(mmvStream);
-                JsonSerializer.Serialize(jsonWriter, entity, new JsonSerializerOptions().Init(false));
+                using (var mmvStream = _memoryMappedFile.CreateViewStream(0, 0))
+                using (var jsonWriter = new Utf8JsonWriter(mmvStream))
+                {
+                    JsonSerializer.Serialize(jsonWriter, entity, new JsonSerializerOptions().Init(false));
+                }
             }
             catch (Exception e)
             {
@@ -44,13 +46,15 @@ namespace Limxc.Tools.Utils
         {
             try
             {
-                using var mmf = MemoryMappedFile.OpenExisting(mapName);
-                using var mmvStream = mmf.CreateViewStream(0, 0);
-                using var sr = new StreamReader(mmvStream);
-                var json = sr.ReadToEnd().Trim('\0');
-                return mmvStream.CanRead
-                    ? JsonSerializer.Deserialize<T>(json, new JsonSerializerOptions().Init(false))
-                    : default;
+                using (var mmf = MemoryMappedFile.OpenExisting(mapName))
+                using (var mmvStream = mmf.CreateViewStream(0, 0))
+                using (var sr = new StreamReader(mmvStream))
+                {
+                    var json = sr.ReadToEnd().Trim('\0');
+                    return mmvStream.CanRead
+                        ? JsonSerializer.Deserialize<T>(json, new JsonSerializerOptions().Init(false))
+                        : default;
+                }
             }
             catch (FileNotFoundException)
             {
