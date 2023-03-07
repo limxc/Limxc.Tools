@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using Limxc.Tools.Extensions.Communication;
 using Xunit;
@@ -8,88 +10,52 @@ namespace Limxc.ToolsTests.Extensions.Communication;
 public class TemplateExtensionTests
 {
     [Fact]
-    public void TemplateLengthTest()
+    public void GetLengthByTemplateTest()
     {
-        "AA$123BD$3BB".TemplateLength().Should().Be(2 + 2 + 4 + 6 + 2);
+        "AA [4] AB [2] [8] BB".GetLengthByTemplate().Should().Be(2 + 2 * 2 + 2 + 1 * 2 + 4 * 2 + 2);
     }
 
     [Fact]
-    public void IsMatchTest()
+    public void SimulateByTemplateTest()
     {
-        "AA$1BB".IsTemplateMatch("AA02BB").Should().BeTrue();
-        "AA0000$200 00BB".IsTemplateMatch("A A0000A2B30000BB").Should().BeTrue();
-        "AA0 000$20000BB".IsTemplateMatch("AA0000abcd0000B B").Should().BeTrue();
+        var template = "AA00[4][2]BB";
+        template.SimulateByTemplate().IsTemplateMatch(template).Should().BeTrue();
 
-        "AA0 000$20000BB".IsTemplateMatch("AA0000abcd0000B").Should().BeFalse();
-        "AA0 000$20000BB".IsTemplateMatch("12AA0000abcd0000B B").Should().BeFalse();
-        "AA0 000$20000BB".IsTemplateMatch("AA0000abcd0000B B12").Should().BeFalse();
-        "AA0 000$20000BB".IsTemplateMatch("12AA0000abcd0000B B12").Should().BeFalse();
-
-        "AA0000$20000BB".IsTemplateMatch("AA0000A2B3D40000BB").Should().BeFalse();
-        "AA0000$20000BB".IsTemplateMatch("AA0000a10000BB").Should().BeFalse();
-        "AA0000$20000BB".IsTemplateMatch("AA0000AbcH0000BB").Should().BeFalse();
-
-        "AA0000$20000BB".IsTemplateMatch("").Should().BeFalse();
-        "AA0000$20000BB".IsTemplateMatch(null).Should().BeFalse();
-
-        "AA0000220000BB".IsTemplateMatch("AA0000 220000BB").Should().BeTrue();
-        "AA0000220000BB".IsTemplateMatch("AA0000 20000BB").Should().BeFalse();
-        "AA0000220000BB".IsTemplateMatch("AA0000220000BB123").Should().BeFalse();
-        "AA0000220000BB".IsTemplateMatch("123AA0000220000BB").Should().BeFalse();
-        "AA0000220000BB".IsTemplateMatch("123AA0000220000BB123").Should().BeFalse();
-
-        "AA0000220000BB".IsTemplateMatch("123AA0000210000BB123", '$', false).Should().BeFalse();
-        "AA0000220000BB".IsTemplateMatch("123AA0000220000BB123", '$', false).Should().BeTrue();
-
-        var s = string.Empty;
-        s.IsTemplateMatch("1").Should().BeFalse();
-        s.IsTemplateMatch("").Should().BeTrue();
-
-        "2".IsTemplateMatch(s).Should().BeFalse();
-        "".IsTemplateMatch(s).Should().BeTrue();
-
-        // sep []
-
-        "AA[1][2]BB".IsTemplateMatch("AA010203BB", '[', ']').Should().BeTrue();
-        "AA[1][2]BB".IsTemplateMatch("AA01020304BB", '[', ']').Should().BeFalse();
-
-        "AA[1][2]BB".IsTemplateMatch("01AA010203BB02", '[', ']').Should().BeFalse();
-        "AA[1][2]BB".IsTemplateMatch("01AA010203BB02", '[', ']', false).Should().BeTrue();
+        "".SimulateByTemplate().Should().BeEmpty();
     }
 
     [Fact]
-    public void TryGetTemplateMatchResultTest()
+    public void IsTemplateMatchTest()
     {
-        var template = "AA00$2$1BB";
-        var resp = "AA00 0805 44BB".Replace(" ", "");
-        template.TryGetTemplateMatchResult("A1A00 0805 44BB").Should().BeNullOrEmpty();
-        template.TryGetTemplateMatchResult(resp).Should().Be(resp);
-        template.TryGetTemplateMatchResult(resp + "123").Should().Be(resp);
-        template.TryGetTemplateMatchResult("123" + resp).Should().Be(resp);
-        template.TryGetTemplateMatchResult("123" + resp + "123").Should().Be(resp);
+        "AA02BB".IsTemplateMatch("AA[2]BB").Should().BeTrue();
+        "A A0000A2B30000BB".IsTemplateMatch("AA0000[4]00 00BB").Should().BeTrue();
+        "AA0000abcd0000B B".IsTemplateMatch("AA0 000[4]0000BB").Should().BeTrue();
     }
 
     [Fact]
-    public void SimulateResponseTest()
+    public void TryGetTemplateMatchResultsTest()
     {
-        var template = "AA00$2$1BB";
-        var resp = template.SimulateResponse();
-        template.IsTemplateMatch(resp).Should().BeTrue();
-
-        "".SimulateResponse().Should().BeEmpty();
+        var template = "AA00[4][2]BB";
+        var resp = "AA00 0805 44BB";
+        var respT = resp.Replace(" ", "");
+        "A1A00 0805 44BB".TryGetTemplateMatchResults(template).Should().BeNullOrEmpty();
+        resp.TryGetTemplateMatchResults(template).FirstOrDefault().Should().Be(respT);
+        (resp + "123").TryGetTemplateMatchResults(template).FirstOrDefault().Should().Be(respT);
+        ("123" + resp).TryGetTemplateMatchResults(template).FirstOrDefault().Should().Be(respT);
+        ("123" + resp + "123").TryGetTemplateMatchResults(template).FirstOrDefault().Should().Be(respT);
+        resp.TryGetTemplateMatchResults(template).FirstOrDefault().Should().Be(respT);
+        resp.TryGetTemplateMatchResults(template).FirstOrDefault().Should().Be(respT);
+        (resp + resp).TryGetTemplateMatchResults(template).Should().BeEquivalentTo(new List<string> { respT, respT });
     }
 
-    [Fact]
-    public void GetValuesTest()
-    {
-        var template = "AA$1$2BB";
-        "AA010203BB".GetValues(template).Should().BeEquivalentTo("01", "0203");
-        var act = () => "0000".GetValues(template);
-        act.Should().Throw<FormatException>();
 
-        template = "AA[1][2]BB";
-        "AA010203BB".GetValues(template, '[', ']').Should().BeEquivalentTo("01", "0203");
-        act = () => "0000".GetValues(template, '[', ']');
-        act.Should().Throw<FormatException>();
+    [Fact]
+    public void GetMatchValuesTest()
+    {
+        var template = "AA[2][4]BB";
+        "AA010203BB".GetMatchValues(template).Should().BeEquivalentTo("01", "0203");
+
+        var act = () => "0000".GetMatchValues(template);
+        act.Should().Throw<Exception>();
     }
 }

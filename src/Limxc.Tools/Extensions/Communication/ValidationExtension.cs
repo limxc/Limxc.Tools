@@ -3,7 +3,7 @@
 namespace Limxc.Tools.Extensions.Communication
 {
     /// <summary>
-    ///     简单校验算法 todo: 遇见时继续补充 
+    ///     简单校验算法 todo: 需要时继续补充
     /// </summary>
     public static class ValidationExtension
     {

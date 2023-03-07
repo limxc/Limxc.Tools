@@ -1,71 +1,14 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using Limxc.Tools.Bases.Communication;
 
 namespace Limxc.Tools.Extensions.Communication
 {
     public static class ParseExtension
     {
-        /// <summary>
-        ///     返回值匹配及解析
-        /// </summary>
-        /// <param name="cmd"></param>
-        /// <param name="resp"></param>
-        /// <param name="byteToStringConverter">默认:<see cref="DataConversionExtension.IntToHex" /></param>
-        /// <returns></returns>
-        public static IObservable<CommContext> FindResponse(this IObservable<CommContext> cmd, IObservable<byte[]> resp,
-            Func<byte[], string> byteToStringConverter = null)
-        {
-            if (byteToStringConverter == null)
-                byteToStringConverter = DataConversionExtension.ByteToHex;
-
-            return cmd
-                    .Where(p => p.SendTime != null)
-                    .SelectMany(p =>
-                    {
-                        if (p.Timeout == 0 || string.IsNullOrWhiteSpace(p.Response.Template))
-                        {
-                            p.State = CommContextState.NoNeed;
-                            return Observable.Return(p);
-                        }
-
-                        Debug.Assert(p.SendTime != null, "CommContext.SendTime != null");
-                        var st = ((DateTime)p.SendTime).ToDateTimeOffset();
-
-                        return resp.Timestamp()
-                                .Select(d => new Timestamped<string>(byteToStringConverter(d.Value), d.Timestamp))
-                                .SkipUntil(st)
-                                .TakeUntil(st.AddMilliseconds(p.Timeout))
-                                .Select(r => r.Value)
-                                .Scan((acc, r) => acc + r)
-                                .FirstOrDefaultAsync(t => p.Response.Template.IsTemplateMatch(t, '$', false))
-                                .Select(r =>
-                                {
-                                    if (r != null)
-                                    {
-                                        p.Response.Value = p.Response.Template.TryGetTemplateMatchResult(r);
-                                        p.ReceivedTime = DateTime.Now;
-                                        p.State = CommContextState.Success;
-                                    }
-                                    else
-                                    {
-                                        p.State = CommContextState.Timeout;
-                                    }
-
-                                    return p;
-                                })
-                                .Retry()
-                            ;
-                    })
-                ;
-        }
-
         #region 分包处理
 
         /// <summary>

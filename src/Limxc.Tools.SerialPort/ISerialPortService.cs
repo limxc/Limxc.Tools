@@ -25,9 +25,10 @@ namespace Limxc.Tools.SerialPort
         /// <param name="hex"></param>
         /// <param name="timeoutMs">ms</param>
         /// <param name="template"></param>
-        /// <param name="sep"></param>
+        /// <param name="sepBegin"></param>
+        /// <param name="sepEnd"></param>
         /// <returns></returns>
-        Task<string> SendAsync(string hex, int timeoutMs, string template, char sep = '$');
+        Task<string> SendAsync(string hex, int timeoutMs, string template, char sepBegin = '[', char sepEnd = ']');
 
         /// <summary>
         ///     发送后等待固定时长后获取返回值, 需后续手动截取

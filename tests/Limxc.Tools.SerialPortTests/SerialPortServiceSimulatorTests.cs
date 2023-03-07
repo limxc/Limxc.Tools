@@ -34,7 +34,7 @@ public class SerialPortServiceSimulatorTests
         var rst = await sps.SendAsync(hex, 1000);
         rst.Should().BeEquivalentTo(hex.HexToByte());
 
-        var str = await sps.SendAsync(hex, 1000, "AA$1BB");
+        var str = await sps.SendAsync(hex, 1000, "AA[2]BB");
         str.Should().BeEquivalentTo("AA01BB");
 
         dis.Dispose();

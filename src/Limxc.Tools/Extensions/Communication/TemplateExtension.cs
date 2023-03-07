@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Limxc.Tools.Extensions.Communication
@@ -8,222 +8,193 @@ namespace Limxc.Tools.Extensions.Communication
     public static class TemplateExtension
     {
         /// <summary>
-        ///     计算指令长度,$n 1-F, 最大15
+        ///     计算模板对应的实际长度
         /// </summary>
         /// <param name="template"></param>
-        /// <param name="sep"></param>
-        public static int TemplateLength(this string template, char sep = '$')
-        {
-            try
-            {
-                template = template.Replace(" ", "");
-                var arr = template.ToCharArray();
-                var totalLen = arr.Length;
-                for (var i = 0; i < arr.Length - 1; i++)
-                    if (arr[i] == sep)
-                    {
-                        var len = arr[i + 1].ToString().HexToInt();
-                        len = len > 1 ? len - 1 : 0;
-                        totalLen += len * 2;
-                    }
-
-                return totalLen;
-            }
-            catch
-            {
-                return 0;
-            }
-        }
-
-        /// <summary>
-        ///     sep + 1~F(1~15)
-        /// </summary>
-        /// <param name="template"></param>
-        /// <param name="resp"></param>
-        /// <param name="sep"></param>
-        /// <param name="restrict"></param>
-        /// <returns></returns>
-        public static bool IsTemplateMatch(this string template, string resp, char sep = '$', bool restrict = true)
-        {
-            if (string.IsNullOrWhiteSpace(template))
-                return string.IsNullOrWhiteSpace(resp);
-
-            if (string.IsNullOrWhiteSpace(resp))
-                return false;
-
-            template = template.Replace(" ", "");
-            resp = resp.Replace(" ", "");
-
-            var regexStr = string.Empty;
-
-            foreach (var item in template.ToStrArray(2))
-                if (item[0] == sep)
-                    regexStr += $"[0-9a-fA-F]{{{item[1].ToString().HexToInt() * 2}}}";
-                else
-                    regexStr += item;
-
-            if (restrict)
-                regexStr = $"^{regexStr}$";
-
-            return Regex.IsMatch(resp, regexStr, RegexOptions.IgnoreCase);
-        }
-
-        /// <summary>
-        ///     sepBegin + 十进制数字 + sepEnd
-        /// </summary>
-        /// <param name="template"></param>
-        /// <param name="resp"></param>
         /// <param name="sepBegin"></param>
         /// <param name="sepEnd"></param>
-        /// <param name="restrict"></param>
         /// <returns></returns>
-        public static bool IsTemplateMatch(this string template, string resp, char sepBegin, char sepEnd,
-            bool restrict = true)
+        public static int GetLengthByTemplate(this string template, char sepBegin = '[', char sepEnd = ']')
+        {
+            template = template.Replace(" ", "");
+            var len = 0;
+            var matchStarted = false;
+            var matches = string.Empty;
+
+            foreach (var c in template)
+            {
+                if (c == sepBegin)
+                    matchStarted = true;
+
+                if (matchStarted)
+                    matches += c;
+                else
+                    len++;
+
+                if (c == sepEnd)
+                {
+                    var count = Convert.ToInt32(matches.Substring(1, matches.Length - 2));
+                    len += count;
+                    matchStarted = false;
+                    matches = string.Empty;
+                }
+            }
+
+            return len;
+        }
+
+        /// <summary>
+        ///     根据模板生成模拟数据
+        /// </summary>
+        /// <param name="template"></param>
+        /// <param name="sepBegin"></param>
+        /// <param name="sepEnd"></param>
+        /// <param name="options">默认:'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'</param>
+        /// <returns></returns>
+        public static string SimulateByTemplate(this string template, char sepBegin = '[', char sepEnd = ']',
+            char[] options = null)
         {
             if (string.IsNullOrWhiteSpace(template))
-                return string.IsNullOrWhiteSpace(resp);
+                return string.Empty;
 
-            if (string.IsNullOrWhiteSpace(resp))
+            var keys = options ?? new[]
+                { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+            var rnd = new Random(Guid.NewGuid().GetHashCode());
+
+            template = template.Replace(" ", "");
+
+            var sb = new StringBuilder();
+
+            var matchStarted = false;
+            var matches = string.Empty;
+
+            for (var i = 0; i < template.Length; i++)
+            {
+                if (template[i] == sepBegin) matchStarted = true;
+
+                if (!matchStarted)
+                {
+                    sb.Append(template[i]);
+                    continue;
+                }
+
+                matches += template[i];
+
+                if (template[i] == sepEnd)
+                {
+                    var count = Convert.ToInt32(matches.Substring(1, matches.Length - 2));
+                    for (var j = 0; j < count; j++) sb.Append(keys[rnd.Next(keys.Length)]);
+
+                    matchStarted = false;
+                    matches = string.Empty;
+                }
+            }
+
+            return sb.ToString();
+        }
+
+
+        /// <summary>
+        ///     是否匹配模板
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="template"></param>
+        /// <param name="restrict">是否严格模式</param>
+        /// <param name="sepBegin"></param>
+        /// <param name="sepEnd"></param>
+        /// <returns></returns>
+        public static bool IsTemplateMatch(this string source, string template, bool restrict = false,
+            char sepBegin = '[', char sepEnd = ']')
+        {
+            if (string.IsNullOrWhiteSpace(template))
+                return string.IsNullOrWhiteSpace(source);
+
+            if (string.IsNullOrWhiteSpace(source))
                 return false;
 
             template = template.Replace(" ", "");
-            resp = resp.Replace(" ", "");
+            source = source.Replace(" ", "");
 
             var pattern = template;
-            foreach (Match m in Regex.Matches(template, $@"{sepBegin}[0-9]+{sepEnd}"))
+            foreach (Match m in Regex.Matches(template, $@"\{sepBegin}[0-9]+\{sepEnd}"))
             {
                 var o = m.Value;
-                var n = $"[0-9a-fA-F]{{{Convert.ToInt32(o.Replace("[", "").Replace("]", "")) * 2}}}";
+                var n = $"[0-9a-fA-F]{{{Convert.ToInt32(o.Replace("[", "").Replace("]", ""))}}}";
                 pattern = pattern.Replace(o, n);
             }
 
             if (restrict)
                 pattern = $"^{pattern}$";
 
-            return Regex.IsMatch(resp, pattern, RegexOptions.IgnoreCase);
-        }
-
-        public static string TryGetTemplateMatchResult(this string template, string resp, char sep = '$')
-        {
-            if (string.IsNullOrWhiteSpace(template) || string.IsNullOrWhiteSpace(resp))
-                return string.Empty;
-
-            template = template.Replace(" ", "");
-            resp = resp.Replace(" ", "");
-
-            var regexStr = string.Empty;
-
-            foreach (var item in template.ToStrArray(2))
-                if (item[0] == sep)
-                    regexStr += $"[0-9a-fA-F]{{{item[1].ToString().HexToInt() * 2}}}";
-                else
-                    regexStr += item;
-
-            return Regex.Match(resp, regexStr, RegexOptions.IgnoreCase).Value;
-        }
-
-        public static string SimulateResponse(this string template, char sep = '$')
-        {
-            if (string.IsNullOrWhiteSpace(template))
-                return string.Empty;
-
-            var keys = new List<string>
-                { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F" };
-            var rnd = new Random(Guid.NewGuid().GetHashCode());
-
-            template = template.Replace(" ", "");
-            var resp = string.Empty;
-
-            foreach (var item in template.ToStrArray(2))
-                if (item[0] == sep && int.TryParse(item[1].ToString(), out var len))
-                    for (var i = 0; i < len * 2; i++)
-                        resp += keys[rnd.Next(keys.Count)];
-                else
-                    resp += item;
-
-            return resp;
+            return Regex.IsMatch(source, pattern, RegexOptions.IgnoreCase);
         }
 
         /// <summary>
-        ///     sep + 1~F(1~15)
+        ///     根据模板获取0~n个匹配
         /// </summary>
         /// <param name="source"></param>
         /// <param name="template"></param>
-        /// <param name="sep"></param>
+        /// <param name="sepBegin"></param>
+        /// <param name="sepEnd"></param>
         /// <returns></returns>
-        /// <exception cref="FormatException"></exception>
-        public static List<string> GetValues(this string source, string template, char sep = '$')
+        public static List<string> TryGetTemplateMatchResults(this string source, string template, char sepBegin = '[',
+            char sepEnd = ']')
         {
-            var values = new List<string>();
-
-            if (string.IsNullOrWhiteSpace(template) || string.IsNullOrWhiteSpace(source))
-                return values;
-
-            if (!template.IsTemplateMatch(source))
-                throw new FormatException($"Parse Error: Source[{source}] Template[{template}]");
-
-            source = source.Replace(" ", "");
             template = template.Replace(" ", "");
+            source = source.Replace(" ", "");
 
-            var arr = template.ToCharArray();
-            var skipLen = 0;
+            var list = new List<string>();
 
-            for (var i = 0; i < arr.Length; i++)
-                if (arr[i] == sep && i < arr.Length - 1)
-                {
-                    var len = arr[i + 1].ToString().HexToInt();
-                    var tfv = new string(source.Skip(i + skipLen * 2).Take(len * 2).ToArray());
-                    skipLen += len > 1 ? len - 1 : 0;
-                    values.Add(tfv);
-                }
+            var pattern = template;
+            foreach (Match m in Regex.Matches(template, $@"\{sepBegin}[0-9]+\{sepEnd}"))
+            {
+                var o = m.Value;
+                var n = $"[0-9a-fA-F]{{{Convert.ToInt32(o.Replace("[", "").Replace("]", ""))}}}";
+                pattern = pattern.Replace(o, n);
+            }
 
-            return values;
+            foreach (Match m in Regex.Matches(source, pattern, RegexOptions.IgnoreCase)) list.Add(m.Value);
+            return list;
         }
 
         /// <summary>
-        ///     sepBegin + 十进制数字 + sepEnd
+        ///     根据模板从匹配中获取值<see cref="TryGetTemplateMatchResults" />
         /// </summary>
-        /// <param name="source"></param>
+        /// <param name="matched"></param>
         /// <param name="template"></param>
-        /// <param name="sepBegin">[</param>
-        /// <param name="sepEnd">]</param>
+        /// <param name="sepBegin"></param>
+        /// <param name="sepEnd"></param>
         /// <returns></returns>
-        /// <exception cref="FormatException"></exception>
-        public static List<string> GetValues(this string source, string template, char sepBegin, char sepEnd)
+        public static List<string> GetMatchValues(this string matched, string template, char sepBegin = '[',
+            char sepEnd = ']')
         {
             var values = new List<string>();
 
-            if (string.IsNullOrWhiteSpace(template) || string.IsNullOrWhiteSpace(source))
+            if (string.IsNullOrWhiteSpace(template) || string.IsNullOrWhiteSpace(matched))
                 return values;
 
-            if (!template.IsTemplateMatch(source, sepBegin, sepEnd))
-                throw new FormatException($"Parse Error: Source[{source}] Template[{template}]");
-
-            source = source.Replace(" ", "");
             template = template.Replace(" ", "");
 
             var matchStarted = false;
             var matches = string.Empty;
-            var matchStartIndex = 0;
-            var matchesNumber = 0;
-            for (var i = 0; i < template.Length; i++)
+            var idx = 0;
+            foreach (var c in template)
             {
-                if (template[i] == sepEnd)
-                {
-                    matchStarted = false;
-                    matches.Dump();
-                    values.Add(string.Concat(source.Skip(matchStartIndex).Take(Convert.ToInt32(matches) * 2)));
-                    matches = string.Empty;
-                }
+                if (c == sepBegin) matchStarted = true;
 
                 if (matchStarted)
-                    matches += template[i];
+                    matches += c;
+                else
+                    idx++;
 
-                if (template[i] == sepBegin)
+                if (c == sepEnd)
                 {
-                    matchStarted = true;
-                    matchStartIndex = i - matchesNumber;
-                    matchesNumber++;
+                    var count = Convert.ToInt32(matches.Substring(1, matches.Length - 2));
+                    values.Add(matched.Substring(idx, count));
+                    idx += count;
+
+                    matchStarted = false;
+                    matches = string.Empty;
                 }
             }
 

@@ -88,9 +88,11 @@ namespace Limxc.Tools.SerialPort
         /// <param name="hex"></param>
         /// <param name="timeoutMs">ms</param>
         /// <param name="template"></param>
-        /// <param name="sep"></param>
+        /// <param name="sepBegin"></param>
+        /// <param name="sepEnd"></param>
         /// <returns></returns>
-        public async Task<string> SendAsync(string hex, int timeoutMs, string template, char sep = '$')
+        public async Task<string> SendAsync(string hex, int timeoutMs, string template, char sepBegin = '[',
+            char sepEnd = ']')
         {
             try
             {
@@ -102,8 +104,7 @@ namespace Limxc.Tools.SerialPort
                     .TakeUntil(now.AddMilliseconds(timeoutMs))
                     .Select(d => d.ByteToHex())
                     .Scan((acc, r) => acc + r)
-                    .FirstOrDefaultAsync(r => template.IsTemplateMatch(r, sep, false))
-                    .Select(r => template.TryGetTemplateMatchResult(r, sep))
+                    .Select(r => r.TryGetTemplateMatchResults(template, sepBegin, sepEnd).FirstOrDefault())
                     .ToTask();
 
                 var bytes = hex.HexToByte();

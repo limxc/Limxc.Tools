@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -70,7 +71,8 @@ namespace Limxc.Tools.SerialPort
             _received.OnNext(hex.HexToByte());
         }
 
-        public async Task<string> SendAsync(string hex, int timeoutMs, string template, char sep = '$')
+        public async Task<string> SendAsync(string hex, int timeoutMs, string template, char sepBegin = '[',
+            char sepEnd = ']')
         {
             _log.OnNext($"Send: {hex}");
             _sendIndex++;
@@ -78,7 +80,7 @@ namespace Limxc.Tools.SerialPort
                 return string.Empty;
             await Task.Delay(_sendDelay);
 
-            var resp = template.TryGetTemplateMatchResult(hex.Replace(" ", ""));
+            var resp = hex.Replace(" ", "").TryGetTemplateMatchResults(template).FirstOrDefault();
 
             await Task.Delay(timeoutMs / 2);
 
