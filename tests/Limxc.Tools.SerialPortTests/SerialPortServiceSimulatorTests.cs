@@ -27,11 +27,11 @@ public class SerialPortServiceSimulatorTests
         state.Should().BeTrue();
 
         var hex = "AA 01 BB";
-        await sps.SendAsync(hex);
+        await sps.SendAsync(hex.HexToByte());
         await Task.Delay(1000);
         received.Should().BeEquivalentTo(hex.HexToByte());
 
-        var rst = await sps.SendAsync(hex, 1000);
+        var rst = await sps.SendAsync(hex.HexToByte(), 1000);
         rst.Should().BeEquivalentTo(hex.HexToByte());
 
         var str = await sps.SendAsync(hex, 1000, "AA[2]BB");

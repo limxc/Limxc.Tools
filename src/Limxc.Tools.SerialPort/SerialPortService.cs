@@ -72,13 +72,12 @@ namespace Limxc.Tools.SerialPort
         /// <summary>
         ///     无返回值发送
         /// </summary>
-        /// <param name="hex"></param>
+        /// <param name="bytes"></param>
         /// <returns></returns>
-        public async Task SendAsync(string hex)
+        public async Task SendAsync(byte[] bytes)
         {
             await Task.Delay(_serialPortSetting.SendDelay);
 
-            var bytes = hex.HexToByte();
             _sp.Write(bytes, 0, bytes.Length);
         }
 
@@ -112,8 +111,9 @@ namespace Limxc.Tools.SerialPort
 
                 return await task;
             }
-            catch
+            catch (Exception ex)
             {
+                _log.OnNext($"Send Error: {ex.Message}");
                 return string.Empty;
             }
         }
@@ -121,10 +121,10 @@ namespace Limxc.Tools.SerialPort
         /// <summary>
         ///     发送后等待固定时长后获取返回值, 需后续手动截取
         /// </summary>
-        /// <param name="hex"></param>
+        /// <param name="bytes"></param>
         /// <param name="waitMs"></param>
         /// <returns></returns>
-        public async Task<byte[]> SendAsync(string hex, int waitMs)
+        public async Task<byte[]> SendAsync(byte[] bytes, int waitMs)
         {
             try
             {
@@ -134,13 +134,13 @@ namespace Limxc.Tools.SerialPort
                 var task = _received.SkipUntil(now).TakeUntil(now.AddMilliseconds(waitMs))
                     .Aggregate((x, y) => x.Concat(y).ToArray()).ToTask();
 
-                var bytes = hex.HexToByte();
                 _sp.Write(bytes, 0, bytes.Length);
 
                 return await task;
             }
-            catch
+            catch (Exception ex)
             {
+                _log.OnNext($"Send Error: {ex.Message}");
                 return Array.Empty<byte>();
             }
         }

@@ -60,15 +60,15 @@ namespace Limxc.Tools.SerialPort
             IsConnected = false;
         }
 
-        public async Task SendAsync(string hex)
+        public async Task SendAsync(byte[] bytes)
         {
-            _log.OnNext($"Send: {hex}");
+            _log.OnNext($"Send: {bytes}");
             _sendIndex++;
             if (_lostInterval > 0 && _sendIndex % _lostInterval == 0) //模拟失败
                 return;
             await Task.Delay(_sendDelay);
 
-            _received.OnNext(hex.HexToByte());
+            _received.OnNext(bytes);
         }
 
         public async Task<string> SendAsync(string hex, int timeoutMs, string template, char sepBegin = '[',
@@ -87,9 +87,9 @@ namespace Limxc.Tools.SerialPort
             return resp;
         }
 
-        public async Task<byte[]> SendAsync(string hex, int waitMs)
+        public async Task<byte[]> SendAsync(byte[] bytes, int waitMs)
         {
-            _log.OnNext($"Send: {hex}");
+            _log.OnNext($"Send: {bytes.ByteToHex()}");
             _sendIndex++;
             if (_lostInterval > 0 && _sendIndex % _lostInterval == 0) //模拟失败
                 return Array.Empty<byte>();
@@ -97,9 +97,9 @@ namespace Limxc.Tools.SerialPort
 
             await Task.Delay(waitMs);
 
-            _received.OnNext(hex.HexToByte());
+            _received.OnNext(bytes);
 
-            return hex.HexToByte();
+            return bytes;
         }
 
         public void Dispose()

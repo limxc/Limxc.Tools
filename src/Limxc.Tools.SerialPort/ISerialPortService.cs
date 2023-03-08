@@ -15,9 +15,9 @@ namespace Limxc.Tools.SerialPort
         /// <summary>
         ///     无返回值发送
         /// </summary>
-        /// <param name="hex"></param>
+        /// <param name="bytes"></param>
         /// <returns></returns>
-        Task SendAsync(string hex);
+        Task SendAsync(byte[] bytes);
 
         /// <summary>
         ///     在超时时长内,根据模板自动截取返回值
@@ -33,9 +33,9 @@ namespace Limxc.Tools.SerialPort
         /// <summary>
         ///     发送后等待固定时长后获取返回值, 需后续手动截取
         /// </summary>
-        /// <param name="hex"></param>
+        /// <param name="bytes"></param>
         /// <param name="waitMs"></param>
         /// <returns></returns>
-        Task<byte[]> SendAsync(string hex, int waitMs);
+        Task<byte[]> SendAsync(byte[] bytes, int waitMs);
     }
 }
