@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
@@ -9,23 +8,23 @@ using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using Limxc.Tools.Extensions;
 using Limxc.Tools.Extensions.Communication;
-using SP = System.IO.Ports.SerialPort;
+using SuperSimpleTcp;
 
-namespace Limxc.Tools.SerialPort
+namespace Limxc.Tools.Sockets.Tcp
 {
-    public class SerialPortService : ISerialPortService
+    public class TcpS2CService : ITcpS2CService
     {
         private readonly Subject<bool> _connectionState = new Subject<bool>();
         private readonly CompositeDisposable _initDisposables = new CompositeDisposable();
         private readonly Subject<string> _log = new Subject<string>();
         private readonly Subject<byte[]> _received = new Subject<byte[]>();
+        private string _clientIpPort;
 
         private CompositeDisposable _controlDisposables = new CompositeDisposable();
-        private SerialPortSetting _setting;
+        private SimpleTcpServer _server;
+        private TcpS2CSetting _tcpS2CSetting;
 
-        private SP _sp;
-
-        public SerialPortService()
+        public TcpS2CService()
         {
             Observable
                 .Interval(TimeSpan.FromSeconds(1))
@@ -41,7 +40,9 @@ namespace Limxc.Tools.SerialPort
             Log = Observable.Defer(() => _log.AsObservable().Publish().RefCount());
         }
 
-        public bool IsConnected => _sp?.IsOpen ?? false;
+        public bool IsConnected =>
+            _server?.GetClients().Any(p => p.StartsWith(_tcpS2CSetting?.ClientIp ?? "---")) ?? false;
+
         public IObservable<bool> ConnectionState { get; }
 
         /// <summary>
@@ -59,14 +60,62 @@ namespace Limxc.Tools.SerialPort
             _log?.Dispose();
 
             Stop();
+            _server.Dispose();
+        }
+
+        public void Start(TcpS2CSetting setting)
+        {
+            _tcpS2CSetting = setting;
+
+            Stop();
+
+            if (_tcpS2CSetting == default)
+                return;
+
+            if (!_tcpS2CSetting.Enabled)
+                return;
+
+            _controlDisposables = new CompositeDisposable();
+
+            _server = new SimpleTcpServer(_tcpS2CSetting.ServerIpPort);
+            _server.Keepalive.EnableTcpKeepAlives = true;
+            _server.Keepalive.TcpKeepAliveInterval = 5; // seconds to wait before sending subsequent keepalive
+            _server.Keepalive.TcpKeepAliveTime = 5; // seconds to wait before sending a keepalive
+            _server.Keepalive.TcpKeepAliveRetryCount =
+                5; // number of failed keepalive probes before terminating connection
+
+            Observable.FromEventPattern<ConnectionEventArgs>(_server.Events, nameof(_server.Events.ClientConnected))
+                .Where(p => p.EventArgs.IpPort.StartsWith(_tcpS2CSetting?.ClientIp ?? "---"))
+                .Subscribe(s =>
+                {
+                    _connectionState.OnNext(true);
+                    _clientIpPort = s.EventArgs.IpPort;
+                })
+                .DisposeWith(_initDisposables);
+
+            Observable.FromEventPattern<ConnectionEventArgs>(_server.Events, nameof(_server.Events.ClientDisconnected))
+                .Where(p => p.EventArgs.IpPort.StartsWith(_tcpS2CSetting?.ClientIp ?? "---"))
+                .Subscribe(s =>
+                {
+                    _connectionState.OnNext(false);
+                    _clientIpPort = string.Empty;
+                })
+                .DisposeWith(_initDisposables);
+
+            Observable
+                .FromEventPattern<DataReceivedEventArgs>(_server.Events, nameof(_server.Events.DataReceived))
+                .SubscribeOn(new EventLoopScheduler())
+                .Subscribe(b => _received.OnNext(b.EventArgs.Data.ToArray()))
+                .DisposeWith(_controlDisposables);
+
+            _server.Start();
         }
 
         public void Stop()
         {
             _controlDisposables?.Dispose();
 
-            _sp?.Close();
-            _sp?.Dispose();
+            _server?.Stop();
         }
 
         /// <summary>
@@ -76,9 +125,7 @@ namespace Limxc.Tools.SerialPort
         /// <returns></returns>
         public async Task SendAsync(byte[] bytes)
         {
-            await Task.Delay(_setting.SendDelay);
-
-            _sp.Write(bytes, 0, bytes.Length);
+            await _server.SendAsync(_clientIpPort, bytes);
         }
 
         /// <summary>
@@ -95,8 +142,6 @@ namespace Limxc.Tools.SerialPort
         {
             try
             {
-                await Task.Delay(_setting.SendDelay);
-
                 var now = DateTimeOffset.Now;
                 var task = _received
                     .SkipUntil(now)
@@ -106,8 +151,7 @@ namespace Limxc.Tools.SerialPort
                     .Select(r => r.TryGetTemplateMatchResults(template, sepBegin, sepEnd).FirstOrDefault())
                     .ToTask();
 
-                var bytes = hex.HexToByte();
-                _sp.Write(bytes, 0, bytes.Length);
+                await _server.SendAsync(_clientIpPort, hex.HexToByte());
 
                 return await task;
             }
@@ -128,13 +172,11 @@ namespace Limxc.Tools.SerialPort
         {
             try
             {
-                await Task.Delay(_setting.SendDelay);
-
                 var now = DateTimeOffset.Now;
                 var task = _received.SkipUntil(now).TakeUntil(now.AddMilliseconds(waitMs))
                     .Aggregate((x, y) => x.Concat(y).ToArray()).ToTask();
 
-                _sp.Write(bytes, 0, bytes.Length);
+                await _server.SendAsync(_clientIpPort, bytes);
 
                 return await task;
             }
@@ -143,66 +185,6 @@ namespace Limxc.Tools.SerialPort
                 _log.OnNext($"Send Error: {ex.Message}");
                 return Array.Empty<byte>();
             }
-        }
-
-        public void Start(SerialPortSetting setting)
-        {
-            _setting = setting;
-
-            Stop();
-
-            if (_setting == default)
-                return;
-
-            if (!_setting.Enabled)
-                return;
-
-            _controlDisposables = new CompositeDisposable();
-
-            _sp = new SP(_setting.PortName, _setting.BaudRate,
-                    _setting.Parity, _setting.DataBits, _setting.StopBits)
-                { ReadTimeout = 500, WriteTimeout = 500 };
-
-            Observable
-                .FromEventPattern(_sp, nameof(SP.DataReceived))
-                .SubscribeOn(new EventLoopScheduler())
-                .Subscribe(b =>
-                {
-                    var bs = new byte[_sp.BytesToRead];
-                    _sp.Read(bs, 0, bs.Length);
-                    _received.OnNext(bs);
-                })
-                .DisposeWith(_controlDisposables);
-
-            Observable
-                .Interval(TimeSpan.FromMilliseconds(_setting.AutoConnectInterval))
-                .Where(_ => !IsConnected)
-                .SubscribeOn(TaskPoolScheduler.Default)
-                .Subscribe(s =>
-                {
-                    try
-                    {
-                        _sp.Open();
-                    }
-                    catch (FileNotFoundException)
-                    {
-                        _log.OnNext($"找不到串口{_sp.PortName}.");
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        _log.OnNext($"串口{_sp.PortName}已占用.");
-                    }
-                    catch (Exception e)
-                    {
-                        _log.OnNext(e.Message);
-                    }
-                })
-                .DisposeWith(_controlDisposables);
-        }
-
-        public string[] GetPortNames()
-        {
-            return SP.GetPortNames();
         }
     }
 }

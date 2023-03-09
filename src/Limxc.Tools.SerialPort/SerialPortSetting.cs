@@ -32,10 +32,7 @@ namespace Limxc.Tools.SerialPort
         /// </summary>
         public int SendDelay { get; set; } = 50;
 
-        /// <summary>
-        ///     Is Enabled
-        /// </summary>
-        public bool Enable { get; set; } = true;
+        public bool Enabled { get; set; } = true;
 
         public virtual int[] AvailableBaudRates { get; } = { 1200, 4800, 9600, 19200, 115200 };
 
