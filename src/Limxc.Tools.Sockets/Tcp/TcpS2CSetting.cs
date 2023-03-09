@@ -1,5 +1,6 @@
 ﻿using System.Linq;
-using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using Limxc.Tools.Extensions;
 
 namespace Limxc.Tools.Sockets.Tcp
@@ -25,9 +26,13 @@ namespace Limxc.Tools.Sockets.Tcp
                 return false;
             }
 
-            var existIpPort = Dns.GetHostEntry(Dns.GetHostName()).AddressList
-                .Where(p => p.AddressFamily.ToString() == "InterNetwork")
-                .Any(p => ServerIpPort.Contains(p.ToString()));
+            var existIpPort = NetworkInterface.GetAllNetworkInterfaces()
+                .Where(p => p.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
+                .Select(p =>
+                    p.GetIPProperties().UnicastAddresses
+                        .Where(i => i.Address.AddressFamily == AddressFamily.InterNetwork))
+                .SelectMany(p => p.Select(i => i.Address.ToString()))
+                .Any(p => ServerIpPort.Contains(p));
 
             if (!existIpPort)
             {
