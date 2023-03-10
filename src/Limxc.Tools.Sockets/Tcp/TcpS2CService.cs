@@ -91,7 +91,7 @@ namespace Limxc.Tools.Sockets.Tcp
                     _connectionState.OnNext(true);
                     _clientIpPort = s.EventArgs.IpPort;
                 })
-                .DisposeWith(_initDisposables);
+                .DisposeWith(_controlDisposables);
 
             Observable.FromEventPattern<ConnectionEventArgs>(_server.Events, nameof(_server.Events.ClientDisconnected))
                 .Where(p => p.EventArgs.IpPort.StartsWith(_tcpS2CSetting?.ClientIp ?? "---"))
@@ -100,7 +100,7 @@ namespace Limxc.Tools.Sockets.Tcp
                     _connectionState.OnNext(false);
                     _clientIpPort = string.Empty;
                 })
-                .DisposeWith(_initDisposables);
+                .DisposeWith(_controlDisposables);
 
             Observable
                 .FromEventPattern<DataReceivedEventArgs>(_server.Events, nameof(_server.Events.DataReceived))
