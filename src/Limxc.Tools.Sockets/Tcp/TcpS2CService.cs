@@ -60,7 +60,6 @@ namespace Limxc.Tools.Sockets.Tcp
             _log?.Dispose();
 
             Stop();
-            _server.Dispose();
         }
 
         public void Start(TcpS2CSetting setting)
@@ -115,7 +114,7 @@ namespace Limxc.Tools.Sockets.Tcp
         {
             _controlDisposables?.Dispose();
 
-            _server?.Stop();
+            _server?.Dispose();
         }
 
         /// <summary>
