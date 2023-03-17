@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Limxc.Tools.Core.CrcCSharp
+namespace Limxc.Tools.Integrations.CrcCSharp
 {
     public enum CrcAlgorithms
     {

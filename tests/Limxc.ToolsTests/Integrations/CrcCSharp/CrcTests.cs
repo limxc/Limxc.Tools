@@ -2,11 +2,11 @@
 using System.Diagnostics;
 using System.Text;
 using FluentAssertions;
-using Limxc.Tools.Core.CrcCSharp;
 using Limxc.Tools.Extensions.Communication;
+using Limxc.Tools.Integrations.CrcCSharp;
 using Xunit;
 
-namespace Limxc.Tools.CoreTests.CrcCSharp;
+namespace Limxc.ToolsTests.Integrations.CrcCSharp;
 
 public class CrcTests
 {
@@ -34,19 +34,6 @@ public class CrcTests
         value.HexFormat().Should().Be("C7 C0");
 
         value.HexFormat(true).Should().Be("C0 C7");
-    }
-
-    public ulong ReverseBits(ulong ul, int valueLength)
-    {
-        ulong newValue = 0;
-
-        for (var i = valueLength - 1; i >= 0; i--)
-        {
-            newValue |= (ul & 1) << i;
-            ul >>= 1;
-        }
-
-        return newValue;
     }
 
     [Fact]

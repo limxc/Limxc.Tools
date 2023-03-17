@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Limxc.Tools.Core.CrcCSharp
+namespace Limxc.Tools.Integrations.CrcCSharp
 {
     /// <summary>
     ///     https://github.com/meetanthony/crccsharp

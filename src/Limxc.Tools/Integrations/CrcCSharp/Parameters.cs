@@ -1,7 +1,7 @@
 ﻿/* I'm not strong in English language.
  * Summary of properties taken from here http://www.csm.ornl.gov/~dunigan/crc.html */
 
-namespace Limxc.Tools.Core.CrcCSharp
+namespace Limxc.Tools.Integrations.CrcCSharp
 {
     public class Parameters
     {

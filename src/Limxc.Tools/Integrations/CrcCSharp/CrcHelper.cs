@@ -1,4 +1,4 @@
-﻿namespace Limxc.Tools.Core.CrcCSharp
+﻿namespace Limxc.Tools.Integrations.CrcCSharp
 {
     internal static class CrcHelper
     {
