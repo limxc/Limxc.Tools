@@ -31,16 +31,16 @@ namespace Limxc.Tools.Extensions.Communication
         /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
-        public static Dictionary<CrcAlgorithms, string> CrcAll(this byte[] bytes)
+        public static Dictionary<CrcAlgorithms, byte[]> CrcAll(this byte[] bytes)
         {
-            var dict = new Dictionary<CrcAlgorithms, string>();
+            var dict = new Dictionary<CrcAlgorithms, byte[]>();
             foreach (CrcAlgorithms ca in Enum.GetValues(typeof(CrcAlgorithms)))
             {
                 if (ca == CrcAlgorithms.Undefined) continue;
 
                 var crc = new Crc(CrcStdParams.StandartParameters[ca]);
                 var rst = crc.ComputeHash(bytes);
-                dict.Add(ca, rst.ByteToHex());
+                dict.Add(ca, rst);
             }
 
             return dict;
