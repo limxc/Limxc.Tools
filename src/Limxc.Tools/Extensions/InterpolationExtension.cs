@@ -65,7 +65,7 @@ namespace Limxc.Tools.Extensions
             var xs = new List<double>();
             var minX = source.Select(p => p.X).Min();
             var maxX = source.Select(p => p.X).Max();
-            for (var x = minX; x <= maxX - minX; x++)
+            for (var x = minX; x <= maxX; x++)
                 xs.Add(x);
 
             var ys = SplineInsertPoint(source, xs.ToArray());
