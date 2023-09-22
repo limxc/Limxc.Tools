@@ -168,36 +168,54 @@ namespace Limxc.Tools.SerialPort
                 .SubscribeOn(new EventLoopScheduler())
                 .Subscribe(b =>
                 {
-                    var bs = new byte[_sp.BytesToRead];
-                    _sp.Read(bs, 0, bs.Length);
-                    _received.OnNext(bs);
+                    try
+                    {
+                        var bs = new byte[_sp.BytesToRead];
+                        _sp.Read(bs, 0, bs.Length);
+                        _received.OnNext(bs);
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
                 })
                 .DisposeWith(_controlDisposables);
 
-            Observable
-                .Interval(TimeSpan.FromMilliseconds(_setting.AutoConnectInterval))
-                .Where(_ => !IsConnected)
-                .SubscribeOn(TaskPoolScheduler.Default)
-                .Subscribe(s =>
-                {
-                    try
+            if (_setting.AutoConnectEnabled)
+            {
+                Observable
+                    .Interval(TimeSpan.FromMilliseconds(_setting.AutoConnectInterval))
+                    .Where(_ => !IsConnected)
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .Subscribe(s =>
                     {
-                        _sp.Open();
-                    }
-                    catch (FileNotFoundException)
-                    {
-                        _log.OnNext($"找不到串口{_sp.PortName}.");
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        _log.OnNext($"串口{_sp.PortName}已占用.");
-                    }
-                    catch (Exception e)
-                    {
-                        _log.OnNext(e.Message);
-                    }
-                })
-                .DisposeWith(_controlDisposables);
+                        try
+                        {
+                            _sp.Open();
+                            _sp.DiscardInBuffer();
+                            _sp.DiscardOutBuffer();
+                        }
+                        catch (FileNotFoundException)
+                        {
+                            _log.OnNext($"找不到串口{_sp.PortName}.");
+                        }
+                        catch (UnauthorizedAccessException)
+                        {
+                            _log.OnNext($"串口{_sp.PortName}已占用.");
+                        }
+                        catch (Exception e)
+                        {
+                            _log.OnNext(e.Message);
+                        }
+                    })
+                    .DisposeWith(_controlDisposables);
+            }
+            else
+            {
+                _sp.Open();
+                _sp.DiscardInBuffer();
+                _sp.DiscardOutBuffer();
+            }
         }
 
         public string[] GetPortNames()

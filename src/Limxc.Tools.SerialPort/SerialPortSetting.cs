@@ -27,6 +27,8 @@ namespace Limxc.Tools.SerialPort
         /// </summary>
         public int AutoConnectInterval { get; set; } = 1000;
 
+        public bool AutoConnectEnabled { get; set; } = true;
+
         /// <summary>
         ///     Delay ms
         /// </summary>
