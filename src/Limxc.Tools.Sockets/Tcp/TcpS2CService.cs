@@ -1,27 +1,31 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
+using System.Threading;
 using System.Threading.Tasks;
 using Limxc.Tools.Extensions;
 using Limxc.Tools.Extensions.Communication;
-using SuperSimpleTcp;
 
 namespace Limxc.Tools.Sockets.Tcp
 {
     public class TcpS2CService : ITcpS2CService
     {
+        private readonly int _bufferSize = 1024;
+
         private readonly Subject<bool> _connectionState = new Subject<bool>();
         private readonly CompositeDisposable _initDisposables = new CompositeDisposable();
         private readonly Subject<string> _log = new Subject<string>();
         private readonly Subject<byte[]> _received = new Subject<byte[]>();
-        private string _clientIpPort;
+        private CancellationTokenSource _cts;
 
-        private CompositeDisposable _controlDisposables = new CompositeDisposable();
-        private SimpleTcpServer _server;
+        private Socket _server, _client;
+
         private TcpS2CSetting _tcpS2CSetting;
 
         public TcpS2CService()
@@ -40,8 +44,7 @@ namespace Limxc.Tools.Sockets.Tcp
             Log = Observable.Defer(() => _log.AsObservable().Publish().RefCount());
         }
 
-        public bool IsConnected =>
-            _server?.GetClients().Any(p => p.StartsWith(_tcpS2CSetting?.ClientIp ?? "---")) ?? false;
+        public bool IsConnected { get; private set; }
 
         public IObservable<bool> ConnectionState { get; }
 
@@ -74,46 +77,55 @@ namespace Limxc.Tools.Sockets.Tcp
             if (!_tcpS2CSetting.Enabled)
                 return;
 
-            _controlDisposables = new CompositeDisposable();
+            var ipEndPoint = ParseIpPort(_tcpS2CSetting.ServerIpPort);
+            _server = new Socket(ipEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            _server.Bind(ipEndPoint);
+            _server.Listen(1);
 
-            _server = new SimpleTcpServer(_tcpS2CSetting.ServerIpPort);
-            _server.Keepalive.EnableTcpKeepAlives = true;
-            _server.Keepalive.TcpKeepAliveInterval = 5; // seconds to wait before sending subsequent keepalive
-            _server.Keepalive.TcpKeepAliveTime = 5; // seconds to wait before sending a keepalive
-            _server.Keepalive.TcpKeepAliveRetryCount =
-                5; // number of failed keepalive probes before terminating connection
+            _cts = new CancellationTokenSource();
 
-            Observable.FromEventPattern<ConnectionEventArgs>(_server.Events, nameof(_server.Events.ClientConnected))
-                .Where(p => p.EventArgs.IpPort.StartsWith(_tcpS2CSetting?.ClientIp ?? "---"))
-                .Subscribe(s =>
-                {
-                    _connectionState.OnNext(true);
-                    _clientIpPort = s.EventArgs.IpPort;
-                })
-                .DisposeWith(_controlDisposables);
+            Task.Run(async () =>
+            {
+                while (true)
+                    try
+                    {
+                        if (_cts.Token.IsCancellationRequested)
+                            return;
 
-            Observable.FromEventPattern<ConnectionEventArgs>(_server.Events, nameof(_server.Events.ClientDisconnected))
-                .Where(p => p.EventArgs.IpPort.StartsWith(_tcpS2CSetting?.ClientIp ?? "---"))
-                .Subscribe(s =>
-                {
-                    _connectionState.OnNext(false);
-                    _clientIpPort = string.Empty;
-                })
-                .DisposeWith(_controlDisposables);
+                        _client = await _server.AcceptAsync();
+                        if (!_client.RemoteEndPoint.ToString().Contains(_tcpS2CSetting.ClientIp))
+                        {
+                            IsConnected = false;
+                            _client.Dispose();
+                            continue;
+                        }
 
-            Observable
-                .FromEventPattern<DataReceivedEventArgs>(_server.Events, nameof(_server.Events.DataReceived))
-                .SubscribeOn(new EventLoopScheduler())
-                .Subscribe(b => _received.OnNext(b.EventArgs.Data.ToArray()))
-                .DisposeWith(_controlDisposables);
+                        IsConnected = true;
 
-            _server.Start();
+                        while (true)
+                        {
+                            if (_cts.Token.IsCancellationRequested)
+                                return;
+
+                            var buffer = new ArraySegment<byte>(new byte[_bufferSize]);
+                            var received = await _client.ReceiveAsync(buffer, SocketFlags.None);
+
+                            _received.OnNext(buffer.Take(received).ToArray());
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.OnNext($"Server Error: {ex.Message}");
+                        _client?.Dispose();
+                        IsConnected = false;
+                    }
+            }, _cts.Token);
         }
 
         public void Stop()
         {
-            _controlDisposables?.Dispose();
-
+            _cts?.Cancel();
+            _client?.Dispose();
             _server?.Dispose();
         }
 
@@ -124,7 +136,15 @@ namespace Limxc.Tools.Sockets.Tcp
         /// <returns></returns>
         public async Task SendAsync(byte[] bytes)
         {
-            await _server.SendAsync(_clientIpPort, bytes);
+            try
+            {
+                await _client.SendAsync(new ArraySegment<byte>(bytes), SocketFlags.None);
+            }
+            catch (Exception ex)
+            {
+                _log.OnNext($"Send Error: {ex.Message}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -150,14 +170,14 @@ namespace Limxc.Tools.Sockets.Tcp
                     .Select(r => r.TryGetTemplateMatchResults(template, sepBegin, sepEnd).FirstOrDefault())
                     .ToTask();
 
-                await _server.SendAsync(_clientIpPort, hex.HexToByte());
+                await _client.SendAsync(new ArraySegment<byte>(hex.HexToByte()), SocketFlags.None);
 
                 return await task;
             }
             catch (Exception ex)
             {
                 _log.OnNext($"Send Error: {ex.Message}");
-                return string.Empty;
+                throw;
             }
         }
 
@@ -175,15 +195,32 @@ namespace Limxc.Tools.Sockets.Tcp
                 var task = _received.SkipUntil(now).TakeUntil(now.AddMilliseconds(waitMs))
                     .Aggregate((x, y) => x.Concat(y).ToArray()).ToTask();
 
-                await _server.SendAsync(_clientIpPort, bytes);
+                await _client.SendAsync(new ArraySegment<byte>(bytes), SocketFlags.None);
 
                 return await task;
             }
             catch (Exception ex)
             {
                 _log.OnNext($"Send Error: {ex.Message}");
-                return Array.Empty<byte>();
+                throw;
             }
+        }
+
+        private IPEndPoint ParseIpPort(string ipPort)
+        {
+            if (string.IsNullOrEmpty(ipPort)) throw new ArgumentNullException(nameof(ipPort));
+
+            IPAddress ip = null;
+            var port = -1;
+
+            var colonIndex = ipPort.LastIndexOf(':');
+            if (colonIndex != -1)
+            {
+                ip = IPAddress.Parse(ipPort.Substring(0, colonIndex));
+                port = Convert.ToInt32(ipPort.Substring(colonIndex + 1));
+            }
+
+            return new IPEndPoint(ip ?? throw new ArgumentNullException(nameof(ipPort)), port);
         }
     }
 }

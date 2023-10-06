@@ -5,10 +5,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="SuperSimpleTcp" Version="3.*" />
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="..\Limxc.Tools\Limxc.Tools.csproj" />
     </ItemGroup>
 
