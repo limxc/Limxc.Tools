@@ -71,27 +71,6 @@ namespace Limxc.Tools.Core.Services
             GC.SuppressFinalize(this);
         }
 
-        public virtual T Load()
-        {
-            var setting = new T();
-            if (File.Exists(FullPath))
-                try
-                {
-                    var json = FullPath.Load(Encoding.UTF8);
-                    setting = JsonSerializer.Deserialize<T>(json, _jsonSerializerOptions);
-                }
-                catch (Exception)
-                {
-                    _logService?.Error($"配置文件加载失败,已备份并重置.{BackUpPath}");
-                    File.Copy(FullPath, BackUpPath, true);
-                    throw;
-                }
-            else
-                Save(setting);
-
-            return setting;
-        }
-
         public virtual void Save(T setting)
         {
             try
@@ -105,6 +84,33 @@ namespace Limxc.Tools.Core.Services
                 _logService?.Error("配置文件保存失败.");
                 throw;
             }
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="initOnFailure">失败时重建(初始值)</param>
+        /// <returns></returns>
+        public virtual T Load(bool initOnFailure = true)
+        {
+            var setting = new T();
+            if (File.Exists(FullPath))
+                try
+                {
+                    var json = FullPath.Load(Encoding.UTF8);
+                    setting = JsonSerializer.Deserialize<T>(json, _jsonSerializerOptions);
+                }
+                catch (Exception)
+                {
+                    _logService?.Error($"配置文件加载失败,已备份并重置.{BackUpPath}");
+                    File.Copy(FullPath, BackUpPath, true);
+                    if (initOnFailure)
+                        Save(setting);
+                    throw;
+                }
+            else
+                Save(setting);
+
+            return setting;
         }
 
         public virtual void Dispose(bool disposing)

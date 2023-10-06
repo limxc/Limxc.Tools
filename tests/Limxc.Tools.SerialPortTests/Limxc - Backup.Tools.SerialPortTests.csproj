@@ -17,9 +17,9 @@
         <PackageReference Include="FluentAssertions" Version="6.12.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
         <PackageReference Include="Microsoft.Reactive.Testing" Version="6.0.0" />
-        <PackageReference Include="ReactiveUI.Testing" Version="19.5.1" />
-        <PackageReference Include="xunit" Version="2.5.1" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.1">
+        <PackageReference Include="ReactiveUI.Testing" Version="18.4.25" />
+        <PackageReference Include="xunit" Version="2.4.2" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
@@ -30,6 +30,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Limxc.Tools.Sockets\Limxc.Tools.Sockets.csproj" />
+        <ProjectReference Include="..\..\src\Limxc.Tools.SerialPort\Limxc.Tools.SerialPort.csproj" />
     </ItemGroup>
 </Project>

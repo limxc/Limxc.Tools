@@ -5,7 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="SuperSimpleTcp" Version="3.0.10" />
+        <PackageReference Include="SuperSimpleTcp" Version="3.*" />
     </ItemGroup>
 
     <ItemGroup>
