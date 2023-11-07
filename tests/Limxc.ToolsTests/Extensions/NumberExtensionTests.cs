@@ -53,7 +53,7 @@ public class NumberExtensionTests
         ints.Near(11).Should().Be(10);
         ints.Near(21).Should().Be(20);
         ints.Near(0, false).Should().Be(5);
-        ints.Near(5).Should().Be(5);
+        ints.Near(5, false).Should().Be(5);
         ints.Near(7, false).Should().Be(10);
         ints.Near(11, false).Should().Be(20);
         ints.Near(21, false).Should().Be(20);

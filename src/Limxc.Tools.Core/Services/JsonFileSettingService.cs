@@ -104,7 +104,7 @@ namespace Limxc.Tools.Core.Services
                     _logService?.Error($"配置文件加载失败,已备份并重置.{BackUpPath}");
                     File.Copy(FullPath, BackUpPath, true);
                     if (initOnFailure)
-                        Save(setting);
+                        Save(new T());
                     throw;
                 }
             else

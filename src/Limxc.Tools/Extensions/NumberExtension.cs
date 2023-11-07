@@ -110,7 +110,7 @@ namespace Limxc.Tools.Extensions
         {
             if (!source.Any())
                 throw new ArgumentException("source is empty.");
-
+            source = source.OrderBy(p => p).ToArray();
             if (upward)
             {
                 var r = source.First();
@@ -138,7 +138,7 @@ namespace Limxc.Tools.Extensions
         {
             if (!source.Any())
                 throw new ArgumentException("source is empty.");
-
+            source = source.OrderBy(p => p).ToArray();
             if (upward)
             {
                 var r = source.First();
@@ -166,7 +166,7 @@ namespace Limxc.Tools.Extensions
         {
             if (!source.Any())
                 throw new ArgumentException("source is empty.");
-
+            source = source.OrderBy(p => p).ToArray();
             if (upward)
             {
                 var r = source.First();
@@ -194,7 +194,7 @@ namespace Limxc.Tools.Extensions
         {
             if (!source.Any())
                 throw new ArgumentException("source is empty.");
-
+            source = source.OrderBy(p => p).ToArray();
             if (upward)
             {
                 var r = source.First();
