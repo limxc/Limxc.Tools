@@ -161,14 +161,17 @@ namespace Limxc.Tools.Sockets.Tcp
         {
             try
             {
-                var now = DateTimeOffset.Now;
-                var task = _received
-                    .SkipUntil(now)
-                    .TakeUntil(now.AddMilliseconds(timeoutMs))
-                    .Select(d => d.ByteToHex())
-                    .Scan((acc, r) => acc + r)
-                    .Select(r => r.TryGetTemplateMatchResults(template, sepBegin, sepEnd).FirstOrDefault())
-                    .ToTask();
+                //var now = DateTimeOffset.Now;
+                //var task = _received
+                //    .SkipUntil(now)
+                //    .TakeUntil(now.AddMilliseconds(timeoutMs))
+                //    .Select(d => d.ByteToHex())
+                //    .Scan((acc, r) => acc + r)
+                //    .Select(r => r.TryGetTemplateMatchResults(template, sepBegin, sepEnd).FirstOrDefault())
+                //    .ToTask();
+
+                var task = _received.Select(p => p.ByteToHex())
+                    .TryGetTemplateMatchResult(template, timeoutMs, sepBegin, sepEnd);
 
                 await _client.SendAsync(new ArraySegment<byte>(hex.HexToByte()), SocketFlags.None);
 

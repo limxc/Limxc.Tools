@@ -97,14 +97,22 @@ namespace Limxc.Tools.SerialPort
             {
                 await Task.Delay(_setting.SendDelay);
 
-                var now = DateTimeOffset.Now;
-                var task = _received
-                    .SkipUntil(now)
-                    .TakeUntil(now.AddMilliseconds(timeoutMs))
-                    .Select(d => d.ByteToHex())
-                    .Scan((acc, r) => acc + r)
-                    .Select(r => r.TryGetTemplateMatchResults(template, sepBegin, sepEnd).FirstOrDefault())
-                    .ToTask();
+                //var now = DateTimeOffset.Now;
+                //var task = _received
+                //    .SkipUntil(now)
+                //    .TakeUntil(now.AddMilliseconds(timeoutMs))
+                //    .Select(d => d.ByteToHex())
+                //    .Scan((acc, r) => acc + r)
+                //    .Select(r => r.TryGetTemplateMatchResults(template, sepBegin, sepEnd).FirstOrDefault())
+                //    .ToTask();
+
+                //var bytes = hex.HexToByte();
+                //_sp.Write(bytes, 0, bytes.Length);
+
+                //return await task;
+
+                var task = _received.Select(p => p.ByteToHex())
+                    .TryGetTemplateMatchResult(template, timeoutMs, sepBegin, sepEnd);
 
                 var bytes = hex.HexToByte();
                 _sp.Write(bytes, 0, bytes.Length);

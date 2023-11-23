@@ -159,6 +159,7 @@ namespace Limxc.Tools.Extensions.Communication
 
         /// <summary>
         ///     根据模板从匹配中获取值<see cref="TryGetTemplateMatchResults" />
+        ///     <seealso cref="TemplateParserExtension.TryGetTemplateMatchResult" />
         /// </summary>
         /// <param name="matched"></param>
         /// <param name="template"></param>
