@@ -9,7 +9,7 @@ namespace Limxc.Tools.Extensions
     public static class MockExtension
     {
         /// <summary>
-        ///     基本类型:Enum,string,bool,int,float,double,decimal
+        ///     基本类型:Enum,string,bool,int,float,double,decimal,datetime
         ///     列表:Array,List<>
         /// </summary>
         /// <param name="source"></param>
@@ -108,6 +108,9 @@ namespace Limxc.Tools.Extensions
 
             if (type == typeof(decimal) || type == typeof(decimal?))
                 return (decimal)(r.NextDouble() * 1000 + 1);
+
+            if (type == typeof(DateTime) || type == typeof(DateTime?))
+                return new DateTime(1900 + r.Next(0, DateTime.Now.Year - 1900 - 1), r.Next(1, 12), r.Next(1, 28));
 
             return null;
         }

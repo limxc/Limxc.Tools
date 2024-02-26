@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Limxc.ToolsTests;
 
@@ -17,6 +18,7 @@ public class TestEntity
     public float FloatValue { get; set; }
     public double? DoubleValue { get; set; }
     public decimal DecimalValue { get; set; }
+    public DateTime DateTime { get; set; }
 }
 
 public class ComplexTestEntity : TestEntity

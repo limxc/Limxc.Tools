@@ -1,34 +1,20 @@
 ﻿using System;
 using System.IO;
 using System.Reactive.Linq;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Text.Unicode;
 using Limxc.Tools.Contract.Interfaces;
 using Limxc.Tools.Core.Common;
-using Limxc.Tools.Extensions;
 
 namespace Limxc.Tools.Core.Services
 {
-    public class JsonFileSettingService<T> : ISettingService<T> where T : class, new()
+    public class TomlFileSettingService<T> : ISettingService<T> where T : class, new()
     {
         private readonly IDisposable _disposable;
         private readonly FileSystemWatcher _fileSystemWatcher;
-        private readonly JsonSerializerOptions _jsonSerializerOptions;
         private readonly ILogService _logService;
 
-        public JsonFileSettingService(ILogService logService = null)
+        public TomlFileSettingService(ILogService logService = null)
         {
             _logService = logService;
-            _jsonSerializerOptions = new JsonSerializerOptions
-            {
-                Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
-                WriteIndented = true,
-                IgnoreReadOnlyProperties = true,
-                ReferenceHandler = ReferenceHandler.IgnoreCycles
-            };
 
             _fileSystemWatcher =
                 new FileSystemWatcher(
@@ -56,10 +42,10 @@ namespace Limxc.Tools.Core.Services
         /// <summary>
         ///     文件名
         /// </summary>
-        public string FileName => $"{Name}.Setting.json";
+        public string FileName => $"{Name}.Setting.toml";
 
         public string BackUpPath =>
-            Path.Combine(Folder, $"{Name}.{DateTime.Now:yyyyMMddHHmmss}.Setting.json");
+            Path.Combine(Folder, $"{Name}.{DateTime.Now:yyyyMMddHHmmss}.Setting.toml");
 
         public string FullPath => Path.Combine(Folder, FileName);
 
@@ -75,9 +61,7 @@ namespace Limxc.Tools.Core.Services
         {
             try
             {
-                var json = JsonSerializer.Serialize(setting, _jsonSerializerOptions);
-
-                json.Save(FullPath, false, Encoding.UTF8);
+                //todo
             }
             catch (Exception)
             {
@@ -96,8 +80,7 @@ namespace Limxc.Tools.Core.Services
             if (File.Exists(FullPath))
                 try
                 {
-                    var json = FullPath.Load(Encoding.UTF8);
-                    setting = JsonSerializer.Deserialize<T>(json, _jsonSerializerOptions);
+                    //todo setting =  
                 }
                 catch (Exception)
                 {

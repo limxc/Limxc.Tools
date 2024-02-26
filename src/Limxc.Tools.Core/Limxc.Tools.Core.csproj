@@ -4,6 +4,9 @@
         <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
         <Description>Helpers for logging, communication etc.</Description>
     </PropertyGroup>
+    <PropertyGroup>
+        <LangVersion>9.0</LangVersion>
+    </PropertyGroup>
     <ItemGroup>
         <Content Include="Nlog.Config">
             <pack>true</pack>
