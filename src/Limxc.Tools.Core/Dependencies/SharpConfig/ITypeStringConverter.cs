@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Limxc.Tools.Core.SharpConfig
+namespace Limxc.Tools.Core.Dependencies.SharpConfig
 {
     /// <summary>
     ///     Defines a type-to-string and string-to-type converter

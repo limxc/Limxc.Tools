@@ -6,13 +6,13 @@ using Limxc.Tools.Core.Common;
 
 namespace Limxc.Tools.Core.Services
 {
-    public class TomlFileSettingService<T> : ISettingService<T> where T : class, new()
+    public abstract class BaseFileSettingService<T> : ISettingService<T> where T : class, new()
     {
         private readonly IDisposable _disposable;
         private readonly FileSystemWatcher _fileSystemWatcher;
         private readonly ILogService _logService;
 
-        public TomlFileSettingService(ILogService logService = null)
+        protected BaseFileSettingService(ILogService logService = null)
         {
             _logService = logService;
 
@@ -33,23 +33,17 @@ namespace Limxc.Tools.Core.Services
         }
 
         /// <summary>
-        ///     文件名前缀
-        /// </summary>
-        public virtual string Name => typeof(T).Name;
-
-        protected virtual string Folder => EnvPath.Default.SettingFolder();
-
-        /// <summary>
         ///     文件名
         /// </summary>
-        public string FileName => $"{Name}.Setting.toml";
+        public string FileName => $"{Name}.Setting.{FileExtension}";
 
         public string BackUpPath =>
-            Path.Combine(Folder, $"{Name}.{DateTime.Now:yyyyMMddHHmmss}.Setting.toml");
+            Path.Combine(Folder, $"{Name}.{DateTime.Now:yyyyMMddHHmmss}.Setting.{FileExtension}");
 
         public string FullPath => Path.Combine(Folder, FileName);
 
         public Action<T> SettingChanged { get; set; }
+
 
         public void Dispose()
         {
@@ -57,13 +51,13 @@ namespace Limxc.Tools.Core.Services
             GC.SuppressFinalize(this);
         }
 
-        public virtual void Save(T setting)
+        public void Save(T setting)
         {
             try
             {
-                //todo
+                SaveSetting(setting);
             }
-            catch (Exception)
+            catch
             {
                 _logService?.Error("配置文件保存失败.");
                 throw;
@@ -74,20 +68,23 @@ namespace Limxc.Tools.Core.Services
         /// </summary>
         /// <param name="initOnFailure">失败时重建(初始值)</param>
         /// <returns></returns>
-        public virtual T Load(bool initOnFailure = true)
+        public T Load(bool initOnFailure = true)
         {
             var setting = new T();
             if (File.Exists(FullPath))
                 try
                 {
-                    //todo setting =  
+                    setting = LoadSetting(FullPath);
                 }
-                catch (Exception)
+                catch
                 {
-                    _logService?.Error($"配置文件加载失败,已备份并重置.{BackUpPath}");
-                    File.Copy(FullPath, BackUpPath, true);
                     if (initOnFailure)
+                    {
+                        _logService?.Error($"配置文件加载失败,已备份并重置.{BackUpPath}");
+                        File.Copy(FullPath, BackUpPath, true);
                         Save(new T());
+                    }
+
                     throw;
                 }
             else
@@ -95,6 +92,7 @@ namespace Limxc.Tools.Core.Services
 
             return setting;
         }
+
 
         public virtual void Dispose(bool disposing)
         {
@@ -104,5 +102,21 @@ namespace Limxc.Tools.Core.Services
                 _fileSystemWatcher?.Dispose();
             }
         }
+
+        #region override
+
+        /// <summary>
+        ///     文件名前缀
+        /// </summary>
+        protected virtual string Name => typeof(T).Name;
+
+        protected virtual string Folder => EnvPath.Default.SettingFolder();
+
+        protected abstract string FileExtension { get; }
+
+        protected abstract void SaveSetting(T setting);
+        protected abstract T LoadSetting(string path);
+
+        #endregion
     }
 }

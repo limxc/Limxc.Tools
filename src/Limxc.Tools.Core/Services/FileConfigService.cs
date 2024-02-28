@@ -1,7 +1,7 @@
 using System.IO;
 using Limxc.Tools.Contract.Interfaces;
 using Limxc.Tools.Core.Common;
-using Limxc.Tools.Core.SharpConfig;
+using Limxc.Tools.Core.Dependencies.SharpConfig;
 
 namespace Limxc.Tools.Core.Services
 {

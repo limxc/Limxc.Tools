@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Limxc.Tools.Core.SharpConfig
+namespace Limxc.Tools.Core.Dependencies.SharpConfig
 {
     /// <summary>
     ///     Represents the base class of all elements

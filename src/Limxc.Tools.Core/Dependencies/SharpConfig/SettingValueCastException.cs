@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Limxc.Tools.Core.SharpConfig
+namespace Limxc.Tools.Core.Dependencies.SharpConfig
 {
     /// <summary>
     ///     Represents an error that occurs when a string value could not be converted to a specific instance.

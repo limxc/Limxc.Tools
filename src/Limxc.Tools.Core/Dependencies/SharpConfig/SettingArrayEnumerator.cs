@@ -3,7 +3,13 @@
 
 // ReSharper disable InconsistentNaming
 
-namespace Limxc.Tools.Core.SharpConfig
+
+// Copyright (c) 2013-2018 Cemalettin Dervis, MIT License.
+// https://github.com/cemdervis/SharpConfig
+
+// ReSharper disable InconsistentNaming
+
+namespace Limxc.Tools.Core.Dependencies.SharpConfig
 {
     // Enumerates the elements of a Setting that represents an array.
     internal sealed class SettingArrayEnumerator

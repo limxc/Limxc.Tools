@@ -2,24 +2,24 @@
 using System.IO;
 using FluentAssertions;
 using Limxc.Tools.Core.Services;
-using Limxc.Tools.CoreTests.Entities;
 using Limxc.Tools.Extensions;
+using Limxc.ToolsTests;
 using Xunit;
 
 namespace Limxc.Tools.CoreTests.Services;
 
-internal class TestTomlFileSettingService : TomlFileSettingService<Demo>
+internal class TestIniFileSettingService : IniFileSettingService<ComplexTestEntity>
 {
     protected override string Folder => Path.GetTempPath();
 }
 
-public class TomlFileSettingServiceTests : IDisposable
+public class IniFileSettingServiceTests : IDisposable
 {
-    private readonly TestTomlFileSettingService _settingService;
+    private readonly TestIniFileSettingService _settingService;
 
-    public TomlFileSettingServiceTests()
+    public IniFileSettingServiceTests()
     {
-        _settingService = new TestTomlFileSettingService();
+        _settingService = new TestIniFileSettingService();
     }
 
     public void Dispose()
@@ -33,10 +33,10 @@ public class TomlFileSettingServiceTests : IDisposable
     [Fact]
     public void SaveAndLoadTest()
     {
-        var demo = new Demo();
-        demo.Mock();
-        _settingService.Save(demo);
+        var test = new ComplexTestEntity();
+        test.Mock();
+        _settingService.Save(test);
         var loadedDemo = _settingService.Load(false);
-        loadedDemo.Should().BeEquivalentTo(demo);
+        loadedDemo.Should().BeEquivalentTo(test);
     }
 }

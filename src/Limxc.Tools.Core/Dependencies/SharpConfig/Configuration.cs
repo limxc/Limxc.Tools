@@ -13,7 +13,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
-namespace Limxc.Tools.Core.SharpConfig
+namespace Limxc.Tools.Core.Dependencies.SharpConfig
 {
     /// <summary>
     ///     Represents a configuration.

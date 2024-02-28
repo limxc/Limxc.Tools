@@ -5,7 +5,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace Limxc.Tools.Core.SharpConfig
+namespace Limxc.Tools.Core.Dependencies.SharpConfig
 {
     internal static class ConfigurationReader
     {

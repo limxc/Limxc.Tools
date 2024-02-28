@@ -7,7 +7,7 @@ namespace Limxc.Tools.Core.Common
 {
     public class EnvPath
     {
-        private static readonly Lazy<EnvPath> Lazy = new Lazy<EnvPath>(() => new EnvPath());
+        private static readonly Lazy<EnvPath> Lazy = new(() => new EnvPath());
         private Func<string> _baseDirectoryFactory;
 
         private EnvPath()

@@ -27,5 +27,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\Limxc.Tools.Core\Limxc.Tools.Core.csproj" />
+        <ProjectReference Include="..\Limxc.ToolsTests\Limxc.ToolsTests.csproj" />
     </ItemGroup>
 </Project>

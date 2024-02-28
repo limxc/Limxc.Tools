@@ -7,7 +7,7 @@
 using System;
 using System.Text;
 
-namespace Limxc.Tools.Core.SharpConfig
+namespace Limxc.Tools.Core.Dependencies.SharpConfig
 {
     /// <summary>
     ///     Represents a setting in a <see cref="Configuration" />.
@@ -27,9 +27,9 @@ namespace Limxc.Tools.Core.SharpConfig
                 return rawValue;
 
             if (
-                rawValue.IndexOf(" ", StringComparison.Ordinal) >= 0 || (
-                    rawValue.IndexOfAny(Configuration.ValidCommentChars) >= 0 &&
-                    !Configuration.IgnoreInlineComments))
+                rawValue.IndexOf(" ", StringComparison.Ordinal) >= 0 ||
+                (rawValue.IndexOfAny(Configuration.ValidCommentChars) >= 0 &&
+                 !Configuration.IgnoreInlineComments))
                 rawValue = "\"" + rawValue + "\"";
 
             return rawValue;

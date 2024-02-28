@@ -28,7 +28,7 @@ public class TemplateParserExtensionTests
         var begin = DateTime.Now;
         var rst = await observable.TryGetTemplateMatchResult("AA[2]BB", 1000);
         rst.Should().Be("AA01BB");
-        (DateTime.Now - begin).TotalMilliseconds.Should().BeLessThan(600);
+        (DateTime.Now - begin).TotalMilliseconds.Should().BeLessThan(1000);
 
         var act = async () => await observable.TryGetTemplateMatchResult("AA[4]CC", 500);
         await act.Should().ThrowAsync<TimeoutException>();

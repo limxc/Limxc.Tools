@@ -1,27 +1,19 @@
-﻿using System;
-using System.IO;
-using System.Reactive.Linq;
-using System.Text;
+﻿using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Unicode;
 using Limxc.Tools.Contract.Interfaces;
-using Limxc.Tools.Core.Common;
 using Limxc.Tools.Extensions;
 
 namespace Limxc.Tools.Core.Services
 {
-    public class JsonFileSettingService<T> : ISettingService<T> where T : class, new()
+    public class JsonFileSettingService<T> : BaseFileSettingService<T> where T : class, new()
     {
-        private readonly IDisposable _disposable;
-        private readonly FileSystemWatcher _fileSystemWatcher;
         private readonly JsonSerializerOptions _jsonSerializerOptions;
-        private readonly ILogService _logService;
 
-        public JsonFileSettingService(ILogService logService = null)
+        public JsonFileSettingService(ILogService logService = null) : base(logService)
         {
-            _logService = logService;
             _jsonSerializerOptions = new JsonSerializerOptions
             {
                 Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
@@ -29,97 +21,20 @@ namespace Limxc.Tools.Core.Services
                 IgnoreReadOnlyProperties = true,
                 ReferenceHandler = ReferenceHandler.IgnoreCycles
             };
-
-            _fileSystemWatcher =
-                new FileSystemWatcher(
-                    Path.GetDirectoryName(FullPath) ??
-                    throw new InvalidOperationException($"Cant find config folder.({Path.GetDirectoryName(FullPath)})"),
-                    FileName)
-                {
-                    EnableRaisingEvents = true,
-                    NotifyFilter = NotifyFilters.LastWrite
-                };
-
-            _disposable = Observable.FromEventPattern(_fileSystemWatcher, nameof(FileSystemWatcher.Changed))
-                .Throttle(TimeSpan.FromSeconds(0.5))
-                .Subscribe(_ =>
-                    SettingChanged?.Invoke(Load()));
         }
 
-        /// <summary>
-        ///     文件名前缀
-        /// </summary>
-        public virtual string Name => typeof(T).Name;
+        protected override string FileExtension => "json";
 
-        protected virtual string Folder => EnvPath.Default.SettingFolder();
-
-        /// <summary>
-        ///     文件名
-        /// </summary>
-        public string FileName => $"{Name}.Setting.json";
-
-        public string BackUpPath =>
-            Path.Combine(Folder, $"{Name}.{DateTime.Now:yyyyMMddHHmmss}.Setting.json");
-
-        public string FullPath => Path.Combine(Folder, FileName);
-
-        public Action<T> SettingChanged { get; set; }
-
-        public void Dispose()
+        protected override void SaveSetting(T setting)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            var json = JsonSerializer.Serialize(setting, _jsonSerializerOptions);
+            json.Save(FullPath, false, Encoding.UTF8);
         }
 
-        public virtual void Save(T setting)
+        protected override T LoadSetting(string path)
         {
-            try
-            {
-                var json = JsonSerializer.Serialize(setting, _jsonSerializerOptions);
-
-                json.Save(FullPath, false, Encoding.UTF8);
-            }
-            catch (Exception)
-            {
-                _logService?.Error("配置文件保存失败.");
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="initOnFailure">失败时重建(初始值)</param>
-        /// <returns></returns>
-        public virtual T Load(bool initOnFailure = true)
-        {
-            var setting = new T();
-            if (File.Exists(FullPath))
-                try
-                {
-                    var json = FullPath.Load(Encoding.UTF8);
-                    setting = JsonSerializer.Deserialize<T>(json, _jsonSerializerOptions);
-                }
-                catch (Exception)
-                {
-                    _logService?.Error($"配置文件加载失败,已备份并重置.{BackUpPath}");
-                    File.Copy(FullPath, BackUpPath, true);
-                    if (initOnFailure)
-                        Save(new T());
-                    throw;
-                }
-            else
-                Save(setting);
-
-            return setting;
-        }
-
-        public virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _disposable?.Dispose();
-                _fileSystemWatcher?.Dispose();
-            }
+            var json = FullPath.Load(Encoding.UTF8);
+            return JsonSerializer.Deserialize<T>(json, _jsonSerializerOptions);
         }
     }
 }
