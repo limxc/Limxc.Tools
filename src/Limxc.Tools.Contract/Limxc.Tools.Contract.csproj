@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
-        <Description>Interfaces etc.</Description>
+        <Description>Interfaces, ect.</Description>
     </PropertyGroup>
 
 </Project>

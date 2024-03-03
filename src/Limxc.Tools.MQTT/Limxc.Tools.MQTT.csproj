@@ -2,14 +2,15 @@
 
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
-        <Description>Serial port service, etc.</Description>
+        <Description>MQTT server and client services, etc.</Description>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="System.IO.Ports" Version="6.*" />
+        <PackageReference Include="MQTTnet.Extensions.External.RxMQTT.Client" Version="4.3.19" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Limxc.Tools\Limxc.Tools.csproj" />
     </ItemGroup>
+
 </Project>

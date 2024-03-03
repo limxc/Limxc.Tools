@@ -37,6 +37,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Limxc.Tools.Sockets", "src\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Limxc.Tools.SocketsTests", "tests\Limxc.Tools.SocketsTests\Limxc.Tools.SocketsTests.csproj", "{907F769A-458E-4769-B7C5-4D752403F6BB}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Limxc.Tools.MQTT", "src\Limxc.Tools.MQTT\Limxc.Tools.MQTT.csproj", "{1B31303B-4A59-41BB-8109-7FC939616542}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Limxc.Tools.MQTTTests", "tests\Limxc.Tools.MQTTTests\Limxc.Tools.MQTTTests.csproj", "{108DC011-198A-475F-80DD-4EB2177DC768}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +87,14 @@ Global
 		{907F769A-458E-4769-B7C5-4D752403F6BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{907F769A-458E-4769-B7C5-4D752403F6BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{907F769A-458E-4769-B7C5-4D752403F6BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B31303B-4A59-41BB-8109-7FC939616542}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B31303B-4A59-41BB-8109-7FC939616542}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B31303B-4A59-41BB-8109-7FC939616542}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B31303B-4A59-41BB-8109-7FC939616542}.Release|Any CPU.Build.0 = Release|Any CPU
+		{108DC011-198A-475F-80DD-4EB2177DC768}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{108DC011-198A-475F-80DD-4EB2177DC768}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{108DC011-198A-475F-80DD-4EB2177DC768}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{108DC011-198A-475F-80DD-4EB2177DC768}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -98,6 +110,8 @@ Global
 		{CAFAFF53-FA8B-406F-8F2D-ABC4D50B8A77} = {8F3EC7F7-6D4C-41F2-822D-2F6DD0FC2892}
 		{9B9FC47D-CF26-45C1-849F-EA4A303BEB15} = {7F1779AD-20F8-4797-BF4A-79AD3D746FC3}
 		{907F769A-458E-4769-B7C5-4D752403F6BB} = {8F3EC7F7-6D4C-41F2-822D-2F6DD0FC2892}
+		{1B31303B-4A59-41BB-8109-7FC939616542} = {7F1779AD-20F8-4797-BF4A-79AD3D746FC3}
+		{108DC011-198A-475F-80DD-4EB2177DC768} = {8F3EC7F7-6D4C-41F2-822D-2F6DD0FC2892}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {331109E3-CBC8-42E6-AE35-8C5111AE53CD}

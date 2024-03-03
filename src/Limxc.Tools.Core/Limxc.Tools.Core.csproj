@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
-        <Description>Helpers for logging, communication etc.</Description>
+        <Description>Helpers for logging, setting services, ect.</Description>
     </PropertyGroup>
     <PropertyGroup>
         <LangVersion>9.0</LangVersion>

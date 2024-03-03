@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
-        <Description>Basic utils, extensions, abstractions.</Description>
+        <Description>Common tools, extensions ect.</Description>
     </PropertyGroup>
 
     <ItemGroup>
