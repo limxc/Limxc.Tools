@@ -30,18 +30,15 @@ public class EnumExtensionTests
     [Fact]
     public void GetNameDescriptionsTest()
     {
-        default(TestEnum).GetNameDescriptions().Should().BeEquivalentTo(new List<(string, string)>
-        {
-            ("A", "a"),
-            ("B", "b")
-        });
+        default(TestEnum)
+            .GetNameDescriptions()
+            .Should()
+            .BeEquivalentTo(new List<(string, string)> { ("A", "a"), ("B", "b") });
 
-        default(TestEnum).GetNameDescriptions(true).Should().BeEquivalentTo(new List<(string, string)>
-        {
-            ("A", "a"),
-            ("B", "b"),
-            ("C", "")
-        });
+        default(TestEnum)
+            .GetNameDescriptions(true)
+            .Should()
+            .BeEquivalentTo(new List<(string, string)> { ("A", "a"), ("B", "b"), ("C", "") });
     }
 
     [Fact]
@@ -62,8 +59,11 @@ public class EnumExtensionTests
 
     private enum TestEnum
     {
-        [Description("a")] A,
-        [Description("b")] B,
+        [Description("a")]
+        A,
+
+        [Description("b")]
+        B,
         C
     }
 }

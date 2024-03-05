@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using TestHost.Annotations;
 
 namespace TestHost;
+
 //public class BindingEntity : INotifyPropertyChanged
 //{
 //    private DateTime _time = DateTime.Now;
@@ -71,7 +72,7 @@ namespace TestHost;
 //public class BindingEntity : INotifyPropertyChanged
 //{
 
-//    public event PropertyChangedEventHandler PropertyChanged; 
+//    public event PropertyChangedEventHandler PropertyChanged;
 //    public string Message { get; set; }
 
 //    public decimal Value { get; set; }
@@ -113,7 +114,8 @@ public class BindingEntity : INotifyPropertyChanged
         get => _message;
         set
         {
-            if (value == _message) return;
+            if (value == _message)
+                return;
             _message = value;
             OnPropertyChanged();
         }
@@ -124,7 +126,8 @@ public class BindingEntity : INotifyPropertyChanged
         get => _value;
         set
         {
-            if (value == _value) return;
+            if (value == _value)
+                return;
             _value = value;
             OnPropertyChanged();
         }
@@ -135,7 +138,8 @@ public class BindingEntity : INotifyPropertyChanged
         get => _time;
         set
         {
-            if (value.Equals(_time)) return;
+            if (value.Equals(_time))
+                return;
             _time = value;
             OnPropertyChanged();
         }
@@ -146,7 +150,8 @@ public class BindingEntity : INotifyPropertyChanged
         get => _timeNull;
         set
         {
-            if (Nullable.Equals(value, _timeNull)) return;
+            if (Nullable.Equals(value, _timeNull))
+                return;
             _timeNull = value;
             OnPropertyChanged();
         }
@@ -157,7 +162,8 @@ public class BindingEntity : INotifyPropertyChanged
         get => _intValue;
         set
         {
-            if (value == _intValue) return;
+            if (value == _intValue)
+                return;
             _intValue = value;
             OnPropertyChanged();
         }
@@ -170,7 +176,8 @@ public class BindingEntity : INotifyPropertyChanged
         get => _inner;
         set
         {
-            if (Equals(value, _inner)) return;
+            if (Equals(value, _inner))
+                return;
             _inner = value;
             OnPropertyChanged();
         }

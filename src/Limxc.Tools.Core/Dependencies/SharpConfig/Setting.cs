@@ -2,7 +2,7 @@
 // https://github.com/cemdervis/SharpConfig
 
 
-// ReSharper disable InconsistentNaming 
+// ReSharper disable InconsistentNaming
 
 using System;
 using System.Text;
@@ -27,9 +27,12 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
                 return rawValue;
 
             if (
-                rawValue.IndexOf(" ", StringComparison.Ordinal) >= 0 ||
-                (rawValue.IndexOfAny(Configuration.ValidCommentChars) >= 0 &&
-                 !Configuration.IgnoreInlineComments))
+                rawValue.IndexOf(" ", StringComparison.Ordinal) >= 0
+                || (
+                    rawValue.IndexOfAny(Configuration.ValidCommentChars) >= 0
+                    && !Configuration.IgnoreInlineComments
+                )
+            )
                 rawValue = "\"" + rawValue + "\"";
 
             return rawValue;
@@ -55,7 +58,8 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
                 elementType = elementType.GetElementType();
 
             throw new ArgumentException(
-                $"Jagged arrays are not supported. The type you have specified is '{type.Name}', but '{elementType?.Name}' was expected.");
+                $"Jagged arrays are not supported. The type you have specified is '{type.Name}', but '{elementType?.Name}' was expected."
+            );
         }
 
         #region Fields
@@ -72,9 +76,7 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
         ///     Initializes a new instance of the <see cref="Setting" /> class.
         /// </summary>
         public Setting(string name)
-            : this(name, string.Empty)
-        {
-        }
+            : this(name, string.Empty) { }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="Setting" /> class.
@@ -95,8 +97,7 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
         /// <summary>
         ///     Gets a value indicating whether this setting's value is empty.
         /// </summary>
-        public bool IsEmpty
-            => string.IsNullOrEmpty(RawValue);
+        public bool IsEmpty => string.IsNullOrEmpty(RawValue);
 
         /// <summary>
         ///     Gets the value of this setting as a <see cref="string" />, with quotes removed if present.
@@ -338,8 +339,7 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
         /// <summary>
         ///     Gets a value indicating whether this setting is an array.
         /// </summary>
-        public bool IsArray
-            => ArraySize >= 0;
+        public bool IsArray => ArraySize >= 0;
 
         /// <summary>
         ///     Gets the size of the array that this setting represents.
@@ -395,11 +395,13 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
 
             if (type.IsArray)
                 throw new InvalidOperationException(
-                    "To obtain an array value, use GetValueArray() instead of GetValue().");
+                    "To obtain an array value, use GetValueArray() instead of GetValue()."
+                );
 
             if (IsArray)
                 throw new InvalidOperationException(
-                    "The setting represents an array. Use GetValueArray() to obtain its value.");
+                    "The setting represents an array. Use GetValueArray() to obtain its value."
+                );
 
             return CreateObjectFromString(RawValue, type);
         }
@@ -450,11 +452,13 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
 
             if (type.IsArray)
                 throw new InvalidOperationException(
-                    "To obtain an array value, use GetValueArray() instead of GetValue().");
+                    "To obtain an array value, use GetValueArray() instead of GetValue()."
+                );
 
             if (IsArray)
                 throw new InvalidOperationException(
-                    "The setting represents an array. Use GetValueArray() to obtain its value.");
+                    "The setting represents an array. Use GetValueArray() to obtain its value."
+                );
 
             return (T)CreateObjectFromString(RawValue, type);
         }
@@ -512,11 +516,14 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
             var type = typeof(T);
 
             if (type.IsArray)
-                throw new InvalidOperationException("GetValueOrDefault<T> cannot be used with arrays.");
+                throw new InvalidOperationException(
+                    "GetValueOrDefault<T> cannot be used with arrays."
+                );
 
             if (IsArray)
                 throw new InvalidOperationException(
-                    "The setting represents an array. Use GetValueArray() to obtain its value.");
+                    "The setting represents an array. Use GetValueArray() to obtain its value."
+                );
 
             var result = CreateObjectFromString(RawValue, type, true);
 
@@ -530,7 +537,11 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
         }
 
         // Converts the value of a single element to a desired type.
-        private static object CreateObjectFromString(string value, Type dstType, bool tryConvert = false)
+        private static object CreateObjectFromString(
+            string value,
+            Type dstType,
+            bool tryConvert = false
+        )
         {
             var underlyingType = Nullable.GetUnderlyingType(dstType);
             if (underlyingType != null)
@@ -588,10 +599,12 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
                         strings[i] = GetValueForOutput(converter.ConvertToString(elemValue));
                     }
 
-                    RawValue = $"{{{string.Join(Configuration.ArrayElementSeparator.ToString(), strings)}}}";
+                    RawValue =
+                        $"{{{string.Join(Configuration.ArrayElementSeparator.ToString(), strings)}}}";
                 }
 
-                if (values != null) mCachedArraySize = values.Length;
+                if (values != null)
+                    mCachedArraySize = values.Length;
                 mShouldCalculateArraySize = false;
             }
             else

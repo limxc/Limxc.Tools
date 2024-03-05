@@ -11,20 +11,17 @@ namespace Limxc.Tools.Common
         public ProbRandom(float[] probabilities)
         {
             if (probabilities.Length < 1)
-                throw new ArgumentException($"The length of [{nameof(probabilities)}] must be greater than  0.");
+                throw new ArgumentException(
+                    $"The length of [{nameof(probabilities)}] must be greater than  0."
+                );
 
             _rnd = new Random(DateTime.Now.GetHashCode());
 
-            _ip = probabilities
-                .Select((p, i) => (i, p))
-                .OrderByDescending(p => p.p)
-                .ToArray();
+            _ip = probabilities.Select((p, i) => (i, p)).OrderByDescending(p => p.p).ToArray();
 
             var total = probabilities.Sum();
             if (Math.Abs(total - 1) > 0.001f)
-                _ip = probabilities
-                    .Select((p, i) => (i, p / total))
-                    .ToArray();
+                _ip = probabilities.Select((p, i) => (i, p / total)).ToArray();
         }
 
         public int NextIndex()

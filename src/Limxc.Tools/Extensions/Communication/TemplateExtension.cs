@@ -14,7 +14,11 @@ namespace Limxc.Tools.Extensions.Communication
         /// <param name="sepBegin"></param>
         /// <param name="sepEnd"></param>
         /// <returns></returns>
-        public static int GetLengthByTemplate(this string template, char sepBegin = '[', char sepEnd = ']')
+        public static int GetLengthByTemplate(
+            this string template,
+            char sepBegin = '[',
+            char sepEnd = ']'
+        )
         {
             template = template.Replace(" ", "");
             var len = 0;
@@ -51,14 +55,37 @@ namespace Limxc.Tools.Extensions.Communication
         /// <param name="sepEnd"></param>
         /// <param name="options">默认:'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'</param>
         /// <returns></returns>
-        public static string SimulateByTemplate(this string template, char sepBegin = '[', char sepEnd = ']',
-            char[] options = null)
+        public static string SimulateByTemplate(
+            this string template,
+            char sepBegin = '[',
+            char sepEnd = ']',
+            char[] options = null
+        )
         {
             if (string.IsNullOrWhiteSpace(template))
                 return string.Empty;
 
-            var keys = options ?? new[]
-                { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+            var keys =
+                options
+                ?? new[]
+                {
+                    '0',
+                    '1',
+                    '2',
+                    '3',
+                    '4',
+                    '5',
+                    '6',
+                    '7',
+                    '8',
+                    '9',
+                    'A',
+                    'B',
+                    'C',
+                    'D',
+                    'E',
+                    'F'
+                };
             var rnd = new Random(Guid.NewGuid().GetHashCode());
 
             template = template.Replace(" ", "");
@@ -70,7 +97,8 @@ namespace Limxc.Tools.Extensions.Communication
 
             for (var i = 0; i < template.Length; i++)
             {
-                if (template[i] == sepBegin) matchStarted = true;
+                if (template[i] == sepBegin)
+                    matchStarted = true;
 
                 if (!matchStarted)
                 {
@@ -83,7 +111,8 @@ namespace Limxc.Tools.Extensions.Communication
                 if (template[i] == sepEnd)
                 {
                     var count = Convert.ToInt32(matches.Substring(1, matches.Length - 2));
-                    for (var j = 0; j < count; j++) sb.Append(keys[rnd.Next(keys.Length)]);
+                    for (var j = 0; j < count; j++)
+                        sb.Append(keys[rnd.Next(keys.Length)]);
 
                     matchStarted = false;
                     matches = string.Empty;
@@ -92,7 +121,6 @@ namespace Limxc.Tools.Extensions.Communication
 
             return sb.ToString();
         }
-
 
         /// <summary>
         ///     是否匹配模板
@@ -103,8 +131,13 @@ namespace Limxc.Tools.Extensions.Communication
         /// <param name="sepBegin"></param>
         /// <param name="sepEnd"></param>
         /// <returns></returns>
-        public static bool IsTemplateMatch(this string source, string template, bool restrict = false,
-            char sepBegin = '[', char sepEnd = ']')
+        public static bool IsTemplateMatch(
+            this string source,
+            string template,
+            bool restrict = false,
+            char sepBegin = '[',
+            char sepEnd = ']'
+        )
         {
             if (string.IsNullOrWhiteSpace(template))
                 return string.IsNullOrWhiteSpace(source);
@@ -137,8 +170,12 @@ namespace Limxc.Tools.Extensions.Communication
         /// <param name="sepBegin"></param>
         /// <param name="sepEnd"></param>
         /// <returns></returns>
-        public static List<string> TryGetTemplateMatchResults(this string source, string template, char sepBegin = '[',
-            char sepEnd = ']')
+        public static List<string> TryGetTemplateMatchResults(
+            this string source,
+            string template,
+            char sepBegin = '[',
+            char sepEnd = ']'
+        )
         {
             template = template.Replace(" ", "");
             source = source.Replace(" ", "");
@@ -153,7 +190,8 @@ namespace Limxc.Tools.Extensions.Communication
                 pattern = pattern.Replace(o, n);
             }
 
-            foreach (Match m in Regex.Matches(source, pattern, RegexOptions.IgnoreCase)) list.Add(m.Value);
+            foreach (Match m in Regex.Matches(source, pattern, RegexOptions.IgnoreCase))
+                list.Add(m.Value);
             return list;
         }
 
@@ -166,8 +204,12 @@ namespace Limxc.Tools.Extensions.Communication
         /// <param name="sepBegin"></param>
         /// <param name="sepEnd"></param>
         /// <returns></returns>
-        public static List<string> GetMatchValues(this string matched, string template, char sepBegin = '[',
-            char sepEnd = ']')
+        public static List<string> GetMatchValues(
+            this string matched,
+            string template,
+            char sepBegin = '[',
+            char sepEnd = ']'
+        )
         {
             var values = new List<string>();
 
@@ -181,7 +223,8 @@ namespace Limxc.Tools.Extensions.Communication
             var idx = 0;
             foreach (var c in template)
             {
-                if (c == sepBegin) matchStarted = true;
+                if (c == sepBegin)
+                    matchStarted = true;
 
                 if (matchStarted)
                     matches += c;

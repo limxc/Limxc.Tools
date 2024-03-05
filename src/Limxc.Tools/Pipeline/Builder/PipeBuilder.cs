@@ -6,7 +6,8 @@ using Limxc.Tools.Pipeline.Context;
 
 namespace Limxc.Tools.Pipeline.Builder
 {
-    public class PipeBuilder<T> : IPipeBuilder<T> where T : class
+    public class PipeBuilder<T> : IPipeBuilder<T>
+        where T : class
     {
         private readonly List<Func<PipeHandlerDel<T>, PipeHandlerDel<T>>> _handlers =
             new List<Func<PipeHandlerDel<T>, PipeHandlerDel<T>>>();
@@ -77,7 +78,10 @@ namespace Limxc.Tools.Pipeline.Builder
             return this;
         }
 
-        public IPipeBuilder<T> Use(Func<T, CancellationToken, Task> handler, string descForSnapshot = null)
+        public IPipeBuilder<T> Use(
+            Func<T, CancellationToken, Task> handler,
+            string descForSnapshot = null
+        )
         {
             Func<PipeHandlerDel<T>, PipeHandlerDel<T>> warp = next =>
             {
@@ -86,7 +90,10 @@ namespace Limxc.Tools.Pipeline.Builder
                     if (handler != null && !token.IsCancellationRequested)
                     {
                         await handler(context.Body, token).ConfigureAwait(false);
-                        if (!string.IsNullOrWhiteSpace(descForSnapshot) && !token.IsCancellationRequested)
+                        if (
+                            !string.IsNullOrWhiteSpace(descForSnapshot)
+                            && !token.IsCancellationRequested
+                        )
                             context.AddSnapshot(descForSnapshot);
                     }
 
@@ -98,7 +105,10 @@ namespace Limxc.Tools.Pipeline.Builder
             return this;
         }
 
-        public IPipeBuilder<T> Use(Action<T, CancellationToken> handler, string descForSnapshot = null)
+        public IPipeBuilder<T> Use(
+            Action<T, CancellationToken> handler,
+            string descForSnapshot = null
+        )
         {
             Func<PipeHandlerDel<T>, PipeHandlerDel<T>> warp = next =>
             {
@@ -107,7 +117,10 @@ namespace Limxc.Tools.Pipeline.Builder
                     if (handler != null && !token.IsCancellationRequested)
                     {
                         handler(context.Body, token);
-                        if (!string.IsNullOrWhiteSpace(descForSnapshot) && !token.IsCancellationRequested)
+                        if (
+                            !string.IsNullOrWhiteSpace(descForSnapshot)
+                            && !token.IsCancellationRequested
+                        )
                             context.AddSnapshot(descForSnapshot);
                     }
 

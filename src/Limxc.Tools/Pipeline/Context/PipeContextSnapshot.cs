@@ -2,7 +2,8 @@
 
 namespace Limxc.Tools.Pipeline.Context
 {
-    public class PipeContextSnapshot<T> where T : class
+    public class PipeContextSnapshot<T>
+        where T : class
     {
         public PipeContextSnapshot(T body, string desc)
         {

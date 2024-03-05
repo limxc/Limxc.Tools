@@ -3,7 +3,7 @@
 
 
 // ReSharper disable EmptyEmbeddedStatement
-// ReSharper disable RedundantAssignment 
+// ReSharper disable RedundantAssignment
 // ReSharper disable InconsistentNaming
 
 using System;
@@ -118,7 +118,9 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
                 throw new ArgumentNullException("section");
 
             if (Contains(section))
-                throw new ArgumentException("The specified section already exists in the configuration.");
+                throw new ArgumentException(
+                    "The specified section already exists in the configuration."
+                );
 
             mSections.Add(section);
         }
@@ -172,7 +174,8 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
             if (string.IsNullOrEmpty(sectionName))
                 throw new ArgumentNullException("sectionName");
 
-            while (Remove(sectionName)) ;
+            while (Remove(sectionName))
+                ;
         }
 
         /// <summary>
@@ -292,7 +295,9 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
 
             var type = converter.ConvertibleType;
             if (mTypeStringConverters.ContainsKey(type))
-                throw new InvalidOperationException($"A converter for type '{type.FullName}' is already registered.");
+                throw new InvalidOperationException(
+                    $"A converter for type '{type.FullName}' is already registered."
+                );
 
             mTypeStringConverters.Add(type, converter);
         }
@@ -309,7 +314,9 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
                 throw new ArgumentNullException("type");
 
             if (!mTypeStringConverters.ContainsKey(type))
-                throw new InvalidOperationException($"No converter is registered for type '{type.FullName}'.");
+                throw new InvalidOperationException(
+                    $"No converter is registered for type '{type.FullName}'."
+                );
 
             mTypeStringConverters.Remove(type);
         }
@@ -396,7 +403,8 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
 
             string source = null;
 
-            var reader = encoding == null ? new StreamReader(stream) : new StreamReader(stream, encoding);
+            var reader =
+                encoding == null ? new StreamReader(stream) : new StreamReader(stream, encoding);
 
             using (reader)
             {
@@ -627,7 +635,9 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
             set
             {
                 if (!Array.Exists(ValidCommentChars, c => c == value))
-                    throw new ArgumentException("The specified char '" + value + "' is not allowed as a comment char.");
+                    throw new ArgumentException(
+                        "The specified char '" + value + "' is not allowed as a comment char."
+                    );
 
                 mPreferredCommentChar = value;
             }
@@ -735,8 +745,7 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
         /// <summary>
         ///     Gets the default, hidden section.
         /// </summary>
-        public Section DefaultSection
-            => this[Section.DefaultSectionName];
+        public Section DefaultSection => this[Section.DefaultSectionName];
 
         /// <summary>
         ///     Gets all sections that have a specific name.

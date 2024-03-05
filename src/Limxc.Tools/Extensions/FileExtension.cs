@@ -28,7 +28,12 @@ namespace Limxc.Tools.Extensions
             }
         }
 
-        public static void Save(this string msg, string fullPath, bool append = false, Encoding encoding = null)
+        public static void Save(
+            this string msg,
+            string fullPath,
+            bool append = false,
+            Encoding encoding = null
+        )
         {
             if (string.IsNullOrWhiteSpace(fullPath))
                 throw new ArgumentException($"FullPath is invalid. {fullPath}");
@@ -37,19 +42,27 @@ namespace Limxc.Tools.Extensions
                 Directory.CreateDirectory(folder);
 
             if (append)
-                using (var fs = new FileStream(fullPath,
-                           FileMode.Append,
-                           FileAccess.Write,
-                           FileShare.ReadWrite))
+                using (
+                    var fs = new FileStream(
+                        fullPath,
+                        FileMode.Append,
+                        FileAccess.Write,
+                        FileShare.ReadWrite
+                    )
+                )
                 using (var sr = new StreamWriter(fs, encoding ?? Encoding.Default))
                 {
                     sr.Write(msg);
                 }
             else
-                using (var fs = new FileStream(fullPath,
-                           FileMode.OpenOrCreate,
-                           FileAccess.ReadWrite,
-                           FileShare.ReadWrite))
+                using (
+                    var fs = new FileStream(
+                        fullPath,
+                        FileMode.OpenOrCreate,
+                        FileAccess.ReadWrite,
+                        FileShare.ReadWrite
+                    )
+                )
                 {
                     fs.SetLength(0);
 
@@ -60,8 +73,12 @@ namespace Limxc.Tools.Extensions
                 }
         }
 
-        public static async Task SaveAsync(this string msg, string fullPath, bool append = false,
-            Encoding encoding = null)
+        public static async Task SaveAsync(
+            this string msg,
+            string fullPath,
+            bool append = false,
+            Encoding encoding = null
+        )
         {
             if (string.IsNullOrWhiteSpace(fullPath))
                 throw new ArgumentException($"FullPath is invalid. {fullPath}");
@@ -70,24 +87,32 @@ namespace Limxc.Tools.Extensions
                 Directory.CreateDirectory(folder);
 
             if (append)
-                using (var fs = new FileStream(fullPath,
-                           FileMode.Append,
-                           FileAccess.Write,
-                           FileShare.ReadWrite,
-                           4096,
-                           FileOptions.Asynchronous))
+                using (
+                    var fs = new FileStream(
+                        fullPath,
+                        FileMode.Append,
+                        FileAccess.Write,
+                        FileShare.ReadWrite,
+                        4096,
+                        FileOptions.Asynchronous
+                    )
+                )
                 using (var sr = new StreamWriter(fs, encoding ?? Encoding.Default))
                 {
                     await sr.WriteAsync(msg);
                     await sr.FlushAsync();
                 }
             else
-                using (var fs = new FileStream(fullPath,
-                           FileMode.OpenOrCreate,
-                           FileAccess.ReadWrite,
-                           FileShare.ReadWrite,
-                           4096,
-                           FileOptions.Asynchronous))
+                using (
+                    var fs = new FileStream(
+                        fullPath,
+                        FileMode.OpenOrCreate,
+                        FileAccess.ReadWrite,
+                        FileShare.ReadWrite,
+                        4096,
+                        FileOptions.Asynchronous
+                    )
+                )
                 {
                     fs.SetLength(0);
 
@@ -103,10 +128,14 @@ namespace Limxc.Tools.Extensions
             if (!File.Exists(fullPath))
                 return string.Empty;
 
-            using (var fs = new FileStream(fullPath,
-                       FileMode.OpenOrCreate,
-                       FileAccess.Read,
-                       FileShare.ReadWrite))
+            using (
+                var fs = new FileStream(
+                    fullPath,
+                    FileMode.OpenOrCreate,
+                    FileAccess.Read,
+                    FileShare.ReadWrite
+                )
+            )
             using (var sr = new StreamReader(fs, encoding ?? Encoding.Default))
             {
                 return sr.ReadToEnd();
@@ -118,12 +147,16 @@ namespace Limxc.Tools.Extensions
             if (!File.Exists(fullPath))
                 return string.Empty;
 
-            using (var fs = new FileStream(fullPath,
-                       FileMode.OpenOrCreate,
-                       FileAccess.Read,
-                       FileShare.ReadWrite,
-                       4096,
-                       FileOptions.Asynchronous))
+            using (
+                var fs = new FileStream(
+                    fullPath,
+                    FileMode.OpenOrCreate,
+                    FileAccess.Read,
+                    FileShare.ReadWrite,
+                    4096,
+                    FileOptions.Asynchronous
+                )
+            )
             {
                 using (var sr = new StreamReader(fs, encoding ?? Encoding.Default))
                 {

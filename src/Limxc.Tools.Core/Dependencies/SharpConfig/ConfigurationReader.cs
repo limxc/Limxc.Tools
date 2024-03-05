@@ -60,7 +60,10 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
                 if (lineWithoutComment.StartsWith("[")) // Section
                 {
                     // If the first section has been found but settings already exist, add them to the default section.
-                    if (currentSection.Name == Section.DefaultSectionName && currentSection.SettingCount > 0)
+                    if (
+                        currentSection.Name == Section.DefaultSectionName
+                        && currentSection.SettingCount > 0
+                    )
                         config.mSections.Add(currentSection);
 
                     currentSection = ParseSection(lineWithoutComment, lineNumber);
@@ -71,8 +74,9 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
                     if (!Configuration.IgnorePreComments && preCommentBuilder.Length > 0)
                     {
                         // Set the current section's pre-comment, removing the last newline character.
-                        currentSection.PreComment =
-                            preCommentBuilder.ToString().TrimEnd(Environment.NewLine.ToCharArray());
+                        currentSection.PreComment = preCommentBuilder
+                            .ToString()
+                            .TrimEnd(Environment.NewLine.ToCharArray());
                         preCommentBuilder.Length = 0; // Clear the SB - With .NET >= 4.0: preCommentBuilder.Clear()
                     }
 
@@ -80,8 +84,10 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
                 }
                 else // Setting
                 {
-                    var setting = ParseSetting(Configuration.IgnoreInlineComments ? line : lineWithoutComment,
-                        lineNumber);
+                    var setting = ParseSetting(
+                        Configuration.IgnoreInlineComments ? line : lineWithoutComment,
+                        lineNumber
+                    );
 
                     if (!Configuration.IgnoreInlineComments)
                         setting.Comment = comment;
@@ -89,7 +95,9 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
                     if (!Configuration.IgnorePreComments && preCommentBuilder.Length > 0)
                     {
                         // Set the setting's pre-comment, removing the last newline character.
-                        setting.PreComment = preCommentBuilder.ToString().TrimEnd(Environment.NewLine.ToCharArray());
+                        setting.PreComment = preCommentBuilder
+                            .ToString()
+                            .TrimEnd(Environment.NewLine.ToCharArray());
                         preCommentBuilder.Length = 0; // Clear the SB - With .NET >= 4.0: preCommentBuilder.Clear()
                     }
 
@@ -114,7 +122,8 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
             var quoteCount = 0;
             while (line.Length > index) // traverse line from left to right
             {
-                var isValidCommentChar = Array.IndexOf(Configuration.ValidCommentChars, line[index]) > -1;
+                var isValidCommentChar =
+                    Array.IndexOf(Configuration.ValidCommentChars, line[index]) > -1;
                 var isQuotationMark = line[index] == '\"';
                 var isCharWithinQuotes = quoteCount % 2 == 1;
                 var isCharEscaped = index > 0 && line[index - 1] == '\\';

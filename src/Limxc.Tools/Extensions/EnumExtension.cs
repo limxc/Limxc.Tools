@@ -35,29 +35,35 @@ namespace Limxc.Tools.Extensions
             return rst;
         }
 
-        public static List<(string Name, string Description)> GetNameDescriptions<T>(this T enumValue,
-            bool hasEmpty = false) where T : Enum
+        public static List<(string Name, string Description)> GetNameDescriptions<T>(
+            this T enumValue,
+            bool hasEmpty = false
+        )
+            where T : Enum
         {
             var rst = new List<(string Name, string Description)>();
 
             foreach (var name in Enum.GetNames(typeof(T)))
             {
                 var desc = name.ToEnum<T>().Description();
-                if (string.IsNullOrWhiteSpace(desc) && !hasEmpty) continue;
+                if (string.IsNullOrWhiteSpace(desc) && !hasEmpty)
+                    continue;
                 rst.Add((name, desc));
             }
 
             return rst;
         }
 
-        public static T ToEnum<T>(this string enumName) where T : Enum
+        public static T ToEnum<T>(this string enumName)
+            where T : Enum
         {
             if (!Enum.IsDefined(typeof(T), enumName))
                 return default;
             return (T)Enum.Parse(typeof(T), enumName);
         }
 
-        public static T ToEnumByDesc<T>(this string enumDescription) where T : Enum
+        public static T ToEnumByDesc<T>(this string enumDescription)
+            where T : Enum
         {
             foreach (var name in Enum.GetNames(typeof(T)))
                 if (name.ToEnum<T>().Description() == enumDescription)

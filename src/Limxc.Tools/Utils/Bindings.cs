@@ -35,9 +35,7 @@ namespace Limxc.Tools.Utils
         /// <summary>
         ///     Unbind this instance. This cannot be undone.
         /// </summary>
-        public virtual void Unbind()
-        {
-        }
+        public virtual void Unbind() { }
 
         /// <summary>
         ///     Uses the lambda expression to create data bindings.
@@ -80,7 +78,6 @@ namespace Limxc.Tools.Utils
 
                 return new MultipleBindingsContext(parts.Select(BindExpression));
             }
-
 
             //
             // Are we binding two values?
@@ -169,8 +166,12 @@ namespace Limxc.Tools.Utils
                     if (_target is INotifyPropertyChanged npc && _member is PropertyInfo)
                         npc.PropertyChanged += HandleNotifyPropertyChanged;
                     else
-                        AddHandlerForFirstExistingEvent(_member.Name + "Changed", "EditingDidEnd", "ValueChanged",
-                            "Changed");
+                        AddHandlerForFirstExistingEvent(
+                            _member.Name + "Changed",
+                            "EditingDidEnd",
+                            "ValueChanged",
+                            "Changed"
+                        );
                 }
             }
 
@@ -185,15 +186,23 @@ namespace Limxc.Tools.Utils
                     if (ev != null)
                     {
                         _eventInfo = ev;
-                        var isClassicHandler = typeof(EventHandler).GetTypeInfo()
+                        var isClassicHandler = typeof(EventHandler)
+                            .GetTypeInfo()
                             .IsAssignableFrom(ev.EventHandlerType.GetTypeInfo());
 
                         _eventHandler = isClassicHandler
                             ? (EventHandler)HandleAnyEvent
-                            : CreateGenericEventHandler(ev, () => HandleAnyEvent(null, EventArgs.Empty));
+                            : CreateGenericEventHandler(
+                                ev,
+                                () => HandleAnyEvent(null, EventArgs.Empty)
+                            );
 
                         ev.AddEventHandler(_target, _eventHandler);
-                        Debug.WriteLine("BIND: Added handler for {0} on {1}", _eventInfo.Name, _target);
+                        Debug.WriteLine(
+                            "BIND: Added handler for {0} on {1}",
+                            _eventInfo.Name,
+                            _target
+                        );
                         return true;
                     }
                 }
@@ -224,9 +233,13 @@ namespace Limxc.Tools.Utils
                 var eventParams = handlerInvokeInfo.GetParameters();
 
                 //lambda: (object x0, EventArgs x1) => d()
-                var parameters = eventParams.Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToArray();
-                var body = Expression.Call(Expression.Constant(d),
-                    d.GetType().GetTypeInfo().GetDeclaredMethod("Invoke"));
+                var parameters = eventParams
+                    .Select(p => Expression.Parameter(p.ParameterType, p.Name))
+                    .ToArray();
+                var body = Expression.Call(
+                    Expression.Constant(d),
+                    d.GetType().GetTypeInfo().GetDeclaredMethod("Invoke")
+                );
                 var lambda = Expression.Lambda(body, parameters);
 
                 var delegateInvokeInfo = lambda.Compile().GetMethodInfo();
@@ -269,7 +282,8 @@ namespace Limxc.Tools.Utils
             /// <param name="action">Action.</param>
             public void AddAction(MemberChangeAction action)
             {
-                if (_actions.Count == 0) AddChangeNotificationEventHandler();
+                if (_actions.Count == 0)
+                    AddChangeNotificationEventHandler();
 
                 _actions.Add(action);
             }
@@ -278,7 +292,8 @@ namespace Limxc.Tools.Utils
             {
                 _actions.Remove(action);
 
-                if (_actions.Count == 0) UnsubscribeFromChangeNotificationEvent();
+                if (_actions.Count == 0)
+                    UnsubscribeFromChangeNotificationEvent();
             }
 
             /// <summary>
@@ -287,14 +302,19 @@ namespace Limxc.Tools.Utils
             /// <param name="changeId">Change identifier.</param>
             public void Notify(int changeId)
             {
-                foreach (var s in _actions) s.Notify(changeId);
+                foreach (var s in _actions)
+                    s.Notify(changeId);
             }
         }
 
         private static readonly Dictionary<Tuple<object, MemberInfo>, MemberActions> ObjectSubs =
             new Dictionary<Tuple<object, MemberInfo>, MemberActions>();
 
-        internal static MemberChangeAction AddMemberChangeAction(object target, MemberInfo member, Action<int> k)
+        internal static MemberChangeAction AddMemberChangeAction(
+            object target,
+            MemberInfo member,
+            Action<int> k
+        )
         {
             var key = Tuple.Create(target, member);
             if (!ObjectSubs.TryGetValue(key, out var subs))
@@ -351,7 +371,6 @@ namespace Limxc.Tools.Utils
         #endregion
     }
 
-
     /// <summary>
     ///     An action tied to a particular member of an object.
     ///     When Notify is called, the action is executed.
@@ -378,7 +397,6 @@ namespace Limxc.Tools.Utils
         }
     }
 
-
     /// <summary>
     ///     Methods that can evaluate Linq expressions.
     /// </summary>
@@ -390,7 +408,8 @@ namespace Limxc.Tools.Utils
         /// <param name="expr">The expression.</param>
         public static object EvalExpression(Expression expr)
         {
-            if (expr.NodeType == ExpressionType.Constant) return ((ConstantExpression)expr).Value;
+            if (expr.NodeType == ExpressionType.Constant)
+                return ((ConstantExpression)expr).Value;
 
             var lambda = Expression.Lambda(expr, Enumerable.Empty<ParameterExpression>());
             return lambda.Compile().DynamicInvoke();
@@ -456,9 +475,11 @@ namespace Limxc.Tools.Utils
             if (v == null && _value == null)
                 return;
 
-            if ((v == null && _value != null) ||
-                (v != null && _value == null) ||
-                (v is IComparable && ((IComparable)v).CompareTo(_value) != 0))
+            if (
+                (v == null && _value != null)
+                || (v != null && _value == null)
+                || (v is IComparable && ((IComparable)v).CompareTo(_value) != 0)
+            )
             {
                 _value = v;
 
@@ -479,7 +500,11 @@ namespace Limxc.Tools.Utils
         private static void Subscribe(List<Trigger> triggers, Action<int> action)
         {
             foreach (var t in triggers)
-                t.ChangeAction = AddMemberChangeAction(Evaluator.EvalExpression(t.Expression), t.Member, action);
+                t.ChangeAction = AddMemberChangeAction(
+                    Evaluator.EvalExpression(t.Expression),
+                    t.Member,
+                    action
+                );
         }
 
         private void CollectTriggers(Expression s, List<Trigger> triggers)
@@ -509,7 +534,6 @@ namespace Limxc.Tools.Utils
         }
     }
 
-
     /// <summary>
     ///     Multiple bindings grouped under a single binding to make adding and removing easier.
     /// </summary>
@@ -525,7 +549,8 @@ namespace Limxc.Tools.Utils
         public override void Unbind()
         {
             base.Unbind();
-            foreach (var b in _bindings) b.Unbind();
+            foreach (var b in _bindings)
+                b.Unbind();
             _bindings.Clear();
         }
     }

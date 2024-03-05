@@ -18,7 +18,8 @@ namespace Limxc.Tools.Extensions.Communication
         public static byte[] Checksum(this byte[] data)
         {
             var checksum = 0;
-            foreach (var b in data) checksum += b;
+            foreach (var b in data)
+                checksum += b;
             checksum = (checksum >> 16) + (checksum & 0xffff);
             checksum += checksum >> 16;
             checksum = ~checksum & 0xffff;
@@ -36,7 +37,8 @@ namespace Limxc.Tools.Extensions.Communication
             var dict = new Dictionary<CrcAlgorithms, byte[]>();
             foreach (CrcAlgorithms ca in Enum.GetValues(typeof(CrcAlgorithms)))
             {
-                if (ca == CrcAlgorithms.Undefined) continue;
+                if (ca == CrcAlgorithms.Undefined)
+                    continue;
 
                 var crc = new Crc(CrcStdParams.StandartParameters[ca]);
                 var rst = crc.ComputeHash(bytes);

@@ -75,15 +75,12 @@ public class ValidatorExtensionTests
             "10.10.10.90:8080/url?"
         };
 
-        string[] fail =
-        {
-            "http:// ",
-            "123asd",
-            "http://10.10.10"
-        };
+        string[] fail = { "http:// ", "123asd", "http://10.10.10" };
 
-        foreach (var s in pass) s.CheckUrl().Should().BeTrue();
+        foreach (var s in pass)
+            s.CheckUrl().Should().BeTrue();
 
-        foreach (var s in fail) s.CheckUrl().Should().BeFalse();
+        foreach (var s in fail)
+            s.CheckUrl().Should().BeFalse();
     }
 }

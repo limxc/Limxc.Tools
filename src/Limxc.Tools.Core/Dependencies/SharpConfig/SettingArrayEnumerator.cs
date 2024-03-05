@@ -79,8 +79,10 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
 
             // See if this is an empty array such as "{    }" or "{}".
             // If so, this is a valid array, but with size 0.
-            if (mIdxInString == mLastRBraceIdx ||
-                !IsNonEmptyValue(mStringValue, mIdxInString, mLastRBraceIdx))
+            if (
+                mIdxInString == mLastRBraceIdx
+                || !IsNonEmptyValue(mStringValue, mIdxInString, mLastRBraceIdx)
+            )
             {
                 IsValid = true;
                 mIsDone = true;
@@ -93,10 +95,7 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
 
         private void UpdateElementString(int idx)
         {
-            Current = mStringValue.Substring(
-                mPrevElemIdxInString,
-                idx - mPrevElemIdxInString
-            );
+            Current = mStringValue.Substring(mPrevElemIdxInString, idx - mPrevElemIdxInString);
 
             Current = Current.Trim(' '); // trim spaces first
 
@@ -131,7 +130,8 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
                         if (!IsNonEmptyValue(mStringValue, mPrevElemIdxInString, idx))
                             // Empty array element; invalid array.
                             IsValid = false;
-                        else if (mShouldCalcElemString) UpdateElementString(idx);
+                        else if (mShouldCalcElemString)
+                            UpdateElementString(idx);
                         mIsDone = true;
                         break;
                     }
@@ -149,12 +149,17 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
                         mIsInQuotes = true;
                     }
                 }
-                else if (ch == Configuration.ArrayElementSeparator && mBraceBalance == 1 && !mIsInQuotes)
+                else if (
+                    ch == Configuration.ArrayElementSeparator
+                    && mBraceBalance == 1
+                    && !mIsInQuotes
+                )
                 {
                     if (!IsNonEmptyValue(mStringValue, mPrevElemIdxInString, idx))
                         // Empty value in-between commas; this is an invalid array.
                         IsValid = false;
-                    else if (mShouldCalcElemString) UpdateElementString(idx);
+                    else if (mShouldCalcElemString)
+                        UpdateElementString(idx);
 
                     mPrevElemIdxInString = idx + 1;
 

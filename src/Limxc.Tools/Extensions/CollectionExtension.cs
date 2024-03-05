@@ -14,7 +14,11 @@ namespace Limxc.Tools.Extensions
         /// <param name="size"></param>
         /// <param name="strict">不足组是否抛弃</param>
         /// <returns></returns>
-        public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> source, int size, bool strict = true)
+        public static IEnumerable<IEnumerable<T>> Split<T>(
+            this IEnumerable<T> source,
+            int size,
+            bool strict = true
+        )
         {
             var array = source as T[] ?? source.ToArray();
             if (strict)
@@ -25,8 +29,12 @@ namespace Limxc.Tools.Extensions
                     yield return array.Skip(i * size).Take(size);
         }
 
-        public static Dictionary<TKey, TValue> AddOrUpdate<TKey, TValue>(this Dictionary<TKey, TValue> source, TKey key,
-            TValue value, bool update = true)
+        public static Dictionary<TKey, TValue> AddOrUpdate<TKey, TValue>(
+            this Dictionary<TKey, TValue> source,
+            TKey key,
+            TValue value,
+            bool update = true
+        )
         {
             if (!source.ContainsKey(key))
                 source.Add(key, value);
@@ -36,15 +44,23 @@ namespace Limxc.Tools.Extensions
             return source;
         }
 
-        public static TValue GetOrDefault<TKey, TValue>(this Dictionary<TKey, TValue> source, TKey key,
-            TValue defaultValue = default)
+        public static TValue GetOrDefault<TKey, TValue>(
+            this Dictionary<TKey, TValue> source,
+            TKey key,
+            TValue defaultValue = default
+        )
         {
-            if (!source.ContainsKey(key)) return defaultValue;
+            if (!source.ContainsKey(key))
+                return defaultValue;
 
             return source[key];
         }
 
-        public static ICollection<T> AddOrUpdate<T>(this ICollection<T> source, Func<T, bool> condition, T value)
+        public static ICollection<T> AddOrUpdate<T>(
+            this ICollection<T> source,
+            Func<T, bool> condition,
+            T value
+        )
         {
             var res = source.Where(condition);
             var array = res as T[] ?? res.ToArray();

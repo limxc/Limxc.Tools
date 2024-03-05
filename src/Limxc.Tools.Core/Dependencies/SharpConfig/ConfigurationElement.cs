@@ -42,8 +42,12 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
         {
             var stringExpr = GetStringExpression();
 
-            if (Comment != null && PreComment != null &&
-                !Configuration.IgnoreInlineComments && !Configuration.IgnorePreComments)
+            if (
+                Comment != null
+                && PreComment != null
+                && !Configuration.IgnoreInlineComments
+                && !Configuration.IgnorePreComments
+            )
                 // Include inline comment and pre-comments.
                 return $"{GetFormattedPreComment()}{Environment.NewLine}{stringExpr} {GetFormattedComment()}";
             if (Comment != null && !Configuration.IgnoreInlineComments)
@@ -72,10 +76,7 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
         // to be written to a config file.
         private string GetFormattedPreComment()
         {
-            var lines = PreComment.Split(
-                new[] { "\r\n", "\n" },
-                StringSplitOptions.None
-            );
+            var lines = PreComment.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
 
             return string.Join(
                 Environment.NewLine,

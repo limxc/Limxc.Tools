@@ -61,7 +61,11 @@ namespace Limxc.Tools.Common
         /// <param name="task">Task Func</param>
         /// <param name="retryCount">Execution times = RetryCount + 1</param>
         /// <param name="id">Task Id</param>
-        public void Add(Func<object, CancellationToken, Task<object>> task, int retryCount = 0, string id = null)
+        public void Add(
+            Func<object, CancellationToken, Task<object>> task,
+            int retryCount = 0,
+            string id = null
+        )
         {
             Nodes.Add(new TaskNode(task, retryCount, id));
         }
@@ -112,9 +116,15 @@ namespace Limxc.Tools.Common
                     }
                     finally
                     {
-                        History.Add(new TaskNodeHistory(DateTime.Now, item.Id,
-                            $"RemainingAttempts:{remainingAttempts} State:{(pass ? "Success" : error ?? "Exception")} Progress:{Nodes.Count - PendingNodes.Count() + 1}/{Nodes.Count}"
-                            , Inputs, Outputs));
+                        History.Add(
+                            new TaskNodeHistory(
+                                DateTime.Now,
+                                item.Id,
+                                $"RemainingAttempts:{remainingAttempts} State:{(pass ? "Success" : error ?? "Exception")} Progress:{Nodes.Count - PendingNodes.Count() + 1}/{Nodes.Count}",
+                                Inputs,
+                                Outputs
+                            )
+                        );
                     }
 
                 if (!pass)
@@ -133,7 +143,8 @@ namespace Limxc.Tools.Common
         /// <returns></returns>
         public TaskFlow Combine(params TaskFlow[] queues)
         {
-            foreach (var queue in queues) Nodes.AddRange(queue.Nodes);
+            foreach (var queue in queues)
+                Nodes.AddRange(queue.Nodes);
 
             return this;
         }
@@ -141,7 +152,11 @@ namespace Limxc.Tools.Common
 
     public class TaskNode
     {
-        public TaskNode(Func<object, CancellationToken, Task<object>> task, int retryCount, string id)
+        public TaskNode(
+            Func<object, CancellationToken, Task<object>> task,
+            int retryCount,
+            string id
+        )
         {
             Task = task;
             RetryCount = retryCount;
@@ -160,7 +175,13 @@ namespace Limxc.Tools.Common
 
     public class TaskNodeHistory
     {
-        public TaskNodeHistory(DateTime execTime, string id, string message, object inputs, object outputs)
+        public TaskNodeHistory(
+            DateTime execTime,
+            string id,
+            string message,
+            object inputs,
+            object outputs
+        )
         {
             ExecTime = execTime;
             Id = id;

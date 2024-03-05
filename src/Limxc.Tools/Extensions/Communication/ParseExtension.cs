@@ -24,8 +24,7 @@ namespace Limxc.Tools.Extensions.Communication
             if (separator == null)
                 throw new ArgumentException("separator is null.");
 
-            return
-                source.ParsePackage(new[] { separator });
+            return source.ParsePackage(new[] { separator });
         }
 
         /// <summary>
@@ -41,16 +40,17 @@ namespace Limxc.Tools.Extensions.Communication
             if (separator.Length == 0)
                 throw new ArgumentException("separator is empty.");
 
-            return
-                source
-                    .Scan(new ParsePackageSeparatorState<T>(separator),
-                        (acc, v) =>
-                        {
-                            acc.Add(v);
-                            return acc;
-                        })
-                    .Select(p => p.Get())
-                    .Where(p => p != null && p.Length > separator.Length);
+            return source
+                .Scan(
+                    new ParsePackageSeparatorState<T>(separator),
+                    (acc, v) =>
+                    {
+                        acc.Add(v);
+                        return acc;
+                    }
+                )
+                .Select(p => p.Get())
+                .Where(p => p != null && p.Length > separator.Length);
         }
 
         /// <summary>
@@ -60,22 +60,26 @@ namespace Limxc.Tools.Extensions.Communication
         /// <param name="pattern"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static IObservable<byte[]> ParsePackage(this IObservable<byte[]> source, byte[] pattern)
+        public static IObservable<byte[]> ParsePackage(
+            this IObservable<byte[]> source,
+            byte[] pattern
+        )
         {
             if (pattern.Length == 0)
                 throw new ArgumentException("pattern is empty.");
 
-            return
-                source
-                    .Scan(new ParsePackageBytePatternState(pattern),
-                        (acc, v) =>
-                        {
-                            acc.Add(v);
-                            return acc;
-                        })
-                    .Select(p => p.Get())
-                    .SelectMany(p => p)
-                    .Where(p => p != null && p.Length > pattern.Length);
+            return source
+                .Scan(
+                    new ParsePackageBytePatternState(pattern),
+                    (acc, v) =>
+                    {
+                        acc.Add(v);
+                        return acc;
+                    }
+                )
+                .Select(p => p.Get())
+                .SelectMany(p => p)
+                .Where(p => p != null && p.Length > pattern.Length);
         }
 
         /// <summary>
@@ -87,8 +91,14 @@ namespace Limxc.Tools.Extensions.Communication
         /// <param name="useLastBom"></param>
         /// <param name="def"></param>
         /// <returns></returns>
-        public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T bom, T eom,
-            bool useLastBom = false, T[] def = null) where T : IEquatable<T>
+        public static IObservable<T[]> ParsePackage<T>(
+            this IObservable<T> source,
+            T bom,
+            T eom,
+            bool useLastBom = false,
+            T[] def = null
+        )
+            where T : IEquatable<T>
         {
             if (bom == null || eom == null)
                 throw new ArgumentException("bom or eom is null.");
@@ -105,8 +115,13 @@ namespace Limxc.Tools.Extensions.Communication
         /// <param name="useLastBom"></param>
         /// <param name="def"></param>
         /// <returns></returns>
-        public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T[] bom, T[] eom,
-            bool useLastBom = false, T[] def = null)
+        public static IObservable<T[]> ParsePackage<T>(
+            this IObservable<T> source,
+            T[] bom,
+            T[] eom,
+            bool useLastBom = false,
+            T[] def = null
+        )
             where T : IEquatable<T>
         {
             if (bom.SequenceEqual(eom))
@@ -114,16 +129,17 @@ namespace Limxc.Tools.Extensions.Communication
             if (bom.Length == 0 || eom.Length == 0)
                 throw new ArgumentException("bom or eom is empty.");
 
-            return
-                source
-                    .Scan(new ParsePackageBeginEndState<T>(bom, eom, useLastBom),
-                        (acc, v) =>
-                        {
-                            acc.Add(v);
-                            return acc;
-                        })
-                    .Select(p => p.Get() ?? def)
-                    .Where(p => p != null);
+            return source
+                .Scan(
+                    new ParsePackageBeginEndState<T>(bom, eom, useLastBom),
+                    (acc, v) =>
+                    {
+                        acc.Add(v);
+                        return acc;
+                    }
+                )
+                .Select(p => p.Get() ?? def)
+                .Where(p => p != null);
         }
 
         /// <summary>
@@ -135,8 +151,12 @@ namespace Limxc.Tools.Extensions.Communication
         /// <param name="count"></param>
         /// <param name="useLastBom"></param>
         /// <returns></returns>
-        public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T bom, int count,
-            bool useLastBom = false)
+        public static IObservable<T[]> ParsePackage<T>(
+            this IObservable<T> source,
+            T bom,
+            int count,
+            bool useLastBom = false
+        )
             where T : IEquatable<T>
         {
             if (bom == null)
@@ -155,21 +175,27 @@ namespace Limxc.Tools.Extensions.Communication
         /// <param name="useLastBom"></param>
         /// <param name="def"></param>
         /// <returns></returns>
-        public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T[] bom, int count,
+        public static IObservable<T[]> ParsePackage<T>(
+            this IObservable<T> source,
+            T[] bom,
+            int count,
             bool useLastBom = false,
-            T[] def = null)
+            T[] def = null
+        )
             where T : IEquatable<T>
         {
             if (bom.Length == 0)
                 throw new ArgumentException("bom is empty.");
 
             return source
-                .Scan(new ParsePackageBeginCountState<T>(bom, count, useLastBom),
+                .Scan(
+                    new ParsePackageBeginCountState<T>(bom, count, useLastBom),
                     (acc, v) =>
                     {
                         acc.Add(v);
                         return acc;
-                    })
+                    }
+                )
                 .Select(p => p.Get() ?? def)
                 .Where(p => p != null);
         }
@@ -185,9 +211,14 @@ namespace Limxc.Tools.Extensions.Communication
         /// <param name="useLastBom"></param>
         /// <param name="def"></param>
         /// <returns></returns>
-        public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T bom, T eom, int timeoutMs,
+        public static IObservable<T[]> ParsePackage<T>(
+            this IObservable<T> source,
+            T bom,
+            T eom,
+            int timeoutMs,
             bool useLastBom = false,
-            T[] def = null)
+            T[] def = null
+        )
             where T : IEquatable<T>
         {
             if (bom == null || eom == null)
@@ -207,9 +238,14 @@ namespace Limxc.Tools.Extensions.Communication
         /// <param name="useLastBom"></param>
         /// <param name="def"></param>
         /// <returns></returns>
-        public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T[] bom, T[] eom, int timeoutMs,
+        public static IObservable<T[]> ParsePackage<T>(
+            this IObservable<T> source,
+            T[] bom,
+            T[] eom,
+            int timeoutMs,
             bool useLastBom = false,
-            T[] def = null)
+            T[] def = null
+        )
             where T : IEquatable<T>
         {
             if (bom.SequenceEqual(eom))
@@ -217,16 +253,21 @@ namespace Limxc.Tools.Extensions.Communication
             if (bom.Length == 0 || eom.Length == 0)
                 throw new ArgumentException("bom or eom is empty.");
 
-            return Observable.Using(() => new ParsePackageBeginEndTimeoutState<T>(bom, eom, timeoutMs, useLastBom), r =>
-                source
-                    .Scan(r,
-                        (acc, v) =>
-                        {
-                            acc.Add(v);
-                            return acc;
-                        })
-                    .Select(p => p.Get() ?? def)
-                    .Where(p => p != null));
+            return Observable.Using(
+                () => new ParsePackageBeginEndTimeoutState<T>(bom, eom, timeoutMs, useLastBom),
+                r =>
+                    source
+                        .Scan(
+                            r,
+                            (acc, v) =>
+                            {
+                                acc.Add(v);
+                                return acc;
+                            }
+                        )
+                        .Select(p => p.Get() ?? def)
+                        .Where(p => p != null)
+            );
         }
 
         /// <summary>
@@ -240,9 +281,14 @@ namespace Limxc.Tools.Extensions.Communication
         /// <param name="useLastBom"></param>
         /// <param name="def"></param>
         /// <returns></returns>
-        public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T bom, int count, int timeoutMs,
+        public static IObservable<T[]> ParsePackage<T>(
+            this IObservable<T> source,
+            T bom,
+            int count,
+            int timeoutMs,
             bool useLastBom = false,
-            T[] def = null)
+            T[] def = null
+        )
             where T : IEquatable<T>
         {
             if (bom == null)
@@ -262,24 +308,34 @@ namespace Limxc.Tools.Extensions.Communication
         /// <param name="useLastBom"></param>
         /// <param name="def"></param>
         /// <returns></returns>
-        public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, T[] bom, int count, int timeoutMs,
+        public static IObservable<T[]> ParsePackage<T>(
+            this IObservable<T> source,
+            T[] bom,
+            int count,
+            int timeoutMs,
             bool useLastBom = false,
-            T[] def = null)
+            T[] def = null
+        )
             where T : IEquatable<T>
         {
             if (bom.Length == 0)
                 throw new ArgumentException("bom is empty.");
 
-            return Observable.Using(() => new ParsePackageBeginCountTimeoutState<T>(bom, count, timeoutMs, useLastBom),
-                r => source
-                    .Scan(r,
-                        (acc, v) =>
-                        {
-                            acc.Add(v);
-                            return acc;
-                        })
-                    .Select(p => p.Get() ?? def)
-                    .Where(p => p != null));
+            return Observable.Using(
+                () => new ParsePackageBeginCountTimeoutState<T>(bom, count, timeoutMs, useLastBom),
+                r =>
+                    source
+                        .Scan(
+                            r,
+                            (acc, v) =>
+                            {
+                                acc.Add(v);
+                                return acc;
+                            }
+                        )
+                        .Select(p => p.Get() ?? def)
+                        .Where(p => p != null)
+            );
         }
 
         /// <summary>
@@ -310,10 +366,14 @@ namespace Limxc.Tools.Extensions.Communication
                             rst = new ConcurrentQueue<T>();
 #endif
                         }
-                    }).DisposeWith(dis);
+                    })
+                    .DisposeWith(dis);
 
-                obs
-                    .Subscribe(p => { rst.Enqueue(p); }).DisposeWith(dis);
+                obs.Subscribe(p =>
+                    {
+                        rst.Enqueue(p);
+                    })
+                    .DisposeWith(dis);
 
                 return dis;
             });
@@ -323,7 +383,8 @@ namespace Limxc.Tools.Extensions.Communication
 
         #region Helpers
 
-        private sealed class ParsePackageSeparatorState<T> where T : IEquatable<T>
+        private sealed class ParsePackageSeparatorState<T>
+            where T : IEquatable<T>
         {
             private readonly Queue<T> _queue = new Queue<T>();
             private readonly T[] _separator;
@@ -379,7 +440,8 @@ namespace Limxc.Tools.Extensions.Communication
             }
         }
 
-        private sealed class ParsePackageBeginEndState<T> where T : IEquatable<T>
+        private sealed class ParsePackageBeginEndState<T>
+            where T : IEquatable<T>
         {
             private readonly T[] _bom;
             private readonly T[] _eom;
@@ -396,8 +458,10 @@ namespace Limxc.Tools.Extensions.Communication
             public T[] Get()
             {
                 var arr = _queue.ToArray();
-                if (arr.Take(_bom.Length).SequenceEqual(_bom) &&
-                    arr.Skip(arr.Length - _eom.Length).SequenceEqual(_eom))
+                if (
+                    arr.Take(_bom.Length).SequenceEqual(_bom)
+                    && arr.Skip(arr.Length - _eom.Length).SequenceEqual(_eom)
+                )
                 {
                     _queue.Clear();
                     return arr;
@@ -413,7 +477,8 @@ namespace Limxc.Tools.Extensions.Communication
                 var count = _queue.Count;
                 var length = _bom.Length;
 
-                if (count == length && !_queue.SequenceEqual(_bom)) _queue.Dequeue();
+                if (count == length && !_queue.SequenceEqual(_bom))
+                    _queue.Dequeue();
 
                 if (_useLastBom && count > length)
                     if (_queue.Skip(count - length).Take(length).SequenceEqual(_bom))
@@ -422,7 +487,8 @@ namespace Limxc.Tools.Extensions.Communication
             }
         }
 
-        private sealed class ParsePackageBeginCountState<T> where T : IEquatable<T>
+        private sealed class ParsePackageBeginCountState<T>
+            where T : IEquatable<T>
         {
             private readonly T[] _bom;
             private readonly int _count;
@@ -439,8 +505,7 @@ namespace Limxc.Tools.Extensions.Communication
             public T[] Get()
             {
                 var arr = _queue.ToArray();
-                if (arr.Take(_bom.Length).SequenceEqual(_bom) &&
-                    arr.Count() >= _count)
+                if (arr.Take(_bom.Length).SequenceEqual(_bom) && arr.Count() >= _count)
                 {
                     _queue.Clear();
                     return arr.Take(_count).ToArray();
@@ -456,7 +521,8 @@ namespace Limxc.Tools.Extensions.Communication
                 var count = _queue.Count;
                 var length = _bom.Length;
 
-                if (count == length && !_queue.SequenceEqual(_bom)) _queue.Dequeue();
+                if (count == length && !_queue.SequenceEqual(_bom))
+                    _queue.Dequeue();
 
                 if (_useLastBom && count > length)
                     if (_queue.Skip(count - length).Take(length).SequenceEqual(_bom))
@@ -465,7 +531,8 @@ namespace Limxc.Tools.Extensions.Communication
             }
         }
 
-        private sealed class ParsePackageBeginEndTimeoutState<T> : IDisposable where T : IEquatable<T>
+        private sealed class ParsePackageBeginEndTimeoutState<T> : IDisposable
+            where T : IEquatable<T>
         {
             private readonly T[] _bom;
             private readonly SerialDisposable _dis = new SerialDisposable();
@@ -476,7 +543,12 @@ namespace Limxc.Tools.Extensions.Communication
             // ReSharper disable once FieldCanBeMadeReadOnly.Local
             private ConcurrentQueue<T> _queue = new ConcurrentQueue<T>();
 
-            public ParsePackageBeginEndTimeoutState(T[] bom, T[] eom, int timeoutMs, bool useLastBom)
+            public ParsePackageBeginEndTimeoutState(
+                T[] bom,
+                T[] eom,
+                int timeoutMs,
+                bool useLastBom
+            )
             {
                 _bom = bom;
                 _eom = eom;
@@ -491,7 +563,8 @@ namespace Limxc.Tools.Extensions.Communication
 
             private void CreateTimer()
             {
-                _dis.Disposable = Observable.Interval(TimeSpan.FromMilliseconds(_timeoutMs))
+                _dis.Disposable = Observable
+                    .Interval(TimeSpan.FromMilliseconds(_timeoutMs))
                     .Subscribe(_ =>
                     {
                         if (Get() == null)
@@ -506,8 +579,10 @@ namespace Limxc.Tools.Extensions.Communication
             public T[] Get()
             {
                 var arr = _queue.ToArray();
-                if (arr.Take(_bom.Length).SequenceEqual(_bom) &&
-                    arr.Skip(arr.Length - _eom.Length).SequenceEqual(_eom))
+                if (
+                    arr.Take(_bom.Length).SequenceEqual(_bom)
+                    && arr.Skip(arr.Length - _eom.Length).SequenceEqual(_eom)
+                )
                 {
 #if NETSTANDARD2_1
                     _queue.Clear();
@@ -529,7 +604,8 @@ namespace Limxc.Tools.Extensions.Communication
                 var count = _queue.Count;
                 var length = _bom.Length;
 
-                if (count == length && !_queue.SequenceEqual(_bom)) _queue.TryDequeue(out _);
+                if (count == length && !_queue.SequenceEqual(_bom))
+                    _queue.TryDequeue(out _);
 
                 if (_useLastBom && count > length)
                     if (_queue.Skip(count - length).Take(length).SequenceEqual(_bom))
@@ -538,7 +614,8 @@ namespace Limxc.Tools.Extensions.Communication
             }
         }
 
-        private sealed class ParsePackageBeginCountTimeoutState<T> : IDisposable where T : IEquatable<T>
+        private sealed class ParsePackageBeginCountTimeoutState<T> : IDisposable
+            where T : IEquatable<T>
         {
             private readonly T[] _bom;
             private readonly int _count;
@@ -549,7 +626,12 @@ namespace Limxc.Tools.Extensions.Communication
             // ReSharper disable once FieldCanBeMadeReadOnly.Local
             private ConcurrentQueue<T> _queue = new ConcurrentQueue<T>();
 
-            public ParsePackageBeginCountTimeoutState(T[] bom, int count, int timeoutMs, bool useLastBom)
+            public ParsePackageBeginCountTimeoutState(
+                T[] bom,
+                int count,
+                int timeoutMs,
+                bool useLastBom
+            )
             {
                 _bom = bom;
                 _count = count;
@@ -564,7 +646,8 @@ namespace Limxc.Tools.Extensions.Communication
 
             private void CreateTimer()
             {
-                _dis.Disposable = Observable.Interval(TimeSpan.FromMilliseconds(_timeoutMs))
+                _dis.Disposable = Observable
+                    .Interval(TimeSpan.FromMilliseconds(_timeoutMs))
                     .Subscribe(_ =>
                     {
                         if (Get() == null)
@@ -579,8 +662,7 @@ namespace Limxc.Tools.Extensions.Communication
             public T[] Get()
             {
                 var arr = _queue.ToArray();
-                if (arr.Take(_bom.Length).SequenceEqual(_bom) &&
-                    arr.Count() >= _count)
+                if (arr.Take(_bom.Length).SequenceEqual(_bom) && arr.Count() >= _count)
                 {
 #if NETSTANDARD2_1
                     _queue.Clear();
@@ -602,7 +684,8 @@ namespace Limxc.Tools.Extensions.Communication
                 var count = _queue.Count;
                 var length = _bom.Length;
 
-                if (count == length && !_queue.SequenceEqual(_bom)) _queue.TryDequeue(out _);
+                if (count == length && !_queue.SequenceEqual(_bom))
+                    _queue.TryDequeue(out _);
 
                 if (_useLastBom && count > length)
                     if (_queue.Skip(count - length).Take(length).SequenceEqual(_bom))

@@ -34,10 +34,10 @@ namespace Limxc.Tools.Sockets.Tcp
                 .Subscribe(s => _connectionState.OnNext(s))
                 .DisposeWith(_initDisposables);
 
-            ConnectionState = Observable.Defer(() =>
-                _connectionState.StartWith(false).AsObservable().Publish().RefCount());
-            Received = Observable.Defer(() =>
-                _received.AsObservable().Publish().RefCount());
+            ConnectionState = Observable.Defer(
+                () => _connectionState.StartWith(false).AsObservable().Publish().RefCount()
+            );
+            Received = Observable.Defer(() => _received.AsObservable().Publish().RefCount());
             Log = Observable.Defer(() => _log.AsObservable().Publish().RefCount());
         }
 
@@ -71,8 +71,13 @@ namespace Limxc.Tools.Sockets.Tcp
             _received.OnNext(bytes);
         }
 
-        public async Task<string> SendAsync(string hex, int timeoutMs, string template, char sepBegin = '[',
-            char sepEnd = ']')
+        public async Task<string> SendAsync(
+            string hex,
+            int timeoutMs,
+            string template,
+            char sepBegin = '[',
+            char sepEnd = ']'
+        )
         {
             _log.OnNext($"Send: {hex}");
             _sendIndex++;

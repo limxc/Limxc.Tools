@@ -17,8 +17,13 @@ namespace Limxc.Tools.Extensions.Communication
         /// <param name="sepBegin"></param>
         /// <param name="sepEnd"></param>
         /// <returns></returns>
-        public static async Task<string> TryGetTemplateMatchResult(this IObservable<string> source, string template,
-            int timeoutMs, char sepBegin = '[', char sepEnd = ']')
+        public static async Task<string> TryGetTemplateMatchResult(
+            this IObservable<string> source,
+            string template,
+            int timeoutMs,
+            char sepBegin = '[',
+            char sepEnd = ']'
+        )
         {
             var tms = new TemplateMatchState(template, timeoutMs, sepBegin, sepEnd);
             var rst = string.Empty;
@@ -28,12 +33,19 @@ namespace Limxc.Tools.Extensions.Communication
                 interval = interval < 10 ? 10 : interval;
 
                 await source
-                    .Merge(Observable.Interval(TimeSpan.FromMilliseconds(interval)).Select(_ => string.Empty))
-                    .Scan(tms, (acc, v) =>
-                    {
-                        acc.Add(v);
-                        return acc;
-                    })
+                    .Merge(
+                        Observable
+                            .Interval(TimeSpan.FromMilliseconds(interval))
+                            .Select(_ => string.Empty)
+                    )
+                    .Scan(
+                        tms,
+                        (acc, v) =>
+                        {
+                            acc.Add(v);
+                            return acc;
+                        }
+                    )
                     .ToTask();
             }
             //catch (TimeoutException)
@@ -47,7 +59,6 @@ namespace Limxc.Tools.Extensions.Communication
             return rst;
         }
 
-
         #region Helpers
 
         private class TemplateMatchState
@@ -59,7 +70,12 @@ namespace Limxc.Tools.Extensions.Communication
 
             private string _received;
 
-            public TemplateMatchState(string template, int timeoutMs, char sepBegin = '[', char sepEnd = ']')
+            public TemplateMatchState(
+                string template,
+                int timeoutMs,
+                char sepBegin = '[',
+                char sepEnd = ']'
+            )
             {
                 _template = template;
                 _sepBegin = sepBegin;
@@ -72,7 +88,9 @@ namespace Limxc.Tools.Extensions.Communication
             public void Add(string value)
             {
                 if (DateTimeOffset.Now > _until)
-                    throw new TimeoutException($"模板解析超时: Template=({_template}) Received=({_received})");
+                    throw new TimeoutException(
+                        $"模板解析超时: Template=({_template}) Received=({_received})"
+                    );
 
                 if (value == string.Empty)
                     return;
@@ -91,7 +109,8 @@ namespace Limxc.Tools.Extensions.Communication
                 foreach (Match m in Regex.Matches(_template, $@"\{_sepBegin}[0-9]+\{_sepEnd}"))
                 {
                     var o = m.Value;
-                    var n = $"[0-9a-fA-F]{{{Convert.ToInt32(o.Replace("[", "").Replace("]", ""))}}}";
+                    var n =
+                        $"[0-9a-fA-F]{{{Convert.ToInt32(o.Replace("[", "").Replace("]", ""))}}}";
                     pattern = pattern.Replace(o, n);
                 }
 
@@ -99,9 +118,7 @@ namespace Limxc.Tools.Extensions.Communication
             }
         }
 
-        private class Complete : Exception
-        {
-        }
+        private class Complete : Exception { }
 
         #endregion
     }

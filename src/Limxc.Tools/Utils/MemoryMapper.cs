@@ -31,7 +31,11 @@ namespace Limxc.Tools.Utils
                 using (var mmvStream = _memoryMappedFile.CreateViewStream(0, 0))
                 using (var jsonWriter = new Utf8JsonWriter(mmvStream))
                 {
-                    JsonSerializer.Serialize(jsonWriter, entity, new JsonSerializerOptions().Init(false));
+                    JsonSerializer.Serialize(
+                        jsonWriter,
+                        entity,
+                        new JsonSerializerOptions().Init(false)
+                    );
                 }
             }
             catch (Exception e)
@@ -52,7 +56,10 @@ namespace Limxc.Tools.Utils
                 {
                     var json = sr.ReadToEnd().Trim('\0');
                     return mmvStream.CanRead
-                        ? JsonSerializer.Deserialize<T>(json, new JsonSerializerOptions().Init(false))
+                        ? JsonSerializer.Deserialize<T>(
+                            json,
+                            new JsonSerializerOptions().Init(false)
+                        )
                         : default;
                 }
             }

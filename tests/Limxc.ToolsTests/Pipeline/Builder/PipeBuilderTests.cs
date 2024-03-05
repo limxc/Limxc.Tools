@@ -16,34 +16,45 @@ public class PipeBuilderTests
     public async Task PipeLineTest()
     {
         IPipeBuilder<PipeTestContext> pipe = new PipeBuilder<PipeTestContext>()
-            .Use(c =>
-            {
-                c.Msg += "_1";
-                c.Value += 1;
-            }, "处理1")
-            .Use(async c => //100ms
-            {
-                await Task.Delay(1000);
-                c.Msg += "_2";
-                c.Value += 2;
-            }, "处理2")
-            .Use((c, t) => //1100ms
-            {
-                c.Msg += "_3";
+            .Use(
+                c =>
+                {
+                    c.Msg += "_1";
+                    c.Value += 1;
+                },
+                "处理1"
+            )
+            .Use(
+                async c => //100ms
+                {
+                    await Task.Delay(1000);
+                    c.Msg += "_2";
+                    c.Value += 2;
+                },
+                "处理2"
+            )
+            .Use(
+                (c, t) => //1100ms
+                {
+                    c.Msg += "_3";
 #pragma warning disable AsyncFixer02 // Long-running or blocking operations inside an async method
-                Thread.Sleep(1000);
+                    Thread.Sleep(1000);
 #pragma warning restore AsyncFixer02 // Long-running or blocking operations inside an async method
-                if (t.IsCancellationRequested)
-                    return;
-                c.Value += 3;
-            }, "处理3")
+                    if (t.IsCancellationRequested)
+                        return;
+                    c.Value += 3;
+                },
+                "处理3"
+            )
             .Use(async c => //2100ms
             {
                 await Task.Delay(1000);
                 c.Msg += "_4";
                 c.Value += 4;
             })
-            .UseSnapshotCloner(s => JsonSerializer.Deserialize<PipeTestContext>(JsonSerializer.Serialize(s)))
+            .UseSnapshotCloner(s =>
+                JsonSerializer.Deserialize<PipeTestContext>(JsonSerializer.Serialize(s))
+            )
             .Build();
 
         //full
@@ -70,20 +81,29 @@ public class PipeBuilderTests
         rst.Snapshots[3].CreateTime.Should().BeCloseTo(dt.AddSeconds(2), TimeSpan.FromSeconds(0.1));
 
         //800ms _1_2
-        var rst800 = await pipe.RunAsync(new PipeTestContext("Test", 0), new CancellationTokenSource(800).Token);
+        var rst800 = await pipe.RunAsync(
+            new PipeTestContext("Test", 0),
+            new CancellationTokenSource(800).Token
+        );
 
         var rst800CreateTimes = rst800.Snapshots.Select(p => p.CreateTime).ToList();
-        (rst800CreateTimes.Max() - rst800CreateTimes.Min()).TotalMilliseconds.Should()
+        (rst800CreateTimes.Max() - rst800CreateTimes.Min())
+            .TotalMilliseconds.Should()
             .BeGreaterThan(800); //进入方法前不足800ms, 执行完毕后超过800ms, 快照间隔也超过了800ms
 
         rst800.Body.Msg.Should().Be("Test_1_2");
         rst800.Body.Value.Should().Be(3);
 
         //2100ms _1_2_3(第三步执行中断, 因此快照与数据不符)
-        var rst1500 = await pipe.RunAsync(new PipeTestContext("Test", 0), new CancellationTokenSource(1500).Token);
+        var rst1500 = await pipe.RunAsync(
+            new PipeTestContext("Test", 0),
+            new CancellationTokenSource(1500).Token
+        );
 
         var rst1500CreateTimes = rst1500.Snapshots.Select(p => p.CreateTime).ToList();
-        (rst1500CreateTimes.Max() - rst1500CreateTimes.Min()).TotalMilliseconds.Should().BeLessThan(1500);
+        (rst1500CreateTimes.Max() - rst1500CreateTimes.Min())
+            .TotalMilliseconds.Should()
+            .BeLessThan(1500);
 
         rst1500.Body.Msg.Should().Be("Test_1_2_3");
         rst1500.Body.Value.Should().Be(3); //执行中断, 因此不等于6
@@ -99,9 +119,7 @@ public class PipeBuilderTests
             Value = value;
         }
 
-        public PipeTestContext()
-        {
-        }
+        public PipeTestContext() { }
 
         public string Msg { get; set; }
         public double Value { get; set; }

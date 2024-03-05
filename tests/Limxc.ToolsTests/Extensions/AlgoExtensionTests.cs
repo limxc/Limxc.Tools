@@ -42,7 +42,8 @@ public class AlgoExtensionTests
             source.Count(p => p == 0x90 || p == 0xeb).Should().Be(0);
 
             //添加匹配项
-            foreach (var item in indexes) source.InsertRange(item, pattern);
+            foreach (var item in indexes)
+                source.InsertRange(item, pattern);
             source.Count.Should().Be(fakeLength + indexes.Length * 2);
 
             return source.ToArray();
@@ -60,7 +61,8 @@ public class AlgoExtensionTests
             r1.Should().BeEquivalentTo(indexes);
         }
 
-        for (var i = 0; i < 10; i++) Test(i);
+        for (var i = 0; i < 10; i++)
+            Test(i);
 
         //性能测试
         float PerformanceTest(Action action)
@@ -68,7 +70,8 @@ public class AlgoExtensionTests
             var sw = new Stopwatch();
             sw.Start();
 
-            for (var i = 0; i < 50000; i++) action?.Invoke();
+            for (var i = 0; i < 50000; i++)
+                action?.Invoke();
 
             sw.Stop();
 
@@ -100,7 +103,8 @@ public class AlgoExtensionTests
         il.Sort();
         indexes = il.ToArray();
 
-        foreach (var index in indexes) source = source.Insert(index, pattern);
+        foreach (var index in indexes)
+            source = source.Insert(index, pattern);
 
         //测试
         source.Length.Should().Be(fakeLength + indexes.Length * 2);
@@ -120,7 +124,8 @@ public class AlgoExtensionTests
             var sw = new Stopwatch();
             sw.Start();
 
-            for (var i = 0; i < 50000; i++) action?.Invoke();
+            for (var i = 0; i < 50000; i++)
+                action?.Invoke();
 
             sw.Stop();
             return sw.ElapsedMilliseconds;
@@ -138,37 +143,38 @@ public class AlgoExtensionTests
     {
         var datas = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
-        new int[] { }.LocateToPack(datas).Should().BeEquivalentTo((new byte[][] { }, new byte[] { }));
+        new int[] { }
+            .LocateToPack(datas)
+            .Should()
+            .BeEquivalentTo((new byte[][] { }, new byte[] { }));
 
         Action act = () => new[] { 11 }.LocateToPack(datas);
         act.Should().Throw<ArgumentException>();
-        Assert.Throws<ArgumentException>(() => { new[] { -1 }.LocateToPack(datas); });
+        Assert.Throws<ArgumentException>(() =>
+        {
+            new[] { -1 }.LocateToPack(datas);
+        });
 
         var r1 = new[] { 9 }.LocateToPack(datas);
         r1.Pack.Should().BeEquivalentTo(new byte[] { });
         r1.Remain.Should().BeEquivalentTo(new byte[] { 9 });
 
-        new[] { 0 }.LocateToPack(datas).Should().BeEquivalentTo((
-            new byte[][] { },
-            new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-        ));
+        new[] { 0 }
+            .LocateToPack(datas)
+            .Should()
+            .BeEquivalentTo((new byte[][] { }, new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }));
 
-        new[] { 0, 9 }.LocateToPack(datas).Should().BeEquivalentTo((
-            new[]
-            {
-                new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 }
-            },
-            new byte[] { 9 }
-        ));
+        new[] { 0, 9 }
+            .LocateToPack(datas)
+            .Should()
+            .BeEquivalentTo((new[] { new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 } }, new byte[] { 9 }));
 
-        new[] { 1, 3, 6 }.LocateToPack(datas).Should().BeEquivalentTo((
-            new[]
-            {
-                new byte[] { 1, 2 },
-                new byte[] { 3, 4, 5 }
-            },
-            new byte[] { 6, 7, 8, 9 }
-        ));
+        new[] { 1, 3, 6 }
+            .LocateToPack(datas)
+            .Should()
+            .BeEquivalentTo(
+                (new[] { new byte[] { 1, 2 }, new byte[] { 3, 4, 5 } }, new byte[] { 6, 7, 8, 9 })
+            );
     }
 
     [Fact]
@@ -178,39 +184,30 @@ public class AlgoExtensionTests
         var pattern2 = new byte[] { 0xa, 0xb };
 
         new byte[] { 0, 1, 0xa, 3, 4, 0xa, 6, 7, 8, 9 }
-            .LocateToPack(pattern1).Should().BeEquivalentTo((
-                new[]
-                {
-                    new byte[] { 0xa, 3, 4 }
-                },
-                new byte[] { 0xa, 6, 7, 8, 9 }
-            ));
+            .LocateToPack(pattern1)
+            .Should()
+            .BeEquivalentTo((new[] { new byte[] { 0xa, 3, 4 } }, new byte[] { 0xa, 6, 7, 8, 9 }));
 
         new byte[] { 0, 1, 0xa, 0xb, 3, 4, 0xa, 6, 7, 8, 9, 0xa }
-            .LocateToPack(pattern1).Should().BeEquivalentTo((
-                new[]
-                {
-                    new byte[] { 0xa, 0xb, 3, 4 },
-                    new byte[] { 0xa, 6, 7, 8, 9 }
-                },
-                new byte[] { 0xa }
-            ));
+            .LocateToPack(pattern1)
+            .Should()
+            .BeEquivalentTo(
+                (
+                    new[] { new byte[] { 0xa, 0xb, 3, 4 }, new byte[] { 0xa, 6, 7, 8, 9 } },
+                    new byte[] { 0xa }
+                )
+            );
 
         new byte[] { 0, 1, 0xa, 0xb, 3, 4, 0xa, 6, 7, 8, 9 }
-            .LocateToPack(pattern2).Should().BeEquivalentTo((
-                new byte[][]
-                {
-                },
-                new byte[] { 0xa, 0xb, 3, 4, 0xa, 6, 7, 8, 9 }
-            ));
+            .LocateToPack(pattern2)
+            .Should()
+            .BeEquivalentTo((new byte[][] { }, new byte[] { 0xa, 0xb, 3, 4, 0xa, 6, 7, 8, 9 }));
 
         new byte[] { 0, 1, 0xa, 0xb, 3, 4, 0xa, 0xb, 6, 7, 8, 9 }
-            .LocateToPack(pattern2).Should().BeEquivalentTo((
-                new[]
-                {
-                    new byte[] { 0xa, 0xb, 3, 4 }
-                },
-                new byte[] { 0xa, 0xb, 6, 7, 8, 9 }
-            ));
+            .LocateToPack(pattern2)
+            .Should()
+            .BeEquivalentTo(
+                (new[] { new byte[] { 0xa, 0xb, 3, 4 } }, new byte[] { 0xa, 0xb, 6, 7, 8, 9 })
+            );
     }
 }

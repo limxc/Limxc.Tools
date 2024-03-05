@@ -42,9 +42,13 @@ namespace Limxc.Tools.Extensions.Communication
         {
             var len = bytes.Length;
 
-            if (len > length) return bytes.Skip(bytes.Length - length).ToArray();
+            if (len > length)
+                return bytes.Skip(bytes.Length - length).ToArray();
 
-            if (len < length) return new byte[length - len].Concat(bytes).ToArray();
+            if (len < length)
+                return new byte[length - len]
+                    .Concat(bytes)
+                    .ToArray();
 
             return bytes;
         }
@@ -56,7 +60,11 @@ namespace Limxc.Tools.Extensions.Communication
         /// <param name="reverse"></param>
         /// <param name="separator"></param>
         /// <returns></returns>
-        public static string HexFormat(this string hex, bool reverse = false, string separator = " ")
+        public static string HexFormat(
+            this string hex,
+            bool reverse = false,
+            string separator = " "
+        )
         {
             if (string.IsNullOrWhiteSpace(hex))
                 return string.Empty;
@@ -188,7 +196,8 @@ namespace Limxc.Tools.Extensions.Communication
             if (result.Length % 2 == 1)
                 result = "0" + result;
 
-            if (length < result.Length) throw new Exception($"Result Length Changed. From {length} to {result.Length}");
+            if (length < result.Length)
+                throw new Exception($"Result Length Changed. From {length} to {result.Length}");
 
             return result;
         }

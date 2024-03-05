@@ -5,7 +5,8 @@ using Limxc.Tools.Pipeline.Context;
 
 namespace Limxc.Tools.Pipeline.Builder
 {
-    public interface IPipeBuilder<T> where T : class
+    public interface IPipeBuilder<T>
+        where T : class
     {
         PipeBuilder<T> Build();
 
@@ -17,7 +18,10 @@ namespace Limxc.Tools.Pipeline.Builder
 
         IPipeBuilder<T> Use(Action<T> handler, string descForSnapshot = null);
 
-        IPipeBuilder<T> Use(Func<T, CancellationToken, Task> handler, string descForSnapshot = null);
+        IPipeBuilder<T> Use(
+            Func<T, CancellationToken, Task> handler,
+            string descForSnapshot = null
+        );
 
         IPipeBuilder<T> Use(Action<T, CancellationToken> handler, string descForSnapshot = null);
 
@@ -26,5 +30,6 @@ namespace Limxc.Tools.Pipeline.Builder
         Task<PipeContext<T>> RunAsync(T obj, CancellationToken token);
     }
 
-    public delegate Task PipeHandlerDel<T>(PipeContext<T> context, CancellationToken token) where T : class;
+    public delegate Task PipeHandlerDel<T>(PipeContext<T> context, CancellationToken token)
+        where T : class;
 }

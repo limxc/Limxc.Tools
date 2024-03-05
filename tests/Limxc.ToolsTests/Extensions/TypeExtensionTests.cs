@@ -13,19 +13,11 @@ public class TypeExtensionTests
         typeof(BirdZoo).IsInheritedFrom(typeof(IZoo<>)).Should().BeTrue();
     }
 
-    private class Bird
-    {
-    }
+    private class Bird { }
 
-    private class BirdZoo : Zoo<Bird>
-    {
-    }
+    private class BirdZoo : Zoo<Bird> { }
 
-    private class Zoo<T> : IZoo<T>
-    {
-    }
+    private class Zoo<T> : IZoo<T> { }
 
-    private interface IZoo<T>
-    {
-    }
+    private interface IZoo<T> { }
 }

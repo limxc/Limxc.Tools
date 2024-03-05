@@ -6,7 +6,8 @@ using Limxc.Tools.Core.Common;
 
 namespace Limxc.Tools.Core.Services
 {
-    public abstract class BaseFileSettingService<T> : ISettingService<T> where T : class, new()
+    public abstract class BaseFileSettingService<T> : ISettingService<T>
+        where T : class, new()
     {
         private readonly IDisposable _disposable;
         private readonly FileSystemWatcher _fileSystemWatcher;
@@ -16,20 +17,22 @@ namespace Limxc.Tools.Core.Services
         {
             _logService = logService;
 
-            _fileSystemWatcher =
-                new FileSystemWatcher(
-                    Path.GetDirectoryName(FullPath) ??
-                    throw new InvalidOperationException($"Cant find config folder.({Path.GetDirectoryName(FullPath)})"),
-                    FileName)
-                {
-                    EnableRaisingEvents = true,
-                    NotifyFilter = NotifyFilters.LastWrite
-                };
+            _fileSystemWatcher = new FileSystemWatcher(
+                Path.GetDirectoryName(FullPath)
+                    ?? throw new InvalidOperationException(
+                        $"Cant find config folder.({Path.GetDirectoryName(FullPath)})"
+                    ),
+                FileName
+            )
+            {
+                EnableRaisingEvents = true,
+                NotifyFilter = NotifyFilters.LastWrite
+            };
 
-            _disposable = Observable.FromEventPattern(_fileSystemWatcher, nameof(FileSystemWatcher.Changed))
+            _disposable = Observable
+                .FromEventPattern(_fileSystemWatcher, nameof(FileSystemWatcher.Changed))
                 .Throttle(TimeSpan.FromSeconds(0.5))
-                .Subscribe(_ =>
-                    SettingChanged?.Invoke(Load()));
+                .Subscribe(_ => SettingChanged?.Invoke(Load()));
         }
 
         /// <summary>
@@ -43,7 +46,6 @@ namespace Limxc.Tools.Core.Services
         public string FullPath => Path.Combine(Folder, FileName);
 
         public Action<T> SettingChanged { get; set; }
-
 
         public void Dispose()
         {
@@ -92,7 +94,6 @@ namespace Limxc.Tools.Core.Services
 
             return setting;
         }
-
 
         public virtual void Dispose(bool disposing)
         {

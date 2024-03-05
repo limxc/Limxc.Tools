@@ -10,7 +10,11 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
 {
     internal static class ConfigurationWriter
     {
-        internal static void WriteToStreamTextual(Configuration cfg, Stream stream, Encoding encoding)
+        internal static void WriteToStreamTextual(
+            Configuration cfg,
+            Stream stream,
+            Encoding encoding
+        )
         {
             Debug.Assert(cfg != null);
 
@@ -30,7 +34,11 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
             stream.Flush();
         }
 
-        internal static void WriteToStreamBinary(Configuration cfg, Stream stream, BinaryWriter writer)
+        internal static void WriteToStreamBinary(
+            Configuration cfg,
+            Stream stream,
+            BinaryWriter writer
+        )
         {
             Debug.Assert(cfg != null);
 
@@ -92,13 +100,9 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
         private class NonClosingBinaryWriter : BinaryWriter
         {
             public NonClosingBinaryWriter(Stream stream)
-                : base(stream)
-            {
-            }
+                : base(stream) { }
 
-            protected override void Dispose(bool disposing)
-            {
-            }
+            protected override void Dispose(bool disposing) { }
         }
     }
 }

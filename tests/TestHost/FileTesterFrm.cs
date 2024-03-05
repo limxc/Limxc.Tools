@@ -36,10 +36,18 @@ public partial class FileTesterFrm : Form
                 _entity.Value++;
                 _entity.Time = DateTime.Now.AddDays((int)_entity.Value);
                 _entity.TimeNull = DateTime.Now.AddDays((int)_entity.Value * 2);
-                _entity.Inners.Add(new Inner
-                    { Key = Random.Shared.Next().ToString(), Value = Random.Shared.NextDouble().ToString() });
+                _entity.Inners.Add(
+                    new Inner
+                    {
+                        Key = Random.Shared.Next().ToString(),
+                        Value = Random.Shared.NextDouble().ToString()
+                    }
+                );
                 _entity.Inner = new Inner
-                    { Key = Random.Shared.Next().ToString(), Value = Random.Shared.NextDouble().ToString() };
+                {
+                    Key = Random.Shared.Next().ToString(),
+                    Value = Random.Shared.NextDouble().ToString()
+                };
                 _entity.IntValue += 10;
                 //Bindings.InvalidateMember(() => _entity.Message);
             });
@@ -76,8 +84,14 @@ public partial class FileTesterFrm : Form
 
         var encoding = Encoding.Default;
 
-        await using var fs = new FileStream(FilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite,
-            FileShare.ReadWrite, 4096, FileOptions.Asynchronous);
+        await using var fs = new FileStream(
+            FilePath,
+            FileMode.OpenOrCreate,
+            FileAccess.ReadWrite,
+            FileShare.ReadWrite,
+            4096,
+            FileOptions.Asynchronous
+        );
         fs.SetLength(0);
         await using var sr = new StreamWriter(fs, encoding);
 
@@ -93,11 +107,19 @@ public partial class FileTesterFrm : Form
     private async void btnRead3s_Click(object sender, EventArgs e)
     {
         rtbTxt.Clear();
-        using (var fs = new FileStream(FilePath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite))
+        using (
+            var fs = new FileStream(
+                FilePath,
+                FileMode.OpenOrCreate,
+                FileAccess.Read,
+                FileShare.ReadWrite
+            )
+        )
         using (var sr = new StreamReader(fs, Encoding.Default))
         {
             string line;
-            while ((line = await sr.ReadLineAsync()) != null) rtbTxt.AppendText(line + Environment.NewLine);
+            while ((line = await sr.ReadLineAsync()) != null)
+                rtbTxt.AppendText(line + Environment.NewLine);
         }
     }
 
@@ -106,7 +128,10 @@ public partial class FileTesterFrm : Form
         _bindings.Unbind();
         _bindings.Clear();
 
-        Bindings.Error += obj => { obj.Debug(); };
+        Bindings.Error += obj =>
+        {
+            obj.Debug();
+        };
         Bindings.Create(() => tbMessage.Text == _entity.Message).UnbindWith(_bindings);
         Bindings.Create(() => nudValue.Value == _entity.Value).UnbindWith(_bindings);
         Bindings.Create(() => dgvInner.DataSource == _entity.Inners).UnbindWith(_bindings);
@@ -115,18 +140,21 @@ public partial class FileTesterFrm : Form
         Bindings.Create(() => tbIntValue.Text == _entity.IntValue + "").UnbindWith(_bindings);
         Bindings.Create(() => tbInnerValue.Text == _entity.Inner.Value + "").UnbindWith(_bindings);
 
-        Bindings.Create(() =>
-                rtbBindingLog.Text == _entity.Message + " | " + //ÐèÒªÒ»¸öÊôÐÔ´¥·¢¸üÐÂ
-                _entity)
+        Bindings
+            .Create(
+                () =>
+                    rtbBindingLog.Text
+                    == _entity.Message
+                        + " | "
+                        + //ï¿½ï¿½ÒªÒ»ï¿½ï¿½ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+                        _entity
+            )
             .UnbindWith(_bindings);
     }
 
     private void button1_Click(object sender, EventArgs e)
     {
-        _entity = new BindingEntity
-        {
-            Message = "new entity"
-        };
+        _entity = new BindingEntity { Message = "new entity" };
         CreateBindings();
     }
 }

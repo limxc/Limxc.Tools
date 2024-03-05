@@ -20,41 +20,53 @@ public class ParseExtensionTests
         var ob = ts.CreateObserver<string[]>();
         var observable = Observable.Create<string>(o =>
         {
-            foreach (var b in new[] { "0a", "AA", "AA", "01", "BB", "BB", "0b", "AA", "AA", "02", "02", "BB" })
+            foreach (
+                var b in new[]
+                {
+                    "0a",
+                    "AA",
+                    "AA",
+                    "01",
+                    "BB",
+                    "BB",
+                    "0b",
+                    "AA",
+                    "AA",
+                    "02",
+                    "02",
+                    "BB"
+                }
+            )
                 o.OnNext(b);
 
             o.OnCompleted();
             return Disposable.Empty;
         });
 
-        observable.ParsePackage(new[] { "AA", "AA" })
-            .Subscribe(ob);
+        observable.ParsePackage(new[] { "AA", "AA" }).Subscribe(ob);
         ts.AdvanceTo(100);
-        ob.Messages
-            .Where(p => p.Value.HasValue)
+        ob.Messages.Where(p => p.Value.HasValue)
             .Select(p => p.Value.Value)
             .ToList()
             .Should()
-            .BeEquivalentTo(new List<string[]>
-            {
-                new[] { "0a", "AA", "AA" },
-                new[] { "01", "BB", "BB", "0b", "AA", "AA" }
-            });
+            .BeEquivalentTo(
+                new List<string[]>
+                {
+                    new[] { "0a", "AA", "AA" },
+                    new[] { "01", "BB", "BB", "0b", "AA", "AA" }
+                }
+            );
         ob.Messages.Clear();
 
-        observable.ParsePackage("AA")
-            .Subscribe(ob);
+        observable.ParsePackage("AA").Subscribe(ob);
         ts.AdvanceTo(100);
-        ob.Messages
-            .Where(p => p.Value.HasValue)
+        ob.Messages.Where(p => p.Value.HasValue)
             .Select(p => p.Value.Value)
             .ToList()
             .Should()
-            .BeEquivalentTo(new List<string[]>
-            {
-                new[] { "0a", "AA" },
-                new[] { "01", "BB", "BB", "0b", "AA" }
-            });
+            .BeEquivalentTo(
+                new List<string[]> { new[] { "0a", "AA" }, new[] { "01", "BB", "BB", "0b", "AA" } }
+            );
         ob.Messages.Clear();
     }
 
@@ -75,20 +87,16 @@ public class ParseExtensionTests
 
         var pattern = new byte[] { 1, 2 };
 
-        observable.ParsePackage(pattern)
-            .Subscribe(ob);
+        observable.ParsePackage(pattern).Subscribe(ob);
 
         ts.AdvanceTo(100);
-        ob.Messages
-            .Where(p => p.Value.HasValue)
+        ob.Messages.Where(p => p.Value.HasValue)
             .Select(p => p.Value.Value)
             .ToList()
             .Should()
-            .BeEquivalentTo(new List<byte[]>
-            {
-                new byte[] { 1, 2, 0, 0 },
-                new byte[] { 1, 2, 3, 3 }
-            });
+            .BeEquivalentTo(
+                new List<byte[]> { new byte[] { 1, 2, 0, 0 }, new byte[] { 1, 2, 3, 3 } }
+            );
     }
 
     [Fact]
@@ -98,67 +106,65 @@ public class ParseExtensionTests
         var ob = ts.CreateObserver<string[]>();
         var observable = Observable.Create<string>(o =>
         {
-            foreach (var b in new[] { "0a", "AA", "AA", "01" }) o.OnNext(b);
-
-
-            foreach (var b in new[] { "BB", "BB", "0b", "AA", "AA", "02", "02", "BB" })
-
+            foreach (var b in new[] { "0a", "AA", "AA", "01" })
                 o.OnNext(b);
 
+            foreach (var b in new[] { "BB", "BB", "0b", "AA", "AA", "02", "02", "BB" })
+                o.OnNext(b);
 
-            foreach (var b in new[] { "BB", "0c", "AA", "AA", "03", "BB", "BB", "0d" }) o.OnNext(b);
-
+            foreach (var b in new[] { "BB", "0c", "AA", "AA", "03", "BB", "BB", "0d" })
+                o.OnNext(b);
 
             o.OnCompleted();
             return Disposable.Empty;
         });
 
-        observable.ParsePackage(new[] { "AA", "AA" }, new[] { "BB", "BB" })
-            .Subscribe(ob);
+        observable.ParsePackage(new[] { "AA", "AA" }, new[] { "BB", "BB" }).Subscribe(ob);
         ts.AdvanceTo(100);
-        ob.Messages
-            .Where(p => p.Value.HasValue)
+        ob.Messages.Where(p => p.Value.HasValue)
             .Select(p => p.Value.Value)
             .ToList()
             .Should()
-            .BeEquivalentTo(new List<string[]>
-            {
-                new[] { "AA", "AA", "01", "BB", "BB" },
-                new[] { "AA", "AA", "02", "02", "BB", "BB" },
-                new[] { "AA", "AA", "03", "BB", "BB" }
-            });
+            .BeEquivalentTo(
+                new List<string[]>
+                {
+                    new[] { "AA", "AA", "01", "BB", "BB" },
+                    new[] { "AA", "AA", "02", "02", "BB", "BB" },
+                    new[] { "AA", "AA", "03", "BB", "BB" }
+                }
+            );
         ob.Messages.Clear();
 
-        observable.ParsePackage("AA", "BB")
-            .Subscribe(ob);
+        observable.ParsePackage("AA", "BB").Subscribe(ob);
         ts.AdvanceTo(100);
-        ob.Messages
-            .Where(p => p.Value.HasValue)
+        ob.Messages.Where(p => p.Value.HasValue)
             .Select(p => p.Value.Value)
             .ToList()
             .Should()
-            .BeEquivalentTo(new List<string[]>
-            {
-                new[] { "AA", "AA", "01", "BB" },
-                new[] { "AA", "AA", "02", "02", "BB" },
-                new[] { "AA", "AA", "03", "BB" }
-            });
+            .BeEquivalentTo(
+                new List<string[]>
+                {
+                    new[] { "AA", "AA", "01", "BB" },
+                    new[] { "AA", "AA", "02", "02", "BB" },
+                    new[] { "AA", "AA", "03", "BB" }
+                }
+            );
         ob.Messages.Clear();
 
-        observable.ParsePackage("AA", "BB", true)
-            .Subscribe(ob);
+        observable.ParsePackage("AA", "BB", true).Subscribe(ob);
         ts.AdvanceTo(100);
-        ob.Messages
-            .Where(p => p.Value.HasValue)
+        ob.Messages.Where(p => p.Value.HasValue)
             .Select(p => p.Value.Value)
             .ToList()
             .Should()
-            .BeEquivalentTo(new List<string[]>
-            {
-                new[] { "AA", "01", "BB" },
-                new[] { "AA", "02", "02", "BB" },
-                new[] { "AA", "03", "BB" }
-            });
+            .BeEquivalentTo(
+                new List<string[]>
+                {
+                    new[] { "AA", "01", "BB" },
+                    new[] { "AA", "02", "02", "BB" },
+                    new[] { "AA", "03", "BB" }
+                }
+            );
         ob.Messages.Clear();
     }
 
@@ -169,63 +175,65 @@ public class ParseExtensionTests
         var ob = ts.CreateObserver<string[]>();
         var observable = Observable.Create<string>(o =>
         {
-            foreach (var b in new[] { "0a", "AA", "AA", "01" }) o.OnNext(b);
+            foreach (var b in new[] { "0a", "AA", "AA", "01" })
+                o.OnNext(b);
 
             foreach (var b in new[] { "BB", "BB", "0b", "AA", "AA", "02", "02", "BB" })
                 o.OnNext(b);
 
-            foreach (var b in new[] { "BB", "0c", "AA", "AA", "03", "BB", "BB", "0d" }) o.OnNext(b);
+            foreach (var b in new[] { "BB", "0c", "AA", "AA", "03", "BB", "BB", "0d" })
+                o.OnNext(b);
 
             o.OnCompleted();
             return Disposable.Empty;
         });
 
-        observable.ParsePackage(new[] { "AA", "AA" }, 4)
-            .Subscribe(ob);
+        observable.ParsePackage(new[] { "AA", "AA" }, 4).Subscribe(ob);
         ts.AdvanceTo(100);
-        ob.Messages
-            .Where(p => p.Value.HasValue)
+        ob.Messages.Where(p => p.Value.HasValue)
             .Select(p => p.Value.Value)
             .ToList()
             .Should()
-            .BeEquivalentTo(new List<string[]>
-            {
-                new[] { "AA", "AA", "01", "BB" },
-                new[] { "AA", "AA", "02", "02" },
-                new[] { "AA", "AA", "03", "BB" }
-            });
+            .BeEquivalentTo(
+                new List<string[]>
+                {
+                    new[] { "AA", "AA", "01", "BB" },
+                    new[] { "AA", "AA", "02", "02" },
+                    new[] { "AA", "AA", "03", "BB" }
+                }
+            );
         ob.Messages.Clear();
 
-        observable.ParsePackage("AA", 5)
-            .Subscribe(ob);
+        observable.ParsePackage("AA", 5).Subscribe(ob);
         ts.AdvanceTo(100);
-        ob.Messages
-            .Where(p => p.Value.HasValue)
+        ob.Messages.Where(p => p.Value.HasValue)
             .Select(p => p.Value.Value)
             .ToList()
             .Should()
-            .BeEquivalentTo(new List<string[]>
-            {
-                new[] { "AA", "AA", "01", "BB", "BB" },
-                new[] { "AA", "AA", "02", "02", "BB" },
-                new[] { "AA", "AA", "03", "BB", "BB" }
-            });
+            .BeEquivalentTo(
+                new List<string[]>
+                {
+                    new[] { "AA", "AA", "01", "BB", "BB" },
+                    new[] { "AA", "AA", "02", "02", "BB" },
+                    new[] { "AA", "AA", "03", "BB", "BB" }
+                }
+            );
         ob.Messages.Clear();
 
-        observable.ParsePackage("AA", 5, true)
-            .Subscribe(ob);
+        observable.ParsePackage("AA", 5, true).Subscribe(ob);
         ts.AdvanceTo(100);
-        ob.Messages
-            .Where(p => p.Value.HasValue)
+        ob.Messages.Where(p => p.Value.HasValue)
             .Select(p => p.Value.Value)
             .ToList()
             .Should()
-            .BeEquivalentTo(new List<string[]>
-            {
-                new[] { "AA", "01", "BB", "BB", "0b" },
-                new[] { "AA", "02", "02", "BB", "BB" },
-                new[] { "AA", "03", "BB", "BB", "0d" }
-            });
+            .BeEquivalentTo(
+                new List<string[]>
+                {
+                    new[] { "AA", "01", "BB", "BB", "0b" },
+                    new[] { "AA", "02", "02", "BB", "BB" },
+                    new[] { "AA", "03", "BB", "BB", "0d" }
+                }
+            );
     }
 
     [Fact]
@@ -235,7 +243,8 @@ public class ParseExtensionTests
 
         var observable = Observable.Create<string>(async o =>
         {
-            foreach (var b in new[] { "0a", "AA", "AA", "01" }) o.OnNext(b);
+            foreach (var b in new[] { "0a", "AA", "AA", "01" })
+                o.OnNext(b);
 
             await Task.Delay(100);
 
@@ -247,7 +256,8 @@ public class ParseExtensionTests
 
             await Task.Delay(300);
 
-            foreach (var b in new[] { "BB", "0c", "AA", "AA", "03", "BB", "BB", "0d" }) o.OnNext(b);
+            foreach (var b in new[] { "BB", "0c", "AA", "AA", "03", "BB", "BB", "0d" })
+                o.OnNext(b);
 
             await Task.Delay(300);
 
@@ -256,44 +266,48 @@ public class ParseExtensionTests
         });
 
         var rst1 = new List<string[]>();
-        observable.ParsePackage(new[] { "AA", "AA" }, new[] { "BB", "BB" }, 400)
+        observable
+            .ParsePackage(new[] { "AA", "AA" }, new[] { "BB", "BB" }, 400)
             .Subscribe(rst1.Add);
 
         var rst2 = new List<string[]>();
-        observable.ParsePackage(new[] { "AA", "AA" }, new[] { "BB", "BB" }, 200)
+        observable
+            .ParsePackage(new[] { "AA", "AA" }, new[] { "BB", "BB" }, 200)
             .Subscribe(rst2.Add);
 
         var rst3 = new List<string[]>();
-        observable.ParsePackage("AA", "BB", 200, true)
-            .Subscribe(rst3.Add);
+        observable.ParsePackage("AA", "BB", 200, true).Subscribe(rst3.Add);
 
         await Task.Delay(1200);
 
-        rst1
-            .Should()
-            .BeEquivalentTo(new List<string[]>
-            {
-                new[] { "AA", "AA", "01", "BB", "BB" },
-                new[] { "AA", "AA", "02", "02", "BB", "BB" },
-                new[] { "AA", "AA", "03", "BB", "BB" }
-            });
+        rst1.Should()
+            .BeEquivalentTo(
+                new List<string[]>
+                {
+                    new[] { "AA", "AA", "01", "BB", "BB" },
+                    new[] { "AA", "AA", "02", "02", "BB", "BB" },
+                    new[] { "AA", "AA", "03", "BB", "BB" }
+                }
+            );
 
-        rst2
-            .Should()
-            .BeEquivalentTo(new List<string[]>
-            {
-                new[] { "AA", "AA", "01", "BB", "BB" },
-                new[] { "AA", "AA", "03", "BB", "BB" }
-            });
+        rst2.Should()
+            .BeEquivalentTo(
+                new List<string[]>
+                {
+                    new[] { "AA", "AA", "01", "BB", "BB" },
+                    new[] { "AA", "AA", "03", "BB", "BB" }
+                }
+            );
 
-        rst3
-            .Should()
-            .BeEquivalentTo(new List<string[]>
-            {
-                new[] { "AA", "01", "BB" },
-                new[] { "AA", "02", "02", "BB" },
-                new[] { "AA", "03", "BB" }
-            });
+        rst3.Should()
+            .BeEquivalentTo(
+                new List<string[]>
+                {
+                    new[] { "AA", "01", "BB" },
+                    new[] { "AA", "02", "02", "BB" },
+                    new[] { "AA", "03", "BB" }
+                }
+            );
     }
 
     [Fact]
@@ -303,7 +317,8 @@ public class ParseExtensionTests
 
         var observable = Observable.Create<string>(async o =>
         {
-            foreach (var b in new[] { "0a", "AA", "AA", "01" }) o.OnNext(b);
+            foreach (var b in new[] { "0a", "AA", "AA", "01" })
+                o.OnNext(b);
 
             await Task.Delay(100);
 
@@ -315,7 +330,8 @@ public class ParseExtensionTests
 
             await Task.Delay(300);
 
-            foreach (var b in new[] { "BB", "0c", "AA", "AA", "03", "BB", "BB", "0d" }) o.OnNext(b);
+            foreach (var b in new[] { "BB", "0c", "AA", "AA", "03", "BB", "BB", "0d" })
+                o.OnNext(b);
 
             await Task.Delay(300);
 
@@ -324,62 +340,74 @@ public class ParseExtensionTests
         });
 
         var rst1 = new List<string[]>();
-        observable.ParsePackage(new[] { "AA", "AA" }, 13, 400)
-            .Subscribe(rst1.Add);
+        observable.ParsePackage(new[] { "AA", "AA" }, 13, 400).Subscribe(rst1.Add);
 
         var rst2 = new List<string[]>();
-        observable.ParsePackage(new[] { "AA", "AA" }, 13, 200)
-            .Subscribe(rst2.Add);
+        observable.ParsePackage(new[] { "AA", "AA" }, 13, 200).Subscribe(rst2.Add);
 
         var rst3 = new List<string[]>();
-        observable.ParsePackage("AA", 7, 400)
-            .Subscribe(rst3.Add);
+        observable.ParsePackage("AA", 7, 400).Subscribe(rst3.Add);
 
         var rst4 = new List<string[]>();
-        observable.ParsePackage("AA", 5, 200, true)
-            .Subscribe(rst4.Add);
+        observable.ParsePackage("AA", 5, 200, true).Subscribe(rst4.Add);
 
         var rst5 = new List<string[]>();
-        observable.ParsePackage("AA", 5, 400, true)
-            .Subscribe(rst5.Add);
+        observable.ParsePackage("AA", 5, 400, true).Subscribe(rst5.Add);
 
         await Task.Delay(1200);
 
-        rst1
-            .Should()
-            .BeEquivalentTo(new List<string[]>
-            {
-                new[] { "AA", "AA", "01", "BB", "BB", "0b", "AA", "AA", "02", "02", "BB", "BB", "0c" }
-            });
+        rst1.Should()
+            .BeEquivalentTo(
+                new List<string[]>
+                {
+                    new[]
+                    {
+                        "AA",
+                        "AA",
+                        "01",
+                        "BB",
+                        "BB",
+                        "0b",
+                        "AA",
+                        "AA",
+                        "02",
+                        "02",
+                        "BB",
+                        "BB",
+                        "0c"
+                    }
+                }
+            );
 
-        rst2
-            .Should()
-            .BeEmpty();
+        rst2.Should().BeEmpty();
 
-        rst3
-            .Should()
-            .BeEquivalentTo(new List<string[]>
-            {
-                new[] { "AA", "AA", "01", "BB", "BB", "0b", "AA" },
-                new[] { "AA", "AA", "02", "02", "BB", "BB", "0c" }
-            });
+        rst3.Should()
+            .BeEquivalentTo(
+                new List<string[]>
+                {
+                    new[] { "AA", "AA", "01", "BB", "BB", "0b", "AA" },
+                    new[] { "AA", "AA", "02", "02", "BB", "BB", "0c" }
+                }
+            );
 
-        rst4
-            .Should()
-            .BeEquivalentTo(new List<string[]>
-            {
-                new[] { "AA", "01", "BB", "BB", "0b" },
-                new[] { "AA", "03", "BB", "BB", "0d" }
-            });
+        rst4.Should()
+            .BeEquivalentTo(
+                new List<string[]>
+                {
+                    new[] { "AA", "01", "BB", "BB", "0b" },
+                    new[] { "AA", "03", "BB", "BB", "0d" }
+                }
+            );
 
-        rst5
-            .Should()
-            .BeEquivalentTo(new List<string[]>
-            {
-                new[] { "AA", "01", "BB", "BB", "0b" },
-                new[] { "AA", "02", "02", "BB", "BB" },
-                new[] { "AA", "03", "BB", "BB", "0d" }
-            });
+        rst5.Should()
+            .BeEquivalentTo(
+                new List<string[]>
+                {
+                    new[] { "AA", "01", "BB", "BB", "0b" },
+                    new[] { "AA", "02", "02", "BB", "BB" },
+                    new[] { "AA", "03", "BB", "BB", "0d" }
+                }
+            );
     }
 
     [Fact]
@@ -392,9 +420,11 @@ public class ParseExtensionTests
         var a2 = new[] { "b1", "b2", "b3", "b4", "b5", "b6" };
         var a3 = new[] { "c1", "c2", "c3" };
 
-        Observable.Create<string>(async o =>
+        Observable
+            .Create<string>(async o =>
             {
-                foreach (var b in a1) o.OnNext(b);
+                foreach (var b in a1)
+                    o.OnNext(b);
                 await Task.Delay(300);
                 foreach (var b in a2)
                 {
@@ -403,7 +433,8 @@ public class ParseExtensionTests
                 }
 
                 await Task.Delay(300);
-                foreach (var b in a3) o.OnNext(b);
+                foreach (var b in a3)
+                    o.OnNext(b);
                 await Task.Delay(300);
 
                 o.OnCompleted();
@@ -412,17 +443,10 @@ public class ParseExtensionTests
             .ParsePackage(TimeSpan.FromMilliseconds(100))
             .Subscribe(ob);
 
-
         await Task.Delay(1500);
 
-        var rst = ob.Messages
-            .Where(p => p.Value.HasValue)
-            .Select(p => p.Value.Value)
-            .ToList();
+        var rst = ob.Messages.Where(p => p.Value.HasValue).Select(p => p.Value.Value).ToList();
 
-        rst.Should().BeEquivalentTo(new List<string[]>
-        {
-            a1, a2, a3
-        });
+        rst.Should().BeEquivalentTo(new List<string[]> { a1, a2, a3 });
     }
 }

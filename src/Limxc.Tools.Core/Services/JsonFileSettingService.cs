@@ -8,11 +8,13 @@ using Limxc.Tools.Extensions;
 
 namespace Limxc.Tools.Core.Services
 {
-    public class JsonFileSettingService<T> : BaseFileSettingService<T> where T : class, new()
+    public class JsonFileSettingService<T> : BaseFileSettingService<T>
+        where T : class, new()
     {
         private readonly JsonSerializerOptions _jsonSerializerOptions;
 
-        public JsonFileSettingService(ILogService logService = null) : base(logService)
+        public JsonFileSettingService(ILogService logService = null)
+            : base(logService)
         {
             _jsonSerializerOptions = new JsonSerializerOptions
             {

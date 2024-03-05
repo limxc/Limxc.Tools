@@ -44,7 +44,9 @@ namespace Limxc.Tools.Integrations.CrcCSharp
 
         public override void Initialize()
         {
-            _currentValue = Parameters.RefOut ? CrcHelper.ReverseBits(Parameters.Init, HashSize) : Parameters.Init;
+            _currentValue = Parameters.RefOut
+                ? CrcHelper.ReverseBits(Parameters.Init, HashSize)
+                : Parameters.Init;
         }
 
         protected override void HashCore(byte[] array, int ibStart, int cbSize)
@@ -136,11 +138,7 @@ namespace Limxc.Tools.Integrations.CrcCSharp
             {
                 var crc = new Crc(parameter.Value);
 
-                result.Add(new CheckResult
-                {
-                    Parameter = parameter.Value,
-                    Table = crc.GetTable()
-                });
+                result.Add(new CheckResult { Parameter = parameter.Value, Table = crc.GetTable() });
             }
 
             return result.ToArray();

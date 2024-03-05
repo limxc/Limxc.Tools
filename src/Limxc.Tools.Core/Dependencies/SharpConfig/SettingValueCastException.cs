@@ -12,11 +12,13 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
     public sealed class SettingValueCastException : Exception
     {
         private SettingValueCastException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
+            : base(message, innerException) { }
 
-        internal static SettingValueCastException Create(string stringValue, Type dstType, Exception innerException)
+        internal static SettingValueCastException Create(
+            string stringValue,
+            Type dstType,
+            Exception innerException
+        )
         {
             var msg = $"Failed to convert value '{stringValue}' to type {dstType.FullName}.";
             return new SettingValueCastException(msg, innerException);

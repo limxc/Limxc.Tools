@@ -19,7 +19,11 @@ namespace Limxc.Tools.Extensions
             var sourceType = source.GetType();
 
             if (sourceType.IsClass)
-                foreach (var prop in sourceType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                foreach (
+                    var prop in sourceType.GetProperties(
+                        BindingFlags.Public | BindingFlags.Instance
+                    )
+                )
                 {
                     var type = prop.PropertyType;
 
@@ -73,7 +77,8 @@ namespace Limxc.Tools.Extensions
                         prop.SetValue(source, obj);
                     }
                 }
-            else if (sourceType.IsValueType) MockValue(sourceType);
+            else if (sourceType.IsValueType)
+                MockValue(sourceType);
         }
 
         private static object MockValue(Type type)
@@ -90,7 +95,8 @@ namespace Limxc.Tools.Extensions
             {
                 var az = Enumerable.Range('a', 'z' - 'a' + 1).Select(i => (char)i).ToArray();
                 var cl = new List<char>();
-                for (var i = 0; i < 8; i++) cl.Add(az[r.Next(0, az.Length)]);
+                for (var i = 0; i < 8; i++)
+                    cl.Add(az[r.Next(0, az.Length)]);
                 return new string(cl.ToArray());
             }
 
@@ -110,7 +116,11 @@ namespace Limxc.Tools.Extensions
                 return (decimal)(r.NextDouble() * 1000 + 1);
 
             if (type == typeof(DateTime) || type == typeof(DateTime?))
-                return new DateTime(1900 + r.Next(0, DateTime.Now.Year - 1900 - 1), r.Next(1, 12), r.Next(1, 28));
+                return new DateTime(
+                    1900 + r.Next(0, DateTime.Now.Year - 1900 - 1),
+                    r.Next(1, 12),
+                    r.Next(1, 28)
+                );
 
             return null;
         }

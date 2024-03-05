@@ -26,11 +26,15 @@ namespace Limxc.Tools.Sockets.Tcp
                 return false;
             }
 
-            var existIpPort = NetworkInterface.GetAllNetworkInterfaces()
+            var existIpPort = NetworkInterface
+                .GetAllNetworkInterfaces()
                 .Where(p => p.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
                 .Select(p =>
-                    p.GetIPProperties().UnicastAddresses
-                        .Where(i => i.Address.AddressFamily == AddressFamily.InterNetwork))
+                    p.GetIPProperties()
+                        .UnicastAddresses.Where(i =>
+                            i.Address.AddressFamily == AddressFamily.InterNetwork
+                        )
+                )
                 .SelectMany(p => p.Select(i => i.Address.ToString()))
                 .Any(p => ServerIpPort.Contains(p));
 

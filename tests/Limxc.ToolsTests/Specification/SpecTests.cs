@@ -28,9 +28,8 @@ public class SpecTests
 
     private class Gte3Spec : Spec<Model>
     {
-        public Gte3Spec() : base(p => p.Value >= 3)
-        {
-        }
+        public Gte3Spec()
+            : base(p => p.Value >= 3) { }
     }
 
     private class Model

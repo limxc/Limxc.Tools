@@ -26,7 +26,10 @@ public class TaskQueueTests
         que.Add(token => Run(1000, true, token), 0, "cmd1");
         que.Add(token => Run(1000, true, token), 0, "cmd2");
         que.Add(token => Run(1000, true, token), 0, "cmd3");
-        await Assert.ThrowsAsync(typeof(OperationCanceledException), async () => await que.Exec(1.7));
+        await Assert.ThrowsAsync(
+            typeof(OperationCanceledException),
+            async () => await que.Exec(1.7)
+        );
         que.History.Count(p => p.Result).Should().Be(2);
 
         //取消任务
@@ -39,12 +42,18 @@ public class TaskQueueTests
         que.Add(token => Run(500, true, token), 0, "cmd6");
         var cts = new CancellationTokenSource();
         cts.CancelAfter(2100);
-        await Assert.ThrowsAsync(typeof(OperationCanceledException), async () => await que.Exec(cts.Token));
+        await Assert.ThrowsAsync(
+            typeof(OperationCanceledException),
+            async () => await que.Exec(cts.Token)
+        );
         que.History.Count().Should().Be(5);
 
         //暂停 继续
         que.Build();
-        await Assert.ThrowsAsync(typeof(OperationCanceledException), async () => await que.Exec(1.2));
+        await Assert.ThrowsAsync(
+            typeof(OperationCanceledException),
+            async () => await que.Exec(1.2)
+        );
         que.History.Count(p => p.Result).Should().Be(2);
         que.History.Count(p => !p.Result).Should().Be(1);
         que.PendingQueue.Count().Should().Be(4);

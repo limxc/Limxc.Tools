@@ -11,8 +11,10 @@ public class SerialPortSettingTests
     [Fact]
     public void CtorTest()
     {
-        var existIpPort = Dns.GetHostEntry(Dns.GetHostName()).AddressList
-            .FirstOrDefault(p => p.AddressFamily.ToString() == "InterNetwork") + ":8080";
+        var existIpPort =
+            Dns.GetHostEntry(Dns.GetHostName())
+                .AddressList.FirstOrDefault(p => p.AddressFamily.ToString() == "InterNetwork")
+            + ":8080";
 
         new Setting("", "").Check(out var _).Should().BeFalse();
         new Setting("10.9.0.1:8080", "10.9.0.2").Check(out var _).Should().BeFalse();

@@ -34,10 +34,10 @@ namespace Limxc.Tools.SerialPort
                 .Subscribe(s => _connectionState.OnNext(s))
                 .DisposeWith(_initDisposables);
 
-            ConnectionState = Observable.Defer(() =>
-                _connectionState.StartWith(false).AsObservable().Publish().RefCount());
-            Received = Observable.Defer(() =>
-                _received.AsObservable().Publish().RefCount());
+            ConnectionState = Observable.Defer(
+                () => _connectionState.StartWith(false).AsObservable().Publish().RefCount()
+            );
+            Received = Observable.Defer(() => _received.AsObservable().Publish().RefCount());
             Log = Observable.Defer(() => _log.AsObservable().Publish().RefCount());
         }
 
@@ -90,8 +90,13 @@ namespace Limxc.Tools.SerialPort
         /// <param name="sepBegin"></param>
         /// <param name="sepEnd"></param>
         /// <returns></returns>
-        public async Task<string> SendAsync(string hex, int timeoutMs, string template, char sepBegin = '[',
-            char sepEnd = ']')
+        public async Task<string> SendAsync(
+            string hex,
+            int timeoutMs,
+            string template,
+            char sepBegin = '[',
+            char sepEnd = ']'
+        )
         {
             try
             {
@@ -111,7 +116,8 @@ namespace Limxc.Tools.SerialPort
 
                 //return await task;
 
-                var task = _received.Select(p => p.ByteToHex())
+                var task = _received
+                    .Select(p => p.ByteToHex())
                     .TryGetTemplateMatchResult(template, timeoutMs, sepBegin, sepEnd);
 
                 var bytes = hex.HexToByte();
@@ -139,8 +145,11 @@ namespace Limxc.Tools.SerialPort
                 await Task.Delay(_setting.SendDelay);
 
                 var now = DateTimeOffset.Now;
-                var task = _received.SkipUntil(now).TakeUntil(now.AddMilliseconds(waitMs))
-                    .Aggregate((x, y) => x.Concat(y).ToArray()).ToTask();
+                var task = _received
+                    .SkipUntil(now)
+                    .TakeUntil(now.AddMilliseconds(waitMs))
+                    .Aggregate((x, y) => x.Concat(y).ToArray())
+                    .ToTask();
 
                 _sp.Write(bytes, 0, bytes.Length);
 
@@ -167,9 +176,17 @@ namespace Limxc.Tools.SerialPort
 
             _controlDisposables = new CompositeDisposable();
 
-            _sp = new SP(_setting.PortName, _setting.BaudRate,
-                    _setting.Parity, _setting.DataBits, _setting.StopBits)
-                { ReadTimeout = 500, WriteTimeout = 500 };
+            _sp = new SP(
+                _setting.PortName,
+                _setting.BaudRate,
+                _setting.Parity,
+                _setting.DataBits,
+                _setting.StopBits
+            )
+            {
+                ReadTimeout = 500,
+                WriteTimeout = 500
+            };
 
             Observable
                 .FromEventPattern(_sp, nameof(SP.DataReceived))

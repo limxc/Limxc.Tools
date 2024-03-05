@@ -108,15 +108,19 @@ namespace Limxc.Tools.Extensions
             var b = new double[pointsLength];
             var tem = new double[pointsLength];
             var m = new double[pointsLength];
-            var fn = (points[pointsLength - 1].Y - points[pointsLength - 2].Y) /
-                     (points[pointsLength - 1].X - points[pointsLength - 2].X);
+            var fn =
+                (points[pointsLength - 1].Y - points[pointsLength - 2].Y)
+                / (points[pointsLength - 1].X - points[pointsLength - 2].X);
 
             b[1] = v[1] / 2;
-            for (var i = 2; i < pointsLength - 2; i++) b[i] = v[i] / (2 - b[i - 1] * l[i]);
+            for (var i = 2; i < pointsLength - 2; i++)
+                b[i] = v[i] / (2 - b[i - 1] * l[i]);
             tem[1] = g[1] / 2;
-            for (var i = 2; i < pointsLength - 1; i++) tem[i] = (g[i] - l[i] * tem[i - 1]) / (2 - l[i] * b[i - 1]);
+            for (var i = 2; i < pointsLength - 1; i++)
+                tem[i] = (g[i] - l[i] * tem[i - 1]) / (2 - l[i] * b[i - 1]);
             m[pointsLength - 2] = tem[pointsLength - 2];
-            for (var i = pointsLength - 3; i > 0; i--) m[i] = tem[i] - b[i] * m[i + 1];
+            for (var i = pointsLength - 3; i > 0; i--)
+                m[i] = tem[i] - b[i] * m[i + 1];
             m[0] = 3 * f[0] / 2.0;
             m[pointsLength - 1] = fn;
             var xsLength = xs.Length;
@@ -144,11 +148,17 @@ namespace Limxc.Tools.Extensions
                     p1 *= p1;
                     var p2 = (xs[i] - points[j].X) / (points[j + 1].X - points[j].X);
                     p2 *= p2;
-                    var p3 = p1 * (1 + 2 * (xs[i] - points[j].X) / (points[j + 1].X - points[j].X)) * points[j].Y +
-                             p2 * (1 + 2 * (xs[i] - points[j + 1].X) / (points[j].X - points[j + 1].X)) *
-                             points[j + 1].Y;
+                    var p3 =
+                        p1
+                            * (1 + 2 * (xs[i] - points[j].X) / (points[j + 1].X - points[j].X))
+                            * points[j].Y
+                        + p2
+                            * (1 + 2 * (xs[i] - points[j + 1].X) / (points[j].X - points[j + 1].X))
+                            * points[j + 1].Y;
 
-                    var p4 = p1 * (xs[i] - points[j].X) * m[j] + p2 * (xs[i] - points[j + 1].X) * m[j + 1];
+                    var p4 =
+                        p1 * (xs[i] - points[j].X) * m[j]
+                        + p2 * (xs[i] - points[j + 1].X) * m[j + 1];
                     p4 += p3;
                     insertRes[i] = p4;
                 }

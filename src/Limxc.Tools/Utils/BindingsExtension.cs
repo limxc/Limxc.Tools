@@ -11,7 +11,8 @@ namespace Limxc.Tools.Utils
 
         public static void Unbind(this IList<Bindings> bindings)
         {
-            foreach (var binding in bindings) binding.Unbind();
+            foreach (var binding in bindings)
+                binding.Unbind();
         }
     }
 }

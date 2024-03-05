@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 namespace Limxc.Tools.Pipeline.Context
 {
-    public class PipeContext<T> where T : class
+    public class PipeContext<T>
+        where T : class
     {
         private readonly Func<T, T> _cloner;
 

@@ -1,4 +1,4 @@
-﻿// ReSharper disable AssignNullToNotNullAttribute 
+﻿// ReSharper disable AssignNullToNotNullAttribute
 
 using System;
 using System.ComponentModel;
@@ -85,7 +85,14 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
             if (value == string.Empty)
                 return default(byte);
 
-            if (!byte.TryParse(value, NumberStyles.Integer, Configuration.CultureInfo.NumberFormat, out var result))
+            if (
+                !byte.TryParse(
+                    value,
+                    NumberStyles.Integer,
+                    Configuration.CultureInfo.NumberFormat,
+                    out var result
+                )
+            )
                 return null;
 
             return result;
@@ -123,8 +130,14 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
             if (value == string.Empty)
                 return default(DateTime);
 
-            if (!DateTime.TryParse(value, Configuration.CultureInfo.DateTimeFormat, DateTimeStyles.None,
-                    out var result))
+            if (
+                !DateTime.TryParse(
+                    value,
+                    Configuration.CultureInfo.DateTimeFormat,
+                    DateTimeStyles.None,
+                    out var result
+                )
+            )
                 return null;
 
             return result;
@@ -143,7 +156,14 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
             if (value == string.Empty)
                 return default(decimal);
 
-            if (!decimal.TryParse(value, NumberStyles.Number, Configuration.CultureInfo.NumberFormat, out var result))
+            if (
+                !decimal.TryParse(
+                    value,
+                    NumberStyles.Number,
+                    Configuration.CultureInfo.NumberFormat,
+                    out var result
+                )
+            )
                 return null;
 
             return result;
@@ -162,8 +182,14 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
             if (value == string.Empty)
                 return default(double);
 
-            if (!double.TryParse(value, NumberStyles.Float | NumberStyles.AllowThousands,
-                    Configuration.CultureInfo.NumberFormat, out var result))
+            if (
+                !double.TryParse(
+                    value,
+                    NumberStyles.Float | NumberStyles.AllowThousands,
+                    Configuration.CultureInfo.NumberFormat,
+                    out var result
+                )
+            )
                 return null;
 
             return result;
@@ -201,7 +227,9 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
         {
             var indexOfLastDot = value.LastIndexOf('.');
             if (indexOfLastDot >= 0)
-                value = value.Substring(indexOfLastDot + 1, value.Length - indexOfLastDot - 1).Trim();
+                value = value
+                    .Substring(indexOfLastDot + 1, value.Length - indexOfLastDot - 1)
+                    .Trim();
             return value;
         }
     }
@@ -218,7 +246,14 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
             if (value == string.Empty)
                 return default(short);
 
-            if (!short.TryParse(value, NumberStyles.Integer, Configuration.CultureInfo.NumberFormat, out var result))
+            if (
+                !short.TryParse(
+                    value,
+                    NumberStyles.Integer,
+                    Configuration.CultureInfo.NumberFormat,
+                    out var result
+                )
+            )
                 return null;
 
             return result;
@@ -237,7 +272,14 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
             if (value == string.Empty)
                 return default(int);
 
-            if (!int.TryParse(value, NumberStyles.Integer, Configuration.CultureInfo.NumberFormat, out var result))
+            if (
+                !int.TryParse(
+                    value,
+                    NumberStyles.Integer,
+                    Configuration.CultureInfo.NumberFormat,
+                    out var result
+                )
+            )
                 return null;
 
             return result;
@@ -256,7 +298,14 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
             if (value == string.Empty)
                 return default(long);
 
-            if (!long.TryParse(value, NumberStyles.Integer, Configuration.CultureInfo.NumberFormat, out var result))
+            if (
+                !long.TryParse(
+                    value,
+                    NumberStyles.Integer,
+                    Configuration.CultureInfo.NumberFormat,
+                    out var result
+                )
+            )
                 return null;
 
             return result;
@@ -275,7 +324,14 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
             if (value == string.Empty)
                 return default(sbyte);
 
-            if (!sbyte.TryParse(value, NumberStyles.Integer, Configuration.CultureInfo.NumberFormat, out var result))
+            if (
+                !sbyte.TryParse(
+                    value,
+                    NumberStyles.Integer,
+                    Configuration.CultureInfo.NumberFormat,
+                    out var result
+                )
+            )
                 return null;
 
             return result;
@@ -294,8 +350,14 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
             if (value == string.Empty)
                 return default(float);
 
-            if (!float.TryParse(value, NumberStyles.Float | NumberStyles.AllowThousands,
-                    Configuration.CultureInfo.NumberFormat, out var result))
+            if (
+                !float.TryParse(
+                    value,
+                    NumberStyles.Float | NumberStyles.AllowThousands,
+                    Configuration.CultureInfo.NumberFormat,
+                    out var result
+                )
+            )
                 return null;
 
             return result;
@@ -327,7 +389,14 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
             if (value == string.Empty)
                 return default(ushort);
 
-            if (!ushort.TryParse(value, NumberStyles.Integer, Configuration.CultureInfo.NumberFormat, out var result))
+            if (
+                !ushort.TryParse(
+                    value,
+                    NumberStyles.Integer,
+                    Configuration.CultureInfo.NumberFormat,
+                    out var result
+                )
+            )
                 return null;
 
             return result;
@@ -346,7 +415,14 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
             if (value == string.Empty)
                 return default(uint);
 
-            if (!uint.TryParse(value, NumberStyles.Integer, Configuration.CultureInfo.NumberFormat, out var result))
+            if (
+                !uint.TryParse(
+                    value,
+                    NumberStyles.Integer,
+                    Configuration.CultureInfo.NumberFormat,
+                    out var result
+                )
+            )
                 return null;
 
             return result;
@@ -365,7 +441,14 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
             if (value == string.Empty)
                 return default(ulong);
 
-            if (!ulong.TryParse(value, NumberStyles.Integer, Configuration.CultureInfo.NumberFormat, out var result))
+            if (
+                !ulong.TryParse(
+                    value,
+                    NumberStyles.Integer,
+                    Configuration.CultureInfo.NumberFormat,
+                    out var result
+                )
+            )
                 return null;
 
             return result;

@@ -42,12 +42,18 @@ public class TemplateExtensionTests
         resp.TryGetTemplateMatchResults(template).FirstOrDefault().Should().Be(respT);
         (resp + "123").TryGetTemplateMatchResults(template).FirstOrDefault().Should().Be(respT);
         ("123" + resp).TryGetTemplateMatchResults(template).FirstOrDefault().Should().Be(respT);
-        ("123" + resp + "123").TryGetTemplateMatchResults(template).FirstOrDefault().Should().Be(respT);
+        ("123" + resp + "123")
+            .TryGetTemplateMatchResults(template)
+            .FirstOrDefault()
+            .Should()
+            .Be(respT);
         resp.TryGetTemplateMatchResults(template).FirstOrDefault().Should().Be(respT);
         resp.TryGetTemplateMatchResults(template).FirstOrDefault().Should().Be(respT);
-        (resp + resp).TryGetTemplateMatchResults(template).Should().BeEquivalentTo(new List<string> { respT, respT });
+        (resp + resp)
+            .TryGetTemplateMatchResults(template)
+            .Should()
+            .BeEquivalentTo(new List<string> { respT, respT });
     }
-
 
     [Fact]
     public void GetMatchValuesTest()

@@ -59,19 +59,21 @@ namespace Limxc.Tools.MQTT
         {
             var options = new ManagedMqttClientOptionsBuilder()
                 .WithAutoReconnectDelay(TimeSpan.FromSeconds(5))
-                .WithClientOptions(new MqttClientOptionsBuilder()
-                    .WithClientId(clientId)
-                    .WithTcpServer(opt =>
-                    {
-                        opt.Server = setting.MqttServerIp;
-                        opt.Port = setting.MqttServerPort;
-                    })
-                    .WithCleanSession()
-                    .WithProtocolVersion(MqttProtocolVersion.V500)
-                    .WithTimeout(TimeSpan.FromSeconds(10))
-                    .WithKeepAlivePeriod(TimeSpan.FromSeconds(5))
-                    .WithCredentials(setting.UserName, setting.Password)
-                    .Build())
+                .WithClientOptions(
+                    new MqttClientOptionsBuilder()
+                        .WithClientId(clientId)
+                        .WithTcpServer(opt =>
+                        {
+                            opt.Server = setting.MqttServerIp;
+                            opt.Port = setting.MqttServerPort;
+                        })
+                        .WithCleanSession()
+                        .WithProtocolVersion(MqttProtocolVersion.V500)
+                        .WithTimeout(TimeSpan.FromSeconds(10))
+                        .WithKeepAlivePeriod(TimeSpan.FromSeconds(5))
+                        .WithCredentials(setting.UserName, setting.Password)
+                        .Build()
+                )
                 .Build();
 
             return _client.StartAsync(options);
@@ -112,7 +114,6 @@ namespace Limxc.Tools.MQTT
             return PubAsync(topic, payload.ToJson());
         }
 
-
         /// <summary>
         ///     topic : xxx/yyy
         /// </summary>
@@ -120,9 +121,7 @@ namespace Limxc.Tools.MQTT
         /// <returns></returns>
         public IObservable<string> Sub(string topic)
         {
-            return _client
-                .Connect(topic)
-                .SelectPayload();
+            return _client.Connect(topic).SelectPayload();
         }
 
         /// <summary>

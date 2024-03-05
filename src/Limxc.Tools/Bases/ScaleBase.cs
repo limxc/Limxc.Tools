@@ -108,7 +108,11 @@ namespace Limxc.Tools.Bases
         /// <param name="text"></param>
         /// <param name="res"></param>
         /// <param name="answers"></param>
-        protected void AddTopic(string text, string res, params (string Text, double Score)[] answers)
+        protected void AddTopic(
+            string text,
+            string res,
+            params (string Text, double Score)[] answers
+        )
         {
             var list = new List<Answer>();
 
@@ -171,7 +175,8 @@ namespace Limxc.Tools.Bases
         }
 
         /// <summary>从文件加载</summary>
-        public static T LoadFromFile<T>(string fileName) where T : ScaleBase
+        public static T LoadFromFile<T>(string fileName)
+            where T : ScaleBase
         {
             var path = Path.Combine(Environment.CurrentDirectory, "Scales", fileName);
             return path.Load<T>();
@@ -205,9 +210,7 @@ namespace Limxc.Tools.Bases
 
     public class Answer
     {
-        public Answer()
-        {
-        }
+        public Answer() { }
 
         public Answer(int index, string text, double value)
         {
@@ -235,8 +238,7 @@ namespace Limxc.Tools.Bases
 
         public override string ToString()
         {
-            return
-                $"{Index}.{Text}{(Checked ? $"({(Value > 0 ? Value.ToString(CultureInfo.InvariantCulture) : "Y")})" : "")}";
+            return $"{Index}.{Text}{(Checked ? $"({(Value > 0 ? Value.ToString(CultureInfo.InvariantCulture) : "Y")})" : "")}";
         }
     }
 }

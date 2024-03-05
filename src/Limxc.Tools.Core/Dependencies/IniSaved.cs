@@ -42,10 +42,10 @@ namespace Limxc.Tools.Core.Dependencies
                 var chl = string.IsNullOrEmpty(customHeaderLine) ? "" : $";{customHeaderLine}\r\n";
                 if (presaveFileHeader)
                     sw.WriteLine(
-                        $";\r\n;IniSaved File UTF-8\r\n{chl};[section]\r\n;@attr|param=value\r\n;@ -> \\u0040, ; -> \\u003B, # -> \\u0023, \\r -> \\u000D, \\n -> \\u000A\r\n;\r\n");
+                        $";\r\n;IniSaved File UTF-8\r\n{chl};[section]\r\n;@attr|param=value\r\n;@ -> \\u0040, ; -> \\u003B, # -> \\u0023, \\r -> \\u000D, \\n -> \\u000A\r\n;\r\n"
+                    );
                 sw.Write(Save(type, obj, section));
             }
-
             ;
         }
 
@@ -69,11 +69,12 @@ namespace Limxc.Tools.Core.Dependencies
             if (string.IsNullOrEmpty(section))
             {
                 section = typeof(T).Name;
-                if (type.IsArray) section = $"ArrayOf{section.Replace("[]", "")}";
+                if (type.IsArray)
+                    section = $"ArrayOf{section.Replace("[]", "")}";
                 var ina = typeof(T).GetCustomAttribute<IniSectionAttribute>();
-                if (ina != null && !string.IsNullOrEmpty(ina.name)) section = ina.name;
+                if (ina != null && !string.IsNullOrEmpty(ina.name))
+                    section = ina.name;
             }
-
             ;
 
             var ns = new XmlSerializerNamespaces();
@@ -113,8 +114,10 @@ namespace Limxc.Tools.Core.Dependencies
             var hasBody = false;
 
             section = NormalizeValue(section);
-            if (sections.ContainsKey(section)) section = $"{section}.{sections[section]++}";
-            else sections.Add(section, 1);
+            if (sections.ContainsKey(section))
+                section = $"{section}.{sections[section]++}";
+            else
+                sections.Add(section, 1);
 
             var sb = new StringBuilder();
 
@@ -125,7 +128,6 @@ namespace Limxc.Tools.Core.Dependencies
                     sb.Append($"@{NormalizeValue(a.Name, true)}={NormalizeValue(a.Value)}\r\n");
                     hasBody = true;
                 }
-
             ;
 
             var simpleNodes = new List<XmlNode>();
@@ -139,9 +141,12 @@ namespace Limxc.Tools.Core.Dependencies
                         sb.Append($"@={NormalizeValue(n.Value)}\r\n");
                         hasBody = true;
                     }
-                    else if (n.HasChildNodes && n.ChildNodes.Count == 1 &&
-                             n.ChildNodes[0].NodeType == XmlNodeType.Text &&
-                             (n.Attributes == null || n.Attributes.Count == 0))
+                    else if (
+                        n.HasChildNodes
+                        && n.ChildNodes.Count == 1
+                        && n.ChildNodes[0].NodeType == XmlNodeType.Text
+                        && (n.Attributes == null || n.Attributes.Count == 0)
+                    )
                     {
                         simpleNodes.Add(n);
                     }
@@ -149,19 +154,20 @@ namespace Limxc.Tools.Core.Dependencies
                     {
                         detailNodes.Add(n);
                     }
-
             ;
 
             foreach (var n in simpleNodes)
             {
                 AddRoot(ref hasRoot, sb, section);
-                sb.Append($"{NormalizeValue(n.Name, true)}={NormalizeValue(n.ChildNodes[0].Value)}\r\n");
+                sb.Append(
+                    $"{NormalizeValue(n.Name, true)}={NormalizeValue(n.ChildNodes[0].Value)}\r\n"
+                );
                 hasBody = true;
             }
-
             ;
 
-            if (simpleNodes.Count > 0) sb.Append("\r\n");
+            if (simpleNodes.Count > 0)
+                sb.Append("\r\n");
 
             foreach (var n in detailNodes)
             {
@@ -170,10 +176,10 @@ namespace Limxc.Tools.Core.Dependencies
                 sb.Append(dnt);
                 hasBody = true;
             }
-
             ;
 
-            if (hasBody) sb.Append("\r\n");
+            if (hasBody)
+                sb.Append("\r\n");
             return sb.ToString();
         }
 
@@ -184,7 +190,6 @@ namespace Limxc.Tools.Core.Dependencies
                 sb.Append($"[{section}]\r\n");
                 hasRoot = true;
             }
-
             ;
         }
 
@@ -210,9 +215,10 @@ namespace Limxc.Tools.Core.Dependencies
             T obj;
             if (IsSimple(t))
             {
-                obj = t == typeof(string)
-                    ? (T)Convert.ChangeType(null, typeof(T))
-                    : (T)Activator.CreateInstance(typeof(T));
+                obj =
+                    t == typeof(string)
+                        ? (T)Convert.ChangeType(null, typeof(T))
+                        : (T)Activator.CreateInstance(typeof(T));
             }
             else if (t.IsArray)
             {
@@ -223,7 +229,6 @@ namespace Limxc.Tools.Core.Dependencies
                 var c = t.GetConstructor(new Type[0]);
                 obj = (T)c.Invoke(null);
             }
-
             ;
             using (var fs = new MemoryStream(Encoding.UTF8.GetBytes(text)))
             {
@@ -239,9 +244,10 @@ namespace Limxc.Tools.Core.Dependencies
             T obj;
             if (IsSimple(t))
             {
-                obj = t == typeof(string)
-                    ? (T)Convert.ChangeType(null, typeof(T))
-                    : (T)Activator.CreateInstance(typeof(T));
+                obj =
+                    t == typeof(string)
+                        ? (T)Convert.ChangeType(null, typeof(T))
+                        : (T)Activator.CreateInstance(typeof(T));
             }
             else if (t.IsArray)
             {
@@ -252,7 +258,6 @@ namespace Limxc.Tools.Core.Dependencies
                 var c = t.GetConstructor(new Type[0]);
                 obj = (T)c.Invoke(null);
             }
-
             ;
             using (var fs = new FileStream(file, FileMode.Open, FileAccess.Read))
             {
@@ -286,11 +291,12 @@ namespace Limxc.Tools.Core.Dependencies
             if (string.IsNullOrEmpty(section))
             {
                 section = typeof(T).Name;
-                if (type.IsArray) section = $"ArrayOf{section.Replace("[]", "")}";
+                if (type.IsArray)
+                    section = $"ArrayOf{section.Replace("[]", "")}";
                 var ina = typeof(T).GetCustomAttribute<IniSectionAttribute>();
-                if (ina != null && !string.IsNullOrEmpty(ina.name)) section = ina.name;
+                if (ina != null && !string.IsNullOrEmpty(ina.name))
+                    section = ina.name;
             }
-
             ;
 
             // READ INI SECTIONS
@@ -301,47 +307,51 @@ namespace Limxc.Tools.Core.Dependencies
                 while (!sr.EndOfStream)
                 {
                     var ln = sr.ReadLine().Trim();
-                    if (string.IsNullOrEmpty(ln) || ln.StartsWith("#") || ln.StartsWith(";")) continue;
+                    if (string.IsNullOrEmpty(ln) || ln.StartsWith("#") || ln.StartsWith(";"))
+                        continue;
                     if (ln.StartsWith("["))
                     {
                         currsect = ReversizeValue(ln.Split('#', ';')[0].Trim('[', ']'));
                         sections.Add(currsect, new List<string>());
                         continue;
                     }
-
                     ;
-                    if (string.IsNullOrEmpty(currsect)) continue;
-                    if (ln.IndexOf("=") < 0) continue;
+                    if (string.IsNullOrEmpty(currsect))
+                        continue;
+                    if (ln.IndexOf("=") < 0)
+                        continue;
                     ln = ln.Split(';', '#')[0];
                     sections[currsect].Add(ln);
                 }
-
                 ;
                 // SORT
                 secSorted = new List<KeyValuePair<string, List<string>>>(sections);
                 secSorted.Sort(new CustomComparer());
                 // REPLACE ROOT
-                if (secSorted.Count > 0 && !string.IsNullOrEmpty(section) && !string.IsNullOrEmpty(xmlbase) &&
-                    section != xmlbase)
+                if (
+                    secSorted.Count > 0
+                    && !string.IsNullOrEmpty(section)
+                    && !string.IsNullOrEmpty(xmlbase)
+                    && section != xmlbase
+                )
                 {
                     var tmps = new List<KeyValuePair<string, List<string>>>();
                     foreach (var kvp in secSorted)
                         if (kvp.Key == section || kvp.Key.StartsWith($"{section}."))
                         {
-                            var kName = kvp.Key == section
-                                ? xmlbase
-                                : xmlbase + "." + kvp.Key.Substring(section.Length + 1);
+                            var kName =
+                                kvp.Key == section
+                                    ? xmlbase
+                                    : xmlbase + "." + kvp.Key.Substring(section.Length + 1);
                             tmps.Add(new KeyValuePair<string, List<string>>(kName, kvp.Value));
                         }
                         else
                         {
                             tmps.Add(kvp);
                         }
-
                     ;
                     secSorted = tmps;
                 }
-
                 ;
             }
             ;
@@ -373,7 +383,8 @@ namespace Limxc.Tools.Core.Dependencies
                     {
                         var cpath = NormalizeValue(paths[i]);
                         var pos = -1;
-                        if (!int.TryParse(cpath, out pos)) pos = -1;
+                        if (!int.TryParse(cpath, out pos))
+                            pos = -1;
                         XmlNode sn = null;
                         if (pos < 0)
                         {
@@ -385,17 +396,14 @@ namespace Limxc.Tools.Core.Dependencies
                             thisRoot = thisRoot.ParentNode;
                             sn = thisRoot.SelectSingleNode(cpath + $"[{pos + 1}]");
                         }
-
                         ;
                         if (sn == null)
                             sn = thisRoot.AppendChild(xd.CreateElement(cpath));
                         thisRoot = sn;
                     }
-
                     ;
                     shrtKey = paths[paths.Length - 1];
                 }
-
                 ;
 
                 // Create Node
@@ -422,8 +430,11 @@ namespace Limxc.Tools.Core.Dependencies
                         if (!attr.StartsWith("xmlns:") && attr.Contains(":"))
                         {
                             var attrdel = attr.Split(':');
-                            var a = xd.CreateAttribute(attrdel[0], attrdel[1],
-                                "http://www.w3.org/2001/XMLSchema-instance");
+                            var a = xd.CreateAttribute(
+                                attrdel[0],
+                                attrdel[1],
+                                "http://www.w3.org/2001/XMLSchema-instance"
+                            );
                             a.Value = value;
                             (xn as XmlElement).SetAttributeNode(a);
                         }
@@ -439,13 +450,10 @@ namespace Limxc.Tools.Core.Dependencies
                         e.AppendChild(t);
                         xn.AppendChild(e);
                     }
-
                     ;
                 }
-
                 ;
             }
-
             ;
 
             var res = xd.OuterXml;
@@ -459,7 +467,10 @@ namespace Limxc.Tools.Core.Dependencies
 
         public class CustomComparer : IComparer<KeyValuePair<string, List<string>>>
         {
-            public int Compare(KeyValuePair<string, List<string>> x, KeyValuePair<string, List<string>> y)
+            public int Compare(
+                KeyValuePair<string, List<string>> x,
+                KeyValuePair<string, List<string>> y
+            )
             {
                 var a = x.Key;
                 var b = y.Key;
@@ -468,25 +479,32 @@ namespace Limxc.Tools.Core.Dependencies
                 if (!string.IsNullOrEmpty(s))
                 {
                     var av = a.Substring(s.Length);
-                    if (av.Length > 0) av = av.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries)[0];
+                    if (av.Length > 0)
+                        av = av.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries)[0];
                     var bv = b.Substring(s.Length);
-                    if (bv.Length > 0) bv = bv.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries)[0];
-                    if (int.TryParse(av, out var ai) && int.TryParse(bv, out var bi)) return ai.CompareTo(bi);
-                    if (int.TryParse(av, out _)) return 1;
-                    if (int.TryParse(bv, out _)) return -1;
+                    if (bv.Length > 0)
+                        bv = bv.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries)[0];
+                    if (int.TryParse(av, out var ai) && int.TryParse(bv, out var bi))
+                        return ai.CompareTo(bi);
+                    if (int.TryParse(av, out _))
+                        return 1;
+                    if (int.TryParse(bv, out _))
+                        return -1;
                 }
-
                 ;
                 return a.CompareTo(b);
             }
 
             private string FindSame(string a, string b)
             {
-                if (string.IsNullOrEmpty(a) || string.IsNullOrEmpty(b)) return null;
+                if (string.IsNullOrEmpty(a) || string.IsNullOrEmpty(b))
+                    return null;
                 var r = "";
                 for (var i = 0; i < Math.Min(a.Length, b.Length); i++)
-                    if (a[i] == b[i]) r += a[i];
-                    else break;
+                    if (a[i] == b[i])
+                        r += a[i];
+                    else
+                        break;
                 return r;
             }
         }
@@ -512,14 +530,15 @@ namespace Limxc.Tools.Core.Dependencies
                 // nullable type, check if the nested type is simple.
                 return IsSimple(type.GetGenericArguments()[0].GetTypeInfo());
             return type.IsPrimitive
-                   || type.IsEnum
-                   || type.Equals(typeof(string))
-                   || type.Equals(typeof(decimal));
+                || type.IsEnum
+                || type.Equals(typeof(string))
+                || type.Equals(typeof(decimal));
         }
 
         public static string NormalizeValue(string value, bool name = false)
         {
-            if (name) value = value.Replace("@", "\\u0040");
+            if (name)
+                value = value.Replace("@", "\\u0040");
             value = value.Replace(";", "\\u003B");
             value = value.Replace("#", "\\u0023");
             value = value.Replace("\r", "\\u000D");
@@ -529,7 +548,8 @@ namespace Limxc.Tools.Core.Dependencies
 
         public static string ReversizeValue(string value, bool name = false)
         {
-            if (name) value = value.Replace("\\u0040", "@");
+            if (name)
+                value = value.Replace("\\u0040", "@");
             value = value.Replace("\\u003B", ";").Replace("\\u003b", ";");
             value = value.Replace("\\u0023", "#");
             value = value.Replace("\\u000D", "\r").Replace("\\u000d", "\r");
@@ -558,9 +578,7 @@ namespace Limxc.Tools.Core.Dependencies
         public object Key;
         public object Value;
 
-        public DictionaryEntry()
-        {
-        }
+        public DictionaryEntry() { }
 
         public DictionaryEntry(object key, object value)
         {
@@ -585,8 +603,10 @@ namespace Limxc.Tools.Core.Dependencies
         public static void Set(IDictionary dict, DictionaryEntry[] values)
         {
             dict.Clear();
-            if (values == null || values.Length == 0) return;
-            foreach (var entry in values) dict.Add(entry.Key, entry.Value);
+            if (values == null || values.Length == 0)
+                return;
+            foreach (var entry in values)
+                dict.Add(entry.Key, entry.Value);
         }
     }
 }

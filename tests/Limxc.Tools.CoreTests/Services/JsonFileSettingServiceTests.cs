@@ -29,7 +29,6 @@ public class JsonFileSettingServiceTests : IDisposable
         File.Delete(path);
     }
 
-
     [Fact]
     public void SaveAndLoadTest()
     {

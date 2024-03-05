@@ -29,7 +29,6 @@ public class IniFileSettingServiceTests : IDisposable
         File.Delete(path);
     }
 
-
     [Fact]
     public void SaveAndLoadTest()
     {

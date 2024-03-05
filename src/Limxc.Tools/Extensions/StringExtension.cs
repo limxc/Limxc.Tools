@@ -12,13 +12,22 @@ namespace Limxc.Tools.Extensions
             return string.Join(separate, strs);
         }
 
-        public static bool Contains(this string value, IEnumerable<string> keys, bool ignoreCase = true)
+        public static bool Contains(
+            this string value,
+            IEnumerable<string> keys,
+            bool ignoreCase = true
+        )
         {
             var array = keys as string[] ?? keys.ToArray();
-            if (!array.Any() || string.IsNullOrEmpty(value)) return false;
+            if (!array.Any() || string.IsNullOrEmpty(value))
+                return false;
 
             if (ignoreCase)
-                return Regex.IsMatch(value, string.Join("|", array.Select(Regex.Escape)), RegexOptions.IgnoreCase);
+                return Regex.IsMatch(
+                    value,
+                    string.Join("|", array.Select(Regex.Escape)),
+                    RegexOptions.IgnoreCase
+                );
 
             return Regex.IsMatch(value, string.Join("|", array.Select(Regex.Escape)));
         }
@@ -37,7 +46,8 @@ namespace Limxc.Tools.Extensions
         {
             var rst = new List<double>();
             var reg = Regex.Matches(str, @"\d+(.\d+)?", RegexOptions.Compiled);
-            foreach (Match item in reg) rst.Add(double.Parse(item.Value));
+            foreach (Match item in reg)
+                rst.Add(double.Parse(item.Value));
             return rst;
         }
 

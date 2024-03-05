@@ -79,7 +79,6 @@ namespace Limxc.Tools.Extensions
             return result == 0 ? defaultValue : result;
         }
 
-
         public static double TryDouble(this object value, double defaultValue)
         {
             double.TryParse(value.ToString(), out var result);
@@ -114,7 +113,8 @@ namespace Limxc.Tools.Extensions
             if (upward)
             {
                 var r = source.First();
-                if (source.Any(p => value >= p)) r = source.Last(p => value >= p);
+                if (source.Any(p => value >= p))
+                    r = source.Last(p => value >= p);
                 return r;
             }
             else
@@ -142,7 +142,8 @@ namespace Limxc.Tools.Extensions
             if (upward)
             {
                 var r = source.First();
-                if (source.Any(p => value >= p)) r = source.Last(p => value >= p);
+                if (source.Any(p => value >= p))
+                    r = source.Last(p => value >= p);
                 return r;
             }
             else
@@ -170,7 +171,8 @@ namespace Limxc.Tools.Extensions
             if (upward)
             {
                 var r = source.First();
-                if (source.Any(p => value >= p)) r = source.Last(p => value >= p);
+                if (source.Any(p => value >= p))
+                    r = source.Last(p => value >= p);
                 return r;
             }
             else
@@ -190,7 +192,11 @@ namespace Limxc.Tools.Extensions
         /// <param name="upward"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static decimal Near(this IEnumerable<decimal> source, decimal value, bool upward = true)
+        public static decimal Near(
+            this IEnumerable<decimal> source,
+            decimal value,
+            bool upward = true
+        )
         {
             if (!source.Any())
                 throw new ArgumentException("source is empty.");
@@ -198,7 +204,8 @@ namespace Limxc.Tools.Extensions
             if (upward)
             {
                 var r = source.First();
-                if (source.Any(p => value >= p)) r = source.Last(p => value >= p);
+                if (source.Any(p => value >= p))
+                    r = source.Last(p => value >= p);
                 return r;
             }
             else

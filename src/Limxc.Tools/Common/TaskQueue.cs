@@ -24,7 +24,6 @@ namespace Limxc.Tools.Common
         /// <summary>Tasks</summary>
         public List<TaskBody<TRet>> Tasks { get; }
 
-
         /// <summary>Execution History</summary>
         public List<TaskHistory<TRet>> History { get; }
 
@@ -59,7 +58,11 @@ namespace Limxc.Tools.Common
         /// <param name="task">Task Func</param>
         /// <param name="retryCount">Execution times = RetryCount + 1</param>
         /// <param name="id">Task Id</param>
-        public void Add(Func<CancellationToken, Task<TRet>> task, int retryCount = 0, string id = null)
+        public void Add(
+            Func<CancellationToken, Task<TRet>> task,
+            int retryCount = 0,
+            string id = null
+        )
         {
             Tasks.Add(new TaskBody<TRet>(task, retryCount, id));
         }
@@ -110,8 +113,14 @@ namespace Limxc.Tools.Common
                     }
                     finally
                     {
-                        History.Add(new TaskHistory<TRet>(DateTime.Now, item.Id, res,
-                            $"RemainingAttempts:{remainingAttempts} State:{(pass ? "Success" : error ?? "Exception")} Progress:{Tasks.Count - PendingQueue.Count() + 1}/{Tasks.Count}"));
+                        History.Add(
+                            new TaskHistory<TRet>(
+                                DateTime.Now,
+                                item.Id,
+                                res,
+                                $"RemainingAttempts:{remainingAttempts} State:{(pass ? "Success" : error ?? "Exception")} Progress:{Tasks.Count - PendingQueue.Count() + 1}/{Tasks.Count}"
+                            )
+                        );
                     }
 
                 if (!pass)
@@ -127,7 +136,8 @@ namespace Limxc.Tools.Common
         /// <returns></returns>
         public TaskQueue<TRet> Combine(params TaskQueue<TRet>[] queues)
         {
-            foreach (var queue in queues) Tasks.AddRange(queue.Tasks);
+            foreach (var queue in queues)
+                Tasks.AddRange(queue.Tasks);
 
             return this;
         }

@@ -24,7 +24,8 @@ namespace Limxc.Tools.Sockets.Tcp
         private readonly Subject<byte[]> _received = new Subject<byte[]>();
         private CancellationTokenSource _cts;
 
-        private Socket _server, _client;
+        private Socket _server,
+            _client;
 
         private TcpS2CSetting _tcpS2CSetting;
 
@@ -37,10 +38,10 @@ namespace Limxc.Tools.Sockets.Tcp
                 .Subscribe(s => _connectionState.OnNext(s))
                 .DisposeWith(_initDisposables);
 
-            ConnectionState = Observable.Defer(() =>
-                _connectionState.StartWith(false).AsObservable().Publish().RefCount());
-            Received = Observable.Defer(() =>
-                _received.AsObservable().Publish().RefCount());
+            ConnectionState = Observable.Defer(
+                () => _connectionState.StartWith(false).AsObservable().Publish().RefCount()
+            );
+            Received = Observable.Defer(() => _received.AsObservable().Publish().RefCount());
             Log = Observable.Defer(() => _log.AsObservable().Publish().RefCount());
         }
 
@@ -84,42 +85,47 @@ namespace Limxc.Tools.Sockets.Tcp
 
             _cts = new CancellationTokenSource();
 
-            Task.Run(async () =>
-            {
-                while (true)
-                    try
-                    {
-                        if (_cts.Token.IsCancellationRequested)
-                            return;
-
-                        _client = await _server.AcceptAsync();
-                        if (!_client.RemoteEndPoint.ToString().Contains(_tcpS2CSetting.ClientIp))
-                        {
-                            IsConnected = false;
-                            _client.Dispose();
-                            continue;
-                        }
-
-                        IsConnected = true;
-
-                        while (true)
+            Task.Run(
+                async () =>
+                {
+                    while (true)
+                        try
                         {
                             if (_cts.Token.IsCancellationRequested)
                                 return;
 
-                            var buffer = new ArraySegment<byte>(new byte[_bufferSize]);
-                            var received = await _client.ReceiveAsync(buffer, SocketFlags.None);
+                            _client = await _server.AcceptAsync();
+                            if (
+                                !_client.RemoteEndPoint.ToString().Contains(_tcpS2CSetting.ClientIp)
+                            )
+                            {
+                                IsConnected = false;
+                                _client.Dispose();
+                                continue;
+                            }
 
-                            _received.OnNext(buffer.Take(received).ToArray());
+                            IsConnected = true;
+
+                            while (true)
+                            {
+                                if (_cts.Token.IsCancellationRequested)
+                                    return;
+
+                                var buffer = new ArraySegment<byte>(new byte[_bufferSize]);
+                                var received = await _client.ReceiveAsync(buffer, SocketFlags.None);
+
+                                _received.OnNext(buffer.Take(received).ToArray());
+                            }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        _log.OnNext($"Server Error: {ex.Message}");
-                        _client?.Dispose();
-                        IsConnected = false;
-                    }
-            }, _cts.Token);
+                        catch (Exception ex)
+                        {
+                            _log.OnNext($"Server Error: {ex.Message}");
+                            _client?.Dispose();
+                            IsConnected = false;
+                        }
+                },
+                _cts.Token
+            );
         }
 
         public void Stop()
@@ -156,8 +162,13 @@ namespace Limxc.Tools.Sockets.Tcp
         /// <param name="sepBegin"></param>
         /// <param name="sepEnd"></param>
         /// <returns></returns>
-        public async Task<string> SendAsync(string hex, int timeoutMs, string template, char sepBegin = '[',
-            char sepEnd = ']')
+        public async Task<string> SendAsync(
+            string hex,
+            int timeoutMs,
+            string template,
+            char sepBegin = '[',
+            char sepEnd = ']'
+        )
         {
             try
             {
@@ -170,7 +181,8 @@ namespace Limxc.Tools.Sockets.Tcp
                 //    .Select(r => r.TryGetTemplateMatchResults(template, sepBegin, sepEnd).FirstOrDefault())
                 //    .ToTask();
 
-                var task = _received.Select(p => p.ByteToHex())
+                var task = _received
+                    .Select(p => p.ByteToHex())
                     .TryGetTemplateMatchResult(template, timeoutMs, sepBegin, sepEnd);
 
                 await _client.SendAsync(new ArraySegment<byte>(hex.HexToByte()), SocketFlags.None);
@@ -195,8 +207,11 @@ namespace Limxc.Tools.Sockets.Tcp
             try
             {
                 var now = DateTimeOffset.Now;
-                var task = _received.SkipUntil(now).TakeUntil(now.AddMilliseconds(waitMs))
-                    .Aggregate((x, y) => x.Concat(y).ToArray()).ToTask();
+                var task = _received
+                    .SkipUntil(now)
+                    .TakeUntil(now.AddMilliseconds(waitMs))
+                    .Aggregate((x, y) => x.Concat(y).ToArray())
+                    .ToTask();
 
                 await _client.SendAsync(new ArraySegment<byte>(bytes), SocketFlags.None);
 
@@ -211,7 +226,8 @@ namespace Limxc.Tools.Sockets.Tcp
 
         private IPEndPoint ParseIpPort(string ipPort)
         {
-            if (string.IsNullOrEmpty(ipPort)) throw new ArgumentNullException(nameof(ipPort));
+            if (string.IsNullOrEmpty(ipPort))
+                throw new ArgumentNullException(nameof(ipPort));
 
             IPAddress ip = null;
             var port = -1;

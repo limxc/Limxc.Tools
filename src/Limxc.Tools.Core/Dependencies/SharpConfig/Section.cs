@@ -5,7 +5,7 @@
 // ReSharper disable PossibleNullReferenceException
 // ReSharper disable AssignNullToNotNullAttribute
 // ReSharper disable EmptyEmbeddedStatement
-// ReSharper disable InconsistentNaming 
+// ReSharper disable InconsistentNaming
 
 using System;
 using System.Collections;
@@ -39,8 +39,7 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
         /// <summary>
         ///     Gets the number of settings that are in the section.
         /// </summary>
-        public int SettingCount
-            => mSettings.Count;
+        public int SettingCount => mSettings.Count;
 
         /// <summary>
         ///     Gets or sets a setting by index.
@@ -168,7 +167,8 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
         ///     The specified type must have a public default constructor
         ///     in order to be created.
         /// </remarks>
-        public T ToObject<T>() where T : new()
+        public T ToObject<T>()
+            where T : new()
         {
             var obj = Activator.CreateInstance<T>();
             SetValuesTo(obj);
@@ -242,7 +242,8 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
 
                 if (info is FieldInfo)
                     value = ((FieldInfo)info).GetValue(instance);
-                else if (info is PropertyInfo) value = ((PropertyInfo)info).GetValue(instance, null);
+                else if (info is PropertyInfo)
+                    value = ((PropertyInfo)info).GetValue(instance, null);
 
                 setting.SetValue(value);
             }
@@ -280,11 +281,18 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
                 {
                     var settingArray = value as Array;
                     var propArray = prop.GetValue(obj, null) as Array;
-                    if (settingArray != null && (propArray == null || propArray.Length != settingArray.Length))
+                    if (
+                        settingArray != null
+                        && (propArray == null || propArray.Length != settingArray.Length)
+                    )
                         // (Re)create the property's array.
-                        propArray = Array.CreateInstance(prop.PropertyType.GetElementType(), settingArray.Length);
+                        propArray = Array.CreateInstance(
+                            prop.PropertyType.GetElementType(),
+                            settingArray.Length
+                        );
 
-                    for (var i = 0; i < settingArray.Length; i++) propArray?.SetValue(settingArray.GetValue(i), i);
+                    for (var i = 0; i < settingArray.Length; i++)
+                        propArray?.SetValue(settingArray.GetValue(i), i);
 
                     prop.SetValue(obj, propArray, null);
                 }
@@ -313,9 +321,15 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
                 {
                     var settingArray = value as Array;
                     var fieldArray = field.GetValue(obj) as Array;
-                    if (settingArray != null && (fieldArray == null || fieldArray.Length != settingArray.Length))
+                    if (
+                        settingArray != null
+                        && (fieldArray == null || fieldArray.Length != settingArray.Length)
+                    )
                         // (Re)create the field's array.
-                        fieldArray = Array.CreateInstance(field.FieldType.GetElementType(), settingArray.Length);
+                        fieldArray = Array.CreateInstance(
+                            field.FieldType.GetElementType(),
+                            settingArray.Length
+                        );
 
                     for (var i = 0; i < settingArray.Length; i++)
                         fieldArray.SetValue(settingArray.GetValue(i), i);
@@ -332,14 +346,18 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
         // Determines whether a member should be ignored.
         private static bool ShouldIgnoreMappingFor(MemberInfo member)
         {
-            if (member.GetCustomAttributes(typeof(IgnoreAttribute), false).Length > 0) return true;
+            if (member.GetCustomAttributes(typeof(IgnoreAttribute), false).Length > 0)
+                return true;
 
             if (member as PropertyInfo != null)
-                return (member as PropertyInfo).PropertyType.GetCustomAttributes(typeof(IgnoreAttribute), false)
-                    .Length > 0;
+                return (member as PropertyInfo)
+                        .PropertyType.GetCustomAttributes(typeof(IgnoreAttribute), false)
+                        .Length > 0;
 
             if (member as FieldInfo != null)
-                return (member as FieldInfo).FieldType.GetCustomAttributes(typeof(IgnoreAttribute), false).Length > 0;
+                return (member as FieldInfo)
+                        .FieldType.GetCustomAttributes(typeof(IgnoreAttribute), false)
+                        .Length > 0;
 
             return false;
         }
@@ -422,7 +440,8 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
             if (string.IsNullOrEmpty(settingName))
                 throw new ArgumentNullException("settingName");
 
-            while (Remove(settingName)) ;
+            while (Remove(settingName))
+                ;
         }
 
         /// <summary>

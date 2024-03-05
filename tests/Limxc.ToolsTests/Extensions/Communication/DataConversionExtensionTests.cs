@@ -45,11 +45,26 @@ public class DataConversionExtensionTests
     [Fact]
     public void Int_ByteTest()
     {
-        new byte[] { 0, 1 }.ByteToInt().Should().Be(1);
-        new byte[] { 0, 0, 0, 1 }.ByteToInt().Should().Be(1);
-        new byte[] { 255, 255 }.ByteToInt().Should().Be(65535);
-        new byte[] { 0, 0, 255, 255 }.ByteToInt().Should().Be(65535); //big endian
-        new byte[] { 0, 1, 0, 0 }.ByteToInt().Should().Be(65536);
+        new byte[] { 0, 1 }
+            .ByteToInt()
+            .Should()
+            .Be(1);
+        new byte[] { 0, 0, 0, 1 }
+            .ByteToInt()
+            .Should()
+            .Be(1);
+        new byte[] { 255, 255 }
+            .ByteToInt()
+            .Should()
+            .Be(65535);
+        new byte[] { 0, 0, 255, 255 }
+            .ByteToInt()
+            .Should()
+            .Be(65535); //big endian
+        new byte[] { 0, 1, 0, 0 }
+            .ByteToInt()
+            .Should()
+            .Be(65536);
 
         i1.IntToByte(4).ByteToInt().Should().Be(i1);
         int.MaxValue.IntToByte(2).ByteToInt(true).Should().Be(65535);
@@ -79,8 +94,10 @@ public class DataConversionExtensionTests
     public void AscII_HexTest()
     {
         var data =
-            "32 30 32 30 2C 31 32 2C 31 38 2C 31 30 2C 35 34 2C 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 2C 30 2C 31 34 38 2C 31 32 32 2C 20 38 31 2C 31 0D 0A "
-                .Replace(" ", "");
+            "32 30 32 30 2C 31 32 2C 31 38 2C 31 30 2C 35 34 2C 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 2C 30 2C 31 34 38 2C 31 32 32 2C 20 38 31 2C 31 0D 0A ".Replace(
+                " ",
+                ""
+            );
         var asc = data.HexToAscII();
         asc.Should().Be("2020,12,18,10,54,                    ,0,148,122, 81,1\r\n");
         var hex = asc.AscIIToHex();
@@ -101,9 +118,13 @@ public class DataConversionExtensionTests
 
         for (var i = 0; i < 100; i++)
         {
-            var from = new byte[rnd.Next(1, 9) - 1].Concat(new byte[] { 55 }).ToArray();
+            var from = new byte[rnd.Next(1, 9) - 1]
+                .Concat(new byte[] { 55 })
+                .ToArray();
             var toLen = rnd.Next(1, 9);
-            var to = new byte[toLen - 1].Concat(new byte[] { 55 }).ToArray();
+            var to = new byte[toLen - 1]
+                .Concat(new byte[] { 55 })
+                .ToArray();
             from.ChangeLength(toLen).Should().BeEquivalentTo(to);
         }
 

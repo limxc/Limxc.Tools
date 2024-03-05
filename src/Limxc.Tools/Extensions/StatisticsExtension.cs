@@ -21,7 +21,8 @@ namespace Limxc.Tools.Extensions
         /// <returns></returns>
         public static double Mean(this IEnumerable<double> source)
         {
-            if (source == null) return 0;
+            if (source == null)
+                return 0;
             var values = source as double[] ?? source.ToArray();
             return values.Length == 0 ? 0 : values.Average();
         }
@@ -38,7 +39,8 @@ namespace Limxc.Tools.Extensions
         public static double Median(this IEnumerable<double> source)
         {
             var len = source?.Count() ?? 0;
-            if (len == 0) return 0;
+            if (len == 0)
+                return 0;
 
             Debug.Assert(source != null, nameof(source) + " != null");
 
@@ -60,17 +62,14 @@ namespace Limxc.Tools.Extensions
         public static double[] Mode(this IEnumerable<double> source)
         {
             var len = source?.Count() ?? 0;
-            if (len == 0) return Array.Empty<double>();
+            if (len == 0)
+                return Array.Empty<double>();
 
             Debug.Assert(source != null, nameof(source) + " != null");
 
-            var g = source.GroupBy(p => p)
-                .Select(p => (Count: p.Count(), Value: p.Key))
-                .ToList();
+            var g = source.GroupBy(p => p).Select(p => (Count: p.Count(), Value: p.Key)).ToList();
 
-            return g.Where(p => p.Count == g.Max(d => d.Count))
-                .Select(p => p.Value)
-                .ToArray();
+            return g.Where(p => p.Count == g.Max(d => d.Count)).Select(p => p.Value).ToArray();
         }
 
         #endregion
@@ -84,7 +83,8 @@ namespace Limxc.Tools.Extensions
         /// <returns></returns>
         public static double Variance(this IEnumerable<double> source)
         {
-            if (source == null) return 0;
+            if (source == null)
+                return 0;
             var values = source as double[] ?? source.ToArray();
             var mean = values.Mean();
 
@@ -103,7 +103,8 @@ namespace Limxc.Tools.Extensions
         /// <returns></returns>
         public static double SampleVariance(this IEnumerable<double> source)
         {
-            if (source == null) return 0;
+            if (source == null)
+                return 0;
             var values = source as double[] ?? source.ToArray();
             var mean = values.Mean();
 

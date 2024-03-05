@@ -8,8 +8,10 @@ namespace Limxc.Tools.Extensions
     {
         public static IEnumerable<IEnumerable<T>> Batch<T>(this IEnumerable<T> source, int size)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
-            if (size <= 0) throw new ArgumentOutOfRangeException(nameof(size));
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (size <= 0)
+                throw new ArgumentOutOfRangeException(nameof(size));
 
             var batch = new List<T>();
             foreach (var item in source)
@@ -27,8 +29,10 @@ namespace Limxc.Tools.Extensions
 
         public static IEnumerable<IEnumerable<T>> Window<T>(this IEnumerable<T> source, int size)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
-            if (size <= 0) throw new ArgumentOutOfRangeException(nameof(size));
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (size <= 0)
+                throw new ArgumentOutOfRangeException(nameof(size));
 
             return _();
 
@@ -64,11 +68,15 @@ namespace Limxc.Tools.Extensions
             }
         }
 
-        public static IEnumerable<T> TakeUntil<T>(this IEnumerable<T> source,
-            Func<T, bool> predicate)
+        public static IEnumerable<T> TakeUntil<T>(
+            this IEnumerable<T> source,
+            Func<T, bool> predicate
+        )
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
-            if (predicate == null) throw new ArgumentNullException(nameof(predicate));
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (predicate == null)
+                throw new ArgumentNullException(nameof(predicate));
 
             return _();
 
@@ -83,11 +91,15 @@ namespace Limxc.Tools.Extensions
             }
         }
 
-        public static IEnumerable<T> SkipUntil<T>(this IEnumerable<T> source,
-            Func<T, bool> predicate)
+        public static IEnumerable<T> SkipUntil<T>(
+            this IEnumerable<T> source,
+            Func<T, bool> predicate
+        )
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
-            if (predicate == null) throw new ArgumentNullException(nameof(predicate));
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (predicate == null)
+                throw new ArgumentNullException(nameof(predicate));
 
             return _();
 
@@ -118,7 +130,8 @@ namespace Limxc.Tools.Extensions
         /// <exception cref="ArgumentNullException"></exception>
         public static T Random<T>(this IEnumerable<T> enumerable)
         {
-            if (enumerable == null) throw new ArgumentNullException(nameof(enumerable));
+            if (enumerable == null)
+                throw new ArgumentNullException(nameof(enumerable));
 
             var r = new Random();
             var list = enumerable as IList<T> ?? enumerable.ToList();

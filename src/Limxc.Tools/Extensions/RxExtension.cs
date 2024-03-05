@@ -20,18 +20,17 @@ namespace Limxc.Tools.Extensions
         public static IObservable<T> Debug<T>(this IObservable<T> obs, string msg = "")
         {
             return obs.Do(p =>
-                Console.WriteLine(
-                    $"****** {msg ?? "Rx"} @ {DateTime.Now:mm:ss fff} : {p} ******"));
+                Console.WriteLine($"****** {msg ?? "Rx"} @ {DateTime.Now:mm:ss fff} : {p} ******")
+            );
         }
 
         public static IDisposable SubscribeToConsole<T>(this IObservable<T> obs)
         {
-            return obs
-                .Subscribe(
-                    x => Console.WriteLine($"OnNext @ {DateTime.Now:mm:ss fff} : {x}"),
-                    e => Console.WriteLine($"OnError @ {DateTime.Now:mm:ss fff} : {e.Message}"),
-                    () => Console.WriteLine($"OnComplete @ {DateTime.Now:mm:ss fff}")
-                );
+            return obs.Subscribe(
+                x => Console.WriteLine($"OnNext @ {DateTime.Now:mm:ss fff} : {x}"),
+                e => Console.WriteLine($"OnError @ {DateTime.Now:mm:ss fff} : {e.Message}"),
+                () => Console.WriteLine($"OnComplete @ {DateTime.Now:mm:ss fff}")
+            );
         }
 
         #region Bucket
@@ -44,7 +43,11 @@ namespace Limxc.Tools.Extensions
         /// <param name="size"></param>
         /// <param name="shift"></param>
         /// <returns></returns>
-        public static IObservable<T[]> Bucket<T>(this IObservable<T> source, TimeSpan size, TimeSpan shift)
+        public static IObservable<T[]> Bucket<T>(
+            this IObservable<T> source,
+            TimeSpan size,
+            TimeSpan shift
+        )
         {
             return Observable.Create<T[]>(o =>
             {
@@ -56,19 +59,23 @@ namespace Limxc.Tools.Extensions
                     .Subscribe(s => queue.Enqueue(s), o.OnError, o.OnCompleted)
                     .DisposeWith(dis);
 
-                Observable.Interval(shift).Subscribe(_ =>
-                {
-                    var startTime = DateTimeOffset.UtcNow.Subtract(size);
+                Observable
+                    .Interval(shift)
+                    .Subscribe(_ =>
+                    {
+                        var startTime = DateTimeOffset.UtcNow.Subtract(size);
 
-                    var res = queue
-                        .Where(p => p.Timestamp >= startTime)
-                        .Select(p => p.Value)
-                        .ToArray();
+                        var res = queue
+                            .Where(p => p.Timestamp >= startTime)
+                            .Select(p => p.Value)
+                            .ToArray();
 
-                    while (queue.Any(p => p.Timestamp < startTime)) queue.TryDequeue(out var _);
+                        while (queue.Any(p => p.Timestamp < startTime))
+                            queue.TryDequeue(out var _);
 
-                    o.OnNext(res);
-                }).DisposeWith(dis);
+                        o.OnNext(res);
+                    })
+                    .DisposeWith(dis);
 
                 return dis;
             });
@@ -87,12 +94,17 @@ namespace Limxc.Tools.Extensions
             {
                 var queue = new ConcurrentQueue<T>();
 
-                return source.Subscribe(s =>
-                {
-                    queue.Enqueue(s);
-                    if (queue.Count > number) queue.TryDequeue(out _);
-                    o.OnNext(queue.ToArray());
-                }, o.OnError, o.OnCompleted);
+                return source.Subscribe(
+                    s =>
+                    {
+                        queue.Enqueue(s);
+                        if (queue.Count > number)
+                            queue.TryDequeue(out _);
+                        o.OnNext(queue.ToArray());
+                    },
+                    o.OnError,
+                    o.OnCompleted
+                );
             });
         }
 

@@ -7,7 +7,12 @@ namespace Limxc.Tools.Core.Services
 {
     public class FileConfigService : IConfigService
     {
-        public void Set(string key, string value, string section = "Common", string fileName = "Setting.ini")
+        public void Set(
+            string key,
+            string value,
+            string section = "Common",
+            string fileName = "Setting.ini"
+        )
         {
             var filePath = GetFilePath(fileName);
             var configuration = Load(filePath);
@@ -15,7 +20,12 @@ namespace Limxc.Tools.Core.Services
             Save(filePath, configuration);
         }
 
-        public string Get(string key, string def = "", string section = "Common", string fileName = "Setting.ini")
+        public string Get(
+            string key,
+            string def = "",
+            string section = "Common",
+            string fileName = "Setting.ini"
+        )
         {
             var filePath = GetFilePath(fileName);
             var configuration = Load(filePath);
@@ -26,7 +36,8 @@ namespace Limxc.Tools.Core.Services
             return def;
         }
 
-        public void Set<T>(T obj, string fileName = "Setting.ini") where T : class, new()
+        public void Set<T>(T obj, string fileName = "Setting.ini")
+            where T : class, new()
         {
             var filePath = GetFilePath(fileName);
             var configuration = Load(filePath);
@@ -35,7 +46,8 @@ namespace Limxc.Tools.Core.Services
             Save(filePath, configuration);
         }
 
-        public T Get<T>(string fileName = "Setting.ini", T def = default) where T : class, new()
+        public T Get<T>(string fileName = "Setting.ini", T def = default)
+            where T : class, new()
         {
             var filePath = GetFilePath(fileName);
             var configuration = Load(filePath);
@@ -52,12 +64,18 @@ namespace Limxc.Tools.Core.Services
             return Path.Combine(EnvPath.Default.SettingFolder(), fileName);
         }
 
-
         private Configuration Load(string fullPath)
         {
             //return Configuration.LoadFromFile(fullPath);
 
-            using (var fs = new FileStream(fullPath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite))
+            using (
+                var fs = new FileStream(
+                    fullPath,
+                    FileMode.OpenOrCreate,
+                    FileAccess.Read,
+                    FileShare.ReadWrite
+                )
+            )
             {
                 return Configuration.LoadFromStream(fs);
             }
@@ -67,7 +85,14 @@ namespace Limxc.Tools.Core.Services
         {
             //configuration.SaveToFile(filePath);
 
-            using (var fs = new FileStream(fullPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
+            using (
+                var fs = new FileStream(
+                    fullPath,
+                    FileMode.OpenOrCreate,
+                    FileAccess.ReadWrite,
+                    FileShare.ReadWrite
+                )
+            )
             {
                 fs.SetLength(0);
                 configuration.SaveToStream(fs);

@@ -16,7 +16,8 @@ namespace Limxc.Tools.Extensions
 
             if (indexes.Max() > datas.Length - 1 || indexes.Min() < 0)
                 throw new ArgumentException(
-                    $"{nameof(LocateToPack)}: max index {indexes.Max()} > datas length {datas.Length}!");
+                    $"{nameof(LocateToPack)}: max index {indexes.Max()} > datas length {datas.Length}!"
+                );
 
             var ids = indexes.Distinct().ToList();
             ids.Sort();

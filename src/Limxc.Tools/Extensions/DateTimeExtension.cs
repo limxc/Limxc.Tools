@@ -5,7 +5,15 @@ namespace Limxc.Tools.Extensions
 {
     public static class DateTimeExtension
     {
-        private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime Epoch = new DateTime(
+            1970,
+            1,
+            1,
+            0,
+            0,
+            0,
+            DateTimeKind.Utc
+        );
 
         /// <summary>
         ///     TimeFromUnixTimestamp
@@ -46,20 +54,40 @@ namespace Limxc.Tools.Extensions
         public static (int Year, int Month, int Day) Age(this DateTime begin, DateTime end)
         {
             Dictionary<int, int> monthDay;
-            int year, month, day;
+            int year,
+                month,
+                day;
 
             if (end.Year % 4 == 0)
                 monthDay = new Dictionary<int, int>
                 {
-                    { 1, 31 }, { 2, 29 }, { 3, 31 }, { 4, 30 }, { 5, 31 }, { 6, 30 }, { 7, 31 }, { 8, 31 }, { 9, 30 },
-                    { 10, 31 }, { 11, 30 },
+                    { 1, 31 },
+                    { 2, 29 },
+                    { 3, 31 },
+                    { 4, 30 },
+                    { 5, 31 },
+                    { 6, 30 },
+                    { 7, 31 },
+                    { 8, 31 },
+                    { 9, 30 },
+                    { 10, 31 },
+                    { 11, 30 },
                     { 12, 31 }
                 };
             else
                 monthDay = new Dictionary<int, int>
                 {
-                    { 1, 31 }, { 2, 28 }, { 3, 31 }, { 4, 30 }, { 5, 31 }, { 6, 30 }, { 7, 31 }, { 8, 31 }, { 9, 30 },
-                    { 10, 31 }, { 11, 30 },
+                    { 1, 31 },
+                    { 2, 28 },
+                    { 3, 31 },
+                    { 4, 30 },
+                    { 5, 31 },
+                    { 6, 30 },
+                    { 7, 31 },
+                    { 8, 31 },
+                    { 9, 30 },
+                    { 10, 31 },
+                    { 11, 30 },
                     { 12, 31 }
                 };
 

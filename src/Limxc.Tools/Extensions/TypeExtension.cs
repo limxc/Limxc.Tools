@@ -12,18 +12,22 @@ namespace Limxc.Tools.Extensions
         /// <param name="generic"></param>
         public static bool IsInheritedFrom(this Type type, Type generic)
         {
-            if (type == null) throw new ArgumentNullException(nameof(type));
-            if (generic == null) throw new ArgumentNullException(nameof(generic));
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+            if (generic == null)
+                throw new ArgumentNullException(nameof(generic));
 
             // interfaces
             var check = type.GetInterfaces().Any(IsGenericTypeOf);
-            if (check) return true;
+            if (check)
+                return true;
 
             // base
             while (type != null && type != typeof(object))
             {
                 check = IsGenericTypeOf(type);
-                if (check) return true;
+                if (check)
+                    return true;
                 type = type.BaseType;
             }
 

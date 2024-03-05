@@ -5,8 +5,16 @@ namespace Limxc.Tools.Integrations.CrcCSharp
 {
     public class Parameters
     {
-        public Parameters(string name, int hashSize, ulong poly, ulong init, bool refIn, bool refOut, ulong xorOut,
-            ulong check)
+        public Parameters(
+            string name,
+            int hashSize,
+            ulong poly,
+            ulong init,
+            bool refIn,
+            bool refOut,
+            ulong xorOut,
+            ulong check
+        )
         {
             Name = name;
             Check = check;

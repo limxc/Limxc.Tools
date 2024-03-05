@@ -23,14 +23,14 @@ public class ProbRandomTests
         var res = new long[probs.Length];
         var count = 100000;
 
-        //act  
+        //act
         for (var i = 0; i < count; i++)
         {
             var idx = pr.NextIndex();
             res[idx]++;
         }
 
-        //assert 
+        //assert
         for (var i = 0; i < probs.Length; i++)
         {
             var assert = probs[i] / probs.Sum();
@@ -38,7 +38,8 @@ public class ProbRandomTests
 
             var accuracy = 0.5f / 100; //error<0.5%
             Debug.WriteLine(
-                $"assert:{assert} - actual:{actual} = {Math.Abs(assert - actual)} | accuracy:{accuracy}");
+                $"assert:{assert} - actual:{actual} = {Math.Abs(assert - actual)} | accuracy:{accuracy}"
+            );
 
             assert.Should().BeApproximately(actual, accuracy);
         }
