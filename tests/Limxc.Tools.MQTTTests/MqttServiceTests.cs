@@ -37,13 +37,15 @@ public class MqttServiceTests
 
         server
             .ConnectionState.Select(p => p.ConnState)
-            .Subscribe(async _ =>
+            .CallAsync(async _ =>
             {
                 await server.PubAsync(TOPIC, MSGFromServer);
             })
+            .Subscribe()
             .DisposeWith(disposeables);
         client
-            .ConnectionState.Subscribe(async _ => await client.PubAsync(TOPIC, MSGFromClient))
+            .ConnectionState.CallAsync(async _ => await client.PubAsync(TOPIC, MSGFromClient))
+            .Subscribe()
             .DisposeWith(disposeables);
 
         await Task.Delay(1000);
@@ -75,6 +77,6 @@ public class MqttServiceTests
     [Fact]
     public Task MqttServiceWithSettingTest()
     {
-        return MqttTest(new MqttSetting() { MqttServerIp = "127.0.0.1", MqttServerPort = 1883, });
+        return MqttTest(new MqttSetting() { MqttServerIp = "127.0.0.1", MqttServerPort = 1883 });
     }
 }
