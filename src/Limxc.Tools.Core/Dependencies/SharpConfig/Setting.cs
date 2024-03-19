@@ -76,7 +76,9 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
         ///     Initializes a new instance of the <see cref="Setting" /> class.
         /// </summary>
         public Setting(string name)
-            : this(name, string.Empty) { }
+            : this(name, string.Empty)
+        {
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="Setting" /> class.

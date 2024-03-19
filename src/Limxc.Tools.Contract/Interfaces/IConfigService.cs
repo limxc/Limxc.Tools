@@ -8,6 +8,7 @@
             string section = "Common",
             string fileName = "Setting.ini"
         );
+
         string Get(
             string key,
             string def = "",
@@ -17,6 +18,7 @@
 
         void Set<T>(T obj, string fileName = "Setting.ini")
             where T : class, new();
+
         T Get<T>(string fileName = "Setting.ini", T def = default)
             where T : class, new();
 

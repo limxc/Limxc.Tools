@@ -18,15 +18,9 @@ public class TcpS2CServiceSimulatorTests
 
         bool? state = null;
         var received = Array.Empty<byte>();
-        sim.ConnectionState.Subscribe(s =>
-        {
-            state = s;
-        })
+        sim.ConnectionState.Subscribe(s => { state = s; })
             .DisposeWith(dis);
-        sim.Received.Subscribe(s =>
-        {
-            received = s;
-        })
+        sim.Received.Subscribe(s => { received = s; })
             .DisposeWith(dis);
 
         state.Should().BeFalse();

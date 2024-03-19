@@ -282,9 +282,9 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
                     var settingArray = value as Array;
                     var propArray = prop.GetValue(obj, null) as Array;
                     if (
-                        settingArray != null
-                        && (propArray == null || propArray.Length != settingArray.Length)
-                    )
+                            settingArray != null
+                            && (propArray == null || propArray.Length != settingArray.Length)
+                        )
                         // (Re)create the property's array.
                         propArray = Array.CreateInstance(
                             prop.PropertyType.GetElementType(),
@@ -322,9 +322,9 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
                     var settingArray = value as Array;
                     var fieldArray = field.GetValue(obj) as Array;
                     if (
-                        settingArray != null
-                        && (fieldArray == null || fieldArray.Length != settingArray.Length)
-                    )
+                            settingArray != null
+                            && (fieldArray == null || fieldArray.Length != settingArray.Length)
+                        )
                         // (Re)create the field's array.
                         fieldArray = Array.CreateInstance(
                             field.FieldType.GetElementType(),
@@ -351,13 +351,13 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
 
             if (member as PropertyInfo != null)
                 return (member as PropertyInfo)
-                        .PropertyType.GetCustomAttributes(typeof(IgnoreAttribute), false)
-                        .Length > 0;
+                    .PropertyType.GetCustomAttributes(typeof(IgnoreAttribute), false)
+                    .Length > 0;
 
             if (member as FieldInfo != null)
                 return (member as FieldInfo)
-                        .FieldType.GetCustomAttributes(typeof(IgnoreAttribute), false)
-                        .Length > 0;
+                    .FieldType.GetCustomAttributes(typeof(IgnoreAttribute), false)
+                    .Length > 0;
 
             return false;
         }

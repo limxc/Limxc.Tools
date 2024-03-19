@@ -48,6 +48,17 @@ namespace Limxc.Tools.MQTT
             _server.ClientDisconnectedAsync += Server_ClientDisconnectedAsync;
         }
 
+        public IObservable<(string ClientId, bool ConnState)> ConnectionState =>
+            _connectionState.AsObservable();
+
+        public void Dispose()
+        {
+            _server.ClientConnectedAsync -= Server_ClientConnectedAsync;
+            _server.ClientDisconnectedAsync -= Server_ClientDisconnectedAsync;
+            _server?.Dispose();
+            _connectionState.Dispose();
+        }
+
         private Task Server_ClientDisconnectedAsync(ClientDisconnectedEventArgs arg)
         {
             _connectionState.OnNext((arg.ClientId, false));
@@ -58,17 +69,6 @@ namespace Limxc.Tools.MQTT
         {
             _connectionState.OnNext((arg.ClientId, true));
             return Task.CompletedTask;
-        }
-
-        public IObservable<(string ClientId, bool ConnState)> ConnectionState =>
-            _connectionState.AsObservable();
-
-        public void Dispose()
-        {
-            _server.ClientConnectedAsync -= Server_ClientConnectedAsync;
-            _server.ClientDisconnectedAsync -= Server_ClientDisconnectedAsync;
-            _server?.Dispose();
-            _connectionState.Dispose();
         }
 
         public Task StartAsync()

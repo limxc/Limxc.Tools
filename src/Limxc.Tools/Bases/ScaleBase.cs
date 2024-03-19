@@ -210,7 +210,9 @@ namespace Limxc.Tools.Bases
 
     public class Answer
     {
-        public Answer() { }
+        public Answer()
+        {
+        }
 
         public Answer(int index, string text, double value)
         {
@@ -238,7 +240,8 @@ namespace Limxc.Tools.Bases
 
         public override string ToString()
         {
-            return $"{Index}.{Text}{(Checked ? $"({(Value > 0 ? Value.ToString(CultureInfo.InvariantCulture) : "Y")})" : "")}";
+            return
+                $"{Index}.{Text}{(Checked ? $"({(Value > 0 ? Value.ToString(CultureInfo.InvariantCulture) : "Y")})" : "")}";
         }
     }
 }

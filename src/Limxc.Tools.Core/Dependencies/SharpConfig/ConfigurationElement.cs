@@ -43,11 +43,11 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
             var stringExpr = GetStringExpression();
 
             if (
-                Comment != null
-                && PreComment != null
-                && !Configuration.IgnoreInlineComments
-                && !Configuration.IgnorePreComments
-            )
+                    Comment != null
+                    && PreComment != null
+                    && !Configuration.IgnoreInlineComments
+                    && !Configuration.IgnorePreComments
+                )
                 // Include inline comment and pre-comments.
                 return $"{GetFormattedPreComment()}{Environment.NewLine}{stringExpr} {GetFormattedComment()}";
             if (Comment != null && !Configuration.IgnoreInlineComments)

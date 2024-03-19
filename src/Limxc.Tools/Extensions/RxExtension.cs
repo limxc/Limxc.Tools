@@ -116,34 +116,52 @@ namespace Limxc.Tools.Extensions
         public static IObservable<TR> CallAsync<T, TR>(
             this IObservable<T> source,
             Func<T, Task<TR>> onNextAsync
-        ) => source.Select(t => Observable.FromAsync(() => onNextAsync(t))).Concat();
+        )
+        {
+            return source.Select(t => Observable.FromAsync(() => onNextAsync(t))).Concat();
+        }
 
         public static IObservable<Unit> CallAsync<T>(
             this IObservable<T> source,
             Func<T, Task> onNextAsync
-        ) => source.Select(t => Observable.FromAsync(() => onNextAsync(t))).Concat();
+        )
+        {
+            return source.Select(t => Observable.FromAsync(() => onNextAsync(t))).Concat();
+        }
 
         public static IObservable<TR> CallAsyncConcurrent<T, TR>(
             this IObservable<T> source,
             Func<T, Task<TR>> onNextAsync
-        ) => source.Select(t => Observable.FromAsync(() => onNextAsync(t))).Merge();
+        )
+        {
+            return source.Select(t => Observable.FromAsync(() => onNextAsync(t))).Merge();
+        }
 
         public static IObservable<Unit> CallAsyncConcurrent<T>(
             this IObservable<T> source,
             Func<T, Task> onNextAsync
-        ) => source.Select(t => Observable.FromAsync(() => onNextAsync(t))).Merge();
+        )
+        {
+            return source.Select(t => Observable.FromAsync(() => onNextAsync(t))).Merge();
+        }
 
         public static IObservable<TR> CallAsyncConcurrent<T, TR>(
             this IObservable<T> source,
             Func<T, Task<TR>> onNextAsync,
             int maxConcurrent
-        ) => source.Select(t => Observable.FromAsync(() => onNextAsync(t))).Merge(maxConcurrent);
+        )
+        {
+            return source.Select(t => Observable.FromAsync(() => onNextAsync(t))).Merge(maxConcurrent);
+        }
 
         public static IObservable<Unit> CallAsyncConcurrent<T>(
             this IObservable<T> source,
             Func<T, Task> onNextAsync,
             int maxConcurrent
-        ) => source.Select(t => Observable.FromAsync(() => onNextAsync(t))).Merge(maxConcurrent);
+        )
+        {
+            return source.Select(t => Observable.FromAsync(() => onNextAsync(t))).Merge(maxConcurrent);
+        }
 
         #endregion
     }

@@ -119,7 +119,9 @@ public class PipeBuilderTests
             Value = value;
         }
 
-        public PipeTestContext() { }
+        public PipeTestContext()
+        {
+        }
 
         public string Msg { get; set; }
         public double Value { get; set; }

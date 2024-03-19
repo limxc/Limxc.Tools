@@ -7,7 +7,9 @@ namespace Limxc.Tools.Core.Services
         where T : class, new()
     {
         public IniFileSettingService(ILogService logService = null)
-            : base(logService) { }
+            : base(logService)
+        {
+        }
 
         protected override string FileExtension => "ini";
 

@@ -128,10 +128,7 @@ public partial class FileTesterFrm : Form
         _bindings.Unbind();
         _bindings.Clear();
 
-        Bindings.Error += obj =>
-        {
-            obj.Debug();
-        };
+        Bindings.Error += obj => { obj.Debug(); };
         Bindings.Create(() => tbMessage.Text == _entity.Message).UnbindWith(_bindings);
         Bindings.Create(() => nudValue.Value == _entity.Value).UnbindWith(_bindings);
         Bindings.Create(() => dgvInner.DataSource == _entity.Inners).UnbindWith(_bindings);
@@ -145,9 +142,9 @@ public partial class FileTesterFrm : Form
                 () =>
                     rtbBindingLog.Text
                     == _entity.Message
-                        + " | "
-                        + //��Ҫһ�����Դ�������
-                        _entity
+                    + " | "
+                    + //��Ҫһ�����Դ�������
+                    _entity
             )
             .UnbindWith(_bindings);
     }

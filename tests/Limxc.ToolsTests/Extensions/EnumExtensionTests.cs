@@ -59,11 +59,9 @@ public class EnumExtensionTests
 
     private enum TestEnum
     {
-        [Description("a")]
-        A,
+        [Description("a")] A,
 
-        [Description("b")]
-        B,
+        [Description("b")] B,
         C
     }
 }

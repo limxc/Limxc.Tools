@@ -369,10 +369,7 @@ namespace Limxc.Tools.Extensions.Communication
                     })
                     .DisposeWith(dis);
 
-                obs.Subscribe(p =>
-                    {
-                        rst.Enqueue(p);
-                    })
+                obs.Subscribe(p => { rst.Enqueue(p); })
                     .DisposeWith(dis);
 
                 return dis;

@@ -18,15 +18,9 @@ public class SerialPortServiceSimulatorTests
 
         bool? state = null;
         var received = Array.Empty<byte>();
-        sps.ConnectionState.Subscribe(s =>
-        {
-            state = s;
-        })
+        sps.ConnectionState.Subscribe(s => { state = s; })
             .DisposeWith(dis);
-        sps.Received.Subscribe(s =>
-        {
-            received = s;
-        })
+        sps.Received.Subscribe(s => { received = s; })
             .DisposeWith(dis);
 
         state.Should().BeFalse();

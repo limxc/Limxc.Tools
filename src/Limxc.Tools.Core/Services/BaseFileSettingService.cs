@@ -19,9 +19,9 @@ namespace Limxc.Tools.Core.Services
 
             _fileSystemWatcher = new FileSystemWatcher(
                 Path.GetDirectoryName(FullPath)
-                    ?? throw new InvalidOperationException(
-                        $"Cant find config folder.({Path.GetDirectoryName(FullPath)})"
-                    ),
+                ?? throw new InvalidOperationException(
+                    $"Cant find config folder.({Path.GetDirectoryName(FullPath)})"
+                ),
                 FileName
             )
             {
@@ -31,7 +31,7 @@ namespace Limxc.Tools.Core.Services
 
             _disposable = Observable
                 .FromEventPattern(_fileSystemWatcher, nameof(FileSystemWatcher.Changed))
-                .Throttle(TimeSpan.FromSeconds(0.5))
+                .Throttle(TimeSpan.FromSeconds(1))
                 .Subscribe(_ => SettingChanged?.Invoke(Load()));
         }
 
@@ -67,6 +67,7 @@ namespace Limxc.Tools.Core.Services
         }
 
         /// <summary>
+        ///     加载配置
         /// </summary>
         /// <param name="initOnFailure">失败时重建(初始值)</param>
         /// <returns></returns>

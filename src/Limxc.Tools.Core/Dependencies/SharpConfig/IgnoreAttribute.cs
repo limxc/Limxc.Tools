@@ -12,5 +12,7 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
     ///     of a type, that property will be ignored when creating
     ///     sections from objects and vice versa.
     /// </summary>
-    public sealed class IgnoreAttribute : Attribute { }
+    public sealed class IgnoreAttribute : Attribute
+    {
+    }
 }

@@ -100,9 +100,13 @@ namespace Limxc.Tools.Core.Dependencies.SharpConfig
         private class NonClosingBinaryWriter : BinaryWriter
         {
             public NonClosingBinaryWriter(Stream stream)
-                : base(stream) { }
+                : base(stream)
+            {
+            }
 
-            protected override void Dispose(bool disposing) { }
+            protected override void Dispose(bool disposing)
+            {
+            }
         }
     }
 }

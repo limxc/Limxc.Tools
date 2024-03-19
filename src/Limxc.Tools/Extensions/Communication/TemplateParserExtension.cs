@@ -118,7 +118,9 @@ namespace Limxc.Tools.Extensions.Communication
             }
         }
 
-        private class Complete : Exception { }
+        private class Complete : Exception
+        {
+        }
 
         #endregion
     }

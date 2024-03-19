@@ -94,10 +94,11 @@ public class DataConversionExtensionTests
     public void AscII_HexTest()
     {
         var data =
-            "32 30 32 30 2C 31 32 2C 31 38 2C 31 30 2C 35 34 2C 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 2C 30 2C 31 34 38 2C 31 32 32 2C 20 38 31 2C 31 0D 0A ".Replace(
-                " ",
-                ""
-            );
+            "32 30 32 30 2C 31 32 2C 31 38 2C 31 30 2C 35 34 2C 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 2C 30 2C 31 34 38 2C 31 32 32 2C 20 38 31 2C 31 0D 0A "
+                .Replace(
+                    " ",
+                    ""
+                );
         var asc = data.HexToAscII();
         asc.Should().Be("2020,12,18,10,54,                    ,0,148,122, 81,1\r\n");
         var hex = asc.AscIIToHex();

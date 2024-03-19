@@ -150,10 +150,7 @@ public class AlgoExtensionTests
 
         Action act = () => new[] { 11 }.LocateToPack(datas);
         act.Should().Throw<ArgumentException>();
-        Assert.Throws<ArgumentException>(() =>
-        {
-            new[] { -1 }.LocateToPack(datas);
-        });
+        Assert.Throws<ArgumentException>(() => { new[] { -1 }.LocateToPack(datas); });
 
         var r1 = new[] { 9 }.LocateToPack(datas);
         r1.Pack.Should().BeEquivalentTo(new byte[] { });

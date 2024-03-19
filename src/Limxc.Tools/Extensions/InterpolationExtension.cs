@@ -150,11 +150,11 @@ namespace Limxc.Tools.Extensions
                     p2 *= p2;
                     var p3 =
                         p1
-                            * (1 + 2 * (xs[i] - points[j].X) / (points[j + 1].X - points[j].X))
-                            * points[j].Y
+                        * (1 + 2 * (xs[i] - points[j].X) / (points[j + 1].X - points[j].X))
+                        * points[j].Y
                         + p2
-                            * (1 + 2 * (xs[i] - points[j + 1].X) / (points[j].X - points[j + 1].X))
-                            * points[j + 1].Y;
+                        * (1 + 2 * (xs[i] - points[j + 1].X) / (points[j].X - points[j + 1].X))
+                        * points[j + 1].Y;
 
                     var p4 =
                         p1 * (xs[i] - points[j].X) * m[j]

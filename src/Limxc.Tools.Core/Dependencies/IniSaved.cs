@@ -46,6 +46,7 @@ namespace Limxc.Tools.Core.Dependencies
                     );
                 sw.Write(Save(type, obj, section));
             }
+
             ;
         }
 
@@ -75,6 +76,7 @@ namespace Limxc.Tools.Core.Dependencies
                 if (ina != null && !string.IsNullOrEmpty(ina.name))
                     section = ina.name;
             }
+
             ;
 
             var ns = new XmlSerializerNamespaces();
@@ -128,6 +130,7 @@ namespace Limxc.Tools.Core.Dependencies
                     sb.Append($"@{NormalizeValue(a.Name, true)}={NormalizeValue(a.Value)}\r\n");
                     hasBody = true;
                 }
+
             ;
 
             var simpleNodes = new List<XmlNode>();
@@ -154,6 +157,7 @@ namespace Limxc.Tools.Core.Dependencies
                     {
                         detailNodes.Add(n);
                     }
+
             ;
 
             foreach (var n in simpleNodes)
@@ -164,6 +168,7 @@ namespace Limxc.Tools.Core.Dependencies
                 );
                 hasBody = true;
             }
+
             ;
 
             if (simpleNodes.Count > 0)
@@ -176,6 +181,7 @@ namespace Limxc.Tools.Core.Dependencies
                 sb.Append(dnt);
                 hasBody = true;
             }
+
             ;
 
             if (hasBody)
@@ -190,6 +196,7 @@ namespace Limxc.Tools.Core.Dependencies
                 sb.Append($"[{section}]\r\n");
                 hasRoot = true;
             }
+
             ;
         }
 
@@ -229,6 +236,7 @@ namespace Limxc.Tools.Core.Dependencies
                 var c = t.GetConstructor(new Type[0]);
                 obj = (T)c.Invoke(null);
             }
+
             ;
             using (var fs = new MemoryStream(Encoding.UTF8.GetBytes(text)))
             {
@@ -258,6 +266,7 @@ namespace Limxc.Tools.Core.Dependencies
                 var c = t.GetConstructor(new Type[0]);
                 obj = (T)c.Invoke(null);
             }
+
             ;
             using (var fs = new FileStream(file, FileMode.Open, FileAccess.Read))
             {
@@ -297,6 +306,7 @@ namespace Limxc.Tools.Core.Dependencies
                 if (ina != null && !string.IsNullOrEmpty(ina.name))
                     section = ina.name;
             }
+
             ;
 
             // READ INI SECTIONS
@@ -315,6 +325,7 @@ namespace Limxc.Tools.Core.Dependencies
                         sections.Add(currsect, new List<string>());
                         continue;
                     }
+
                     ;
                     if (string.IsNullOrEmpty(currsect))
                         continue;
@@ -323,6 +334,7 @@ namespace Limxc.Tools.Core.Dependencies
                     ln = ln.Split(';', '#')[0];
                     sections[currsect].Add(ln);
                 }
+
                 ;
                 // SORT
                 secSorted = new List<KeyValuePair<string, List<string>>>(sections);
@@ -349,9 +361,11 @@ namespace Limxc.Tools.Core.Dependencies
                         {
                             tmps.Add(kvp);
                         }
+
                     ;
                     secSorted = tmps;
                 }
+
                 ;
             }
             ;
@@ -396,14 +410,17 @@ namespace Limxc.Tools.Core.Dependencies
                             thisRoot = thisRoot.ParentNode;
                             sn = thisRoot.SelectSingleNode(cpath + $"[{pos + 1}]");
                         }
+
                         ;
                         if (sn == null)
                             sn = thisRoot.AppendChild(xd.CreateElement(cpath));
                         thisRoot = sn;
                     }
+
                     ;
                     shrtKey = paths[paths.Length - 1];
                 }
+
                 ;
 
                 // Create Node
@@ -450,10 +467,13 @@ namespace Limxc.Tools.Core.Dependencies
                         e.AppendChild(t);
                         xn.AppendChild(e);
                     }
+
                     ;
                 }
+
                 ;
             }
+
             ;
 
             var res = xd.OuterXml;
@@ -491,6 +511,7 @@ namespace Limxc.Tools.Core.Dependencies
                     if (int.TryParse(bv, out _))
                         return -1;
                 }
+
                 ;
                 return a.CompareTo(b);
             }
@@ -530,9 +551,9 @@ namespace Limxc.Tools.Core.Dependencies
                 // nullable type, check if the nested type is simple.
                 return IsSimple(type.GetGenericArguments()[0].GetTypeInfo());
             return type.IsPrimitive
-                || type.IsEnum
-                || type.Equals(typeof(string))
-                || type.Equals(typeof(decimal));
+                   || type.IsEnum
+                   || type.Equals(typeof(string))
+                   || type.Equals(typeof(decimal));
         }
 
         public static string NormalizeValue(string value, bool name = false)
@@ -578,7 +599,9 @@ namespace Limxc.Tools.Core.Dependencies
         public object Key;
         public object Value;
 
-        public DictionaryEntry() { }
+        public DictionaryEntry()
+        {
+        }
 
         public DictionaryEntry(object key, object value)
         {

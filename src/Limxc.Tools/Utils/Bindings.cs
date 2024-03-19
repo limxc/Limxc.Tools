@@ -35,7 +35,9 @@ namespace Limxc.Tools.Utils
         /// <summary>
         ///     Unbind this instance. This cannot be undone.
         /// </summary>
-        public virtual void Unbind() { }
+        public virtual void Unbind()
+        {
+        }
 
         /// <summary>
         ///     Uses the lambda expression to create data bindings.
