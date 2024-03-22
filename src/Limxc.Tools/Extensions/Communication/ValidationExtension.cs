@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Limxc.Tools.Integrations.CrcCSharp;
+// ReSharper disable InconsistentNaming
 
 namespace Limxc.Tools.Extensions.Communication
 {
