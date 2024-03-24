@@ -30,7 +30,7 @@ namespace Limxc.Tools.Core.Services
         protected override void SaveSetting(T setting)
         {
             var json = JsonSerializer.Serialize(setting, _jsonSerializerOptions);
-            json.Save(FullPath, false, Encoding.UTF8);
+            json.Save(FullPath, false, false, Encoding.UTF8);
         }
 
         protected override T LoadSetting(string path)
