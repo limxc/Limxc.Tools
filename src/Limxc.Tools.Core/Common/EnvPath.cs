@@ -46,6 +46,17 @@ namespace Limxc.Tools.Core.Common
         public string BaseDirectory => _baseDirectoryFactory();
 
         /// <summary>
+        ///     BaseDirectory/preFolders/Logs
+        /// </summary>
+        /// <param name="folderName"></param>
+        /// <param name="preFolders"></param>
+        /// <returns></returns>
+        public string LogFolder(string folderName = "Logs", params string[] preFolders)
+        {
+            return Folder(folderName, preFolders);
+        }
+
+        /// <summary>
         ///     BaseDirectory/preFolders/Databases
         /// </summary>
         /// <param name="folderName"></param>

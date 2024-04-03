@@ -41,6 +41,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Limxc.Tools.MQTT", "src\Lim
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Limxc.Tools.MQTTTests", "tests\Limxc.Tools.MQTTTests\Limxc.Tools.MQTTTests.csproj", "{108DC011-198A-475F-80DD-4EB2177DC768}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Limxc.Tools.Emulator", "src\Limxc.Tools.Emulator\Limxc.Tools.Emulator.csproj", "{3B08CED1-4B2D-45BB-A622-6FEC35415014}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Limxc.Tools.EmulatorTests", "tests\Limxc.Tools.EmulatorTests\Limxc.Tools.EmulatorTests.csproj", "{2A6FECD4-70A3-452E-A789-F63CDCC82493}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,6 +99,14 @@ Global
 		{108DC011-198A-475F-80DD-4EB2177DC768}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{108DC011-198A-475F-80DD-4EB2177DC768}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{108DC011-198A-475F-80DD-4EB2177DC768}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B08CED1-4B2D-45BB-A622-6FEC35415014}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B08CED1-4B2D-45BB-A622-6FEC35415014}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B08CED1-4B2D-45BB-A622-6FEC35415014}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B08CED1-4B2D-45BB-A622-6FEC35415014}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A6FECD4-70A3-452E-A789-F63CDCC82493}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A6FECD4-70A3-452E-A789-F63CDCC82493}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A6FECD4-70A3-452E-A789-F63CDCC82493}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A6FECD4-70A3-452E-A789-F63CDCC82493}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -112,6 +124,8 @@ Global
 		{907F769A-458E-4769-B7C5-4D752403F6BB} = {8F3EC7F7-6D4C-41F2-822D-2F6DD0FC2892}
 		{1B31303B-4A59-41BB-8109-7FC939616542} = {7F1779AD-20F8-4797-BF4A-79AD3D746FC3}
 		{108DC011-198A-475F-80DD-4EB2177DC768} = {8F3EC7F7-6D4C-41F2-822D-2F6DD0FC2892}
+		{3B08CED1-4B2D-45BB-A622-6FEC35415014} = {7F1779AD-20F8-4797-BF4A-79AD3D746FC3}
+		{2A6FECD4-70A3-452E-A789-F63CDCC82493} = {8F3EC7F7-6D4C-41F2-822D-2F6DD0FC2892}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {331109E3-CBC8-42E6-AE35-8C5111AE53CD}
