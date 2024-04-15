@@ -8,12 +8,15 @@ namespace Limxc.Tools.Extensions
     {
         public static JsonSerializerOptions Init(this JsonSerializerOptions options, bool readable)
         {
+            options.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
             options.WriteIndented = readable;
             options.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+
             options.ReadCommentHandling = JsonCommentHandling.Skip;
             options.AllowTrailingCommas = true;
-            options.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping; //方法1,允许不安全字符(含html)
-            //Encoder = JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All) // 方法1,允许不安全字符(不含html)
+
+            options.NumberHandling = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.WriteAsString;
+
             return options;
         }
 

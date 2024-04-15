@@ -1,8 +1,5 @@
 ﻿#define DEBUG
 using System;
-using System.Text.Encodings.Web;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Limxc.Tools.Extensions
 {
@@ -29,18 +26,7 @@ namespace Limxc.Tools.Extensions
 
         public static string Dump<T>(this T obj, bool console = false)
         {
-            var msg = JsonSerializer.Serialize(
-                obj,
-                new JsonSerializerOptions
-                {
-                    WriteIndented = true,
-                    IncludeFields = true,
-                    ReferenceHandler = ReferenceHandler.IgnoreCycles,
-                    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping //方法1,允许不安全字符(含html)
-                    //Encoder = JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All) // 方法1,允许不安全字符(不含html)
-                }
-            );
-            //msg = System.Text.RegularExpressions.Regex.Unescape(msg);//方法2,转义
+            var msg = obj.ToJson(true);
             var name = typeof(T).FullName;
 
             if (console)
