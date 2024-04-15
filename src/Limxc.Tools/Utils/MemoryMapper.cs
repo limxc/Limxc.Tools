@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.IO;
 using System.IO.MemoryMappedFiles;
-using System.Text.Json;
 using Limxc.Tools.Extensions;
 
 namespace Limxc.Tools.Utils
@@ -29,13 +28,9 @@ namespace Limxc.Tools.Utils
             {
                 _memoryMappedFile = MemoryMappedFile.CreateOrOpen(mapName, capacitySize);
                 using (var mmvStream = _memoryMappedFile.CreateViewStream(0, 0))
-                using (var jsonWriter = new Utf8JsonWriter(mmvStream))
+                using (var sw = new StreamWriter(mmvStream))
                 {
-                    JsonSerializer.Serialize(
-                        jsonWriter,
-                        entity,
-                        new JsonSerializerOptions().Init(false)
-                    );
+                    sw.Write(entity.ToJson());
                 }
             }
             catch (Exception e)
@@ -55,12 +50,7 @@ namespace Limxc.Tools.Utils
                 using (var sr = new StreamReader(mmvStream))
                 {
                     var json = sr.ReadToEnd().Trim('\0');
-                    return mmvStream.CanRead
-                        ? JsonSerializer.Deserialize<T>(
-                            json,
-                            new JsonSerializerOptions().Init(false)
-                        )
-                        : default;
+                    return mmvStream.CanRead ? json.JsonTo<T>() : default;
                 }
             }
             catch (FileNotFoundException)
