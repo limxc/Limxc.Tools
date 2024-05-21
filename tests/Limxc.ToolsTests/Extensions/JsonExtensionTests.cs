@@ -10,7 +10,13 @@ public class JsonExtensionTests
     public void ToJsonTest()
     {
         var t = new ComplexTestEntity();
-        t.InnerArrs = new[] { new TestEntity { FloatValue = 3.1f } };
+        t.InnerArrs = new[]
+        {
+            new TestEntity
+            {
+                FloatValue = 3.1f, DoubleValue = 2.2d, DecimalValue = 3.6m, Bytes = new byte[] { 0xaa, 0xbb }
+            }
+        };
         t.DoubleValue = 3.3;
         var json = t.ToJson();
         var obj = json.JsonTo<ComplexTestEntity>();

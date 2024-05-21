@@ -18,7 +18,12 @@ public class TestEntity
     public float FloatValue { get; set; }
     public double? DoubleValue { get; set; }
     public decimal DecimalValue { get; set; }
+
     public DateTime DateTime { get; set; }
+
+    //public ExpandoObject ExpandoObject { get; set; }
+    public byte[] Bytes { get; set; }
+    public event EventHandler EventHandler = (s, e) => { };
 }
 
 public class ComplexTestEntity : TestEntity
