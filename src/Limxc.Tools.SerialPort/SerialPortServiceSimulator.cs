@@ -60,6 +60,16 @@ namespace Limxc.Tools.SerialPort
             IsConnected = false;
         }
 
+        public void Send(byte[] bytes)
+        {
+            _log.OnNext($"Send: {bytes}");
+            _sendIndex++;
+            if (_lostInterval > 0 && _sendIndex % _lostInterval == 0) //模拟失败
+                return;
+
+            _received.OnNext(bytes);
+        }
+
         public async Task SendAsync(byte[] bytes)
         {
             _log.OnNext($"Send: {bytes}");

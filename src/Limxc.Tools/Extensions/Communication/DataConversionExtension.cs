@@ -37,7 +37,7 @@ namespace Limxc.Tools.Extensions.Communication
         /// </summary>
         /// <param name="bytes"></param>
         /// <param name="length"></param>
-        /// <returns></returns>
+        /// <returns>.ToArray()</returns>
         public static byte[] ChangeLength(this byte[] bytes, int length)
         {
             var len = bytes.Length;
@@ -50,7 +50,7 @@ namespace Limxc.Tools.Extensions.Communication
                     .Concat(bytes)
                     .ToArray();
 
-            return bytes;
+            return bytes.ToArray();
         }
 
         /// <summary>
@@ -214,11 +214,11 @@ namespace Limxc.Tools.Extensions.Communication
         /// <returns></returns>
         public static int ByteToInt(this byte[] bytes, bool adjustRange = false)
         {
-            bytes = bytes.ChangeLength(4);
+            var rtn = bytes.ChangeLength(4);
             if (BitConverter.IsLittleEndian)
-                Array.Reverse(bytes);
+                Array.Reverse(rtn);
 
-            return BitConverter.ToUInt32(bytes, 0).ToNInt(adjustRange);
+            return BitConverter.ToUInt32(rtn, 0).ToNInt(adjustRange);
         }
 
         /// <summary>

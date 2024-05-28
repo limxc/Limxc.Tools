@@ -16,6 +16,12 @@ namespace Limxc.Tools.SerialPort
         ///     无返回值发送
         /// </summary>
         /// <param name="bytes"></param>
+        void Send(byte[] bytes);
+
+        /// <summary>
+        ///     无返回值发送
+        /// </summary>
+        /// <param name="bytes"></param>
         /// <returns></returns>
         Task SendAsync(byte[] bytes);
 

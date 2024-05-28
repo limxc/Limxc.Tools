@@ -45,8 +45,7 @@ public class DataConversionExtensionTests
     [Fact]
     public void Int_ByteTest()
     {
-        new byte[] { 0, 1 }
-            .ByteToInt()
+        new byte[] { 0, 1 }.ByteToInt()
             .Should()
             .Be(1);
         new byte[] { 0, 0, 0, 1 }
@@ -61,8 +60,11 @@ public class DataConversionExtensionTests
             .ByteToInt()
             .Should()
             .Be(65535); //big endian
-        new byte[] { 0, 1, 0, 0 }
-            .ByteToInt()
+        var b = new byte[] { 0, 1, 0, 0 };
+        b.ByteToInt()
+            .Should()
+            .Be(65536);
+        b.ByteToInt()
             .Should()
             .Be(65536);
 
@@ -85,7 +87,9 @@ public class DataConversionExtensionTests
     [Fact]
     public void Hex_ByteTest()
     {
-        s2.HexToByte().ByteToHex().ToLower().Should().Be(s2);
+        var b = s2.HexToByte();
+        b.ByteToHex().ToLower().Should().Be(s2);
+        b.ByteToHex().ToLower().Should().Be(s2);
 
         "abcd".HexToByte().Should().BeEquivalentTo(new byte[] { 171, 205 });
     }

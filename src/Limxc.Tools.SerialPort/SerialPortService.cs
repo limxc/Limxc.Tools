@@ -243,6 +243,11 @@ namespace Limxc.Tools.SerialPort
             }
         }
 
+        public void Send(byte[] bytes)
+        {
+            _sp.Write(bytes, 0, bytes.Length);
+        }
+
         public string[] GetPortNames()
         {
             return SP.GetPortNames();
