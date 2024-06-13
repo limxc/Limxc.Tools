@@ -162,7 +162,7 @@ namespace Limxc.Tools.SerialPort
             }
         }
 
-        public void Start(SerialPortSetting setting)
+        public void Start(SerialPortSetting setting, Action<object> config = null)
         {
             _setting = setting;
 
@@ -187,6 +187,8 @@ namespace Limxc.Tools.SerialPort
                 ReadTimeout = 500,
                 WriteTimeout = 500
             };
+
+            config?.Invoke(_sp);
 
             Observable
                 .FromEventPattern(_sp, nameof(SP.DataReceived))

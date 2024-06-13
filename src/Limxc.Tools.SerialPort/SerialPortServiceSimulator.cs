@@ -46,7 +46,7 @@ namespace Limxc.Tools.SerialPort
         public IObservable<byte[]> Received { get; }
         public IObservable<string> Log { get; }
 
-        public void Start(SerialPortSetting setting)
+        public void Start(SerialPortSetting setting, Action<object> config = null)
         {
             _log.OnNext("Start");
             Stop();

@@ -33,6 +33,9 @@ public class StatisticsExtensionTests
 
         source = new double[] { 1, 2, 3, 4, 5, 6 };
         source.Median().Should().Be(3.5);
+
+        source = new double[] { 1, 8, 10, 11, 145, 226 };
+        source.Median().Should().Be(10.5);
     }
 
     [Fact]
