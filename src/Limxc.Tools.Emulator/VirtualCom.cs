@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Text;
@@ -55,7 +56,7 @@ namespace Limxc.Tools.Emulator
             _logger = logger;
         }
 
-        public bool IsAdministrator()
+        private bool IsAdministrator()
         {
             bool result;
             try
@@ -109,8 +110,8 @@ namespace Limxc.Tools.Emulator
                 .Select(p =>
                 {
                     var idx = p.Key;
-                    return (idx, p.FirstOrDefault(x => x.Item2 == "A").portName,
-                        p.FirstOrDefault(x => x.Item2 == "B").portName);
+                    return (idx, p.FirstOrDefault(x => x.Item2 == "A").portName.ToUpper(),
+                        p.FirstOrDefault(x => x.Item2 == "B").portName.ToUpper());
                 })
                 .ToArray();
         }
@@ -148,15 +149,20 @@ namespace Limxc.Tools.Emulator
         /// <param name="baudRate"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public async Task<CompositeDisposable> ForwardingAsync(string virtualPortName, string physicalPortName,
-            int baudRate)
+        public async Task<(IObservable<(bool SendOrRecv, byte[] Data)>, IDisposable)> ForwardingAsync(
+            string virtualPortName, string physicalPortName, int baudRate, bool checkPort = true)
         {
             var disposables = new CompositeDisposable();
+            var subject = new Subject<(bool, byte[])>();
 
             virtualPortName = virtualPortName.ToUpper();
-            var vspPairs = await ListAsync();
-            if (!vspPairs.Any(p => p.PortName2.Contains(virtualPortName)))
-                throw new Exception($"串口名错误:{virtualPortName}");
+
+            if (checkPort)
+            {
+                var vspPairs = await ListAsync();
+                if (!vspPairs.Any(p => p.PortName2.Contains(virtualPortName)))
+                    throw new Exception($"串口名错误:{virtualPortName}");
+            }
 
             var vss = new SerialPortService();
             var pss = new SerialPortService();
@@ -177,12 +183,17 @@ namespace Limxc.Tools.Emulator
                 BaudRate = baudRate
             });
             vss.Received
+                //发送前等待50ms分包
+                .Buffer(TimeSpan.FromMilliseconds(50))
+                .Select(p => p.SelectMany(b => b).ToArray())
+                .Where(p => p.Length > 0)
                 .CallAsync(async p =>
                 {
                     if (pss.IsConnected)
                     {
                         _logger?.Invoke($"@{DateTime.Now:mm:ss} V->P : {p.ByteToHex()}");
                         await pss.SendAsync(p);
+                        subject.OnNext((true, p));
                     }
                     else
                     {
@@ -205,6 +216,7 @@ namespace Limxc.Tools.Emulator
                     {
                         _logger?.Invoke($"@{DateTime.Now:mm:ss} P->V : {p.ByteToHex()}");
                         await vss.SendAsync(p);
+                        subject.OnNext((false, p));
                     }
                     else
                     {
@@ -216,88 +228,54 @@ namespace Limxc.Tools.Emulator
 
             vss.DisposeWith(disposables);
             pss.DisposeWith(disposables);
+            subject.DisposeWith(disposables);
 
-            return disposables;
+            return (subject.AsObservable(), disposables);
         }
 
         /// <summary>
-        ///     创建两组虚拟串口模拟 COM(comStart) <-> COM(comStart+3)
-        /// </summary>
-        /// <param name="baudRate"></param>
-        /// <param name="comStart">200 ~ 250</param>
-        /// <returns></returns>
-        public async Task<IDisposable> TestAsync(int baudRate, int comStart = 250)
-        {
-            _logger?.Invoke("移出所有虚拟串口");
-            await RemoveAllVirtualSerialPortAsync();
-
-            _logger?.Invoke("创建虚拟串口");
-            await CreateVirtualSerialPortAsync($"COM{comStart}", $"COM{comStart + 1}");
-
-            _logger?.Invoke("模拟物理串口");
-            await CreateVirtualSerialPortAsync($"COM{comStart + 2}", $"COM{comStart + 3}");
-
-            var list = await ListAsync();
-            _logger?.Invoke("虚拟串口列表");
-            foreach (var item in list.Select(p => $"    {p.Index} : {p.PortName1} <-> {p.PortName2}"))
-                _logger?.Invoke(item);
-
-            _logger?.Invoke(
-                $"串口助手 <-> 虚拟串口1(COM{comStart}) <-> 虚拟串口2(COM{comStart + 1}) <-> 监听转发 <-> 模拟物理串口(COM{comStart + 2}) <-> 模拟物理串口(COM{comStart + 3}) <-> 串口助手");
-
-            var dis = await ForwardingAsync($"COM{comStart + 1}", $"COM{comStart + 2}", baudRate);
-
-            async void Dispose()
-            {
-                try
-                {
-                    dis.Dispose();
-                    await RemoveAllVirtualSerialPortAsync();
-                    list = await ListAsync();
-                    _logger?.Invoke($"移出所有虚拟串口, 剩余:{list.Count()}");
-                }
-                catch (Exception e)
-                {
-                    _logger?.Invoke(e);
-                }
-            }
-
-            return Disposable.Create(Dispose);
-        }
-
-        /// <summary>
-        ///     创建串口监听
+        ///     创建物理串口监听
         /// </summary>
         /// <param name="physicalPortName"></param>
         /// <param name="baudRate"></param>
         /// <param name="comStart">100~200</param>
         /// <returns></returns>
-        public async Task<IDisposable> MonitoringAsync(string physicalPortName, int baudRate, int comStart = 100)
+        public async Task<(IObservable<(bool SendOrRecv, byte[] Data)>, IDisposable)> MonitoringAsync(
+            string physicalPortName, int baudRate, int comStart = 100)
         {
-            _logger?.Invoke("移出所有虚拟串口");
-            await RemoveAllVirtualSerialPortAsync();
+            var com1 = $"COM{comStart}";
+            var com2 = $"COM{comStart + 1}";
 
-            _logger?.Invoke("创建虚拟串口");
-            await CreateVirtualSerialPortAsync($"COM{comStart}", $"COM{comStart + 1}");
-
-            var list = await ListAsync();
+            var allPairs = await ListAsync();
             _logger?.Invoke("虚拟串口列表");
-            foreach (var item in list.Select(p => $"    {p.Index} : {p.PortName1} <-> {p.PortName2}"))
+            foreach (var item in allPairs.Select(p => $"    {p.Index} : {p.PortName1} <-> {p.PortName2}"))
                 _logger?.Invoke(item);
 
-            _logger?.Invoke(
-                $"串口助手 <-> 虚拟串口1(COM{comStart}) <-> 虚拟串口2(COM{comStart + 1}) <-> 监听转发 <-> 物理串口({physicalPortName}) <-> 串口助手");
+            var pair = allPairs.FirstOrDefault(p => p.PortName1 == com1 && p.PortName2 == com2);
+            var createdBefore = true;
+            if (pair == default)
+            {
+                createdBefore = false;
+                _logger?.Invoke($"创建虚拟串口对: {com1} - {com2}");
+                await CreateVirtualSerialPortAsync(com1, com2);
+                pair = (await ListAsync()).FirstOrDefault(p => p.PortName1 == com1 && p.PortName2 == com2);
+            }
 
-            var dis = await ForwardingAsync($"COM{comStart + 1}", physicalPortName, baudRate);
+            _logger?.Invoke(
+                $"串口助手 <-> 虚拟串口1({com1}) <-> 虚拟串口2({com2}) <-> 监听转发 <-> 物理串口({physicalPortName}) <-> 串口助手");
+
+            var (obs, dis) = await ForwardingAsync(com2, physicalPortName, baudRate);
 
             async void Dispose()
             {
                 try
                 {
                     dis.Dispose();
-                    await RemoveAllVirtualSerialPortAsync();
-                    list = await ListAsync();
-                    _logger?.Invoke($"移出所有虚拟串口, 剩余:{list.Count()}");
+                    if (!createdBefore)
+                    {
+                        await RemoveVirtualSerialPortAsync(pair.Index);
+                        _logger?.Invoke($"删除虚拟串口对: {com1} - {com2}");
+                    }
                 }
                 catch (Exception e)
                 {
@@ -305,7 +283,80 @@ namespace Limxc.Tools.Emulator
                 }
             }
 
-            return Disposable.Create(Dispose);
+            return (obs, Disposable.Create(Dispose));
+        }
+
+
+        /// <summary>
+        ///     模拟两组虚拟串口监听 COM(comStart) <-> COM(comStart+3)
+        /// </summary>
+        /// <param name="baudRate"></param>
+        /// <param name="comStart">200 ~ 250</param>
+        /// <returns></returns>
+        public async Task<(IObservable<(bool SendOrRecv, byte[] Data)>, IDisposable)> SimulateAsync(
+            int baudRate, int comStart = 250)
+        {
+            var com1 = $"COM{comStart}";
+            var com2 = $"COM{comStart + 1}";
+            var com3 = $"COM{comStart + 2}";
+            var com4 = $"COM{comStart + 3}";
+
+            var allPairs = await ListAsync();
+            _logger?.Invoke("虚拟串口列表");
+            foreach (var item in allPairs.Select(p => $"    {p.Index} : {p.PortName1} <-> {p.PortName2}"))
+                _logger?.Invoke(item);
+
+            var pair1 = allPairs.FirstOrDefault(p => p.PortName1 == com1 && p.PortName2 == com2);
+            var createdBefore1 = true;
+            if (pair1 == default)
+            {
+                createdBefore1 = false;
+                _logger?.Invoke($"创建虚拟串口对: {com1} - {com2}");
+                await CreateVirtualSerialPortAsync(com1, com2);
+                pair1 = (await ListAsync()).FirstOrDefault(p => p.PortName1 == com1 && p.PortName2 == com2);
+            }
+
+            var pair2 = allPairs.FirstOrDefault(p => p.PortName1 == com3 && p.PortName2 == com4);
+            var createdBefore2 = true;
+            if (pair2 == default)
+            {
+                createdBefore2 = false;
+                _logger?.Invoke($"创建虚拟串口对: {com3} - {com4}");
+                await CreateVirtualSerialPortAsync(com3, com4);
+                pair2 = (await ListAsync()).FirstOrDefault(p => p.PortName1 == com3 && p.PortName2 == com4);
+            }
+
+            _logger?.Invoke(
+                $"串口助手 <-> 虚拟串口1({com1}) <-> 虚拟串口2({com2}) <-> 监听转发 <-> 模拟物理串口({com3}) <-> 模拟物理串口({com4}) <-> 串口助手");
+            allPairs = await ListAsync();
+            allPairs.Dump();
+            var (obs, dis) = await ForwardingAsync(com2, com3, baudRate, false);
+
+            async void Dispose()
+            {
+                try
+                {
+                    dis.Dispose();
+                    await RemoveAllVirtualSerialPortAsync();
+                    if (!createdBefore1)
+                    {
+                        await RemoveVirtualSerialPortAsync(pair1.Index);
+                        _logger?.Invoke($"删除虚拟串口对: {com1} - {com2}");
+                    }
+
+                    if (!createdBefore2)
+                    {
+                        await RemoveVirtualSerialPortAsync(pair2.Index);
+                        _logger?.Invoke($"删除虚拟串口对: {com3} - {com4}");
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger?.Invoke(e);
+                }
+            }
+
+            return (obs, Disposable.Create(Dispose));
         }
     }
 }

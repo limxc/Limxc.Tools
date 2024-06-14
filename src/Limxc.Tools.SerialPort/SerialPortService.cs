@@ -15,9 +15,12 @@ namespace Limxc.Tools.SerialPort
 {
     public class SerialPortService : ISerialPortService
     {
+        private const int MinReadBufferSizeUnit = 1024;
         private readonly Subject<bool> _connectionState = new Subject<bool>();
         private readonly CompositeDisposable _initDisposables = new CompositeDisposable();
+
         private readonly Subject<string> _log = new Subject<string>();
+
         private readonly Subject<byte[]> _received = new Subject<byte[]>();
 
         private CompositeDisposable _controlDisposables = new CompositeDisposable();
@@ -102,20 +105,6 @@ namespace Limxc.Tools.SerialPort
             {
                 await Task.Delay(_setting.SendDelay);
 
-                //var now = DateTimeOffset.Now;
-                //var task = _received
-                //    .SkipUntil(now)
-                //    .TakeUntil(now.AddMilliseconds(timeoutMs))
-                //    .Select(d => d.ByteToHex())
-                //    .Scan((acc, r) => acc + r)
-                //    .Select(r => r.TryGetTemplateMatchResults(template, sepBegin, sepEnd).FirstOrDefault())
-                //    .ToTask();
-
-                //var bytes = hex.HexToByte();
-                //_sp.Write(bytes, 0, bytes.Length);
-
-                //return await task;
-
                 var task = _received
                     .Select(p => p.ByteToHex())
                     .TryGetTemplateMatchResult(template, timeoutMs, sepBegin, sepEnd);
@@ -162,7 +151,11 @@ namespace Limxc.Tools.SerialPort
             }
         }
 
-        public void Start(SerialPortSetting setting, Action<object> config = null)
+        /// <summary>
+        /// </summary>
+        /// <param name="setting"></param>
+        /// <param name="configSerialPort"></param>
+        public void Start(SerialPortSetting setting, Action<object> configSerialPort = null)
         {
             _setting = setting;
 
@@ -176,34 +169,37 @@ namespace Limxc.Tools.SerialPort
 
             _controlDisposables = new CompositeDisposable();
 
-            _sp = new SP(
-                _setting.PortName,
-                _setting.BaudRate,
-                _setting.Parity,
-                _setting.DataBits,
-                _setting.StopBits
-            )
-            {
-                ReadTimeout = 500,
-                WriteTimeout = 500
-            };
+            _sp = new SP(_setting.PortName, _setting.BaudRate);
 
-            config?.Invoke(_sp);
+            configSerialPort?.Invoke(_sp);
 
-            Observable
-                .FromEventPattern(_sp, nameof(SP.DataReceived))
-                .SubscribeOn(new EventLoopScheduler())
-                .Subscribe(b =>
+            var readBufferSize = setting.ReadBufferSize;
+            if (readBufferSize % MinReadBufferSizeUnit != 0)
+                if (readBufferSize % 1024 != 0)
+                    readBufferSize = 1024 * (readBufferSize / 1024 + 1);
+            readBufferSize = readBufferSize <= 4096 ? 4096 : readBufferSize;
+
+            _sp.ReadBufferSize = readBufferSize;
+            var buffer = new byte[readBufferSize];
+
+            Observable.Interval(TimeSpan.FromMilliseconds(1))
+                .Where(_ => IsConnected)
+                .ObserveOn(new EventLoopScheduler())
+                .Subscribe(_ =>
                 {
                     try
                     {
-                        var bs = new byte[_sp.BytesToRead];
-                        _sp.Read(bs, 0, bs.Length);
-                        _received.OnNext(bs);
+                        if (_sp.BytesToRead == 0) return;
+
+                        var len = _sp.Read(buffer, 0, buffer.Length);
+
+                        if (len == 0) return;
+
+                        _received.OnNext(buffer.Take(len).ToArray());
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // ignored
+                        _log.OnNext(ex.ToString());
                     }
                 })
                 .DisposeWith(_controlDisposables);

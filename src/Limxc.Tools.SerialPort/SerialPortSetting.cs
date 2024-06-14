@@ -1,5 +1,4 @@
-﻿using System.IO.Ports;
-using System.Linq;
+﻿using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Limxc.Tools.SerialPort
@@ -16,14 +15,15 @@ namespace Limxc.Tools.SerialPort
 
         public int BaudRate { get; set; } = 9600;
 
-        public Parity Parity { get; set; } = Parity.None;
-
-        public int DataBits { get; set; } = 8;
-
-        public StopBits StopBits { get; set; } = StopBits.One;
+        /// <summary>
+        ///     ReadBufferSize >= DataPerSecond/100 (min:4096)
+        ///     1M/s => 1024*1024/100 ≈ 10240
+        ///     <see cref="SerialPortService.Start" />
+        /// </summary>
+        public virtual int ReadBufferSize { get; set; } = 4096;
 
         /// <summary>
-        ///     Try Connect Interval ms
+        ///     Try To Connect Interval ms
         /// </summary>
         public int AutoConnectInterval { get; set; } = 1000;
 

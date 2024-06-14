@@ -9,7 +9,7 @@ namespace Limxc.Tools.SerialPort
         IObservable<bool> ConnectionState { get; }
         IObservable<byte[]> Received { get; }
         IObservable<string> Log { get; }
-        void Start(SerialPortSetting setting, Action<object> config = null);
+        void Start(SerialPortSetting setting, Action<object> configSerialPort = null);
         void Stop();
 
         /// <summary>
