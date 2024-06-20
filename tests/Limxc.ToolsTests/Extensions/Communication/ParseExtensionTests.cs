@@ -68,6 +68,22 @@ public class ParseExtensionTests
                 new List<string[]> { new[] { "0a", "AA" }, new[] { "01", "BB", "BB", "0b", "AA" } }
             );
         ob.Messages.Clear();
+
+
+        observable.Buffer(2).ParsePackage("AA", "AA").Subscribe(ob);
+        ts.AdvanceTo(100);
+        ob.Messages.Where(p => p.Value.HasValue)
+            .Select(p => p.Value.Value)
+            .ToList()
+            .Should()
+            .BeEquivalentTo(
+                new List<string[]>
+                {
+                    new[] { "0a", "AA", "AA" },
+                    new[] { "01", "BB", "BB", "0b", "AA", "AA" }
+                }
+            );
+        ob.Messages.Clear();
     }
 
     [Fact]
@@ -166,6 +182,22 @@ public class ParseExtensionTests
                 }
             );
         ob.Messages.Clear();
+
+        observable.Buffer(2).ParsePackage(new[] { "AA", "AA" }, new[] { "BB", "BB" }).Subscribe(ob);
+        ts.AdvanceTo(100);
+        ob.Messages.Where(p => p.Value.HasValue)
+            .Select(p => p.Value.Value)
+            .ToList()
+            .Should()
+            .BeEquivalentTo(
+                new List<string[]>
+                {
+                    new[] { "AA", "AA", "01", "BB", "BB" },
+                    new[] { "AA", "AA", "02", "02", "BB", "BB" },
+                    new[] { "AA", "AA", "03", "BB", "BB" }
+                }
+            );
+        ob.Messages.Clear();
     }
 
     [Fact]
@@ -234,6 +266,23 @@ public class ParseExtensionTests
                     new[] { "AA", "03", "BB", "BB", "0d" }
                 }
             );
+
+        ob.Messages.Clear();
+        observable.Buffer(2).ParsePackage(new[] { "AA", "AA" }, 4).Subscribe(ob);
+        ts.AdvanceTo(100);
+        ob.Messages.Where(p => p.Value.HasValue)
+            .Select(p => p.Value.Value)
+            .ToList()
+            .Should()
+            .BeEquivalentTo(
+                new List<string[]>
+                {
+                    new[] { "AA", "AA", "01", "BB" },
+                    new[] { "AA", "AA", "02", "02" },
+                    new[] { "AA", "AA", "03", "BB" }
+                }
+            );
+        ob.Messages.Clear();
     }
 
     [Fact]

@@ -61,11 +61,9 @@ namespace Limxc.Tools.Emulator
             bool result;
             try
             {
-#pragma warning disable CA1416
                 var identity = WindowsIdentity.GetCurrent();
                 var principal = new WindowsPrincipal(identity);
                 result = principal.IsInRole(WindowsBuiltInRole.Administrator);
-#pragma warning restore CA1416
             }
             catch
             {
@@ -106,12 +104,12 @@ namespace Limxc.Tools.Emulator
                     var portName = Regex.Match(p, _regex_PortName).Value;
                     return (index, type, portName);
                 })
-                .GroupBy(p => p.Item1)
+                .GroupBy(p => p.index)
                 .Select(p =>
                 {
                     var idx = p.Key;
-                    return (idx, p.FirstOrDefault(x => x.Item2 == "A").portName.ToUpper(),
-                        p.FirstOrDefault(x => x.Item2 == "B").portName.ToUpper());
+                    return (idx, p.FirstOrDefault(x => x.type == "A").portName.ToUpper(),
+                        p.FirstOrDefault(x => x.type == "B").portName.ToUpper());
                 })
                 .ToArray();
         }

@@ -34,24 +34,22 @@ namespace Limxc.Tools.Sockets.Tcp
             Observable
                 .Interval(TimeSpan.FromSeconds(1))
                 .Select(_ => IsConnected)
-                .SubscribeOn(TaskPoolScheduler.Default)
                 .Subscribe(s => _connectionState.OnNext(s))
                 .DisposeWith(_initDisposables);
 
             ConnectionState = Observable.Defer(
-                () => _connectionState.StartWith(false).AsObservable().Publish().RefCount()
+                () => _connectionState.StartWith(false).AsObservable().ObserveOn(new EventLoopScheduler()).Publish()
+                    .RefCount()
             );
-            Received = Observable.Defer(() => _received.AsObservable().Publish().RefCount());
-            Log = Observable.Defer(() => _log.AsObservable().Publish().RefCount());
+            Received = Observable.Defer(() =>
+                _received.AsObservable().ObserveOn(new EventLoopScheduler()).Publish().RefCount());
+            Log = Observable.Defer(() => _log.AsObservable().ObserveOn(new EventLoopScheduler()).Publish().RefCount());
         }
 
         public bool IsConnected { get; private set; }
 
         public IObservable<bool> ConnectionState { get; }
 
-        /// <summary>
-        ///     .SubscribeOn(new EventLoopScheduler())
-        /// </summary>
         public IObservable<byte[]> Received { get; }
 
         public IObservable<string> Log { get; }
@@ -172,15 +170,6 @@ namespace Limxc.Tools.Sockets.Tcp
         {
             try
             {
-                //var now = DateTimeOffset.Now;
-                //var task = _received
-                //    .SkipUntil(now)
-                //    .TakeUntil(now.AddMilliseconds(timeoutMs))
-                //    .Select(d => d.ByteToHex())
-                //    .Scan((acc, r) => acc + r)
-                //    .Select(r => r.TryGetTemplateMatchResults(template, sepBegin, sepEnd).FirstOrDefault())
-                //    .ToTask();
-
                 var task = _received
                     .Select(p => p.ByteToHex())
                     .TryGetTemplateMatchResult(template, timeoutMs, sepBegin, sepEnd);

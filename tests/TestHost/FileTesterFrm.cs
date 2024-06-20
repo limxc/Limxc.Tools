@@ -29,7 +29,7 @@ public partial class FileTesterFrm : Form
             .Interval(TimeSpan.FromSeconds(1))
             .Take(6)
             .Delay(TimeSpan.FromSeconds(1))
-            .ObserveOn(SynchronizationContext.Current)
+            .ObserveOn(SynchronizationContext.Current!)
             .Subscribe(p =>
             {
                 _entity.Message = DateTime.Now.ToLongTimeString();

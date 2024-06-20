@@ -33,7 +33,7 @@ public class VirtualComTests
         var comStart = 250;
         var baudRate = 9600;
 
-        var dis = await vc.TestAsync(baudRate, comStart);
+        var (_, dis) = await vc.SimulateAsync(baudRate, comStart);
 
         var com1 = $"COM{comStart}";
         var com2 = $"COM{comStart + 3}";

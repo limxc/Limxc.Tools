@@ -20,7 +20,7 @@ namespace Limxc.Tools.SerialPort
         ///     1M/s => 1024*1024/100 ≈ 10240
         ///     <see cref="SerialPortService.Start" />
         /// </summary>
-        public virtual int ReadBufferSize { get; set; } = 4096;
+        public virtual int ReadBufferSize => 4096;
 
         /// <summary>
         ///     Try To Connect Interval ms

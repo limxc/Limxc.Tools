@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,172 @@ namespace Limxc.Tools.Extensions.Communication
 {
     public static class ParseExtension
     {
+        #region 分包处理(数组输入)
+
+        /// <summary>
+        ///     分隔符分包
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="separator"></param>
+        /// <returns></returns>
+        public static IObservable<T[]> ParsePackage<T>(this IObservable<IEnumerable<T>> source, params T[] separator)
+            where T : IEquatable<T>
+        {
+            return Observable.Create<T[]>(observer =>
+            {
+                var queue = new Queue<T>();
+                var disposable = source.Subscribe(bytes =>
+                {
+                    lock (((ICollection)queue).SyncRoot)
+                    {
+                        foreach (var b in bytes)
+                        {
+                            queue.Enqueue(b);
+
+                            if (queue.Count <= separator.Length)
+                                continue;
+
+                            if (queue.Skip(queue.Count - separator.Length).SequenceEqual(separator))
+                            {
+                                observer.OnNext(queue.ToArray());
+
+                                queue.Clear();
+                            }
+                        }
+                    }
+                });
+
+                return disposable;
+            });
+        }
+
+        /// <summary>
+        ///     包头包尾分包
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="bom"></param>
+        /// <param name="eom"></param>
+        /// <param name="useLastBom"></param>
+        /// <returns></returns>
+        public static IObservable<T[]> ParsePackage<T>(
+            this IObservable<IEnumerable<T>> source,
+            T[] bom,
+            T[] eom,
+            bool useLastBom = false
+        )
+        {
+            return Observable.Create<T[]>(observer =>
+            {
+                var queue = new Queue<T>();
+
+                var disposable = source.Subscribe(bytes =>
+                {
+                    lock (((ICollection)queue).SyncRoot)
+                    {
+                        foreach (var b in bytes)
+                        {
+                            queue.Enqueue(b);
+
+                            var queueCount = queue.Count;
+                            var bomLength = bom.Length;
+
+                            if (queueCount == bomLength && !queue.SequenceEqual(bom))
+                            {
+                                queue.Dequeue();
+                                continue;
+                            }
+
+                            if (useLastBom && queueCount > bomLength &&
+                                queue.Skip(queueCount - bomLength).SequenceEqual(bom))
+                            {
+                                for (var i = 0; i < queueCount - bomLength; i++)
+                                    queue.Dequeue();
+
+                                continue;
+                            }
+
+                            if (queueCount <= bom.Length + eom.Length)
+                                continue;
+
+                            if (queue.Take(bomLength).SequenceEqual(bom) &&
+                                queue.Skip(queueCount - eom.Length).SequenceEqual(eom))
+                            {
+                                observer.OnNext(queue.ToArray());
+
+                                queue.Clear();
+                            }
+                        }
+                    }
+                });
+
+                return disposable;
+            });
+        }
+
+        /// <summary>
+        ///     包头+固定长度(含包头)分包
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="bom"></param>
+        /// <param name="count"></param>
+        /// <param name="useLastBom"></param>
+        /// <returns></returns>
+        public static IObservable<T[]> ParsePackage<T>(
+            this IObservable<IEnumerable<T>> source,
+            T[] bom,
+            int count,
+            bool useLastBom = false
+        )
+            where T : IEquatable<T>
+        {
+            return Observable.Create<T[]>(observer =>
+            {
+                var queue = new Queue<T>();
+
+                var disposable = source.Subscribe(bytes =>
+                {
+                    lock (((ICollection)queue).SyncRoot)
+                    {
+                        foreach (var b in bytes)
+                        {
+                            queue.Enqueue(b);
+
+                            var bomLength = bom.Length;
+                            var queueCount = queue.Count;
+
+                            if (queueCount == bomLength && !queue.SequenceEqual(bom))
+                            {
+                                queue.Dequeue();
+                                continue;
+                            }
+
+                            if (useLastBom && queueCount > bomLength &&
+                                queue.Skip(queueCount - bomLength).SequenceEqual(bom))
+                            {
+                                for (var i = 0; i < queueCount - bomLength; i++)
+                                    queue.Dequeue();
+
+                                continue;
+                            }
+
+                            if (queueCount < count)
+                                continue;
+
+                            observer.OnNext(queue.ToArray());
+                            queue.Clear();
+                        }
+                    }
+                });
+
+                return disposable;
+            });
+        }
+
+        #endregion
+
         #region 分包处理
 
         /// <summary>

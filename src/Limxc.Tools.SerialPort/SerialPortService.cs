@@ -33,23 +33,21 @@ namespace Limxc.Tools.SerialPort
             Observable
                 .Interval(TimeSpan.FromSeconds(1))
                 .Select(_ => IsConnected)
-                .SubscribeOn(TaskPoolScheduler.Default)
                 .Subscribe(s => _connectionState.OnNext(s))
                 .DisposeWith(_initDisposables);
 
-            ConnectionState = Observable.Defer(
-                () => _connectionState.StartWith(false).AsObservable().Publish().RefCount()
-            );
-            Received = Observable.Defer(() => _received.AsObservable().Publish().RefCount());
-            Log = Observable.Defer(() => _log.AsObservable().Publish().RefCount());
+            ConnectionState =
+                Observable.Defer(() =>
+                    _connectionState.StartWith(false).AsObservable().ObserveOn(new EventLoopScheduler()).Publish()
+                        .RefCount());
+            Received = Observable.Defer(() =>
+                _received.AsObservable().ObserveOn(new EventLoopScheduler()).Publish().RefCount());
+            Log = Observable.Defer(() => _log.AsObservable().ObserveOn(new EventLoopScheduler()).Publish().RefCount());
         }
 
         public bool IsConnected => _sp?.IsOpen ?? false;
         public IObservable<bool> ConnectionState { get; }
 
-        /// <summary>
-        ///     .SubscribeOn(new EventLoopScheduler())
-        /// </summary>
         public IObservable<byte[]> Received { get; }
 
         public IObservable<string> Log { get; }
@@ -183,8 +181,8 @@ namespace Limxc.Tools.SerialPort
             var buffer = new byte[readBufferSize];
 
             Observable.Interval(TimeSpan.FromMilliseconds(1))
-                .Where(_ => IsConnected)
                 .ObserveOn(new EventLoopScheduler())
+                .Where(_ => IsConnected)
                 .Subscribe(_ =>
                 {
                     try
@@ -208,8 +206,8 @@ namespace Limxc.Tools.SerialPort
             {
                 Observable
                     .Interval(TimeSpan.FromMilliseconds(_setting.AutoConnectInterval))
+                    .ObserveOn(new EventLoopScheduler())
                     .Where(_ => !IsConnected)
-                    .SubscribeOn(TaskPoolScheduler.Default)
                     .Subscribe(s =>
                     {
                         try

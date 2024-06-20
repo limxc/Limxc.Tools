@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -30,7 +29,6 @@ namespace Limxc.Tools.Sockets.Tcp
             Observable
                 .Interval(TimeSpan.FromSeconds(1))
                 .Select(_ => IsConnected)
-                .SubscribeOn(TaskPoolScheduler.Default)
                 .Subscribe(s => _connectionState.OnNext(s))
                 .DisposeWith(_initDisposables);
 
