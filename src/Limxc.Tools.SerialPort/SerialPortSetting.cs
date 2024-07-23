@@ -16,6 +16,7 @@ namespace Limxc.Tools.SerialPort
         public int BaudRate { get; set; } = 9600;
 
         /// <summary>
+        ///     Default: 4096
         ///     ReadBufferSize >= DataPerSecond/100 (min:4096)
         ///     1M/s => 1024*1024/100 ≈ 10240
         ///     <see cref="SerialPortService.Start" />
