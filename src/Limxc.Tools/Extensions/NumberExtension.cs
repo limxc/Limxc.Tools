@@ -73,28 +73,88 @@ namespace Limxc.Tools.Extensions
             return value;
         }
 
-        public static int TryInt(this object value, int defaultValue)
+        public static int TryInt(this object value, int defaultValue = 0)
         {
             int.TryParse(value.ToString(), out var result);
             return result == 0 ? defaultValue : result;
         }
 
-        public static double TryDouble(this object value, double defaultValue)
+        public static double TryDouble(this object value, double defaultValue = 0)
         {
             double.TryParse(value.ToString(), out var result);
             return result == 0 ? defaultValue : result;
         }
 
-        public static float TryFloat(this object value, float defaultValue)
+        public static float TryFloat(this object value, float defaultValue = 0)
         {
             float.TryParse(value.ToString(), out var result);
             return result == 0 ? defaultValue : result;
         }
 
-        public static decimal TryDecimal(this object value, decimal defaultValue)
+        public static decimal TryDecimal(this object value, decimal defaultValue = 0)
         {
             decimal.TryParse(value.ToString(), out var result);
             return result == 0 ? defaultValue : result;
+        }
+
+        /// <summary>
+        ///     匹配列表中最接近的值
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static int Nearest(this IEnumerable<int> source, int value)
+        {
+            if (!source.Any())
+                throw new ArgumentException("source is empty.");
+            return source.Select(p => (Value: p, Distance: Math.Abs(p - value))).OrderBy(p => p.Distance)
+                .FirstOrDefault().Value;
+        }
+
+        /// <summary>
+        ///     匹配列表中最接近的值
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static double Nearest(this IEnumerable<double> source, double value)
+        {
+            if (!source.Any())
+                throw new ArgumentException("source is empty.");
+            return source.Select(p => (Value: p, Distance: Math.Abs(p - value))).OrderBy(p => p.Distance)
+                .FirstOrDefault().Value;
+        }
+
+        /// <summary>
+        ///     匹配列表中最接近的值
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static float Nearest(this IEnumerable<float> source, float value)
+        {
+            if (!source.Any())
+                throw new ArgumentException("source is empty.");
+            return source.Select(p => (Value: p, Distance: Math.Abs(p - value))).OrderBy(p => p.Distance)
+                .FirstOrDefault().Value;
+        }
+
+        /// <summary>
+        ///     匹配列表中最接近的值
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static decimal Nearest(this IEnumerable<decimal> source, decimal value)
+        {
+            if (!source.Any())
+                throw new ArgumentException("source is empty.");
+            return source.Select(p => (Value: p, Distance: Math.Abs(p - value))).OrderBy(p => p.Distance)
+                .FirstOrDefault().Value;
         }
 
         /// <summary>

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 // ReSharper disable PossibleMultipleEnumeration
@@ -23,8 +22,14 @@ namespace Limxc.Tools.Extensions
         {
             if (source == null)
                 return 0;
-            var values = source as int[] ?? source.ToArray();
-            return values.Length == 0 ? 0 : values.Average();
+
+            var mean = 0;
+            var m = 0;
+
+            foreach (var d in source)
+                mean += (d - mean) / ++m;
+
+            return mean;
         }
 
         /// <summary>
@@ -36,8 +41,14 @@ namespace Limxc.Tools.Extensions
         {
             if (source == null)
                 return 0;
-            var values = source as double[] ?? source.ToArray();
-            return values.Length == 0 ? 0 : values.Average();
+
+            double mean = 0;
+            ulong m = 0;
+
+            foreach (var d in source)
+                mean += (d - mean) / ++m;
+
+            return mean;
         }
 
         /// <summary>
@@ -49,8 +60,14 @@ namespace Limxc.Tools.Extensions
         {
             if (source == null)
                 return 0;
-            var values = source as float[] ?? source.ToArray();
-            return values.Length == 0 ? 0 : values.Average();
+
+            float mean = 0;
+            ulong m = 0;
+
+            foreach (var d in source)
+                mean += (d - mean) / ++m;
+
+            return mean;
         }
 
         #endregion
@@ -64,11 +81,12 @@ namespace Limxc.Tools.Extensions
         /// <returns></returns>
         public static double Median(this IEnumerable<int> source)
         {
-            var len = source?.Count() ?? 0;
-            if (len == 0)
+            if (source == null)
                 return 0;
 
-            Debug.Assert(source != null, nameof(source) + " != null");
+            var len = source.Count();
+            if (len == 0)
+                return 0;
 
             var o = source.OrderBy(p => p).ToList();
             if (o.Count() % 2 == 0)
@@ -83,11 +101,12 @@ namespace Limxc.Tools.Extensions
         /// <returns></returns>
         public static double Median(this IEnumerable<double> source)
         {
-            var len = source?.Count() ?? 0;
-            if (len == 0)
+            if (source == null)
                 return 0;
 
-            Debug.Assert(source != null, nameof(source) + " != null");
+            var len = source.Count();
+            if (len == 0)
+                return 0;
 
             var o = source.OrderBy(p => p).ToList();
             if (o.Count() % 2 == 0)
@@ -102,11 +121,12 @@ namespace Limxc.Tools.Extensions
         /// <returns></returns>
         public static float Median(this IEnumerable<float> source)
         {
-            var len = source?.Count() ?? 0;
-            if (len == 0)
+            if (source == null)
                 return 0;
 
-            Debug.Assert(source != null, nameof(source) + " != null");
+            var len = source.Count();
+            if (len == 0)
+                return 0;
 
             var o = source.OrderBy(p => p).ToList();
             if (o.Count() % 2 == 0)
@@ -125,11 +145,8 @@ namespace Limxc.Tools.Extensions
         /// <returns></returns>
         public static int[] Mode(this IEnumerable<int> source)
         {
-            var len = source?.Count() ?? 0;
-            if (len == 0)
+            if (source == null || !source.Any())
                 return Array.Empty<int>();
-
-            Debug.Assert(source != null, nameof(source) + " != null");
 
             var g = source.GroupBy(p => p).Select(p => (Count: p.Count(), Value: p.Key)).ToList();
 
@@ -143,11 +160,8 @@ namespace Limxc.Tools.Extensions
         /// <returns></returns>
         public static double[] Mode(this IEnumerable<double> source)
         {
-            var len = source?.Count() ?? 0;
-            if (len == 0)
+            if (source == null || !source.Any())
                 return Array.Empty<double>();
-
-            Debug.Assert(source != null, nameof(source) + " != null");
 
             var g = source.GroupBy(p => p).Select(p => (Count: p.Count(), Value: p.Key)).ToList();
 
@@ -161,11 +175,8 @@ namespace Limxc.Tools.Extensions
         /// <returns></returns>
         public static float[] Mode(this IEnumerable<float> source)
         {
-            var len = source?.Count() ?? 0;
-            if (len == 0)
+            if (source == null || !source.Any())
                 return Array.Empty<float>();
-
-            Debug.Assert(source != null, nameof(source) + " != null");
 
             var g = source.GroupBy(p => p).Select(p => (Count: p.Count(), Value: p.Key)).ToList();
 
@@ -185,6 +196,7 @@ namespace Limxc.Tools.Extensions
         {
             if (source == null)
                 return 0;
+
             var values = source as int[] ?? source.ToArray();
             var mean = values.Mean();
 
@@ -205,6 +217,7 @@ namespace Limxc.Tools.Extensions
         {
             if (source == null)
                 return 0;
+
             var values = source as double[] ?? source.ToArray();
             var mean = values.Mean();
 
@@ -225,6 +238,7 @@ namespace Limxc.Tools.Extensions
         {
             if (source == null)
                 return 0;
+
             var values = source as float[] ?? source.ToArray();
             var mean = values.Mean();
 
@@ -245,6 +259,7 @@ namespace Limxc.Tools.Extensions
         {
             if (source == null)
                 return 0;
+
             var values = source as int[] ?? source.ToArray();
             var mean = values.Mean();
 
@@ -265,6 +280,7 @@ namespace Limxc.Tools.Extensions
         {
             if (source == null)
                 return 0;
+
             var values = source as double[] ?? source.ToArray();
             var mean = values.Mean();
 
@@ -285,6 +301,7 @@ namespace Limxc.Tools.Extensions
         {
             if (source == null)
                 return 0;
+
             var values = source as float[] ?? source.ToArray();
             var mean = values.Mean();
 
