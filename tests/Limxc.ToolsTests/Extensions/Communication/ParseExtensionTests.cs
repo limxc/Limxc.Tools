@@ -498,4 +498,45 @@ public class ParseExtensionTests
 
         rst.Should().BeEquivalentTo(new List<string[]> { a1, a2, a3 });
     }
+
+
+    [Fact]
+    public async void TimingArrayParsePackageTest()
+    {
+        var ts = new TestScheduler();
+        var ob = ts.CreateObserver<string[]>();
+
+        var a1 = new[] { "a1", "a2", "a3" };
+        var a2 = new[] { "b1", "b2", "b3", "b4", "b5", "b6" };
+        var a3 = new[] { "c1", "c2", "c3" };
+
+        Observable
+            .Create<string[]>(async o =>
+            {
+                o.OnNext(a1);
+                await Task.Delay(300);
+
+                foreach (var b in a2)
+                {
+                    await Task.Delay(50);
+                    o.OnNext([b]);
+                }
+
+                await Task.Delay(300);
+
+                o.OnNext(a3);
+                await Task.Delay(300);
+
+                o.OnCompleted();
+                return Disposable.Empty;
+            })
+            .ParsePackage(TimeSpan.FromMilliseconds(100))
+            .Subscribe(ob);
+
+        await Task.Delay(1500);
+
+        var rst = ob.Messages.Where(p => p.Value.HasValue).Select(p => p.Value.Value).ToList();
+
+        rst.Should().BeEquivalentTo(new List<string[]> { a1, a2, a3 });
+    }
 }

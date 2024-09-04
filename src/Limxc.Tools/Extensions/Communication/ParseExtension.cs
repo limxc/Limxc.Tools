@@ -174,6 +174,33 @@ namespace Limxc.Tools.Extensions.Communication
             });
         }
 
+        /// <summary>
+        ///     一定时间后没有新数据则分包
+        ///     (精度不高,不适合时间间隔过小的情况)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="timeSpan"></param>
+        /// <returns></returns>
+        public static IObservable<T[]> ParsePackage<T>(this IObservable<T[]> source, TimeSpan timeSpan)
+        {
+            return source
+                .Buffer(source.Throttle(timeSpan))
+                .Where(p => p != null && p.Count > 0)
+                .Select(p =>
+                {
+                    var arr = new T[p.Select(v => v.Length).Sum()];
+                    var len = 0;
+                    foreach (var t in p)
+                    {
+                        t.CopyTo(arr, len);
+                        len += t.Length;
+                    }
+
+                    return arr;
+                });
+        }
+
         #endregion
 
         #region 分包处理
@@ -510,37 +537,15 @@ namespace Limxc.Tools.Extensions.Communication
         ///     (精度不高,不适合时间间隔过小的情况)
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="obs"></param>
-        /// <param name="time"></param>
+        /// <param name="source"></param>
+        /// <param name="timeSpan"></param>
         /// <returns></returns>
-        public static IObservable<T[]> ParsePackage<T>(this IObservable<T> obs, TimeSpan time)
+        public static IObservable<T[]> ParsePackage<T>(this IObservable<T> source, TimeSpan timeSpan)
         {
-            return Observable.Create<T[]>(o =>
-            {
-                var dis = new CompositeDisposable();
-                var rst = new ConcurrentQueue<T>();
-
-                obs.Throttle(time)
-                    .Subscribe(p =>
-                    {
-                        var arr = rst.ToArray();
-                        if (arr.Any())
-                        {
-                            o.OnNext(rst.ToArray());
-#if NETSTANDARD2_1
-                            rst.Clear();
-#else
-                            rst = new ConcurrentQueue<T>();
-#endif
-                        }
-                    })
-                    .DisposeWith(dis);
-
-                obs.Subscribe(p => { rst.Enqueue(p); })
-                    .DisposeWith(dis);
-
-                return dis;
-            });
+            return source
+                .Buffer(source.Throttle(timeSpan))
+                .Where(p => p != null && p.Count > 0)
+                .Select(p => p.ToArray());
         }
 
         #endregion 分包处理
