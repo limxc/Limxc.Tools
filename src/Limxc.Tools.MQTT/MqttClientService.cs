@@ -46,7 +46,6 @@ namespace Limxc.Tools.MQTT
 
         #endregion
 
-
         #region Start Stop
 
         /// <summary>

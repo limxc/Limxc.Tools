@@ -11,13 +11,8 @@ namespace Limxc.Tools.Extensions
     /// </summary>
     public static class NumberExtension
     {
-        /// <summary>
-        ///     数值转换溢出时为int.MinValue
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="min"></param>
-        /// <param name="max"></param>
-        /// <returns></returns>
+        #region Limit
+
         public static int Limit(this int value, int min, int max)
         {
             value = value < min ? min : value;
@@ -73,6 +68,10 @@ namespace Limxc.Tools.Extensions
             return value;
         }
 
+        #endregion
+
+        #region TryTo
+
         public static int TryInt(this object value, int defaultValue = 0)
         {
             int.TryParse(value.ToString(), out var result);
@@ -97,8 +96,12 @@ namespace Limxc.Tools.Extensions
             return result == 0 ? defaultValue : result;
         }
 
+        #endregion
+
+        #region Nearest & NearestBy
+
         /// <summary>
-        ///     匹配列表中最接近的值
+        ///     匹配数据源中最接近的值
         /// </summary>
         /// <param name="source"></param>
         /// <param name="value"></param>
@@ -113,7 +116,7 @@ namespace Limxc.Tools.Extensions
         }
 
         /// <summary>
-        ///     匹配列表中最接近的值
+        ///     匹配数据源中最接近的值
         /// </summary>
         /// <param name="source"></param>
         /// <param name="value"></param>
@@ -128,7 +131,7 @@ namespace Limxc.Tools.Extensions
         }
 
         /// <summary>
-        ///     匹配列表中最接近的值
+        ///     匹配数据源中最接近的值
         /// </summary>
         /// <param name="source"></param>
         /// <param name="value"></param>
@@ -143,7 +146,7 @@ namespace Limxc.Tools.Extensions
         }
 
         /// <summary>
-        ///     匹配列表中最接近的值
+        ///     匹配数据源中最接近的值
         /// </summary>
         /// <param name="source"></param>
         /// <param name="value"></param>
@@ -158,7 +161,71 @@ namespace Limxc.Tools.Extensions
         }
 
         /// <summary>
-        ///     向上/向下匹配列表中最接近的值
+        ///     根据<paramref name="keySelector"></paramref>匹配数据源中最接近的值
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="keySelector"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static TSource NearestBy<TSource>(this IEnumerable<TSource> source, Func<TSource, int> keySelector,
+            int value)
+        {
+            var r = source.Select(keySelector).Nearest(value);
+            return source.First(p => keySelector(p) == r);
+        }
+
+        /// <summary>
+        ///     根据<paramref name="keySelector"></paramref>匹配数据源中最接近的值
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="keySelector"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static TSource NearestBy<TSource>(this IEnumerable<TSource> source, Func<TSource, double> keySelector,
+            double value)
+        {
+            var r = source.Select(keySelector).Nearest(value);
+            return source.First(p => Math.Abs(keySelector(p) - r) < 1e-9);
+        }
+
+        /// <summary>
+        ///     根据<paramref name="keySelector"></paramref>匹配数据源中最接近的值
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="keySelector"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static TSource NearestBy<TSource>(this IEnumerable<TSource> source, Func<TSource, float> keySelector,
+            float value)
+        {
+            var r = source.Select(keySelector).Nearest(value);
+            return source.First(p => Math.Abs(keySelector(p) - r) < 1e-9);
+        }
+
+        /// <summary>
+        ///     根据<paramref name="keySelector"></paramref>匹配数据源中最接近的值
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="keySelector"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static TSource NearestBy<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal> keySelector,
+            decimal value)
+        {
+            var r = source.Select(keySelector).Nearest(value);
+            return source.First(p => keySelector(p) == r);
+        }
+
+        #endregion
+
+        #region Near & NearBy
+
+        /// <summary>
+        ///     向上/向下匹配数据源中最接近的值
         /// </summary>
         /// <param name="source"></param>
         /// <param name="value"></param>
@@ -187,7 +254,7 @@ namespace Limxc.Tools.Extensions
         }
 
         /// <summary>
-        ///     向上/向下匹配列表中最接近的值
+        ///     向上/向下匹配数据源中最接近的值
         /// </summary>
         /// <param name="source"></param>
         /// <param name="value"></param>
@@ -216,7 +283,7 @@ namespace Limxc.Tools.Extensions
         }
 
         /// <summary>
-        ///     向上/向下匹配列表中最接近的值
+        ///     向上/向下匹配数据源中最接近的值
         /// </summary>
         /// <param name="source"></param>
         /// <param name="value"></param>
@@ -245,7 +312,7 @@ namespace Limxc.Tools.Extensions
         }
 
         /// <summary>
-        ///     向上/向下匹配列表中最接近的值
+        ///     向上/向下匹配数据源中最接近的值
         /// </summary>
         /// <param name="source"></param>
         /// <param name="value"></param>
@@ -276,5 +343,71 @@ namespace Limxc.Tools.Extensions
                 return r;
             }
         }
+
+        /// <summary>
+        ///     根据<paramref name="keySelector"></paramref>向上/向下匹配数据源中最接近的值
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="keySelector"></param>
+        /// <param name="value"></param>
+        /// <param name="upward"></param>
+        /// <returns></returns>
+        public static TSource NearBy<TSource>(this IEnumerable<TSource> source, Func<TSource, int> keySelector,
+            int value, bool upward = true)
+        {
+            var r = source.Select(keySelector).Near(value, upward);
+            return source.First(p => keySelector(p) == r);
+        }
+
+        /// <summary>
+        ///     根据<paramref name="keySelector"></paramref>向上/向下匹配数据源中最接近的值
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="keySelector"></param>
+        /// <param name="value"></param>
+        /// <param name="upward"></param>
+        /// <returns></returns>
+        public static TSource NearBy<TSource>(this IEnumerable<TSource> source, Func<TSource, double> keySelector,
+            double value, bool upward = true)
+        {
+            var r = source.Select(keySelector).Near(value, upward);
+            return source.First(p => Math.Abs(keySelector(p) - r) < 1e-9);
+        }
+
+        /// <summary>
+        ///     根据<paramref name="keySelector"></paramref>向上/向下匹配数据源中最接近的值
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="keySelector"></param>
+        /// <param name="value"></param>
+        /// <param name="upward"></param>
+        /// <returns></returns>
+        public static TSource NearBy<TSource>(this IEnumerable<TSource> source, Func<TSource, float> keySelector,
+            float value, bool upward = true)
+        {
+            var r = source.Select(keySelector).Near(value, upward);
+            return source.First(p => Math.Abs(keySelector(p) - r) < 1e-9);
+        }
+
+        /// <summary>
+        ///     根据<paramref name="keySelector"></paramref>向上/向下匹配数据源中最接近的值
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="keySelector"></param>
+        /// <param name="value"></param>
+        /// <param name="upward"></param>
+        /// <returns></returns>
+        public static TSource NearBy<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal> keySelector,
+            decimal value, bool upward = true)
+        {
+            var r = source.Select(keySelector).Near(value, upward);
+            return source.First(p => keySelector(p) == r);
+        }
+
+        #endregion
     }
 }
