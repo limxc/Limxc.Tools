@@ -12,7 +12,7 @@ namespace Limxc.Tools.Extensions
     /// <remarks>
     ///     本程序使用数据来源于网上的万年历查询，并综合了一些其它数据
     /// </remarks>
-    public class ChineseCalendar
+    public class ChineseCalendarExtension
     {
         private readonly DateTime _datetime;
 
@@ -20,7 +20,7 @@ namespace Limxc.Tools.Extensions
         ///     用一个标准的公历日期来初使化
         /// </summary>
         /// <param name="dt"></param>
-        public ChineseCalendar(in DateTime dt)
+        public ChineseCalendarExtension(in DateTime dt)
         {
             if (dt.Year > MaxYear) throw new ChineseCalendarException("最大年份支持2100年");
 
@@ -77,7 +77,7 @@ namespace Limxc.Tools.Extensions
         /// <param name="cm">农历月</param>
         /// <param name="cd">农历日</param>
         /// <param name="leapMonthFlag">闰月标志</param>
-        public ChineseCalendar(int cy, int cm, int cd, bool leapMonthFlag)
+        public ChineseCalendarExtension(int cy, int cm, int cd, bool leapMonthFlag)
         {
             int i, temp;
             CheckChineseDateLimit(cy, cm, cd, leapMonthFlag);
@@ -192,30 +192,30 @@ namespace Limxc.Tools.Extensions
         ///     取下一天
         /// </summary>
         /// <returns></returns>
-        public ChineseCalendar NextDay => new ChineseCalendar(Date.AddDays(1));
+        public ChineseCalendarExtension NextDay => new ChineseCalendarExtension(Date.AddDays(1));
 
         /// <summary>
         ///     取前一天
         /// </summary>
         /// <returns></returns>
-        public ChineseCalendar PervDay => new ChineseCalendar(Date.AddDays(-1));
+        public ChineseCalendarExtension PervDay => new ChineseCalendarExtension(Date.AddDays(-1));
 
         /// <summary>
         ///     取下n天
         /// </summary>
         /// <returns></returns>
-        public ChineseCalendar AddDays(int days)
+        public ChineseCalendarExtension AddDays(int days)
         {
-            return new ChineseCalendar(Date.AddDays(days));
+            return new ChineseCalendarExtension(Date.AddDays(days));
         }
 
         /// <summary>
         ///     取下n天
         /// </summary>
         /// <returns></returns>
-        public ChineseCalendar AddWorkDays(int days)
+        public ChineseCalendarExtension AddWorkDays(int days)
         {
-            var cc = new ChineseCalendar(Date);
+            var cc = new ChineseCalendarExtension(Date);
             while (true)
             {
                 cc = cc.AddDays(1);
@@ -229,9 +229,9 @@ namespace Limxc.Tools.Extensions
         ///     加n月
         /// </summary>
         /// <returns></returns>
-        public ChineseCalendar AddMonths(int months)
+        public ChineseCalendarExtension AddMonths(int months)
         {
-            return new ChineseCalendar(Date.AddMonths(months));
+            return new ChineseCalendarExtension(Date.AddMonths(months));
         }
 
         private class ChineseCalendarException : Exception
@@ -909,7 +909,7 @@ namespace Limxc.Tools.Extensions
         /// <summary>
         ///     农历今天
         /// </summary>
-        public static ChineseCalendar Today => new ChineseCalendar(DateTime.Today);
+        public static ChineseCalendarExtension Today => new ChineseCalendarExtension(DateTime.Today);
 
         /// <summary>
         ///     是否闰月
@@ -1204,7 +1204,7 @@ namespace Limxc.Tools.Extensions
     /// <summary>
     ///     日期信息
     /// </summary>
-    public struct DateInfoStruct
+    public struct DateInfoStruct : IEquatable<DateInfoStruct>
     {
         /// <summary>
         ///     月
@@ -1239,6 +1239,29 @@ namespace Limxc.Tools.Extensions
             Day = day;
             Recess = recess;
             HolidayName = name;
+        }
+
+        public bool Equals(DateInfoStruct other)
+        {
+            return Month == other.Month && Day == other.Day && Recess == other.Recess &&
+                   HolidayName == other.HolidayName;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is DateInfoStruct other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = Month;
+                hashCode = (hashCode * 397) ^ Day;
+                hashCode = (hashCode * 397) ^ Recess;
+                hashCode = (hashCode * 397) ^ (HolidayName != null ? HolidayName.GetHashCode() : 0);
+                return hashCode;
+            }
         }
     }
 

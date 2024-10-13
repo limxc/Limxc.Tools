@@ -7,13 +7,44 @@ namespace Limxc.Tools.Extensions
 {
     public static class FileExtension
     {
-        public static void Save<T>(this T obj, string fullPath, Encoding encoding = null)
+        public static void Save<T>(this T obj, string fullPath)
+        {
+            var json = obj.ToJson();
+            Save(json, fullPath, false, false, Encoding.UTF8);
+        }
+
+        public static void Save<T>(this T obj, string fullPath, Encoding encoding)
         {
             var json = obj.ToJson();
             Save(json, fullPath, false, false, encoding);
         }
 
-        public static T Load<T>(this string fullPath, Encoding encoding = null)
+        public static T Load<T>(this string fullPath)
+        {
+            if (!File.Exists(fullPath))
+                return default;
+
+            var encoding = Encoding.Default;
+            try
+            {
+                encoding = fullPath.GetFileEncoding();
+            }
+            catch
+            {
+                // ignored
+            }
+
+            try
+            {
+                return Load(fullPath, encoding).JsonTo<T>();
+            }
+            catch
+            {
+                return default;
+            }
+        }
+
+        public static T Load<T>(this string fullPath, Encoding encoding)
         {
             if (!File.Exists(fullPath))
                 return default;
@@ -132,7 +163,36 @@ namespace Limxc.Tools.Extensions
                 }
         }
 
-        public static string Load(this string fullPath, Encoding encoding = null)
+        public static string Load(this string fullPath)
+        {
+            if (!File.Exists(fullPath))
+                return string.Empty;
+
+            var encoding = Encoding.Default;
+            try
+            {
+                encoding = fullPath.GetFileEncoding();
+            }
+            catch
+            {
+                // ignored
+            }
+
+            using (
+                var fs = new FileStream(
+                    fullPath,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.ReadWrite
+                )
+            )
+            using (var sr = new StreamReader(fs, encoding))
+            {
+                return sr.ReadToEnd();
+            }
+        }
+
+        public static string Load(this string fullPath, Encoding encoding)
         {
             if (!File.Exists(fullPath))
                 return string.Empty;
@@ -151,7 +211,40 @@ namespace Limxc.Tools.Extensions
             }
         }
 
-        public static async Task<string> LoadAsync(this string fullPath, Encoding encoding = null)
+        public static async Task<string> LoadAsync(this string fullPath)
+        {
+            if (!File.Exists(fullPath))
+                return string.Empty;
+
+            var encoding = Encoding.Default;
+            try
+            {
+                encoding = await fullPath.GetFileEncodingAsync();
+            }
+            catch
+            {
+                // ignored
+            }
+
+            using (
+                var fs = new FileStream(
+                    fullPath,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.ReadWrite,
+                    4096,
+                    FileOptions.Asynchronous
+                )
+            )
+            {
+                using (var sr = new StreamReader(fs, encoding))
+                {
+                    return await sr.ReadToEndAsync();
+                }
+            }
+        }
+
+        public static async Task<string> LoadAsync(this string fullPath, Encoding encoding)
         {
             if (!File.Exists(fullPath))
                 return string.Empty;
