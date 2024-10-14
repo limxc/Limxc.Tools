@@ -51,10 +51,6 @@ namespace Limxc.Tools.Extensions
             if (!File.Exists(filePath))
                 throw new FileNotFoundException(filePath);
 
-            //var fileInfo = new FileInfo(filePath);
-            //if (fileInfo.Length < 5)
-            //	return Encoding.Default;
-
             using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 if (stream.Length < 2)
@@ -98,10 +94,6 @@ namespace Limxc.Tools.Extensions
         {
             if (!File.Exists(filePath))
                 throw new FileNotFoundException(filePath);
-
-            //var fileInfo = new FileInfo(filePath);
-            //if (fileInfo.Length < 5)
-            //	return Encoding.Default;
 
             using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
