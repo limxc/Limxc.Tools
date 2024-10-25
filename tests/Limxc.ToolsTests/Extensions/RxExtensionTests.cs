@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -47,7 +48,7 @@ public class RxExtensionTests
             .Take(5)
             .Delay(TimeSpan.FromSeconds(0.05))
             .Bucket(TimeSpan.FromSeconds(0.3), TimeSpan.FromSeconds(0.1))
-            .Subscribe(p => tbList.Add(p));
+            .Subscribe(tbList.Add);
 
         await Task.Delay(1000);
 
@@ -77,5 +78,85 @@ public class RxExtensionTests
 
         foreach (var list in tbLists)
             list.OrderBy(p => p).ToList().SequenceEqual(list).Should().BeTrue();
+    }
+
+    [Fact]
+    public async void TimingBucketTest()
+    {
+        var ts = new TestScheduler();
+        var ob = ts.CreateObserver<string[]>();
+
+        var a1 = new[] { "a1", "a2", "a3" };
+        var a2 = new[] { "b1", "b2", "b3", "b4", "b5", "b6" };
+        var a3 = new[] { "c1", "c2", "c3" };
+
+        Observable
+            .Create<string>(async o =>
+            {
+                foreach (var b in a1)
+                    o.OnNext(b);
+                await Task.Delay(300);
+                foreach (var b in a2)
+                {
+                    await Task.Delay(50);
+                    o.OnNext(b);
+                }
+
+                await Task.Delay(300);
+                foreach (var b in a3)
+                    o.OnNext(b);
+                await Task.Delay(300);
+
+                o.OnCompleted();
+                return Disposable.Empty;
+            })
+            .Bucket(TimeSpan.FromMilliseconds(100))
+            .Subscribe(ob);
+
+        await Task.Delay(1500);
+
+        var rst = ob.Messages.Where(p => p.Value.HasValue).Select(p => p.Value.Value).ToList();
+
+        rst.Should().BeEquivalentTo(new List<string[]> { a1, a2, a3 });
+    }
+
+    [Fact]
+    public async void TimingArrayBucketTest()
+    {
+        var ts = new TestScheduler();
+        var ob = ts.CreateObserver<string[]>();
+
+        var a1 = new[] { "a1", "a2", "a3" };
+        var a2 = new[] { "b1", "b2", "b3", "b4", "b5", "b6" };
+        var a3 = new[] { "c1", "c2", "c3" };
+
+        Observable
+            .Create<string[]>(async o =>
+            {
+                o.OnNext(a1);
+                await Task.Delay(300);
+
+                foreach (var b in a2)
+                {
+                    await Task.Delay(50);
+                    o.OnNext([b]);
+                }
+
+                await Task.Delay(300);
+
+                o.OnNext(a3);
+                await Task.Delay(300);
+
+                o.OnCompleted();
+                return Disposable.Empty;
+            })
+            .Bucket(TimeSpan.FromMilliseconds(100))
+            .Subscribe(ob);
+
+        await Task.Delay(1500);
+
+        var rst = ob.Messages.Where(p => p.Value.HasValue).Select(p => p.Value.Value).ToList();
+
+        rst.Should().BeEquivalentTo(new List<string[]> { a1, a2, a3 });
     }
 }

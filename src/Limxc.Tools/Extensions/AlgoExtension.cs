@@ -6,41 +6,41 @@ namespace Limxc.Tools.Extensions
 {
     public static class AlgoExtension
     {
-        public static (T[][] Pack, T[] Remain) LocateToPack<T>(this int[] indexes, T[] datas)
+        public static (T[][] Pack, T[] Remain) LocateToPack<T>(this int[] indexes, T[] source)
         {
-            var list = new List<T[]>();
+            var pack = new List<T[]>();
 
             T[] remain = { };
-            if (indexes.Length == 0 || datas.Length == 0)
-                return (list.ToArray(), remain);
+            if (indexes.Length == 0 || source.Length == 0)
+                return (pack.ToArray(), remain);
 
-            if (indexes.Max() > datas.Length - 1 || indexes.Min() < 0)
+            if (indexes.Max() > source.Length - 1 || indexes.Min() < 0)
                 throw new ArgumentException(
-                    $"{nameof(LocateToPack)}: max index {indexes.Max()} > datas length {datas.Length}!"
+                    $"{nameof(LocateToPack)}: max index {indexes.Max()} > data length {source.Length}!"
                 );
 
             var ids = indexes.Distinct().ToList();
             ids.Sort();
 
             for (var i = 1; i < ids.Count; i++)
-                list.Add(datas.Skip(indexes[i - 1]).Take(indexes[i] - indexes[i - 1]).ToArray());
-            remain = datas.Skip(indexes.Last()).ToArray();
-            return (list.ToArray(), remain);
+                pack.Add(source.Skip(indexes[i - 1]).Take(indexes[i] - indexes[i - 1]).ToArray());
+            remain = source.Skip(indexes.Last()).ToArray();
+            return (pack.ToArray(), remain);
         }
 
-        public static (byte[][] Pack, byte[] Remain) LocateToPack(this byte[] datas, byte[] pattern)
+        public static (byte[][] Pack, byte[] Remain) LocateToPack(this byte[] source, byte[] pattern)
         {
-            var indexes = datas.Locate(pattern);
+            var indexes = source.Locate(pattern);
 
-            var list = new List<byte[]>();
+            var pack = new List<byte[]>();
             byte[] remain = { };
-            if (indexes.Length == 0 || datas.Length == 0)
-                return (list.ToArray(), remain);
+            if (indexes.Length == 0 || source.Length == 0)
+                return (pack.ToArray(), remain);
 
             for (var i = 1; i < indexes.Length; i++)
-                list.Add(datas.Skip(indexes[i - 1]).Take(indexes[i] - indexes[i - 1]).ToArray());
-            remain = datas.Skip(indexes.Last()).ToArray();
-            return (list.ToArray(), remain);
+                pack.Add(source.Skip(indexes[i - 1]).Take(indexes[i] - indexes[i - 1]).ToArray());
+            remain = source.Skip(indexes.Last()).ToArray();
+            return (pack.ToArray(), remain);
         }
 
         #region Locate
@@ -57,11 +57,11 @@ namespace Limxc.Tools.Extensions
             for (var i = 0; i < bytes.Length; i++)
                 if (pattern[0] == bytes[i] && bytes.Length - i >= pattern.Length)
                 {
-                    var ismatch = true;
-                    for (var j = 1; j < pattern.Length && ismatch; j++)
+                    var isMatch = true;
+                    for (var j = 1; j < pattern.Length && isMatch; j++)
                         if (bytes[i + j] != pattern[j])
-                            ismatch = false;
-                    if (ismatch)
+                            isMatch = false;
+                    if (isMatch)
                     {
                         matches.Add(i);
                         i += pattern.Length - 1;
@@ -110,11 +110,11 @@ namespace Limxc.Tools.Extensions
             for (var i = 0; i < bytes.Length; i++)
                 if (pattern[0].Equals(bytes[i]) && bytes.Length - i >= pattern.Length)
                 {
-                    var ismatch = true;
-                    for (var j = 1; j < pattern.Length && ismatch; j++)
+                    var isMatch = true;
+                    for (var j = 1; j < pattern.Length && isMatch; j++)
                         if (!bytes[i + j].Equals(pattern[j]))
-                            ismatch = false;
-                    if (ismatch)
+                            isMatch = false;
+                    if (isMatch)
                     {
                         matches.Add(i);
                         i += pattern.Length - 1;

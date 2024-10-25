@@ -36,18 +36,10 @@ namespace Limxc.Tools.Extensions
 
         #region Bucket
 
-        /// <summary>
-        ///     Scan+Buffer
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source"></param>
-        /// <param name="size"></param>
-        /// <param name="shift"></param>
-        /// <returns></returns>
         public static IObservable<T[]> Bucket<T>(
             this IObservable<T> source,
-            TimeSpan size,
-            TimeSpan shift
+            TimeSpan timeSpan,
+            TimeSpan timeShift
         )
         {
             return Observable.Create<T[]>(o =>
@@ -61,10 +53,10 @@ namespace Limxc.Tools.Extensions
                     .DisposeWith(dis);
 
                 Observable
-                    .Interval(shift)
+                    .Interval(timeShift)
                     .Subscribe(_ =>
                     {
-                        var startTime = DateTimeOffset.UtcNow.Subtract(size);
+                        var startTime = DateTimeOffset.UtcNow.Subtract(timeSpan);
 
                         var res = queue
                             .Where(p => p.Timestamp >= startTime)
@@ -82,13 +74,6 @@ namespace Limxc.Tools.Extensions
             });
         }
 
-        /// <summary>
-        ///     Scan+Buffer
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source"></param>
-        /// <param name="number"></param>
-        /// <returns></returns>
         public static IObservable<T[]> Bucket<T>(this IObservable<T> source, int number)
         {
             return Observable.Create<T[]>(o =>
@@ -107,6 +92,36 @@ namespace Limxc.Tools.Extensions
                     o.OnCompleted
                 );
             });
+        }
+
+        /// <summary>
+        ///     Throttle分组
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source">hot observable</param>
+        /// <param name="timeSpan"></param>
+        /// <returns></returns>
+        public static IObservable<T[]> Bucket<T>(this IObservable<T[]> source, TimeSpan timeSpan)
+        {
+            return source
+                .Buffer(source.Throttle(timeSpan))
+                .Where(p => p?.Count > 0)
+                .Select(p => p.SelectMany(d => d).ToArray());
+        }
+
+        /// <summary>
+        ///     Throttle分组
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source">hot observable</param>
+        /// <param name="timeSpan"></param>
+        /// <returns></returns>
+        public static IObservable<T[]> Bucket<T>(this IObservable<T> source, TimeSpan timeSpan)
+        {
+            return source
+                .Buffer(source.Throttle(timeSpan))
+                .Where(p => p?.Count > 0)
+                .Select(p => p.ToArray());
         }
 
         #endregion Bucket

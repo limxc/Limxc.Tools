@@ -141,33 +141,33 @@ public class AlgoExtensionTests
     [Fact]
     public void LocateToPackGenericTest()
     {
-        var datas = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+        var data = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
         new int[] { }
-            .LocateToPack(datas)
+            .LocateToPack(data)
             .Should()
             .BeEquivalentTo((new byte[][] { }, new byte[] { }));
 
-        Action act = () => new[] { 11 }.LocateToPack(datas);
+        Action act = () => new[] { 11 }.LocateToPack(data);
         act.Should().Throw<ArgumentException>();
-        Assert.Throws<ArgumentException>(() => { new[] { -1 }.LocateToPack(datas); });
+        Assert.Throws<ArgumentException>(() => { new[] { -1 }.LocateToPack(data); });
 
-        var r1 = new[] { 9 }.LocateToPack(datas);
+        var r1 = new[] { 9 }.LocateToPack(data);
         r1.Pack.Should().BeEquivalentTo(new byte[] { });
         r1.Remain.Should().BeEquivalentTo(new byte[] { 9 });
 
         new[] { 0 }
-            .LocateToPack(datas)
+            .LocateToPack(data)
             .Should()
             .BeEquivalentTo((new byte[][] { }, new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }));
 
         new[] { 0, 9 }
-            .LocateToPack(datas)
+            .LocateToPack(data)
             .Should()
             .BeEquivalentTo((new[] { new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 } }, new byte[] { 9 }));
 
         new[] { 1, 3, 6 }
-            .LocateToPack(datas)
+            .LocateToPack(data)
             .Should()
             .BeEquivalentTo(
                 (new[] { new byte[] { 1, 2 }, new byte[] { 3, 4, 5 } }, new byte[] { 6, 7, 8, 9 })
