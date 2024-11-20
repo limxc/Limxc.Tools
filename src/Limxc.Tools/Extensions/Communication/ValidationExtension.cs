@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Limxc.Tools.Integrations.CrcCSharp;
 
@@ -34,20 +33,17 @@ namespace Limxc.Tools.Extensions.Communication
         /// </summary>
         /// <param name="bytes"></param>
         /// <returns></returns>
-        public static Dictionary<CrcAlgorithms, byte[]> CrcAll(this byte[] bytes)
+        public static IEnumerable<(CrcAlgorithms, byte[])> CrcAll(this byte[] bytes)
         {
-            var dict = new Dictionary<CrcAlgorithms, byte[]>();
-            foreach (CrcAlgorithms ca in Enum.GetValues(typeof(CrcAlgorithms)))
+            foreach (var parameter in CrcStdParams.StandartParameters)
             {
-                if (ca == CrcAlgorithms.Undefined)
+                if (parameter.Key == CrcAlgorithms.Undefined)
                     continue;
 
-                var crc = new Crc(CrcStdParams.StandartParameters[ca]);
-                var rst = crc.ComputeHash(bytes);
-                dict.Add(ca, rst);
+                var crc = new Crc(parameter.Value);
+                var hash = crc.ComputeHash(bytes);
+                yield return (parameter.Key, hash);
             }
-
-            return dict;
         }
 
         /// <summary>

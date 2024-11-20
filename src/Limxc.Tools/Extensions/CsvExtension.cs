@@ -10,6 +10,16 @@ namespace Limxc.Tools.Extensions
 {
     public static class CsvExtension
     {
+        /// <summary>
+        ///     最大8列
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fileString"></param>
+        /// <param name="hasHeader"></param>
+        /// <param name="sep"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        /// <exception cref="InvalidDataException"></exception>
         public static T[] CsvTo<T>(this string fileString, bool hasHeader = true, char sep = ',')
         {
             if (!IsTuple(typeof(T)))
@@ -34,9 +44,9 @@ namespace Limxc.Tools.Extensions
                 {
                     if (string.IsNullOrWhiteSpace(line))
                         continue;
-                    var row = line.Split(sep);
+                    var col = line.Split(sep);
                     var pars = new object[typeCount];
-                    for (var i = 0; i < typeCount; i++) pars[i] = Convert.ChangeType(row[i], fieldTypes[i]);
+                    for (var i = 0; i < typeCount; i++) pars[i] = Convert.ChangeType(col[i], fieldTypes[i]);
                     rst.Add((T)Activator.CreateInstance(typeof(T), pars));
                 }
                 catch (Exception ex)
@@ -47,6 +57,15 @@ namespace Limxc.Tools.Extensions
             return rst.ToArray();
         }
 
+        /// <summary>
+        ///     最大8列
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="header"></param>
+        /// <param name="sep"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public static string ToCsv<T>(this T[] source, string[] header = null, string sep = ",")
         {
             if (!IsTuple(typeof(T)))
