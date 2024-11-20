@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Net;
+using System.Net.Sockets;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -61,11 +63,7 @@ namespace Limxc.Tools.MQTT
                 .WithClientOptions(
                     new MqttClientOptionsBuilder()
                         .WithClientId(clientId)
-                        .WithTcpServer(opt =>
-                        {
-                            opt.Server = setting.MqttServerIp;
-                            opt.Port = setting.MqttServerPort;
-                        })
+                        .WithEndPoint(new DnsEndPoint(setting.MqttServerIp, setting.MqttServerPort))
                         .WithCleanSession()
                         .WithProtocolVersion(MqttProtocolVersion.V500)
                         .WithTimeout(TimeSpan.FromSeconds(10))

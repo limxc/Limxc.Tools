@@ -12,7 +12,7 @@ using Xunit;
 namespace Limxc.ToolsTests.Extensions.Communication;
 
 public class ParseExtensionTests
-{ 
+{
     [Fact]
     public void ParsePackageSeparatorTest()
     {
@@ -37,7 +37,7 @@ public class ParseExtensionTests
         {
             new byte[] { 3, 4, 5 },
             new byte[] { 3, 4, 5, 6, 7, 8, 9 },
-            new byte[] { 3, 4, 5, 6, 7 },
+            new byte[] { 3, 4, 5, 6, 7 }
         };
 
         List<byte[]> rst = null;

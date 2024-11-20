@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="System.IO.Ports" Version="6.*" />
+        <PackageReference Include="System.IO.Ports" Version="9.*" />
     </ItemGroup>
 
     <ItemGroup>
