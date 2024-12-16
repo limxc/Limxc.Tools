@@ -28,11 +28,12 @@ namespace Limxc.Tools.Extensions
         }
 
         /// <summary>
-        ///     重采样
+        ///     对实体类型<typeparamref name="TSource" />中的float,double,decimal属性, 根据<paramref name="xKeySelector" />选择的int属性, 使用
+        ///     <paramref name="interpolation" />进行重采样
         /// </summary>
         /// <param name="source"></param>
-        /// <param name="xKeySelector">x</param>
-        /// <param name="interpolation">插值方法</param>
+        /// <param name="xKeySelector">x, int类型属性</param>
+        /// <param name="interpolation">插值方法, 如<see cref="LinearResample" /></param>
         /// <returns></returns>
         public static TSource[] Resample<TSource, TKey>(this TSource[] source,
             Expression<Func<TSource, TKey>> xKeySelector, Func<(int X, double Y)[], (int X, double Y)[]> interpolation)
@@ -41,9 +42,11 @@ namespace Limxc.Tools.Extensions
 
             var member = ((MemberExpression)xKeySelector.Body).Member;
             if (member.MemberType != MemberTypes.Property)
-                throw new InvalidExpressionException($"{nameof(xKeySelector)} must be Property.");
+                throw new InvalidExpressionException($"{nameof(xKeySelector)} must be Int32 Property.");
 
             var propertyInfoX = (PropertyInfo)member;
+            if (propertyInfoX.PropertyType != typeof(int))
+                throw new InvalidExpressionException($"{nameof(xKeySelector)} must be Int32 Property.");
 
             var propertyInfos = typeof(TSource)
                 .GetProperties(BindingFlags.Instance | BindingFlags.Public)
@@ -57,6 +60,8 @@ namespace Limxc.Tools.Extensions
 
             var param = Expression.Parameter(type, "p");
             var xExp = Expression.Property(param, propertyInfoX.Name);
+
+            var newTSourceFunc = Expression.Lambda<Func<TSource>>(Expression.New(type)).Compile();
 
             var rst = new List<TSource>();
             foreach (var propertyInfoY in propertyInfos)
@@ -84,7 +89,7 @@ namespace Limxc.Tools.Extensions
 
                     if (!rst.Exists(pre))
                     {
-                        var r = (TSource)Activator.CreateInstance(type);
+                        var r = newTSourceFunc.Invoke();
                         propertyInfoX.SetValue(r, data[i].X);
                         propertyInfoY.SetValue(r, data[i].Y);
                         rst.Add(r);
