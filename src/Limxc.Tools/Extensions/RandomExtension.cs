@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Limxc.Tools.Extensions
@@ -24,7 +23,7 @@ namespace Limxc.Tools.Extensions
         }
 
         /// <summary>
-        ///     概率密度
+        ///     概率密度, Probability Density
         /// </summary>
         /// <param name="source"></param>
         /// <param name="change"></param>
@@ -34,25 +33,23 @@ namespace Limxc.Tools.Extensions
         public static (int Number, int Count)[] ProbabilityDensity(this double[] source, Func<double, int> change,
             int min = int.MinValue, int max = int.MaxValue)
         {
-            List<(int Number, int Count)> rst = source
+            var dict = source
                 .Select(change)
                 .GroupBy(p => p)
-                .Select(p => (p.Key, p.Count()))
-                .ToList();
+                .ToDictionary(p => p.Key, p => p.Count());
 
-            var rMin = rst.Min(p => p.Number);
+            var rMin = dict.Select(p => p.Key).Min();
             if (min != int.MinValue)
                 rMin = Math.Min(rMin, min);
 
-            var rMax = rst.Max(p => p.Number);
+            var rMax = dict.Select(p => p.Key).Max();
             if (max != int.MaxValue)
                 rMax = Math.Max(rMax, max);
 
-            for (; rMin <= rMax; rMin++)
-                if (!rst.Exists(p => p.Number == rMin))
-                    rst.Add((rMin, 0));
+            var arr = Enumerable.Range(rMin, rMax - rMin + 1).Select(p => (p, 0)).ToArray();
+            foreach (var k in dict) arr[k.Key - rMin] = (k.Key, k.Value);
 
-            return rst.OrderBy(p => p.Number).ToArray();
+            return arr;
         }
 
         #region From "https://github.com/conradshyu/rng"
@@ -106,38 +103,26 @@ namespace Limxc.Tools.Extensions
         }
 
         /// <summary>
-        ///     韦伯分布, lambda 1 and k 1
+        ///     伯努利分布, p of 0.5
         /// </summary>
         /// <param name="randomSource"></param>
-        /// <param name="l"></param>
-        /// <param name="k"></param>
+        /// <param name="p"></param>
         /// <returns></returns>
-        public static double Weibull(this Random randomSource, double l = 1.0, double k = 1.0)
+        public static bool Bernoulli(this Random randomSource, double p = 0.5)
         {
-            return l * Math.Pow(-1.0 * Math.Log(randomSource.Uniform()), 1.0 / k);
+            return !(randomSource.Uniform() > p);
         }
 
         /// <summary>
-        ///     瑞利分布, sigma 0.5
+        ///     贝塔分布, alpha 2 and beta 5, z = x / (x + y), z ~ beta(a, b), x ~ gamma(a, 1), y ~ gamma(b, 1)
         /// </summary>
         /// <param name="randomSource"></param>
-        /// <param name="s"></param>
-        /// <returns></returns>
-        public static double Rayleigh(this Random randomSource, double s = 0.5)
-        {
-            return Math.Sqrt(-2.0 * Math.Pow(s, 2.0) * Math.Log(randomSource.Uniform()));
-        }
-
-        /// <summary>
-        ///     帕累托分布, scale 2 and shape 3
-        /// </summary>
-        /// <param name="randomSource"></param>
-        /// <param name="x"></param>
         /// <param name="a"></param>
+        /// <param name="b"></param>
         /// <returns></returns>
-        public static double Pareto(this Random randomSource, double x = 2.0, double a = 3.0)
+        public static double Beta(this Random randomSource, double a = 2.0, double b = 5.0)
         {
-            return x * Math.Pow(randomSource.Uniform(), -1.0 / a);
+            return 1.0 / (1.0 + randomSource.Gamma(b, 1.0) / randomSource.Gamma(a, 1.0));
         }
 
         /// <summary>
@@ -151,6 +136,23 @@ namespace Limxc.Tools.Extensions
         {
             return r * Math.Tan(Math.PI * randomSource.Uniform()) + x;
         }
+
+
+        /// <summary>
+        ///     X平方分布, 默认自由度为10
+        /// </summary>
+        /// <param name="randomSource"></param>
+        /// <param name="k"></param>
+        /// <returns></returns>
+        public static double Chi(this Random randomSource, int k = 10)
+        {
+            var c = 0.0;
+
+            for (var i = 0; i < k; ++i) c += Math.Pow(randomSource.Normal(), 2.0);
+
+            return c;
+        }
+
 
         /// <summary>
         ///     埃尔朗分布, shape 2 and rate 0.5
@@ -166,6 +168,19 @@ namespace Limxc.Tools.Extensions
             for (var i = 0; i < a; ++i) g += randomSource.Exponential() / b;
 
             return g;
+        }
+
+
+        /// <summary>
+        ///     F分布, 默认自由度为4和6
+        /// </summary>
+        /// <param name="randomSource"></param>
+        /// <param name="d1"></param>
+        /// <param name="d2"></param>
+        /// <returns></returns>
+        public static double F(this Random randomSource, int d1 = 4, int d2 = 6)
+        {
+            return randomSource.Chi(d1) * d2 / (randomSource.Chi(d2) * d1);
         }
 
         /// <summary>
@@ -195,6 +210,44 @@ namespace Limxc.Tools.Extensions
             return d * v / b;
         }
 
+
+        /// <summary>
+        ///     帕累托分布, scale 2 and shape 3
+        /// </summary>
+        /// <param name="randomSource"></param>
+        /// <param name="x"></param>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        public static double Pareto(this Random randomSource, double x = 2.0, double a = 3.0)
+        {
+            return x * Math.Pow(randomSource.Uniform(), -1.0 / a);
+        }
+
+        /// <summary>
+        ///     瑞利分布, sigma 0.5
+        /// </summary>
+        /// <param name="randomSource"></param>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        public static double Rayleigh(this Random randomSource, double s = 0.5)
+        {
+            return Math.Sqrt(-2.0 * Math.Pow(s, 2.0) * Math.Log(randomSource.Uniform()));
+        }
+
+
+        /// <summary>
+        ///     韦伯分布, lambda 1 and k 1
+        /// </summary>
+        /// <param name="randomSource"></param>
+        /// <param name="l"></param>
+        /// <param name="k"></param>
+        /// <returns></returns>
+        public static double Weibull(this Random randomSource, double l = 1.0, double k = 1.0)
+        {
+            return l * Math.Pow(-1.0 * Math.Log(randomSource.Uniform()), 1.0 / k);
+        }
+
+
         /// <summary>
         ///     T分布(学生分布), 默认自由度为10, T = Z / sqrt( X / n )
         /// </summary>
@@ -204,56 +257,6 @@ namespace Limxc.Tools.Extensions
         public static double T(this Random randomSource, double n = 10.0)
         {
             return randomSource.Normal() / Math.Sqrt(randomSource.Chi((int)n) / n);
-        }
-
-        /// <summary>
-        ///     F分布, 默认自由度为4和6
-        /// </summary>
-        /// <param name="randomSource"></param>
-        /// <param name="d1"></param>
-        /// <param name="d2"></param>
-        /// <returns></returns>
-        public static double F(this Random randomSource, int d1 = 4, int d2 = 6)
-        {
-            return randomSource.Chi(d1) * d2 / (randomSource.Chi(d2) * d1);
-        }
-
-        /// <summary>
-        ///     贝塔分布, alpha 2 and beta 5, z = x / (x + y), z ~ beta(a, b), x ~ gamma(a, 1), y ~ gamma(b, 1)
-        /// </summary>
-        /// <param name="randomSource"></param>
-        /// <param name="a"></param>
-        /// <param name="b"></param>
-        /// <returns></returns>
-        public static double Beta(this Random randomSource, double a = 2.0, double b = 5.0)
-        {
-            return 1.0 / (1.0 + randomSource.Gamma(b, 1.0) / randomSource.Gamma(a, 1.0));
-        }
-
-        /// <summary>
-        ///     X平方分布, 默认自由度为10
-        /// </summary>
-        /// <param name="randomSource"></param>
-        /// <param name="k"></param>
-        /// <returns></returns>
-        public static double Chi(this Random randomSource, int k = 10)
-        {
-            var c = 0.0;
-
-            for (var i = 0; i < k; ++i) c += Math.Pow(randomSource.Normal(), 2.0);
-
-            return c;
-        }
-
-        /// <summary>
-        ///     伯努利分布, p of 0.5
-        /// </summary>
-        /// <param name="randomSource"></param>
-        /// <param name="p"></param>
-        /// <returns></returns>
-        public static bool Bernoulli(this Random randomSource, double p = 0.5)
-        {
-            return !(randomSource.Uniform() > p);
         }
 
         #endregion

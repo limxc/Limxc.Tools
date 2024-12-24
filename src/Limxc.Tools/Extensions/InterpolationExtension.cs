@@ -6,6 +6,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
+// ReSharper disable IdentifierTypo
+// ReSharper disable CommentTypo 
+
 namespace Limxc.Tools.Extensions
 {
     public static class InterpolationExtension
@@ -306,6 +309,79 @@ namespace Limxc.Tools.Extensions
             interpolatedPoints.Add(source[source.Length - 1 - 1]);
 
             return interpolatedPoints.ToArray();
+        }
+
+        /// <summary>
+        ///     Makima 插值(自动排序)
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static (int X, double Y)[] MakimaResample(this (int X, double Y)[] source)
+        {
+            if (source == null || source.Length < 2)
+                throw new ArgumentException("需要至少2个数据点");
+
+            // 提取X和Y坐标
+            var x = source.Select(p => (double)p.X).ToArray();
+            var y = source.Select(p => p.Y).ToArray();
+
+            // 计算导数
+            var n = x.Length;
+            var derivatives = new double[n];
+
+            // 计算内部点导数
+            for (var i = 1; i < n - 1; i++)
+            {
+                var dx1 = x[i] - x[i - 1];
+                var dx2 = x[i + 1] - x[i];
+                var dy1 = (y[i] - y[i - 1]) / dx1;
+                var dy2 = (y[i + 1] - y[i]) / dx2;
+
+                if (Math.Sign(dy1) * Math.Sign(dy2) > 0)
+                {
+                    var w1 = Math.Abs(dy2);
+                    var w2 = Math.Abs(dy1);
+                    derivatives[i] = (w1 * dy1 + w2 * dy2) / (w1 + w2);
+                }
+                else
+                {
+                    derivatives[i] = 0;
+                }
+            }
+
+            // 边界点导数
+            derivatives[0] = (y[1] - y[0]) / (x[1] - x[0]);
+            derivatives[n - 1] = (y[n - 1] - y[n - 2]) / (x[n - 1] - x[n - 2]);
+
+            // 生成插值点
+            var result = new List<(int X, double Y)>();
+            for (var i = 0; i < source.Length - 1; i++)
+            {
+                var start = source[i].X;
+                var end = source[i + 1].X;
+
+                // 对每个整数X生成插值
+                for (var xi = start; xi < end; xi++)
+                {
+                    // 插值计算
+                    var h = x[i + 1] - x[i];
+                    var t = (xi - x[i]) / h;
+                    var t2 = t * t;
+                    var t3 = t2 * t;
+
+                    var yi = y[i] * (1 - 3 * t2 + 2 * t3) +
+                             y[i + 1] * (3 * t2 - 2 * t3) +
+                             h * (derivatives[i] * (t - 2 * t2 + t3) +
+                                  derivatives[i + 1] * (-t2 + t3));
+
+                    result.Add((xi, yi));
+                }
+            }
+
+            // 添加最后边界
+            result.Add(source.Last());
+
+            return result.ToArray();
         }
     }
 }
