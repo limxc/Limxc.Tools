@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Limxc.Tools.Extensions
 {
@@ -50,6 +52,39 @@ namespace Limxc.Tools.Extensions
             foreach (var k in dict) arr[k.Key - rMin] = (k.Key, k.Value);
 
             return arr;
+        }
+
+        /// <summary>
+        ///     相同的key随机值一致, 并整体保证符合正态分布
+        /// </summary>
+        /// <param name="key">seed</param>
+        /// <param name="center">中心值</param>
+        /// <param name="scope">随机范围(正/负)</param>
+        /// <param name="cutoff">在正态分布中截至上下限,也会改变分布密度</param>
+        /// <param name="s">改变分布密度</param>
+        /// <returns></returns>
+        public static double NormalByKey(this string key, double center, double scope, int cutoff = 3, double s = 1.25)
+        {
+            int seed;
+            // 使用稳定的哈希值作为种子
+            using (var sha256 = SHA256.Create())
+            {
+                var hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(key));
+                seed = BitConverter.ToInt32(hashBytes, 0);
+            }
+
+            var random = new Random(seed);
+
+            var r = random.Normal(0, s);
+
+            //超范围使用均匀分布
+            if (r < -cutoff || r > cutoff)
+            {
+                var n = Math.Abs(seed) % 1000; //0-1000
+                return center - scope + (int)(2 * scope * n / 1000d);
+            }
+
+            return r * scope / cutoff + center;
         }
 
         #region From "https://github.com/conradshyu/rng"
