@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Limxc.Tools.Extensions
 {
@@ -50,6 +52,37 @@ namespace Limxc.Tools.Extensions
             foreach (var k in dict) arr[k.Key - rMin] = (k.Key, k.Value);
 
             return arr;
+        }
+
+        /// <summary>
+        ///     相同的key随机值一致
+        /// </summary>
+        /// <param name="key">seed</param>
+        /// <param name="min">最小值</param>
+        /// <param name="max">最大值</param>
+        /// <param name="distribution">分布方法</param>
+        /// <returns></returns>
+        public static double RandomByKey(this string key, double min, double max, Func<Random, double> distribution)
+        {
+            int seed;
+            // 使用稳定的哈希值作为种子
+            using (var sha256 = SHA256.Create())
+            {
+                var hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(key));
+                seed = BitConverter.ToInt32(hashBytes, 0);
+            }
+
+            var random = new Random(seed);
+
+            var r = distribution(random);
+
+            //超范围使用均匀分布
+            if (r < min || r > max)
+                //var n = Math.Abs(seed) % 1000; //0-1000
+                //return min + ((max - min) * n / 1000d);
+                return random.Uniform(min, max);
+
+            return r;
         }
 
         #region From "https://github.com/conradshyu/rng"
