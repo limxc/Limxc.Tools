@@ -18,16 +18,7 @@ namespace Limxc.Tools.Extensions
         /// </summary>
         public static (int X, double Y)[] SortX(this (int X, double Y)[] source)
         {
-            var length = source.Length;
-            for (var i = 0; i < length - 1; i++)
-            for (var j = 0; j < length - i - 1; j++)
-                if (source[j].X > source[j + 1].X)
-                {
-                    (source[j + 1].X, source[j].X) = (source[j].X, source[j + 1].X);
-                    (source[j + 1].Y, source[j].Y) = (source[j].Y, source[j + 1].Y);
-                }
-
-            return source;
+            return source.OrderBy(p => p.X).ToArray();
         }
 
         /// <summary>
