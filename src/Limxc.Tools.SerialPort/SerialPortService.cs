@@ -36,13 +36,21 @@ namespace Limxc.Tools.SerialPort
                 .Subscribe(s => _connectionState.OnNext(s))
                 .DisposeWith(_initDisposables);
 
+            var connectionStateScheduler = new EventLoopScheduler();
+            connectionStateScheduler.DisposeWith(_initDisposables);
             ConnectionState =
                 Observable.Defer(() =>
-                    _connectionState.StartWith(false).AsObservable().ObserveOn(new EventLoopScheduler()).Publish()
+                    _connectionState.StartWith(false).AsObservable().ObserveOn(connectionStateScheduler).Publish()
                         .RefCount());
+
+            var receivedScheduler = new EventLoopScheduler();
+            receivedScheduler.DisposeWith(_initDisposables);
             Received = Observable.Defer(() =>
-                _received.AsObservable().ObserveOn(new EventLoopScheduler()).Publish().RefCount());
-            Log = Observable.Defer(() => _log.AsObservable().ObserveOn(new EventLoopScheduler()).Publish().RefCount());
+                _received.AsObservable().ObserveOn(receivedScheduler).Publish().RefCount());
+
+            var logScheduler = new EventLoopScheduler();
+            logScheduler.DisposeWith(_initDisposables);
+            Log = Observable.Defer(() => _log.AsObservable().ObserveOn(logScheduler).Publish().RefCount());
         }
 
         public bool IsConnected => _sp?.IsOpen ?? false;
@@ -180,8 +188,10 @@ namespace Limxc.Tools.SerialPort
             _sp.ReadBufferSize = readBufferSize;
             var buffer = new byte[readBufferSize];
 
+            var readScheduler = new EventLoopScheduler();
+            readScheduler.DisposeWith(_controlDisposables); 
             Observable.Interval(TimeSpan.FromMilliseconds(1))
-                .ObserveOn(new EventLoopScheduler())
+                .ObserveOn(readScheduler)
                 .Where(_ => IsConnected)
                 .Subscribe(_ =>
                 {
@@ -204,9 +214,11 @@ namespace Limxc.Tools.SerialPort
 
             if (_setting.AutoConnectEnabled)
             {
+                var autoConnectScheduler = new EventLoopScheduler();
+                autoConnectScheduler.DisposeWith(_controlDisposables);
                 Observable
                     .Interval(TimeSpan.FromMilliseconds(_setting.AutoConnectInterval))
-                    .ObserveOn(new EventLoopScheduler())
+                    .ObserveOn(autoConnectScheduler)
                     .Where(_ => !IsConnected)
                     .Subscribe(s =>
                     {

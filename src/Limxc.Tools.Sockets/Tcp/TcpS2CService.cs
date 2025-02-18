@@ -37,13 +37,21 @@ namespace Limxc.Tools.Sockets.Tcp
                 .Subscribe(s => _connectionState.OnNext(s))
                 .DisposeWith(_initDisposables);
 
-            ConnectionState = Observable.Defer(
-                () => _connectionState.StartWith(false).AsObservable().ObserveOn(new EventLoopScheduler()).Publish()
-                    .RefCount()
-            );
+            var connectionStateScheduler = new EventLoopScheduler();
+            connectionStateScheduler.DisposeWith(_initDisposables);
+            ConnectionState =
+                Observable.Defer(() =>
+                    _connectionState.StartWith(false).AsObservable().ObserveOn(connectionStateScheduler).Publish()
+                        .RefCount());
+
+            var receivedScheduler = new EventLoopScheduler();
+            receivedScheduler.DisposeWith(_initDisposables);
             Received = Observable.Defer(() =>
-                _received.AsObservable().ObserveOn(new EventLoopScheduler()).Publish().RefCount());
-            Log = Observable.Defer(() => _log.AsObservable().ObserveOn(new EventLoopScheduler()).Publish().RefCount());
+                _received.AsObservable().ObserveOn(receivedScheduler).Publish().RefCount());
+
+            var logScheduler = new EventLoopScheduler();
+            logScheduler.DisposeWith(_initDisposables);
+            Log = Observable.Defer(() => _log.AsObservable().ObserveOn(logScheduler).Publish().RefCount());
         }
 
         public bool IsConnected { get; private set; }
