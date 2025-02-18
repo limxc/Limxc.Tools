@@ -5,13 +5,7 @@ namespace Limxc.Tools.SerialPort
 {
     public class SerialPortSetting
     {
-        private string _portName;
-
-        public string PortName
-        {
-            get => _portName;
-            set => _portName = value?.Trim().ToUpper();
-        }
+        public string PortName { get; set; }
 
         public int BaudRate { get; set; } = 9600;
 
