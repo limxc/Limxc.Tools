@@ -16,9 +16,9 @@ public class SerialPortSettingTests
                 .AddressList.FirstOrDefault(p => p.AddressFamily.ToString() == "InterNetwork")
             + ":8080";
 
-        new Setting("", "").Check(out var _).Should().BeFalse();
-        new Setting("10.9.0.1:8080", "10.9.0.2").Check(out var _).Should().BeFalse();
-        new Setting(existIpPort, "10.9.0.2").Check(out var _).Should().BeTrue();
+        new Setting("", "").Check(out _).Should().BeFalse();
+        new Setting("10.9.0.1:8080", "10.9.0.2").Check(out _).Should().BeFalse();
+        new Setting(existIpPort, "10.9.0.2").Check(out _).Should().BeTrue();
     }
 
     private class Setting : TcpS2CSetting

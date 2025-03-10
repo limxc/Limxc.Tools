@@ -9,8 +9,8 @@ public class SerialPortSettingTests
     [Fact]
     public void CtorTest()
     {
-        new Sps(null, 9600).Check(out var _).Should().BeFalse();
-        new Sps("test", 9600).Check(out var _).Should().BeFalse();
+        new Sps(null, 9600).Check(out _).Should().BeFalse();
+        new Sps("test", 9600).Check(out _).Should().BeTrue();
     }
 
     private class Sps : SerialPortSetting

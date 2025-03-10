@@ -31,12 +31,12 @@ public class TcpS2CServiceSimulatorTests
         var hex = "AA 01 BB";
         await sim.SendAsync(hex.HexToByte());
         await Task.Delay(1000);
-        received.Should().BeEquivalentTo(hex.HexToByte());
+        received.Should().BeEquivalentTo(Array.Empty<byte>());
 
         var rst = await sim.SendAsync(hex.HexToByte(), 1000);
         rst.Should().BeEquivalentTo(hex.HexToByte());
 
-        var str = await sim.SendAsync(hex, 1000, "AA[2]BB");
+        var str = await sim.SendAsync(hex, 1000, "AA01BB");
         str.Should().BeEquivalentTo("AA01BB");
 
         dis.Dispose();

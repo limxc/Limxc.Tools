@@ -36,21 +36,15 @@ namespace Limxc.Tools.SerialPort
                 .Subscribe(s => _connectionState.OnNext(s))
                 .DisposeWith(_initDisposables);
 
-            var connectionStateScheduler = new EventLoopScheduler();
-            connectionStateScheduler.DisposeWith(_initDisposables);
             ConnectionState =
                 Observable.Defer(() =>
-                    _connectionState.StartWith(false).AsObservable().ObserveOn(connectionStateScheduler).Publish()
+                    _connectionState.StartWith(false).AsObservable().ObserveOn(new EventLoopScheduler()).Publish()
                         .RefCount());
 
-            var receivedScheduler = new EventLoopScheduler();
-            receivedScheduler.DisposeWith(_initDisposables);
             Received = Observable.Defer(() =>
-                _received.AsObservable().ObserveOn(receivedScheduler).Publish().RefCount());
+                _received.AsObservable().ObserveOn(new EventLoopScheduler()).Publish().RefCount());
 
-            var logScheduler = new EventLoopScheduler();
-            logScheduler.DisposeWith(_initDisposables);
-            Log = Observable.Defer(() => _log.AsObservable().ObserveOn(logScheduler).Publish().RefCount());
+            Log = Observable.Defer(() => _log.AsObservable().ObserveOn(new EventLoopScheduler()).Publish().RefCount());
         }
 
         public bool IsConnected => _sp?.IsOpen ?? false;
@@ -70,12 +64,107 @@ namespace Limxc.Tools.SerialPort
             Stop();
         }
 
+        /// <summary>
+        /// </summary>
+        /// <param name="setting"></param>
+        /// <param name="configSerialPort"></param>
+        public void Start(SerialPortSetting setting, Action<object> configSerialPort = null)
+        {
+            _setting = setting;
+
+            Stop();
+
+            if (_setting == default)
+                return;
+
+            if (!_setting.Enabled)
+                return;
+
+            _controlDisposables = new CompositeDisposable();
+
+            _sp = new SP(_setting.PortName, _setting.BaudRate);
+
+            configSerialPort?.Invoke(_sp);
+
+            var readBufferSize = setting.ReadBufferSize;
+            if (readBufferSize % MinReadBufferSizeUnit != 0)
+                if (readBufferSize % 1024 != 0)
+                    readBufferSize = 1024 * (readBufferSize / 1024 + 1);
+            readBufferSize = readBufferSize <= 4096 ? 4096 : readBufferSize;
+
+            _sp.ReadBufferSize = readBufferSize;
+            var buffer = new byte[readBufferSize];
+
+            Observable.Interval(TimeSpan.FromMilliseconds(1))
+                .ObserveOn(new EventLoopScheduler())
+                .Where(_ => IsConnected)
+                .Subscribe(_ =>
+                {
+                    try
+                    {
+                        if (_sp.BytesToRead == 0) return;
+
+                        var len = _sp.Read(buffer, 0, buffer.Length);
+
+                        if (len == 0) return;
+
+                        _received.OnNext(buffer.Take(len).ToArray());
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.OnNext(ex.ToString());
+                    }
+                })
+                .DisposeWith(_controlDisposables);
+
+            if (_setting.AutoConnectEnabled)
+            {
+                Observable
+                    .Interval(TimeSpan.FromMilliseconds(_setting.AutoConnectInterval))
+                    .ObserveOn(new EventLoopScheduler())
+                    .Where(_ => !IsConnected)
+                    .Subscribe(s =>
+                    {
+                        try
+                        {
+                            _sp.Open();
+                            _sp.DiscardInBuffer();
+                            _sp.DiscardOutBuffer();
+                        }
+                        catch (FileNotFoundException)
+                        {
+                            _log.OnNext($"找不到串口{_sp.PortName}.");
+                        }
+                        catch (UnauthorizedAccessException)
+                        {
+                            _log.OnNext($"串口{_sp.PortName}已占用.");
+                        }
+                        catch (Exception e)
+                        {
+                            _log.OnNext(e.Message);
+                        }
+                    })
+                    .DisposeWith(_controlDisposables);
+            }
+            else
+            {
+                _sp.Open();
+                _sp.DiscardInBuffer();
+                _sp.DiscardOutBuffer();
+            }
+        }
+
         public void Stop()
         {
             _controlDisposables?.Dispose();
 
             _sp?.Close();
             _sp?.Dispose();
+        }
+
+        public void Send(byte[] bytes)
+        {
+            _sp.Write(bytes, 0, bytes.Length);
         }
 
         /// <summary>
@@ -157,104 +246,6 @@ namespace Limxc.Tools.SerialPort
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="setting"></param>
-        /// <param name="configSerialPort"></param>
-        public void Start(SerialPortSetting setting, Action<object> configSerialPort = null)
-        {
-            _setting = setting;
-
-            Stop();
-
-            if (_setting == default)
-                return;
-
-            if (!_setting.Enabled)
-                return;
-
-            _controlDisposables = new CompositeDisposable();
-
-            _sp = new SP(_setting.PortName, _setting.BaudRate);
-
-            configSerialPort?.Invoke(_sp);
-
-            var readBufferSize = setting.ReadBufferSize;
-            if (readBufferSize % MinReadBufferSizeUnit != 0)
-                if (readBufferSize % 1024 != 0)
-                    readBufferSize = 1024 * (readBufferSize / 1024 + 1);
-            readBufferSize = readBufferSize <= 4096 ? 4096 : readBufferSize;
-
-            _sp.ReadBufferSize = readBufferSize;
-            var buffer = new byte[readBufferSize];
-
-            var readScheduler = new EventLoopScheduler();
-            readScheduler.DisposeWith(_controlDisposables); 
-            Observable.Interval(TimeSpan.FromMilliseconds(1))
-                .ObserveOn(readScheduler)
-                .Where(_ => IsConnected)
-                .Subscribe(_ =>
-                {
-                    try
-                    {
-                        if (_sp.BytesToRead == 0) return;
-
-                        var len = _sp.Read(buffer, 0, buffer.Length);
-
-                        if (len == 0) return;
-
-                        _received.OnNext(buffer.Take(len).ToArray());
-                    }
-                    catch (Exception ex)
-                    {
-                        _log.OnNext(ex.ToString());
-                    }
-                })
-                .DisposeWith(_controlDisposables);
-
-            if (_setting.AutoConnectEnabled)
-            {
-                var autoConnectScheduler = new EventLoopScheduler();
-                autoConnectScheduler.DisposeWith(_controlDisposables);
-                Observable
-                    .Interval(TimeSpan.FromMilliseconds(_setting.AutoConnectInterval))
-                    .ObserveOn(autoConnectScheduler)
-                    .Where(_ => !IsConnected)
-                    .Subscribe(s =>
-                    {
-                        try
-                        {
-                            _sp.Open();
-                            _sp.DiscardInBuffer();
-                            _sp.DiscardOutBuffer();
-                        }
-                        catch (FileNotFoundException)
-                        {
-                            _log.OnNext($"找不到串口{_sp.PortName}.");
-                        }
-                        catch (UnauthorizedAccessException)
-                        {
-                            _log.OnNext($"串口{_sp.PortName}已占用.");
-                        }
-                        catch (Exception e)
-                        {
-                            _log.OnNext(e.Message);
-                        }
-                    })
-                    .DisposeWith(_controlDisposables);
-            }
-            else
-            {
-                _sp.Open();
-                _sp.DiscardInBuffer();
-                _sp.DiscardOutBuffer();
-            }
-        }
-
-        public void Send(byte[] bytes)
-        {
-            _sp.Write(bytes, 0, bytes.Length);
-        }
 
         public string[] GetPortNames()
         {

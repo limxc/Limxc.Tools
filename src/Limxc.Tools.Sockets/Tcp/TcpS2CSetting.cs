@@ -7,10 +7,10 @@ namespace Limxc.Tools.Sockets.Tcp
 {
     public class TcpS2CSetting
     {
-        public string ServerIpPort { get; set; }
-        public string ClientIp { get; set; }
+        public virtual string ServerIpPort { get; set; }
+        public virtual string ClientIp { get; set; }
 
-        public bool Enabled { get; set; } = true;
+        public virtual bool Enabled { get; set; } = true;
 
         public bool Check(out string errMsg)
         {

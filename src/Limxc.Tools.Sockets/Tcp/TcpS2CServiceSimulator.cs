@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -37,6 +38,29 @@ namespace Limxc.Tools.Sockets.Tcp
             );
             Received = Observable.Defer(() => _received.AsObservable().Publish().RefCount());
             Log = Observable.Defer(() => _log.AsObservable().Publish().RefCount());
+
+            var typeName = "";
+            try
+            {
+                var stackTrace = new StackTrace();
+                // ReSharper disable once AssignNullToNotNullAttribute
+                typeName = stackTrace.GetFrames()
+                    .Select(p => p.GetMethod())
+                    // ReSharper disable once PossibleNullReferenceException
+                    .Where(p => p.DeclaringType.IsInstanceOfType(this))
+                    .Select(p => p.DeclaringType?.Name)
+                    .LastOrDefault();
+            }
+            catch
+            {
+                // ignored
+            }
+
+            Log
+                .Subscribe(p =>
+                    Debug.WriteLine(
+                        $"@{DateTime.Now:HH:mm:ss fff} {(string.IsNullOrEmpty(typeName) ? "" : $"From {typeName} ")}| {p}"))
+                .DisposeWith(_initDisposables);
         }
 
         public bool IsConnected { get; private set; }
@@ -60,13 +84,13 @@ namespace Limxc.Tools.Sockets.Tcp
 
         public async Task SendAsync(byte[] bytes)
         {
-            _log.OnNext($"Send: {bytes}");
-            _sendIndex++;
-            if (_lostInterval > 0 && _sendIndex % _lostInterval == 0) //模拟失败
-                return;
             await Task.Delay(_sendDelay);
 
-            _received.OnNext(bytes);
+            _sendIndex++;
+            if (_lostInterval > 0 && _sendIndex % _lostInterval == 0) //模拟失败
+                _log.OnNext($"Send Err: {bytes.ByteToHex()}");
+            else
+                _log.OnNext($"Send Suc: {bytes.ByteToHex()}");
         }
 
         public async Task<string> SendAsync(
@@ -77,31 +101,35 @@ namespace Limxc.Tools.Sockets.Tcp
             char sepEnd = ']'
         )
         {
-            _log.OnNext($"Send: {hex}");
+            await Task.Delay(_sendDelay + timeoutMs / 2);
+
             _sendIndex++;
             if (_lostInterval > 0 && _sendIndex % _lostInterval == 0) //模拟失败
+            {
+                _log.OnNext($"Send Err: {hex}");
                 return string.Empty;
-            await Task.Delay(_sendDelay);
+            }
 
-            var resp = hex.Replace(" ", "").TryGetTemplateMatchResults(template).FirstOrDefault();
+            _log.OnNext($"Send Suc: {hex}");
 
-            await Task.Delay(timeoutMs / 2);
-
-            return resp;
+            _received.OnNext(template.HexToByte());
+            return template;
         }
 
         public async Task<byte[]> SendAsync(byte[] bytes, int waitMs)
         {
-            _log.OnNext($"Send: {bytes.ByteToHex()}");
+            await Task.Delay(_sendDelay + waitMs / 2);
+
             _sendIndex++;
             if (_lostInterval > 0 && _sendIndex % _lostInterval == 0) //模拟失败
+            {
+                _log.OnNext($"Send Err: {bytes.ByteToHex()}");
                 return Array.Empty<byte>();
-            await Task.Delay(_sendDelay);
+            }
 
-            await Task.Delay(waitMs);
+            _log.OnNext($"Send Suc: {bytes.ByteToHex()}");
 
             _received.OnNext(bytes);
-
             return bytes;
         }
 
