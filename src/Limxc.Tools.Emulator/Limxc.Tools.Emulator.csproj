@@ -3,8 +3,55 @@
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
         <Description>Device Emulator. Virtual Serial Port by com0com.</Description>
-        <ApplicationManifest></ApplicationManifest>
+        <ApplicationManifest></ApplicationManifest> 
     </PropertyGroup>
+
+    <ItemGroup>
+        <Content Include="com0com\i386\com0com.cat">
+            <Pack>true</Pack>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="com0com\i386\com0com.inf">
+            <Pack>true</Pack>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="com0com\i386\com0com.sys">
+            <Pack>true</Pack>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="com0com\i386\setup.dll">
+            <Pack>true</Pack>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="com0com\i386\setupc.exe">
+            <Pack>true</Pack>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="com0com\ReadMe.txt">
+            <Pack>true</Pack>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="com0com\x64\com0com.cat">
+            <Pack>true</Pack>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="com0com\x64\com0com.inf">
+            <Pack>true</Pack>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="com0com\x64\com0com.sys">
+            <Pack>true</Pack>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="com0com\x64\setup.dll">
+            <Pack>true</Pack>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="com0com\x64\setupc.exe">
+            <Pack>true</Pack>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="CliWrap" Version="3.6.*" />
@@ -14,41 +61,5 @@
     <ItemGroup>
         <ProjectReference Include="..\Limxc.Tools.Core\Limxc.Tools.Core.csproj" />
         <ProjectReference Include="..\Limxc.Tools.SerialPort\Limxc.Tools.SerialPort.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Update="com0com\i386\com0com.cat">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="com0com\i386\com0com.inf">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="com0com\i386\com0com.sys">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="com0com\i386\setup.dll">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="com0com\i386\setupc.exe">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="com0com\ReadMe.txt">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="com0com\x64\com0com.cat">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="com0com\x64\com0com.inf">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="com0com\x64\com0com.sys">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="com0com\x64\setup.dll">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="com0com\x64\setupc.exe">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
     </ItemGroup>
 </Project>

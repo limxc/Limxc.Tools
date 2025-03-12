@@ -138,9 +138,9 @@ namespace Limxc.Tools.Emulator
             return sb.ToString();
         }
 
-        /// <summary>
-        ///     上位机 <-> 物理串口
-        ///     上位机 <-> 虚拟串口1(first) <-> 虚拟串口2(second) <-> 监听转发 <-> 物理串口
+        /// <summary> 
+        ///     创建物理串口监听, 需要提前手动创建虚拟串口对
+        ///     串口助手 <-> 虚拟串口1 <-> 虚拟串口2 <-> 监听转发 <-> 物理串口({physicalPortName}) <-> 串口助手
         /// </summary>
         /// <param name="virtualPortName"></param>
         /// <param name="physicalPortName"></param>
@@ -189,13 +189,13 @@ namespace Limxc.Tools.Emulator
                 {
                     if (pss.IsConnected)
                     {
-                        _logger?.Invoke($"@{DateTime.Now:mm:ss} V->P : {p.ByteToHex()}");
+                        _logger?.Invoke($"@{DateTime.Now:HH:mm:ss fff} V->P : {p.ByteToHex()}");
                         await pss.SendAsync(p);
                         subject.OnNext((true, p));
                     }
                     else
                     {
-                        _logger?.Invoke($"@{DateTime.Now:mm:ss} V : {p.ByteToHex()}");
+                        _logger?.Invoke($"@{DateTime.Now:HH:mm:ss fff} V : {p.ByteToHex()}");
                     }
                 })
                 .Subscribe()
@@ -212,13 +212,13 @@ namespace Limxc.Tools.Emulator
                 {
                     if (vss.IsConnected)
                     {
-                        _logger?.Invoke($"@{DateTime.Now:mm:ss} P->V : {p.ByteToHex()}");
+                        _logger?.Invoke($"@{DateTime.Now:HH:mm:ss fff} P->V : {p.ByteToHex()}");
                         await vss.SendAsync(p);
                         subject.OnNext((false, p));
                     }
                     else
                     {
-                        _logger?.Invoke($"@{DateTime.Now:mm:ss} P : {p.ByteToHex()}");
+                        _logger?.Invoke($"@{DateTime.Now:HH:mm:ss fff} P : {p.ByteToHex()}");
                     }
                 })
                 .Subscribe()
@@ -232,7 +232,8 @@ namespace Limxc.Tools.Emulator
         }
 
         /// <summary>
-        ///     创建物理串口监听
+        ///     创建物理串口监听, 自动创建虚拟串口对
+        ///     串口助手 <-> 虚拟串口1 <-> 虚拟串口2 <-> 监听转发 <-> 物理串口({physicalPortName}) <-> 串口助手
         /// </summary>
         /// <param name="physicalPortName"></param>
         /// <param name="baudRate"></param>
@@ -287,6 +288,7 @@ namespace Limxc.Tools.Emulator
 
         /// <summary>
         ///     模拟两组虚拟串口监听 COM(comStart) <-> COM(comStart+3)
+        ///     串口助手 <-> 虚拟串口A1 <-> 虚拟串口A2 <-> 监听转发 <-> 模拟物理串口(虚拟串口B1) <-> 模拟物理串口(虚拟串口B2) <-> 串口助手
         /// </summary>
         /// <param name="baudRate"></param>
         /// <param name="comStart">200 ~ 250</param>
