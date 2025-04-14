@@ -56,7 +56,7 @@ namespace Limxc.Tools.Sockets.Tcp
 
         public IObservable<string> Log { get; }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             _initDisposables?.Dispose();
             _connectionState?.Dispose();
@@ -72,7 +72,7 @@ namespace Limxc.Tools.Sockets.Tcp
 
             Stop();
 
-            if (_tcpS2CSetting == default)
+            if (_tcpS2CSetting == null)
                 return;
 
             if (!_tcpS2CSetting.Enabled)

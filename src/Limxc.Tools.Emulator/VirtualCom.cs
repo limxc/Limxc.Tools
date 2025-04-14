@@ -138,7 +138,7 @@ namespace Limxc.Tools.Emulator
             return sb.ToString();
         }
 
-        /// <summary> 
+        /// <summary>
         ///     创建物理串口监听, 需要提前手动创建虚拟串口对
         ///     串口助手 <-> 虚拟串口1 <-> 虚拟串口2 <-> 监听转发 <-> 物理串口({physicalPortName}) <-> 串口助手
         /// </summary>

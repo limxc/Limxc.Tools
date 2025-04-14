@@ -133,7 +133,7 @@ namespace Limxc.Tools.Sockets.Tcp
             return bytes;
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             _initDisposables?.Dispose();
             _connectionState?.Dispose();

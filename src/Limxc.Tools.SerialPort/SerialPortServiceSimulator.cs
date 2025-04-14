@@ -151,7 +151,7 @@ namespace Limxc.Tools.SerialPort
             return bytes;
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             _initDisposables?.Dispose();
             _connectionState?.Dispose();

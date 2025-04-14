@@ -54,7 +54,7 @@ namespace Limxc.Tools.SerialPort
 
         public IObservable<string> Log { get; }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             _initDisposables?.Dispose();
             _connectionState?.Dispose();
@@ -74,7 +74,7 @@ namespace Limxc.Tools.SerialPort
 
             Stop();
 
-            if (_setting == default)
+            if (_setting == null)
                 return;
 
             if (!_setting.Enabled)
