@@ -1,3 +1,5 @@
+[DeepWiki Refence](https://deepwiki.com/limxc/Limxc.Tools/3.1-limxc.tools-base-library)
+
 # Limxc.Tools
 
 ```
