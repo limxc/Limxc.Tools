@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Limxc.Tools.Integrations.CrcCSharp;
 
 // ReSharper disable InconsistentNaming
@@ -14,18 +13,14 @@ namespace Limxc.Tools.Extensions.Communication
         /// <summary>
         ///     累加和校验
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="bytes"></param>
         /// <returns></returns>
-        public static byte[] Checksum(this byte[] data)
+        public static byte Checksum(this byte[] bytes)
         {
-            var checksum = 0;
-            foreach (var b in data)
-                checksum += b;
-            checksum = (checksum >> 16) + (checksum & 0xffff);
-            checksum += checksum >> 16;
-            checksum = ~checksum & 0xffff;
+            uint sum = 0;
+            foreach (var b in bytes) sum += b;
 
-            return checksum.IntToByte(2).ToArray();
+            return (byte)(sum & 0xff);
         }
 
         /// <summary>
