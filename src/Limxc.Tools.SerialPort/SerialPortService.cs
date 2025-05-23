@@ -77,12 +77,19 @@ namespace Limxc.Tools.SerialPort
             if (_setting == null)
                 return;
 
-            if (!_setting.Enabled)
-                return;
-
             _controlDisposables = new CompositeDisposable();
 
-            _sp = new SP(_setting.PortName, _setting.BaudRate);
+            _sp = new SP();
+
+            if (_setting.Check(out var msg))
+            {
+                _sp.PortName = _setting.PortName;
+                _sp.BaudRate = _setting.BaudRate;
+            }
+            else
+            {
+                _log.OnNext(msg);
+            }
 
             configSerialPort?.Invoke(_sp);
 
@@ -127,6 +134,8 @@ namespace Limxc.Tools.SerialPort
                     {
                         try
                         {
+                            _sp.PortName = _setting.PortName;
+                            _sp.BaudRate = _setting.BaudRate;
                             _sp.Open();
                             _sp.DiscardInBuffer();
                             _sp.DiscardOutBuffer();

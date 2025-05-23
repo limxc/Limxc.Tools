@@ -33,9 +33,9 @@ namespace Limxc.Tools.Sockets.Tcp
                 .Subscribe(s => _connectionState.OnNext(s))
                 .DisposeWith(_initDisposables);
 
-            ConnectionState = Observable.Defer(
-                () => _connectionState.StartWith(false).AsObservable().Publish().RefCount()
-            );
+            ConnectionState =
+                Observable.Defer(() => _connectionState.StartWith(false).AsObservable().Publish().RefCount()
+                );
             Received = Observable.Defer(() => _received.AsObservable().Publish().RefCount());
             Log = Observable.Defer(() => _log.AsObservable().Publish().RefCount());
 

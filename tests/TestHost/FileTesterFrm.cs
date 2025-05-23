@@ -138,13 +138,12 @@ public partial class FileTesterFrm : Form
         Bindings.Create(() => tbInnerValue.Text == _entity.Inner.Value + "").UnbindWith(_bindings);
 
         Bindings
-            .Create(
-                () =>
-                    rtbBindingLog.Text
-                    == _entity.Message
-                    + " | "
-                    + //��Ҫһ�����Դ�������
-                    _entity
+            .Create(() =>
+                rtbBindingLog.Text
+                == _entity.Message
+                + " | "
+                + //��Ҫһ�����Դ�������
+                _entity
             )
             .UnbindWith(_bindings);
     }

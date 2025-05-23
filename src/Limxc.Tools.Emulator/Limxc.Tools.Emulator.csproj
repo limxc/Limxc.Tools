@@ -54,7 +54,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="CliWrap" Version="3.6.*" />
+        <PackageReference Include="CliWrap" Version="3.8.2" />
         <PackageReference Include="System.Security.Principal.Windows" Version="5.*" />
     </ItemGroup>
 

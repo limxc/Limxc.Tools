@@ -14,7 +14,7 @@ namespace Limxc.Tools.SerialPort
         ///     1M/s => 1024*1024/100 ≈ 10240
         ///     <see cref="SerialPortService.Start" />
         /// </summary>
-        public virtual int ReadBufferSize => 4096;
+        public virtual int ReadBufferSize { get; set; } = 4096;
 
         /// <summary>
         ///     Try To Connect Interval ms
@@ -28,8 +28,6 @@ namespace Limxc.Tools.SerialPort
         /// </summary>
         public virtual int SendDelay { get; set; } = 50;
 
-        public virtual bool Enabled { get; set; } = true;
-
         public virtual int[] AvailableBaudRates { get; } = { 1200, 4800, 9600, 19200, 115200 };
 
         public bool Check(out string errMsg)
@@ -42,7 +40,7 @@ namespace Limxc.Tools.SerialPort
 
             if (!AvailableBaudRates.Contains(BaudRate))
             {
-                errMsg = $"波特率错误:{BaudRate}";
+                errMsg = $"波特率设置错误: {BaudRate} ({string.Join(",", AvailableBaudRates)})";
                 return false;
             }
 

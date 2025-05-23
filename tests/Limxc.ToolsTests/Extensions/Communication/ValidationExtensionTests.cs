@@ -11,7 +11,7 @@ public class ValidationExtensionTests
     public void ChecksumTest()
     {
         var data = "DB 03 01 46".HexToByte().ToArray();
-        var cs = "FE DA".HexToByte().ToArray();
-        data.Checksum().Should().BeEquivalentTo(cs);
+        byte cs = 0x25;
+        data.Checksum().Should().Be(cs);
     }
 }
