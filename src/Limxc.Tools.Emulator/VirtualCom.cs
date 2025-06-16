@@ -78,7 +78,7 @@ namespace Limxc.Tools.Emulator
             return Cli.Wrap(_setupc)
                 .WithWorkingDirectory(_path)
                 .WithArguments(args => args
-                    .Add($"--output \"{Path.Combine(EnvPath.Default.LogFolder(), "com0com.log")}\"")
+                    .Add($"--output \"{Path.Combine(EnvPath.LogFolder(), "com0com.log")}\"")
                     .Add("--silent")
                     .Add(values)
                 );
@@ -284,7 +284,6 @@ namespace Limxc.Tools.Emulator
 
             return (obs, Disposable.Create(Dispose));
         }
-
 
         /// <summary>
         ///     模拟两组虚拟串口监听 COM(comStart) <-> COM(comStart+3)

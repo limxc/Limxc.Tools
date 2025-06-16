@@ -61,7 +61,7 @@ namespace Limxc.Tools.Core.Services
 
         public string GetFilePath(string fileName)
         {
-            return Path.Combine(EnvPath.Default.SettingFolder(), fileName);
+            return Path.Combine(EnvPath.SettingFolder(), fileName);
         }
 
         private Configuration Load(string fullPath)

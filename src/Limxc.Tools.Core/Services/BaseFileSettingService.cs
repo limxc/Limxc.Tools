@@ -112,13 +112,14 @@ namespace Limxc.Tools.Core.Services
         /// </summary>
         protected virtual string Name => typeof(T).Name;
 
-        protected virtual string Folder => EnvPath.Default.SettingFolder();
+        protected virtual string Folder => EnvPath.SettingFolder();
 
         protected abstract string FileExtension { get; }
 
         protected abstract void SaveSetting(T setting);
+
         protected abstract T LoadSetting(string path);
 
-        #endregion
+        #endregion override
     }
 }
