@@ -171,7 +171,7 @@ public class ParseExtensionTests
     }
 
     [Fact]
-    public async void BeginEndTimeoutParsePackageTests()
+    public async Task BeginEndTimeoutParsePackageTests()
     {
         // 由于ParsePackageBeginEndTimeoutState中Queue操作与Timer相关,无法使用TestScheduler
 
@@ -330,7 +330,7 @@ public class ParseExtensionTests
     }
 
     [Fact]
-    public async void BeginCountTimeoutParsePackageTests()
+    public async Task BeginCountTimeoutParsePackageTests()
     {
         // 由于ParsePackageBeginCountTimeoutState中Queue操作与Timer相关,无法使用TestScheduler
 

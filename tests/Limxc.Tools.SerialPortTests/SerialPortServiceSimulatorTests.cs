@@ -11,7 +11,7 @@ namespace Limxc.Tools.SerialPortTests;
 public class SerialPortServiceSimulatorTests
 {
     [Fact]
-    public async void Tests()
+    public async Task Tests()
     {
         var dis = new CompositeDisposable();
         ISerialPortService sps = new SerialPortServiceSimulator(0, 0);

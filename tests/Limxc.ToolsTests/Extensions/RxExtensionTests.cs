@@ -81,7 +81,7 @@ public class RxExtensionTests
     }
 
     [Fact]
-    public async void TimingBucketTest()
+    public async Task TimingBucketTest()
     {
         var ts = new TestScheduler();
         var ob = ts.CreateObserver<string[]>();
@@ -121,7 +121,7 @@ public class RxExtensionTests
     }
 
     [Fact]
-    public async void TimingArrayBucketTest()
+    public async Task TimingArrayBucketTest()
     {
         var ts = new TestScheduler();
         var ob = ts.CreateObserver<string[]>();

@@ -11,7 +11,7 @@ namespace Limxc.Tools.SocketsTests.Tcp;
 public class TcpS2CServiceSimulatorTests
 {
     [Fact]
-    public async void Tests()
+    public async Task Tests()
     {
         var dis = new CompositeDisposable();
         ITcpS2CService sim = new TcpS2CServiceSimulator(0, 0);

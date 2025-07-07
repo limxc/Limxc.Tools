@@ -226,7 +226,7 @@ namespace Limxc.Tools.Emulator
 
             vss.DisposeWith(disposables);
             pss.DisposeWith(disposables);
-            subject.DisposeWith(disposables);
+            _ = subject.DisposeWith(disposables);
 
             return (subject.AsObservable(), disposables);
         }
