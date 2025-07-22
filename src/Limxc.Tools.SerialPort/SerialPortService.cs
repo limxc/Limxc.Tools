@@ -70,13 +70,13 @@ namespace Limxc.Tools.SerialPort
         /// <param name="configSerialPort"></param>
         public void Start(SerialPortSetting setting, Action<object> configSerialPort = null)
         {
+            if (setting == null)
+                throw new ArgumentNullException(nameof(setting));
+
             _setting = setting;
 
             Stop();
-
-            if (_setting == null)
-                return;
-
+             
             _controlDisposables = new CompositeDisposable();
 
             _sp = new SP();
