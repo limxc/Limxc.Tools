@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 
 namespace Limxc.Tools.Extensions
 {
@@ -16,32 +17,22 @@ namespace Limxc.Tools.Extensions
         public const string EmailPattern = @"^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$";
 
         public const string UrlPattern =
-            @"^((https?|ftp|file):\/\/)?"
-            + // protocol
-            @"(([a-z0-9$_\.\+!\*\'\(\),;\?&=-]|%[0-9a-f]{2})+"
-            + // username
-            @"(:([a-z0-9$_\.\+!\*\'\(\),;\?&=-]|%[0-9a-f]{2})+)?"
-            + // password
-            @"@)?(?#"
-            + // auth requires @
-            @")((([a-z0-9]\.|[a-z0-9][a-z0-9-_]*[a-z0-9]\.)*"
-            + // domain segments AND
-            @"[a-z][a-z0-9-]*[a-z0-9]"
-            + // top level domain  OR
-            @"|((\d|[1-9]\d|1\d{2}|2[0-4][0-9]|25[0-5])\.){3}"
-            + @"(\d|[1-9]\d|1\d{2}|2[0-4][0-9]|25[0-5])"
-            + // IP address
-            @")(:\d+)?"
-            + // port
-            @")(((\/+([a-z0-9$_\.\+!\*\'\(\),;:@&=-]|%[0-9a-f]{2})*)*"
-            + // path
-            @"(\?([a-z0-9$_\.\+!\*\'\(\),;:@&=-]|%[0-9a-f]{2})*)"
-            + // query string
-            @"?)?)?"
-            + // path and query string optional
-            @"(#([a-z0-9$_\.\+!\*\'\(\),;:@&=-]|%[0-9a-f]{2})*)?"
-            + // fragment
-            @"$";
+                    @"^" + // 匹配字符串开始
+                    @"(https?:\/\/)" + // 协议部分 (http或https)
+                    @"(" + // 开始主机部分分组
+                    @"(?:" + // 开始域名选项
+                    @"(?:[a-zA-Z0-9\u4e00-\u9fa5](?:[a-zA-Z0-9\u4e00-\u9fa5\-]{0,61}[a-zA-Z0-9\u4e00-\u9fa5])?\.)+" + // 子域名部分
+                    @"[a-zA-Z\u4e00-\u9fa5]{2,})" + // 顶级域名
+                    @"|" + // 或
+                    @"(?:" + // 开始IPv4选项
+                    @"(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}" + // 前三个IP段
+                    @"(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)" + // 最后一个IP段
+                    @")" + // 结束主机部分分组
+                    @"(?::(0*[1-9]\d{0,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5]))?" +// 端口部分 (可选)
+                    @"(\/[a-zA-Z0-9\u4e00-\u9fa5\-._~%!$&'()*+,;=:@\/]*)?" + // 路径部分 (可选)
+                    @"(\?[a-zA-Z0-9\u4e00-\u9fa5\-._~%!$&'()*+,;=:@\/?]*)?" + // 查询部分 (可选)
+                    @"(#[\w\u4e00-\u9fa5\-._~%!$&'()*+,;=:@\/?]*)?" + // 片段部分 (可选)
+                    @"$"; // 匹配字符串结束
 
         public static bool CheckIp(this string source)
         {
@@ -63,9 +54,19 @@ namespace Limxc.Tools.Extensions
             return Regex.IsMatch(source, EmailPattern);
         }
 
+        /// <summary>
+        /// http/https
+        /// </summary>
+        /// <param name="source"> </param>
+        /// <returns> </returns>
         public static bool CheckUrl(this string source)
         {
             return Regex.IsMatch(source, UrlPattern, RegexOptions.IgnoreCase);
+        }
+
+        public static bool CheckUri(this string source)
+        {
+            return Uri.TryCreate(source, UriKind.RelativeOrAbsolute, out var _);
         }
     }
 }
